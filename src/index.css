@@ -4,7 +4,7 @@
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
+    --background: 210 100% 99%;
     --foreground: 222.2 84% 4.9%;
 
     --card: 0 0% 100%;
@@ -13,16 +13,16 @@
     --popover: 0 0% 100%;
     --popover-foreground: 222.2 84% 4.9%;
 
-    --primary: 222.2 47.4% 11.2%;
+    --primary: 200 82% 39%;
     --primary-foreground: 210 40% 98%;
 
-    --secondary: 210 40% 96.1%;
+    --secondary: 180 60% 90%;
     --secondary-foreground: 222.2 47.4% 11.2%;
 
-    --muted: 210 40% 96.1%;
+    --muted: 198 40% 96.1%;
     --muted-foreground: 215.4 16.3% 46.9%;
 
-    --accent: 210 40% 96.1%;
+    --accent: 199 75% 48%;
     --accent-foreground: 222.2 47.4% 11.2%;
 
     --destructive: 0 84.2% 60.2%;
@@ -34,20 +34,24 @@
 
     --radius: 0.5rem;
 
+    /* Puerto Lopez Theme Colors */
+    --ocean-blue: 203 80% 45%;
+    --ocean-light: 187 65% 78%;
+    --ocean-dark: 203 80% 25%;
+    --sand: 43 77% 89%;
+    --sand-dark: 36 51% 80%;
+    --tropical: 126 49% 42%;
+    --tropical-light: 88 52% 75%;
+    --coral: 16 85% 60%;
+    --sunset: 26 100% 67%;
+
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -97,5 +101,83 @@
 
   body {
     @apply bg-background text-foreground;
+  }
+}
+
+@layer utilities {
+  .bg-ocean {
+    @apply bg-[hsl(var(--ocean-blue))];
+  }
+  
+  .bg-ocean-light {
+    @apply bg-[hsl(var(--ocean-light))];
+  }
+  
+  .bg-ocean-dark {
+    @apply bg-[hsl(var(--ocean-dark))];
+  }
+  
+  .bg-sand {
+    @apply bg-[hsl(var(--sand))];
+  }
+  
+  .bg-sand-dark {
+    @apply bg-[hsl(var(--sand-dark))];
+  }
+  
+  .bg-tropical {
+    @apply bg-[hsl(var(--tropical))];
+  }
+  
+  .bg-tropical-light {
+    @apply bg-[hsl(var(--tropical-light))];
+  }
+  
+  .bg-coral {
+    @apply bg-[hsl(var(--coral))];
+  }
+  
+  .bg-sunset {
+    @apply bg-[hsl(var(--sunset))];
+  }
+  
+  .text-ocean {
+    @apply text-[hsl(var(--ocean-blue))];
+  }
+  
+  .text-ocean-light {
+    @apply text-[hsl(var(--ocean-light))];
+  }
+  
+  .text-ocean-dark {
+    @apply text-[hsl(var(--ocean-dark))];
+  }
+  
+  .text-sand {
+    @apply text-[hsl(var(--sand))];
+  }
+  
+  .text-tropical {
+    @apply text-[hsl(var(--tropical))];
+  }
+  
+  .text-coral {
+    @apply text-[hsl(var(--coral))];
+  }
+  
+  .text-sunset {
+    @apply text-[hsl(var(--sunset))];
+  }
+  
+  .border-ocean {
+    @apply border-[hsl(var(--ocean-blue))];
+  }
+  
+  .border-ocean-light {
+    @apply border-[hsl(var(--ocean-light))];
+  }
+  
+  .border-ocean-dark {
+    @apply border-[hsl(var(--ocean-dark))];
   }
 }
