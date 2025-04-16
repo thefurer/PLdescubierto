@@ -1,3 +1,4 @@
+
 import { useState } from "react";
 import { Compass, Headset, ChevronRight, Maximize, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
@@ -10,6 +11,42 @@ type VirtualTourProps = {
 const VirtualTour = ({ className }: VirtualTourProps) => {
   const [activeLocation, setActiveLocation] = useState(1);
   const { language } = useLanguage();
+
+  // Define the locations array that was missing
+  const locations = [
+    {
+      id: 1,
+      name: "Playa Los Frailes",
+      image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80",
+      description: language === 'es' 
+        ? "Una hermosa playa virgen dentro del Parque Nacional Machalilla, conocida por sus aguas cristalinas y arena blanca."
+        : "A pristine beach within Machalilla National Park, known for its crystal-clear waters and white sand."
+    },
+    {
+      id: 2,
+      name: "Isla de la Plata",
+      image: "https://images.unsplash.com/photo-1544551763-46a013bb70d5?auto=format&fit=crop&q=80",
+      description: language === 'es'
+        ? "Conocida como la 'Pequeña Galápagos', es hogar de aves marinas, tortugas y una increíble vida marina."
+        : "Known as the 'Poor Man's Galapagos', home to seabirds, turtles, and amazing marine life."
+    },
+    {
+      id: 3,
+      name: "Avistamiento de Ballenas",
+      image: "https://images.unsplash.com/photo-1568430462989-44163eb1752f?auto=format&fit=crop&q=80",
+      description: language === 'es'
+        ? "Experimenta el espectáculo de las ballenas jorobadas migrando desde junio hasta septiembre."
+        : "Experience the spectacle of humpback whales migrating from June through September."
+    },
+    {
+      id: 4,
+      name: "Parque Nacional Machalilla",
+      image: "https://images.unsplash.com/photo-1518098268026-4e89f1a2cd8e?auto=format&fit=crop&q=80",
+      description: language === 'es'
+        ? "Un parque que combina bosque seco, playa y mar, con una biodiversidad increíble."
+        : "A park that combines dry forest, beach, and sea, with incredible biodiversity."
+    }
+  ];
 
   const texts = {
     es: {
