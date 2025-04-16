@@ -1,7 +1,7 @@
-
 import { useState } from "react";
 import { Compass, Headset, ChevronRight, Maximize, Monitor } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useLanguage } from "@/hooks/useLanguage";
 
 type VirtualTourProps = {
   className?: string;
@@ -9,27 +9,50 @@ type VirtualTourProps = {
 
 const VirtualTour = ({ className }: VirtualTourProps) => {
   const [activeLocation, setActiveLocation] = useState(1);
+  const { language } = useLanguage();
 
-  const locations = [
-    {
-      id: 1,
-      name: "Los Frailes Beach",
-      description: "Experience the pristine beauty of Los Frailes Beach with its crystal clear waters and white sand, surrounded by lush cliffs.",
-      image: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&q=80",
+  const texts = {
+    es: {
+      title: "Experiencia",
+      subtitle: "Virtual",
+      description: "¿No puedes visitarnos en persona? Explora Puerto López desde cualquier parte del mundo a través de nuestros tours virtuales inmersivos.",
+      enterVR: "Entrar en VR",
+      tour360: "Tour 360°",
+      highlights: "Destacados",
+      tips: "Consejos para Realidad Virtual",
+      tip1: "Usa un visor VR para la experiencia más inmersiva",
+      tip2: "Haz clic y arrastra para mirar alrededor en modo 360°",
+      tip3: "Usa la brújula para navegar entre diferentes puntos de vista",
+      vrTours: "Tours VR Guiados",
+      vrToursDesc: "Experimenta tours virtuales guiados con narración experta y contexto histórico.",
+      maps: "Mapas Interactivos",
+      mapsDesc: "Navega a través de mapas 3D detallados de Puerto López y sus alrededores.",
+      timelapse: "Experiencias Time-lapse",
+      timelapseDesc: "Observa espectaculares amaneceres, atardeceres y migraciones de ballenas en time-lapse.",
+      explore: "Explorar"
     },
-    {
-      id: 2,
-      name: "Machalilla National Park",
-      description: "Explore the diverse ecosystems of Machalilla National Park, from coastal forests to mountain trails.",
-      image: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?auto=format&fit=crop&q=80",
-    },
-    {
-      id: 3,
-      name: "Isla de la Plata",
-      description: "Discover the 'Poor Man's Galapagos' with its incredible wildlife including blue-footed boobies and sea lions.",
-      image: "https://images.unsplash.com/photo-1518877593221-1f28583780b4?auto=format&fit=crop&q=80",
-    },
-  ];
+    en: {
+      title: "Virtual",
+      subtitle: "Experience",
+      description: "Can't visit in person right now? Explore Puerto Lopez from anywhere in the world through our immersive virtual tours.",
+      enterVR: "Enter VR Mode",
+      tour360: "360° Tour",
+      highlights: "Activity Highlights",
+      tips: "Virtual Reality Tips",
+      tip1: "Use a VR headset for the most immersive experience",
+      tip2: "Click and drag to look around in 360° mode",
+      tip3: "Use the compass to navigate to different viewpoints",
+      vrTours: "VR Guided Tours",
+      vrToursDesc: "Experience guided virtual tours with expert narration and historical context.",
+      maps: "Interactive Maps",
+      mapsDesc: "Navigate through detailed 3D maps of Puerto Lopez and surrounding areas.",
+      timelapse: "Time-lapse Experiences",
+      timelapseDesc: "Watch spectacular sunrises, sunsets, and whale migrations in time-lapse.",
+      explore: "Explore"
+    }
+  };
+
+  const t = texts[language];
 
   return (
     <section 
@@ -39,10 +62,10 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            Virtual <span className="text-sunset">Experience</span>
+            {t.title} <span className="text-sunset">{t.subtitle}</span>
           </h2>
           <p className="text-lg text-white/80 max-w-3xl mx-auto">
-            Can't visit in person right now? Explore Puerto Lopez from anywhere in the world through our immersive virtual tours.
+            {t.description}
           </p>
         </div>
 
@@ -56,7 +79,6 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent"></div>
               
-              {/* VR Controls */}
               <div className="absolute bottom-0 left-0 right-0 p-4 flex justify-between items-center">
                 <div>
                   <h3 className="text-white text-xl font-bold">{locations[activeLocation - 1].name}</h3>
@@ -77,13 +99,18 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
                 {locations[activeLocation - 1].description}
               </p>
               <div className="flex justify-between items-center">
-                <button className="px-4 py-2 rounded-full bg-sunset text-white flex items-center gap-2 hover:bg-sunset/90 transition-colors text-sm">
+                <a 
+                  href="https://www.spatial.io/s/Puerto-Lopez-Manabi-Ecuador-Gallerys-677f3e643c6e19083de81c2a?share=8387764241473890378"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="px-4 py-2 rounded-full bg-sunset text-white flex items-center gap-2 hover:bg-sunset/90 transition-colors text-sm"
+                >
                   <Headset size={16} />
-                  <span>Enter VR Mode</span>
-                </button>
+                  <span>{t.enterVR}</span>
+                </a>
                 <button className="px-4 py-2 rounded-full bg-white/10 text-white flex items-center gap-2 hover:bg-white/20 transition-colors text-sm">
                   <Monitor size={16} />
-                  <span>360° Tour</span>
+                  <span>{t.tour360}</span>
                 </button>
               </div>
             </div>
@@ -114,48 +141,47 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
             </div>
 
             <div className="mt-8 p-4 bg-gradient-to-r from-sunset/20 to-coral/20 rounded-xl">
-              <h4 className="text-white font-medium mb-2">Virtual Reality Tips</h4>
+              <h4 className="text-white font-medium mb-2">{t.tips}</h4>
               <ul className="text-white/80 text-sm space-y-2">
                 <li className="flex items-start gap-2">
                   <span className="w-5 h-5 rounded-full bg-sunset/50 flex-shrink-0 flex items-center justify-center text-white text-xs mt-0.5">1</span>
-                  <span>Use a VR headset for the most immersive experience</span>
+                  <span>{t.tip1}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-5 h-5 rounded-full bg-sunset/50 flex-shrink-0 flex items-center justify-center text-white text-xs mt-0.5">2</span>
-                  <span>Click and drag to look around in 360° mode</span>
+                  <span>{t.tip2}</span>
                 </li>
                 <li className="flex items-start gap-2">
                   <span className="w-5 h-5 rounded-full bg-sunset/50 flex-shrink-0 flex items-center justify-center text-white text-xs mt-0.5">3</span>
-                  <span>Use the compass to navigate to different viewpoints</span>
+                  <span>{t.tip3}</span>
                 </li>
               </ul>
             </div>
           </div>
         </div>
 
-        {/* Additional Virtual Experience Options */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 hover:bg-black/30 transition-colors">
-            <h4 className="text-white font-bold text-lg mb-3">VR Guided Tours</h4>
-            <p className="text-white/70 mb-4">Experience guided virtual tours with expert narration and historical context.</p>
+            <h4 className="text-white font-bold text-lg mb-3">{t.vrTours}</h4>
+            <p className="text-white/70 mb-4">{t.vrToursDesc}</p>
             <button className="text-sunset flex items-center gap-1 hover:text-white transition-colors text-sm">
-              Explore <ChevronRight size={16} />
+              {t.explore} <ChevronRight size={16} />
             </button>
           </div>
           
           <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 hover:bg-black/30 transition-colors">
-            <h4 className="text-white font-bold text-lg mb-3">Interactive Maps</h4>
-            <p className="text-white/70 mb-4">Navigate through detailed 3D maps of Puerto Lopez and surrounding areas.</p>
+            <h4 className="text-white font-bold text-lg mb-3">{t.maps}</h4>
+            <p className="text-white/70 mb-4">{t.mapsDesc}</p>
             <button className="text-sunset flex items-center gap-1 hover:text-white transition-colors text-sm">
-              Explore <ChevronRight size={16} />
+              {t.explore} <ChevronRight size={16} />
             </button>
           </div>
           
           <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 hover:bg-black/30 transition-colors">
-            <h4 className="text-white font-bold text-lg mb-3">Time-lapse Experiences</h4>
-            <p className="text-white/70 mb-4">Watch spectacular sunrises, sunsets, and whale migrations in time-lapse.</p>
+            <h4 className="text-white font-bold text-lg mb-3">{t.timelapse}</h4>
+            <p className="text-white/70 mb-4">{t.timelapseDesc}</p>
             <button className="text-sunset flex items-center gap-1 hover:text-white transition-colors text-sm">
-              Explore <ChevronRight size={16} />
+              {t.explore} <ChevronRight size={16} />
             </button>
           </div>
         </div>

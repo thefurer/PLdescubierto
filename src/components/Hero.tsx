@@ -1,7 +1,30 @@
 
 import { ArrowDown } from "lucide-react";
+import { useLanguage } from "@/hooks/useLanguage";
+import LanguageSelector from "./LanguageSelector";
 
 const Hero = () => {
+  const { language } = useLanguage();
+
+  const texts = {
+    es: {
+      title: "Descubre la Magia de",
+      subtitle: "Puerto López",
+      description: "Descubre la belleza natural, riqueza cultural y aventuras sin fin en el paraíso costero más encantador de Ecuador.",
+      exploreBtn: "Explorar Atracciones",
+      virtualBtn: "Experiencia Virtual"
+    },
+    en: {
+      title: "Discover the Magic of",
+      subtitle: "Puerto Lopez",
+      description: "Unveil the natural beauty, cultural richness, and endless adventures of Ecuador's most enchanting coastal paradise.",
+      exploreBtn: "Explore Attractions",
+      virtualBtn: "Virtual Experience"
+    }
+  };
+
+  const t = texts[language];
+
   return (
     <section id="home" className="relative h-screen overflow-hidden">
       {/* Hero Background */}
@@ -31,26 +54,29 @@ const Hero = () => {
 
       {/* Hero Content */}
       <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-10">
+        <div className="flex justify-end mb-8">
+          <LanguageSelector />
+        </div>
         <div className="max-w-3xl">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 drop-shadow-lg">
-            <span className="block">Discover the Magic of</span>
-            <span className="text-coral drop-shadow-lg">Puerto Lopez</span>
+            <span className="block">{t.title}</span>
+            <span className="text-coral drop-shadow-lg">{t.subtitle}</span>
           </h1>
           <p className="text-xl md:text-2xl text-white mb-8 drop-shadow-md max-w-2xl">
-            Unveil the natural beauty, cultural richness, and endless adventures of Ecuador's most enchanting coastal paradise.
+            {t.description}
           </p>
           <div className="flex flex-col sm:flex-row gap-4">
             <a 
               href="#attractions" 
               className="px-8 py-3 rounded-full bg-coral hover:bg-coral/90 text-white font-semibold transition-colors shadow-lg focus:ring-2 focus:ring-coral/50 text-center"
             >
-              Explore Attractions
+              {t.exploreBtn}
             </a>
             <a 
               href="#virtual-tour" 
               className="px-8 py-3 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30 font-semibold transition-colors shadow-lg focus:ring-2 focus:ring-white/20 text-center"
             >
-              Virtual Experience
+              {t.virtualBtn}
             </a>
           </div>
         </div>
