@@ -54,8 +54,15 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    --green: 126 49% 42%;
-    --green-light: 88 52% 75%;
+    /* Green Theme Colors */
+    --green-primary: 142 76% 36%;
+    --green-light: 142 60% 87%;
+    --green-dark: 142 76% 27%;
+    --green-muted: 142 30% 94%;
+    
+    /* Updating the previous green variables to match new theme */
+    --green: var(--green-primary);
+    --green-light: var(--green-light);
   }
 
   .dark {
@@ -101,7 +108,6 @@
   * {
     @apply border-border;
   }
-
   body {
     @apply bg-background text-foreground;
   }
@@ -182,5 +188,33 @@
   
   .border-ocean-dark {
     @apply border-[hsl(var(--ocean-dark))];
+  }
+  
+  .bg-green-primary {
+    @apply bg-[hsl(var(--green-primary))];
+  }
+  
+  .bg-green-light {
+    @apply bg-[hsl(var(--green-light))];
+  }
+  
+  .bg-green-dark {
+    @apply bg-[hsl(var(--green-dark))];
+  }
+  
+  .bg-green-muted {
+    @apply bg-[hsl(var(--green-muted))];
+  }
+  
+  .text-green-primary {
+    @apply text-[hsl(var(--green-primary))];
+  }
+  
+  .text-green-dark {
+    @apply text-[hsl(var(--green-dark))];
+  }
+  
+  .border-green {
+    @apply border-[hsl(var(--green-primary))];
   }
 }

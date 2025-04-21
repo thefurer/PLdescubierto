@@ -76,8 +76,16 @@ export default {
 					DEFAULT: 'hsl(var(--tropical))',
 					light: 'hsl(var(--tropical-light))'
 				},
+				// Update green theme colors
+				green: {
+					DEFAULT: 'hsl(var(--green-primary))',
+					light: 'hsl(var(--green-light))',
+					dark: 'hsl(var(--green-dark))',
+					muted: 'hsl(var(--green-muted))'
+				},
+				// Update existing color references to use new green
 				coral: {
-					DEFAULT: 'hsl(var(--green))'
+					DEFAULT: 'hsl(var(--green-primary))'
 				},
 				sunset: {
 					DEFAULT: 'hsl(var(--green-light))'
