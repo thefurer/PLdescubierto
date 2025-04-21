@@ -123,7 +123,7 @@ const Attractions = ({ className }: AttractionsProps) => {
   const [viewAll, setViewAll] = useState(false);
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
 
-  const categories = ["All", "Nature", "Beach", "Wildlife", "Culture", "Entertainment"];
+  const categories = ["Todo", "Naturaleza", "Playa", "Vida Salvaje", "Cultura", "Entretenimiento"];
 
   const filteredAttractions = activeCategory === "All" 
     ? attractions 
@@ -137,147 +137,147 @@ const Attractions = ({ className }: AttractionsProps) => {
     <section 
       id="attractions" 
       className={cn("py-20 bg-white", className)}
-    >
+        >
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-ocean-dark mb-4">
-            37 Must-See <span className="text-coral">Attractions</span>
+        37 Atracciones <span className="text-green-500">Imprescindibles</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Explore the natural beauty, cultural richness, and endless adventures that await you in Puerto Lopez. From pristine beaches to wildlife encounters, there's something for everyone.
+        Explora la belleza natural, riqueza cultural y aventuras sin fin que te esperan en Puerto López. Desde playas vírgenes hasta encuentros con vida silvestre, hay algo para todos.
           </p>
         </div>
 
-        {/* Category Filters */}
+        {/* Filtros de Categoría */}
         <div className="mb-10">
-          {/* Desktop Filters */}
+          {/* Filtros para Escritorio */}
           <div className="hidden md:flex justify-center gap-4 mb-8">
-            {categories.map((category) => (
-              <button
-                key={category}
-                onClick={() => setActiveCategory(category)}
-                className={cn(
-                  "px-6 py-2 rounded-full text-sm font-medium transition-colors",
-                  activeCategory === category
-                    ? "bg-ocean text-white shadow-md"
-                    : "bg-gray-100 text-gray-700 hover:bg-gray-200"
-                )}
-              >
-                {category}
-              </button>
-            ))}
+        {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => setActiveCategory(category)}
+            className={cn(
+          "px-6 py-2 rounded-full text-sm font-medium transition-colors",
+          activeCategory === category
+            ? "bg-ocean text-white shadow-md"
+            : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+            )}
+          >
+            {category}
+          </button>
+        ))}
           </div>
 
-          {/* Mobile Filters */}
+          {/* Filtros para Móvil */}
           <div className="md:hidden flex flex-col mb-8">
-            <button
-              onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
-              className="flex items-center justify-between px-4 py-3 bg-gray-100 rounded-lg mb-2"
-            >
-              <span className="flex items-center">
-                <Filter size={18} className="mr-2" />
-                <span>Filter: {activeCategory}</span>
-              </span>
-              <ChevronRight
-                size={18}
-                className={cn(
-                  "transition-transform",
-                  mobileFiltersOpen ? "rotate-90" : ""
-                )}
-              />
-            </button>
-            {mobileFiltersOpen && (
-              <div className="bg-white shadow-md rounded-lg p-2 animate-fade-in">
-                {categories.map((category) => (
-                  <button
-                    key={category}
-                    onClick={() => {
-                      setActiveCategory(category);
-                      setMobileFiltersOpen(false);
-                    }}
-                    className={cn(
-                      "block w-full text-left px-4 py-2 rounded-md text-sm",
-                      activeCategory === category
-                        ? "bg-ocean-light text-ocean-dark"
-                        : "hover:bg-gray-100"
-                    )}
-                  >
-                    {category}
-                  </button>
-                ))}
-              </div>
+        <button
+          onClick={() => setMobileFiltersOpen(!mobileFiltersOpen)}
+          className="flex items-center justify-between px-4 py-3 bg-gray-100 rounded-lg mb-2"
+        >
+          <span className="flex items-center">
+            <Filter size={18} className="mr-2" />
+            <span>Filtro: {activeCategory}</span>
+          </span>
+          <ChevronRight
+            size={18}
+            className={cn(
+          "transition-transform",
+          mobileFiltersOpen ? "rotate-90" : ""
             )}
+          />
+        </button>
+        {mobileFiltersOpen && (
+          <div className="bg-white shadow-md rounded-lg p-2 animate-fade-in">
+            {categories.map((category) => (
+          <button
+            key={category}
+            onClick={() => {
+              setActiveCategory(category);
+              setMobileFiltersOpen(false);
+            }}
+            className={cn(
+              "block w-full text-left px-4 py-2 rounded-md text-sm",
+              activeCategory === category
+            ? "bg-ocean-light text-ocean-dark"
+            : "hover:bg-gray-100"
+            )}
+          >
+            {category}
+          </button>
+            ))}
+          </div>
+        )}
           </div>
         </div>
 
-        {/* Attractions Grid */}
+        {/* Cuadrícula de Atracciones */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {displayedAttractions.map((attraction) => (
-            <div
-              key={attraction.id}
-              className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow"
-            >
-              <div className="relative h-48 overflow-hidden">
-                <img
-                  src={attraction.image}
-                  alt={attraction.name}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                />
-                <div className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1 flex items-center">
-                  <Star size={16} className="text-amber-500 mr-1" fill="currentColor" />
-                  <span className="text-sm font-medium">{attraction.rating}</span>
-                </div>
-                <div className="absolute bottom-3 left-3 bg-ocean/80 backdrop-blur-sm rounded-full px-3 py-1 text-white text-xs">
-                  {attraction.category}
-                </div>
-              </div>
-              <div className="p-4">
-                <h3 className="text-lg font-bold text-ocean-dark mb-2">{attraction.name}</h3>
-                <p className="text-gray-600 text-sm mb-3 line-clamp-3">{attraction.description}</p>
-                <div className="flex items-center text-ocean">
-                  <MapPin size={16} className="mr-1" />
-                  <span className="text-sm">Puerto Lopez</span>
-                </div>
-              </div>
+        <div
+          key={attraction.id}
+          className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow"
+        >
+          <div className="relative h-48 overflow-hidden">
+            <img
+          src={attraction.image}
+          alt={attraction.name}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+            />
+            <div className="absolute top-3 right-3 bg-white/80 backdrop-blur-sm rounded-full px-3 py-1 flex items-center">
+          <Star size={16} className="text-amber-500 mr-1" fill="currentColor" />
+          <span className="text-sm font-medium">{attraction.rating}</span>
             </div>
+            <div className="absolute bottom-3 left-3 bg-ocean/80 backdrop-blur-sm rounded-full px-3 py-1 text-white text-xs">
+          {attraction.category}
+            </div>
+          </div>
+          <div className="p-4">
+            <h3 className="text-lg font-bold text-ocean-dark mb-2">{attraction.name}</h3>
+            <p className="text-gray-600 text-sm mb-3 line-clamp-3">{attraction.description}</p>
+            <div className="flex items-center text-ocean">
+          <MapPin size={16} className="mr-1" />
+          <span className="text-sm">Puerto López</span>
+            </div>
+          </div>
+        </div>
           ))}
         </div>
 
-        {/* View All / View Less Button */}
+        {/* Botón Ver Todo / Ver Menos */}
         <div className="text-center">
           <button
-            onClick={() => setViewAll(!viewAll)}
-            className="px-6 py-3 rounded-full bg-ocean hover:bg-ocean-dark text-white font-medium transition-colors inline-flex items-center"
+        onClick={() => setViewAll(!viewAll)}
+        className="px-6 py-3 rounded-full bg-ocean hover:bg-ocean-dark text-white font-medium transition-colors inline-flex items-center"
           >
-            {viewAll ? "View Less" : "View All Attractions"}
-            <ChevronRight size={18} className={viewAll ? "rotate-90 ml-1" : "ml-1"} />
+        {viewAll ? "Ver Menos" : "Ver Todas las Atracciones"}
+        <ChevronRight size={18} className={viewAll ? "rotate-90 ml-1" : "ml-1"} />
           </button>
         </div>
 
-        {/* Categories Section */}
+        {/* Sección de Categorías */}
         <div className="mt-20">
           <h3 className="text-2xl font-bold text-ocean-dark text-center mb-8">
-            Explore All 37 Attractions By Category
+        Explora las 37 Atracciones Por Categoría
           </h3>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-            {attractionCategories.map((category, index) => (
-              <div
-                key={index}
-                className="bg-gradient-to-br from-ocean-light/50 to-ocean-light/20 rounded-xl p-6 hover:shadow-md transition-shadow"
-              >
-                <h4 className="text-xl font-bold text-ocean-dark mb-2">{category.name}</h4>
-                <p className="text-gray-600 mb-4">
-                  {category.count} amazing destinations to explore
-                </p>
-                <button className="text-ocean font-medium flex items-center hover:text-ocean-dark transition-colors">
-                  Discover <ChevronRight size={18} className="ml-1" />
-                </button>
-              </div>
-            ))}
+        {attractionCategories.map((category, index) => (
+          <div
+            key={index}
+            className="bg-gradient-to-br from-ocean-light/50 to-ocean-light/20 rounded-xl p-6 hover:shadow-md transition-shadow"
+          >
+            <h4 className="text-xl font-bold text-ocean-dark mb-2">{category.name}</h4>
+            <p className="text-gray-600 mb-4">
+          {category.count} destinos increíbles para explorar
+            </p>
+            <button className="text-ocean font-medium flex items-center hover:text-ocean-dark transition-colors">
+          Descubrir <ChevronRight size={18} className="ml-1" />
+            </button>
+          </div>
+        ))}
           </div>
         </div>
       </div>
-    </section>
+        </section>
   );
 };
 

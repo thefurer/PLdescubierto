@@ -35,7 +35,7 @@ const CustomizationModal = ({ isOpen, onClose }: CustomizationModalProps) => {
             "text-xl font-bold",
             theme === "light" ? "text-ocean-dark" : "text-white"
           )}>
-            Customize Your Experience
+            Personaliza tu Experiencia
           </h3>
           <button 
             onClick={onClose}

@@ -8,7 +8,7 @@ const Footer = () => {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
           {/* Company Info */}
           <div>
-            <h3 className="text-xl font-bold mb-4">Puerto López <span className="text-coral">Descubierto</span></h3>
+            <h3 className="text-xl font-bold mb-4">Puerto López <span className="text-green-500">Descubierto</span></h3>
             <p className="text-gray-300 mb-4">
               Descubre la belleza natural, riqueza cultural y aventuras sin fin del paraíso costero más encantador de Ecuador.
             </p>
@@ -80,15 +80,15 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-4">Contáctanos</h3>
             <ul className="space-y-4">
               <li className="flex items-start">
-                <Globe size={20} className="mr-2 mt-0.5 text-coral flex-shrink-0" />
+                <Globe size={20} className="mr-2 mt-0.5 text-green-500 flex-shrink-0" />
                 <span className="text-gray-300">Puerto López, Manabí, Ecuador</span>
               </li>
               <li className="flex items-start">
-                <Mail size={20} className="mr-2 mt-0.5 text-coral flex-shrink-0" />
+                <Mail size={20} className="mr-2 mt-0.5 text-green-500 flex-shrink-0" />
                 <span className="text-gray-300">info@puertolopez.descubierto.com</span>
               </li>
               <li className="flex items-start">
-                <Phone size={20} className="mr-2 mt-0.5 text-coral flex-shrink-0" />
+                <Phone size={20} className="mr-2 mt-0.5 text-green-500 flex-shrink-0" />
                 <span className="text-gray-300">+593 2 123 4567</span>
               </li>
             </ul>
@@ -98,7 +98,7 @@ const Footer = () => {
         <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400">
           <p>&copy; {new Date().getFullYear()} Puerto López Descubierto. Todos los derechos reservados.</p>
           <p className="mt-2 text-sm">
-            Un escaparate del paraíso costero de Ecuador. Diseñado con ❤️ para amantes de la naturaleza y aventureros.
+            Un escaparate del paraíso costero de Ecuador. Diseñado con ❤️ para amantes de la naturaleza y aventureros. Hecho por Abel Castillo
           </p>
         </div>
       </div>

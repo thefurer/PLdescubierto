@@ -105,10 +105,10 @@ const Gallery = ({ className }: GalleryProps) => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-ocean-dark mb-4">
-            Visual <span className="text-coral">Gallery</span>
+            Galería <span className="text-green-500">Visual</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Experience the breathtaking beauty of Puerto Lopez through our gallery. These images capture the essence of this coastal paradise.
+            Explora la belleza de Puerto López a través de nuestra galería de imágenes. Desde la vida marina hasta los paisajes naturales, cada imagen cuenta una historia única.
           </p>
         </div>
 
@@ -141,7 +141,7 @@ const Gallery = ({ className }: GalleryProps) => {
         <div className="text-center mt-10">
           <button className="px-6 py-3 rounded-full border-2 border-ocean text-ocean font-medium hover:bg-ocean hover:text-white transition-colors inline-flex items-center space-x-2">
             <Camera size={18} />
-            <span>View Complete Gallery</span>
+            <span>Ver galería completa</span>
           </button>
         </div>
 

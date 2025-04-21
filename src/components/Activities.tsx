@@ -63,44 +63,44 @@ const Activities = ({ className }: ActivitiesProps) => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-16">
           <h2 className="text-3xl md:text-4xl font-bold text-ocean-dark mb-4">
-            Unforgettable <span className="text-coral">Activities</span>
+        Actividades <span className="text-green-500">Inolvidables</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Immerse yourself in the wonders of Puerto Lopez with these popular activities that showcase the region's natural beauty and cultural richness.
+        Sumérgete en las maravillas de Puerto López con estas populares actividades que muestran la belleza natural y riqueza cultural de la región.
           </p>
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {activities.map((activity) => (
-            <div
-              key={activity.id}
-              className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all group"
+        <div
+          key={activity.id}
+          className="bg-white rounded-xl overflow-hidden shadow-md hover:shadow-xl transition-all group"
+        >
+          <div className="relative h-56 overflow-hidden">
+            <img
+          src={activity.image}
+          alt={activity.title}
+          className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+            />
+            <div 
+          className={cn(
+            "absolute -bottom-12 group-hover:-bottom-2 right-4 w-20 h-20 rounded-full flex items-center justify-center text-white bg-gradient-to-br transition-all duration-300",
+            activity.color
+          )}
             >
-              <div className="relative h-56 overflow-hidden">
-                <img
-                  src={activity.image}
-                  alt={activity.title}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                />
-                <div 
-                  className={cn(
-                    "absolute -bottom-12 group-hover:-bottom-2 right-4 w-20 h-20 rounded-full flex items-center justify-center text-white bg-gradient-to-br transition-all duration-300",
-                    activity.color
-                  )}
-                >
-                  <activity.icon size={32} />
-                </div>
-              </div>
-              <div className="p-6">
-                <h3 className="text-xl font-bold text-ocean-dark mb-3">{activity.title}</h3>
-                <p className="text-gray-600">{activity.description}</p>
-              </div>
-              <div className="px-6 pb-6">
-                <button className="w-full py-3 rounded-lg bg-ocean-light text-ocean-dark font-medium hover:bg-ocean hover:text-white transition-colors">
-                  Learn More
-                </button>
-              </div>
+          <activity.icon size={32} />
             </div>
+          </div>
+          <div className="p-6">
+            <h3 className="text-xl font-bold text-ocean-dark mb-3">{activity.title}</h3>
+            <p className="text-gray-600">{activity.description}</p>
+          </div>
+          <div className="px-6 pb-6">
+            <button className="w-full py-3 rounded-lg bg-ocean-light text-ocean-dark font-medium hover:bg-ocean hover:text-white transition-colors">
+          Saber Más
+            </button>
+          </div>
+        </div>
           ))}
         </div>
 
@@ -108,67 +108,67 @@ const Activities = ({ className }: ActivitiesProps) => {
         <div className="mt-20 bg-white rounded-2xl p-8 shadow-lg relative overflow-hidden">
           <div className="absolute top-0 right-0 w-1/3 h-full bg-gradient-to-l from-ocean-light/30 to-transparent transform -skew-x-12"></div>
           <div className="relative z-10">
-            <h3 className="text-2xl font-bold text-ocean-dark mb-6">Activity Highlights</h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-ocean text-white flex items-center justify-center mr-4">
-                  <Ship size={24} />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-ocean-dark mb-2">Whale Watching Season</h4>
-                  <p className="text-gray-600">Best from June to September, with peak activity in July and August</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-tropical text-white flex items-center justify-center mr-4">
-                  <Mountain size={24} />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-ocean-dark mb-2">Hiking Difficulty</h4>
-                  <p className="text-gray-600">Trails range from easy coastal walks to moderate forest hikes</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-sunset text-white flex items-center justify-center mr-4">
-                  <Utensils size={24} />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-ocean-dark mb-2">Culinary Experiences</h4>
-                  <p className="text-gray-600">From beachside food stalls to upscale seafood restaurants</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-coral text-white flex items-center justify-center mr-4">
-                  <Anchor size={24} />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-ocean-dark mb-2">Boat Tours</h4>
-                  <p className="text-gray-600">Available year-round with special seasonal offerings</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-ocean-dark text-white flex items-center justify-center mr-4">
-                  <Heart size={24} />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-ocean-dark mb-2">Cultural Immersion</h4>
-                  <p className="text-gray-600">Authentic interactions with local communities and traditions</p>
-                </div>
-              </div>
-              <div className="flex items-start">
-                <div className="flex-shrink-0 w-12 h-12 rounded-full bg-violet-500 text-white flex items-center justify-center mr-4">
-                  <Map size={24} />
-                </div>
-                <div>
-                  <h4 className="text-lg font-semibold text-ocean-dark mb-2">Guided Experiences</h4>
-                  <p className="text-gray-600">Available in multiple languages with expert local guides</p>
-                </div>
-              </div>
+        <h3 className="text-2xl font-bold text-ocean-dark mb-6">Destacados de Actividades</h3>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          <div className="flex items-start">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-ocean text-white flex items-center justify-center mr-4">
+          <Ship size={24} />
+            </div>
+            <div>
+          <h4 className="text-lg font-semibold text-ocean-dark mb-2">Temporada de Avistamiento de Ballenas</h4>
+          <p className="text-gray-600">Mejor de junio a septiembre, con mayor actividad en julio y agosto</p>
+            </div>
+          </div>
+          <div className="flex items-start">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-tropical text-white flex items-center justify-center mr-4">
+          <Mountain size={24} />
+            </div>
+            <div>
+          <h4 className="text-lg font-semibold text-ocean-dark mb-2">Dificultad de Senderismo</h4>
+          <p className="text-gray-600">Los senderos van desde caminatas costeras fáciles hasta excursiones moderadas por bosques</p>
+            </div>
+          </div>
+          <div className="flex items-start">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-sunset text-white flex items-center justify-center mr-4">
+          <Utensils size={24} />
+            </div>
+            <div>
+          <h4 className="text-lg font-semibold text-ocean-dark mb-2">Experiencias Culinarias</h4>
+          <p className="text-gray-600">Desde puestos de comida junto a la playa hasta restaurantes elegantes de mariscos</p>
+            </div>
+          </div>
+          <div className="flex items-start">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-coral text-white flex items-center justify-center mr-4">
+          <Anchor size={24} />
+            </div>
+            <div>
+          <h4 className="text-lg font-semibold text-ocean-dark mb-2">Tours en Barco</h4>
+          <p className="text-gray-600">Disponibles todo el año con ofertas especiales por temporada</p>
+            </div>
+          </div>
+          <div className="flex items-start">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-ocean-dark text-white flex items-center justify-center mr-4">
+          <Heart size={24} />
+            </div>
+            <div>
+          <h4 className="text-lg font-semibold text-ocean-dark mb-2">Inmersión Cultural</h4>
+          <p className="text-gray-600">Interacciones auténticas con comunidades y tradiciones locales</p>
+            </div>
+          </div>
+          <div className="flex items-start">
+            <div className="flex-shrink-0 w-12 h-12 rounded-full bg-violet-500 text-white flex items-center justify-center mr-4">
+          <Map size={24} />
+            </div>
+            <div>
+          <h4 className="text-lg font-semibold text-ocean-dark mb-2">Experiencias Guiadas</h4>
+          <p className="text-gray-600">Disponibles en varios idiomas con guías locales expertos</p>
             </div>
           </div>
         </div>
+          </div>
+        </div>
       </div>
-    </section>
+        </section>
   );
 };
 

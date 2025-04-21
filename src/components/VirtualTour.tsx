@@ -154,7 +154,7 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
           </div>
 
           <div className="bg-black/30 backdrop-blur-sm rounded-2xl overflow-hidden shadow-xl p-6">
-            <h3 className="text-xl font-bold text-white mb-4">Select Location</h3>
+            <h3 className="text-xl font-bold text-white mb-4">Seleccionar Locación</h3>
             
             <div className="space-y-4">
               {locations.map((location) => (

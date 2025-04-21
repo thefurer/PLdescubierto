@@ -25,12 +25,12 @@ const Navbar = () => {
   }, []);
 
   const navLinks = [
-    { name: "Home", href: "#home" },
-    { name: "Attractions", href: "#attractions" },
-    { name: "Activities", href: "#activities" },
-    { name: "Gallery", href: "#gallery" },
-    { name: "Virtual Tour", href: "#virtual-tour" },
-    { name: "Contact", href: "#contact" },
+    { name: "Casa", href: "#home" },
+    { name: "Atracciones", href: "#attractions" },
+    { name: "Actividades", href: "#activities" },
+    { name: "Galería", href: "#gallery" },
+    { name: "Galería Metaverso", href: "#virtual-tour" },
+    { name: "Contactos", href: "#contact" },
   ];
 
   return (
@@ -45,7 +45,7 @@ const Navbar = () => {
       <div className="container mx-auto px-4 flex justify-between items-center">
         <a href="#home" className="flex items-center">
           <span className="text-2xl font-bold text-ocean-dark">
-            Puerto Lopez <span className="text-coral">Unveiled</span>
+          Puerto <span className="text-blue-500">López</span>
           </span>
         </a>
 
@@ -110,7 +110,7 @@ const Navbar = () => {
               className="px-4 py-2 text-ocean-dark hover:bg-ocean-light hover:text-ocean-dark rounded-md transition-colors flex items-center"
             >
               <Settings size={18} className="mr-2" />
-              <span>Customize</span>
+              <span>Personalizar</span>
             </button>
           </div>
         </div>
