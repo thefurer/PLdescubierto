@@ -60,7 +60,7 @@ const Hero = () => {
         <div className="max-w-3xl">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 drop-shadow-lg">
             <span className="block">{t.title}</span>
-            <span className="text-coral drop-shadow-lg">{t.subtitle}</span>
+            <span className="text-green-primary drop-shadow-lg">{t.subtitle}</span>
           </h1>
           <p className="text-xl md:text-2xl text-white mb-8 drop-shadow-md max-w-2xl">
             {t.description}
@@ -68,7 +68,7 @@ const Hero = () => {
           <div className="flex flex-col sm:flex-row gap-4">
             <a 
               href="#attractions" 
-              className="px-8 py-3 rounded-full bg-coral hover:bg-coral/90 text-white font-semibold transition-colors shadow-lg focus:ring-2 focus:ring-coral/50 text-center"
+              className="px-8 py-3 rounded-full bg-green-primary hover:bg-green-dark text-white font-semibold transition-colors shadow-lg focus:ring-2 focus:ring-green-light/50 text-center"
             >
               {t.exploreBtn}
             </a>
