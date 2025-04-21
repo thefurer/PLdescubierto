@@ -77,10 +77,10 @@ export default {
 					light: 'hsl(var(--tropical-light))'
 				},
 				coral: {
-					DEFAULT: 'hsl(var(--coral))'
+					DEFAULT: 'hsl(var(--green))'
 				},
 				sunset: {
-					DEFAULT: 'hsl(var(--sunset))'
+					DEFAULT: 'hsl(var(--green-light))'
 				}
 			},
 			borderRadius: {
