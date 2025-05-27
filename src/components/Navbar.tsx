@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
 import CustomizeThemeButton from "./CustomizeThemeButton";
 import CustomizationModal from "./CustomizationModal";
