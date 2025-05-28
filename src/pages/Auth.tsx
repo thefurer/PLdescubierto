@@ -1,29 +1,34 @@
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { useToast } from '@/hooks/use-toast';
-import { Eye, EyeOff } from 'lucide-react';
-import HCaptcha from '@hcaptcha/react-hcaptcha';
+import { useAuthForm } from '@/hooks/useAuthForm';
+import { LoginForm } from '@/components/auth/LoginForm';
+import { SignupForm } from '@/components/auth/SignupForm';
+import { PasswordResetForm } from '@/components/auth/PasswordResetForm';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
   const [isResetMode, setIsResetMode] = useState(false);
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [fullName, setFullName] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
-  const [loading, setLoading] = useState(false);
-  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
-  const { toast } = useToast();
-  const captcha = useRef<HCaptcha>(null);
+  
+  const {
+    email,
+    setEmail,
+    password,
+    setPassword,
+    fullName,
+    setFullName,
+    loading,
+    captchaToken,
+    setCaptchaToken,
+    captcha,
+    handlePasswordReset,
+    handleLogin,
+    handleSignup
+  } = useAuthForm();
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -33,129 +38,69 @@ const Auth = () => {
     }
   }, [user, navigate, location]);
 
-  const handlePasswordReset = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth?reset=true`,
-      });
-
-      if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive"
-        });
-      } else {
-        toast({
-          title: "Email enviado",
-          description: "Te hemos enviado un enlace para restablecer tu contraseña. Revisa tu correo electrónico."
-        });
-        setIsResetMode(false);
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Algo salió mal. Intenta de nuevo.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+  const handleFormSubmit = (e: React.FormEvent) => {
+    if (isResetMode) {
+      handlePasswordReset(e);
+      setIsResetMode(false);
+    } else if (isLogin) {
+      handleLogin(e);
+    } else {
+      handleSignup(e);
     }
   };
 
-  const handleAuth = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setLoading(true);
+  const getTitle = () => {
+    if (isResetMode) return 'Restablecer Contraseña';
+    return isLogin ? 'Iniciar Sesión' : 'Crear Cuenta';
+  };
 
-    // For signup, require captcha token
-    if (!isLogin && !captchaToken) {
-      toast({
-        title: "Verificación requerida",
-        description: "Por favor completa la verificación CAPTCHA.",
-        variant: "destructive"
-      });
-      setLoading(false);
-      return;
+  const getSubtitle = () => {
+    if (isResetMode) return 'Ingresa tu email para restablecer tu contraseña';
+    return isLogin ? 'Accede a tu cuenta' : 'Únete a Puerto López';
+  };
+
+  const renderForm = () => {
+    if (isResetMode) {
+      return (
+        <PasswordResetForm
+          email={email}
+          setEmail={setEmail}
+          loading={loading}
+          onSubmit={handleFormSubmit}
+          onBackToLogin={() => setIsResetMode(false)}
+        />
+      );
     }
 
-    try {
-      if (isLogin) {
-        const { error } = await supabase.auth.signInWithPassword({
-          email,
-          password
-        });
-
-        if (error) {
-          if (error.message.includes('Invalid login credentials')) {
-            toast({
-              title: "Error de inicio de sesión",
-              description: "Credenciales inválidas. Verifica tu email y contraseña.",
-              variant: "destructive"
-            });
-          } else {
-            toast({
-              title: "Error",
-              description: error.message,
-              variant: "destructive"
-            });
-          }
-        } else {
-          toast({
-            title: "¡Bienvenido!",
-            description: "Has iniciado sesión exitosamente."
-          });
-        }
-      } else {
-        const { error } = await supabase.auth.signUp({
-          email,
-          password,
-          options: {
-            data: {
-              full_name: fullName
-            },
-            captchaToken: captchaToken || undefined
-          }
-        });
-
-        if (error) {
-          if (error.message.includes('User already registered')) {
-            toast({
-              title: "Usuario ya registrado",
-              description: "Este email ya está registrado. Intenta iniciar sesión.",
-              variant: "destructive"
-            });
-          } else {
-            toast({
-              title: "Error",
-              description: error.message,
-              variant: "destructive"
-            });
-          }
-        } else {
-          toast({
-            title: "¡Cuenta creada!",
-            description: "La cuenta debe ser confirmada, revise su correo electrónico."
-          });
-        }
-
-        // Reset captcha after signup attempt
-        if (captcha.current) {
-          captcha.current.resetCaptcha();
-          setCaptchaToken(null);
-        }
-      }
-    } catch (error) {
-      toast({
-        title: "Error",
-        description: "Algo salió mal. Intenta de nuevo.",
-        variant: "destructive"
-      });
-    } finally {
-      setLoading(false);
+    if (isLogin) {
+      return (
+        <LoginForm
+          email={email}
+          setEmail={setEmail}
+          password={password}
+          setPassword={setPassword}
+          loading={loading}
+          onSubmit={handleFormSubmit}
+          onForgotPassword={() => setIsResetMode(true)}
+        />
+      );
     }
+
+    return (
+      <SignupForm
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+        fullName={fullName}
+        setFullName={setFullName}
+        loading={loading}
+        captchaToken={captchaToken}
+        setCaptchaToken={setCaptchaToken}
+        captcha={captcha}
+        onSubmit={handleFormSubmit}
+      />
+    );
   };
 
   return (
@@ -163,136 +108,27 @@ const Auth = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-ocean-dark">
-            {isResetMode ? 'Restablecer Contraseña' : (isLogin ? 'Iniciar Sesión' : 'Crear Cuenta')}
+            {getTitle()}
           </h2>
           <p className="mt-2 text-gray-600">
-            {isResetMode ? 'Ingresa tu email para restablecer tu contraseña' : (isLogin ? 'Accede a tu cuenta' : 'Únete a Puerto López')}
+            {getSubtitle()}
           </p>
         </div>
 
         <div className="bg-white rounded-lg shadow-xl border border-white/30 p-8">
-          <form onSubmit={isResetMode ? handlePasswordReset : handleAuth} className="space-y-6">
-            {!isLogin && !isResetMode && (
-              <div>
-                <Label htmlFor="fullName">Nombre completo</Label>
-                <Input
-                  id="fullName"
-                  type="text"
-                  value={fullName}
-                  onChange={(e) => setFullName(e.target.value)}
-                  required={!isLogin}
-                  className="mt-1"
-                  placeholder="Tu nombre completo"
-                />
-              </div>
-            )}
+          {renderForm()}
 
-            <div>
-              <Label htmlFor="email">Email</Label>
-              <Input
-                id="email"
-                type="email"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-                required
-                className="mt-1"
-                placeholder="tu@email.com"
-              />
+          {!isResetMode && (
+            <div className="mt-6 text-center">
+              <button
+                type="button"
+                onClick={() => setIsLogin(!isLogin)}
+                className="text-ocean hover:text-ocean-dark transition-colors"
+              >
+                {isLogin ? '¿No tienes cuenta? Crear una' : '¿Ya tienes cuenta? Iniciar sesión'}
+              </button>
             </div>
-
-            {!isResetMode && (
-              <div>
-                <Label htmlFor="password">Contraseña</Label>
-                <div className="relative mt-1">
-                  <Input
-                    id="password"
-                    type={showPassword ? 'text' : 'password'}
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    className="pr-10"
-                    placeholder="Tu contraseña"
-                    minLength={6}
-                  />
-                  <button
-                    type="button"
-                    className="absolute inset-y-0 right-0 flex items-center pr-3"
-                    onClick={() => setShowPassword(!showPassword)}
-                  >
-                    {showPassword ? (
-                      <EyeOff className="h-4 w-4 text-gray-400" />
-                    ) : (
-                      <Eye className="h-4 w-4 text-gray-400" />
-                    )}
-                  </button>
-                </div>
-              </div>
-            )}
-
-            {!isLogin && !isResetMode && (
-              <div className="flex justify-center">
-                <HCaptcha
-                  ref={captcha}
-                  sitekey="f9c44570-e81a-45ec-8d28-ea56a65eafc6"
-                  onVerify={(token) => {
-                    setCaptchaToken(token);
-                  }}
-                  onExpire={() => {
-                    setCaptchaToken(null);
-                  }}
-                />
-              </div>
-            )}
-
-            <Button
-              type="submit"
-              className="w-full bg-ocean hover:bg-ocean-dark"
-              disabled={loading || (!isLogin && !isResetMode && !captchaToken)}
-            >
-              {loading ? 'Procesando...' : (
-                isResetMode ? 'Enviar enlace de restablecimiento' : 
-                (isLogin ? 'Iniciar Sesión' : 'Crear Cuenta')
-              )}
-            </Button>
-          </form>
-
-          <div className="mt-6 space-y-4">
-            {isLogin && !isResetMode && (
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={() => setIsResetMode(true)}
-                  className="text-ocean hover:text-ocean-dark transition-colors text-sm"
-                >
-                  ¿Olvidaste tu contraseña?
-                </button>
-              </div>
-            )}
-
-            {isResetMode && (
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={() => setIsResetMode(false)}
-                  className="text-ocean hover:text-ocean-dark transition-colors text-sm"
-                >
-                  ← Volver al inicio de sesión
-                </button>
-              </div>
-            )}
-
-            {!isResetMode && (
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={() => setIsLogin(!isLogin)}
-                  className="text-ocean hover:text-ocean-dark transition-colors"
-                >
-                  {isLogin ? '¿No tienes cuenta? Crear una' : '¿Ya tienes cuenta? Iniciar sesión'}
-                </button>
-              </div>
-            )}
-          </div>
+          )}
         </div>
       </div>
     </div>
