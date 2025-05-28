@@ -11,6 +11,7 @@ import { Eye, EyeOff } from 'lucide-react';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
+  const [isResetMode, setIsResetMode] = useState(false);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
@@ -28,6 +29,39 @@ const Auth = () => {
       navigate(from, { replace: true });
     }
   }, [user, navigate, location]);
+
+  const handlePasswordReset = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setLoading(true);
+
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(email, {
+        redirectTo: `${window.location.origin}/auth?reset=true`,
+      });
+
+      if (error) {
+        toast({
+          title: "Error",
+          description: error.message,
+          variant: "destructive"
+        });
+      } else {
+        toast({
+          title: "Email enviado",
+          description: "Te hemos enviado un enlace para restablecer tu contraseña. Revisa tu correo electrónico."
+        });
+        setIsResetMode(false);
+      }
+    } catch (error) {
+      toast({
+        title: "Error",
+        description: "Algo salió mal. Intenta de nuevo.",
+        variant: "destructive"
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,16 +142,16 @@ const Auth = () => {
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-ocean-dark">
-            {isLogin ? 'Iniciar Sesión' : 'Crear Cuenta'}
+            {isResetMode ? 'Restablecer Contraseña' : (isLogin ? 'Iniciar Sesión' : 'Crear Cuenta')}
           </h2>
           <p className="mt-2 text-gray-600">
-            {isLogin ? 'Accede a tu cuenta' : 'Únete a Puerto López'}
+            {isResetMode ? 'Ingresa tu email para restablecer tu contraseña' : (isLogin ? 'Accede a tu cuenta' : 'Únete a Puerto López')}
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-lg p-8">
-          <form onSubmit={handleAuth} className="space-y-6">
-            {!isLogin && (
+        <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-xl border border-white/20 p-8">
+          <form onSubmit={isResetMode ? handlePasswordReset : handleAuth} className="space-y-6">
+            {!isLogin && !isResetMode && (
               <div>
                 <Label htmlFor="fullName">Nombre completo</Label>
                 <Input
@@ -145,50 +179,83 @@ const Auth = () => {
               />
             </div>
 
-            <div>
-              <Label htmlFor="password">Contraseña</Label>
-              <div className="relative mt-1">
-                <Input
-                  id="password"
-                  type={showPassword ? 'text' : 'password'}
-                  value={password}
-                  onChange={(e) => setPassword(e.target.value)}
-                  required
-                  className="pr-10"
-                  placeholder="Tu contraseña"
-                  minLength={6}
-                />
-                <button
-                  type="button"
-                  className="absolute inset-y-0 right-0 flex items-center pr-3"
-                  onClick={() => setShowPassword(!showPassword)}
-                >
-                  {showPassword ? (
-                    <EyeOff className="h-4 w-4 text-gray-400" />
-                  ) : (
-                    <Eye className="h-4 w-4 text-gray-400" />
-                  )}
-                </button>
+            {!isResetMode && (
+              <div>
+                <Label htmlFor="password">Contraseña</Label>
+                <div className="relative mt-1">
+                  <Input
+                    id="password"
+                    type={showPassword ? 'text' : 'password'}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    className="pr-10"
+                    placeholder="Tu contraseña"
+                    minLength={6}
+                  />
+                  <button
+                    type="button"
+                    className="absolute inset-y-0 right-0 flex items-center pr-3"
+                    onClick={() => setShowPassword(!showPassword)}
+                  >
+                    {showPassword ? (
+                      <EyeOff className="h-4 w-4 text-gray-400" />
+                    ) : (
+                      <Eye className="h-4 w-4 text-gray-400" />
+                    )}
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             <Button
               type="submit"
               className="w-full bg-ocean hover:bg-ocean-dark"
               disabled={loading}
             >
-              {loading ? 'Procesando...' : (isLogin ? 'Iniciar Sesión' : 'Crear Cuenta')}
+              {loading ? 'Procesando...' : (
+                isResetMode ? 'Enviar enlace de restablecimiento' : 
+                (isLogin ? 'Iniciar Sesión' : 'Crear Cuenta')
+              )}
             </Button>
           </form>
 
-          <div className="mt-6 text-center">
-            <button
-              type="button"
-              onClick={() => setIsLogin(!isLogin)}
-              className="text-ocean hover:text-ocean-dark transition-colors"
-            >
-              {isLogin ? '¿No tienes cuenta? Crear una' : '¿Ya tienes cuenta? Iniciar sesión'}
-            </button>
+          <div className="mt-6 space-y-4">
+            {isLogin && !isResetMode && (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsResetMode(true)}
+                  className="text-ocean hover:text-ocean-dark transition-colors text-sm"
+                >
+                  ¿Olvidaste tu contraseña?
+                </button>
+              </div>
+            )}
+
+            {isResetMode && (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsResetMode(false)}
+                  className="text-ocean hover:text-ocean-dark transition-colors text-sm"
+                >
+                  ← Volver al inicio de sesión
+                </button>
+              </div>
+            )}
+
+            {!isResetMode && (
+              <div className="text-center">
+                <button
+                  type="button"
+                  onClick={() => setIsLogin(!isLogin)}
+                  className="text-ocean hover:text-ocean-dark transition-colors"
+                >
+                  {isLogin ? '¿No tienes cuenta? Crear una' : '¿Ya tienes cuenta? Iniciar sesión'}
+                </button>
+              </div>
+            )}
           </div>
         </div>
       </div>
