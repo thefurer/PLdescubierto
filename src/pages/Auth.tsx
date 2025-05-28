@@ -1,5 +1,5 @@
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
@@ -8,6 +8,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Eye, EyeOff } from 'lucide-react';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 const Auth = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -17,10 +18,12 @@ const Auth = () => {
   const [fullName, setFullName] = useState('');
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const navigate = useNavigate();
   const location = useLocation();
   const { user } = useAuth();
   const { toast } = useToast();
+  const captcha = useRef<HCaptcha>(null);
 
   // Redirect if already authenticated
   useEffect(() => {
@@ -67,6 +70,17 @@ const Auth = () => {
     e.preventDefault();
     setLoading(true);
 
+    // For signup, require captcha token
+    if (!isLogin && !captchaToken) {
+      toast({
+        title: "Verificación requerida",
+        description: "Por favor completa la verificación CAPTCHA.",
+        variant: "destructive"
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       if (isLogin) {
         const { error } = await supabase.auth.signInWithPassword({
@@ -101,7 +115,8 @@ const Auth = () => {
           options: {
             data: {
               full_name: fullName
-            }
+            },
+            captchaToken: captchaToken || undefined
           }
         });
 
@@ -124,6 +139,12 @@ const Auth = () => {
             title: "¡Cuenta creada!",
             description: "La cuenta debe ser confirmada, revise su correo electrónico."
           });
+        }
+
+        // Reset captcha after signup attempt
+        if (captcha.current) {
+          captcha.current.resetCaptcha();
+          setCaptchaToken(null);
         }
       }
     } catch (error) {
@@ -149,7 +170,7 @@ const Auth = () => {
           </p>
         </div>
 
-        <div className="bg-white/90 backdrop-blur-sm rounded-lg shadow-xl border border-white/20 p-8">
+        <div className="bg-white rounded-lg shadow-xl border border-white/30 p-8">
           <form onSubmit={isResetMode ? handlePasswordReset : handleAuth} className="space-y-6">
             {!isLogin && !isResetMode && (
               <div>
@@ -208,10 +229,25 @@ const Auth = () => {
               </div>
             )}
 
+            {!isLogin && !isResetMode && (
+              <div className="flex justify-center">
+                <HCaptcha
+                  ref={captcha}
+                  sitekey="your-sitekey"
+                  onVerify={(token) => {
+                    setCaptchaToken(token);
+                  }}
+                  onExpire={() => {
+                    setCaptchaToken(null);
+                  }}
+                />
+              </div>
+            )}
+
             <Button
               type="submit"
               className="w-full bg-ocean hover:bg-ocean-dark"
-              disabled={loading}
+              disabled={loading || (!isLogin && !isResetMode && !captchaToken)}
             >
               {loading ? 'Procesando...' : (
                 isResetMode ? 'Enviar enlace de restablecimiento' : 
