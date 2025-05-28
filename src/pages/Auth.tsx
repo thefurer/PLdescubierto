@@ -88,7 +88,7 @@ const Auth = () => {
         } else {
           toast({
             title: "¡Cuenta creada!",
-            description: "Tu cuenta ha sido creada exitosamente."
+            description: "La cuenta debe ser confirmada, revise su correo electrónico."
           });
         }
       }
@@ -104,7 +104,7 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-green-50 px-4">
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ocean-light to-blue-100 px-4">
       <div className="max-w-md w-full space-y-8">
         <div className="text-center">
           <h2 className="text-3xl font-bold text-ocean-dark">
