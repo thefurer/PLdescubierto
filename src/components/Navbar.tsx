@@ -1,154 +1,154 @@
 
 import { useState, useEffect } from "react";
-import { Menu, X, Settings } from "lucide-react";
-import { cn } from "@/lib/utils";
+import { Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import CustomizeThemeButton from "./CustomizeThemeButton";
-import CustomizationModal from "./CustomizationModal";
 import UserMenu from "./UserMenu";
 
 const Navbar = () => {
+  const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const [customizationModalOpen, setCustomizationModalOpen] = useState(false);
-  const { user, loading } = useAuth();
+  const { user } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
-      if (window.scrollY > 10) {
-        setIsScrolled(true);
-      } else {
-        setIsScrolled(false);
-      }
+      setIsScrolled(window.scrollY > 0);
     };
-
-    window.addEventListener("scroll", handleScroll);
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
   }, []);
 
-  const navLinks = [
-    { name: "Casa", href: "#home" },
-    { name: "Atracciones", href: "#attractions" },
-    { name: "Actividades", href: "#activities" },
-    { name: "Galería", href: "#gallery" },
-    { name: "Galería Metaverso", href: "#virtual-tour" },
-    { name: "Contactos", href: "#contact" },
-  ];
-
   return (
-    <nav
-      className={cn(
-        "fixed top-0 w-full z-50 transition-all duration-300",
-        isScrolled
-          ? "bg-white bg-opacity-90 backdrop-blur-sm shadow-md py-2"
-          : "bg-transparent py-4"
-      )}
-    >
-      <div className="container mx-auto px-4 flex justify-between items-center">
-        <a href="#home" className="flex items-center">
-          <span className="text-2xl font-bold text-ocean-dark">
-          Puerto <span className="text-blue-500">López</span>
-          </span>
-        </a>
+    <nav className={`fixed w-full z-50 transition-all duration-300 ${
+      isScrolled ? 'bg-white/95 backdrop-blur-sm shadow-lg' : 'bg-transparent'
+    }`}>
+      <div className="container mx-auto px-4">
+        <div className="flex justify-between items-center h-16">
+          {/* Logo */}
+          <Link to="/" className="text-2xl font-bold">
+            <span className={`${isScrolled ? 'text-ocean-dark' : 'text-white'}`}>
+              Puerto López
+            </span>
+            <span className="text-green-500 ml-1">Descubierto</span>
+          </Link>
 
-        <div className="hidden md:flex space-x-8 items-center">
-          {navLinks.map((link) => (
-            <a
-              key={link.name}
-              href={link.href}
-              className={cn(
-                "text-ocean-dark hover:text-coral transition-colors font-medium",
-                isScrolled ? "text-ocean-dark" : "text-white"
-              )}
+          {/* Desktop Menu */}
+          <div className="hidden md:flex items-center space-x-8">
+            <a 
+              href="#home" 
+              className={`hover:text-green-500 transition-colors ${
+                isScrolled ? 'text-gray-700' : 'text-white'
+              }`}
             >
-              {link.name}
+              Inicio
             </a>
-          ))}
-          
-          <CustomizeThemeButton 
-            isScrolled={isScrolled}
-            isOpen={customizationModalOpen}
-            onClick={() => setCustomizationModalOpen(true)}
-          />
-
-          {!loading && (
-            user ? (
-              <UserMenu />
-            ) : (
-              <Link to="/auth">
-                <Button 
-                  variant="outline" 
-                  className={cn(
-                    "transition-colors",
-                    isScrolled 
-                      ? "border-ocean text-ocean hover:bg-ocean hover:text-white" 
-                      : "border-white text-white hover:bg-white hover:text-ocean-dark"
-                  )}
-                >
-                  Iniciar Sesión
-                </Button>
-              </Link>
-            )
-          )}
-        </div>
-
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="md:hidden text-ocean-dark"
-        >
-          {mobileMenuOpen ? <X size={24} /> : <Menu size={24} />}
-        </button>
-      </div>
-
-      {mobileMenuOpen && (
-        <div className="md:hidden bg-white absolute top-full left-0 right-0 shadow-md animate-fade-in">
-          <div className="container mx-auto py-4 flex flex-col space-y-4">
-            {navLinks.map((link) => (
-              <a
-                key={link.name}
-                href={link.href}
-                onClick={() => setMobileMenuOpen(false)}
-                className="px-4 py-2 text-ocean-dark hover:bg-ocean-light hover:text-ocean-dark rounded-md transition-colors"
-              >
-                {link.name}
-              </a>
-            ))}
-            <button
-              onClick={() => {
-                setMobileMenuOpen(false);
-                setCustomizationModalOpen(true);
-              }}
-              className="px-4 py-2 text-ocean-dark hover:bg-ocean-light hover:text-ocean-dark rounded-md transition-colors flex items-center"
+            <a 
+              href="#attractions" 
+              className={`hover:text-green-500 transition-colors ${
+                isScrolled ? 'text-gray-700' : 'text-white'
+              }`}
             >
-              <Settings size={18} className="mr-2" />
-              <span>Personalizar</span>
-            </button>
+              Atracciones
+            </a>
+            <a 
+              href="#activities" 
+              className={`hover:text-green-500 transition-colors ${
+                isScrolled ? 'text-gray-700' : 'text-white'
+              }`}
+            >
+              Actividades
+            </a>
+            <a 
+              href="#gallery" 
+              className={`hover:text-green-500 transition-colors ${
+                isScrolled ? 'text-gray-700' : 'text-white'
+              }`}
+            >
+              Galería
+            </a>
+            <a 
+              href="#contact" 
+              className={`hover:text-green-500 transition-colors ${
+                isScrolled ? 'text-gray-700' : 'text-white'
+              }`}
+            >
+              Contacto
+            </a>
             
-            {!loading && (
-              <div className="px-4">
-                {user ? (
-                  <UserMenu />
-                ) : (
-                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
-                    <Button className="w-full bg-ocean hover:bg-ocean-dark">
-                      Iniciar Sesión
-                    </Button>
-                  </Link>
-                )}
+            {user ? (
+              <div className="flex items-center space-x-4">
+                <Link 
+                  to="/dashboard"
+                  className={`hover:text-green-500 transition-colors ${
+                    isScrolled ? 'text-gray-700' : 'text-white'
+                  }`}
+                >
+                  Dashboard
+                </Link>
+                <UserMenu />
               </div>
+            ) : (
+              <Link 
+                to="/auth"
+                className={`px-4 py-2 rounded-full border-2 border-green-500 hover:bg-green-500 hover:text-white transition-colors ${
+                  isScrolled ? 'text-green-500 bg-transparent' : 'text-white bg-transparent'
+                }`}
+              >
+                Iniciar Sesión
+              </Link>
             )}
           </div>
-        </div>
-      )}
 
-      <CustomizationModal 
-        isOpen={customizationModalOpen} 
-        onClose={() => setCustomizationModalOpen(false)} 
-      />
+          {/* Mobile Menu Button */}
+          <button
+            className={`md:hidden ${isScrolled ? 'text-gray-700' : 'text-white'}`}
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            {isOpen ? <X size={24} /> : <Menu size={24} />}
+          </button>
+        </div>
+
+        {/* Mobile Menu */}
+        {isOpen && (
+          <div className="md:hidden bg-white shadow-lg rounded-lg mt-2 p-4">
+            <div className="flex flex-col space-y-4">
+              <a href="#home" className="text-gray-700 hover:text-green-500 transition-colors">
+                Inicio
+              </a>
+              <a href="#attractions" className="text-gray-700 hover:text-green-500 transition-colors">
+                Atracciones
+              </a>
+              <a href="#activities" className="text-gray-700 hover:text-green-500 transition-colors">
+                Actividades
+              </a>
+              <a href="#gallery" className="text-gray-700 hover:text-green-500 transition-colors">
+                Galería
+              </a>
+              <a href="#contact" className="text-gray-700 hover:text-green-500 transition-colors">
+                Contacto
+              </a>
+              
+              {user ? (
+                <>
+                  <Link to="/dashboard" className="text-gray-700 hover:text-green-500 transition-colors">
+                    Dashboard
+                  </Link>
+                  <Link to="/profile" className="text-gray-700 hover:text-green-500 transition-colors">
+                    Mi Perfil
+                  </Link>
+                </>
+              ) : (
+                <Link 
+                  to="/auth"
+                  className="px-4 py-2 rounded-full border-2 border-green-500 text-green-500 hover:bg-green-500 hover:text-white transition-colors text-center"
+                >
+                  Iniciar Sesión
+                </Link>
+              )}
+            </div>
+          </div>
+        )}
+      </div>
     </nav>
   );
 };
