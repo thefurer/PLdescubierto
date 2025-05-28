@@ -1,13 +1,19 @@
+
 import { useState, useEffect } from "react";
 import { Menu, X, Settings } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { Link } from "react-router-dom";
 import CustomizeThemeButton from "./CustomizeThemeButton";
 import CustomizationModal from "./CustomizationModal";
+import UserMenu from "./UserMenu";
 
 const Navbar = () => {
   const [isScrolled, setIsScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [customizationModalOpen, setCustomizationModalOpen] = useState(false);
+  const { user, loading } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -68,6 +74,26 @@ const Navbar = () => {
             isOpen={customizationModalOpen}
             onClick={() => setCustomizationModalOpen(true)}
           />
+
+          {!loading && (
+            user ? (
+              <UserMenu />
+            ) : (
+              <Link to="/auth">
+                <Button 
+                  variant="outline" 
+                  className={cn(
+                    "transition-colors",
+                    isScrolled 
+                      ? "border-ocean text-ocean hover:bg-ocean hover:text-white" 
+                      : "border-white text-white hover:bg-white hover:text-ocean-dark"
+                  )}
+                >
+                  Iniciar Sesión
+                </Button>
+              </Link>
+            )
+          )}
         </div>
 
         <button
@@ -101,6 +127,20 @@ const Navbar = () => {
               <Settings size={18} className="mr-2" />
               <span>Personalizar</span>
             </button>
+            
+            {!loading && (
+              <div className="px-4">
+                {user ? (
+                  <UserMenu />
+                ) : (
+                  <Link to="/auth" onClick={() => setMobileMenuOpen(false)}>
+                    <Button className="w-full bg-ocean hover:bg-ocean-dark">
+                      Iniciar Sesión
+                    </Button>
+                  </Link>
+                )}
+              </div>
+            )}
           </div>
         </div>
       )}
