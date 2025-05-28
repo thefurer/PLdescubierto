@@ -233,7 +233,7 @@ const Auth = () => {
               <div className="flex justify-center">
                 <HCaptcha
                   ref={captcha}
-                  sitekey="your-sitekey"
+                  sitekey="f9c44570-e81a-45ec-8d28-ea56a65eafc6"
                   onVerify={(token) => {
                     setCaptchaToken(token);
                   }}
