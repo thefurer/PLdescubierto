@@ -49,10 +49,23 @@ export const useAuthForm = () => {
     e.preventDefault();
     setLoading(true);
 
+    if (!captchaToken) {
+      toast({
+        title: "Verificación requerida",
+        description: "Por favor completa la verificación CAPTCHA.",
+        variant: "destructive"
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.signInWithPassword({
         email,
-        password
+        password,
+        options: {
+          captchaToken: captchaToken
+        }
       });
 
       if (error) {
@@ -74,6 +87,12 @@ export const useAuthForm = () => {
           title: "¡Bienvenido!",
           description: "Has iniciado sesión exitosamente."
         });
+      }
+
+      // Reset captcha after login attempt
+      if (captcha.current) {
+        captcha.current.resetCaptcha();
+        setCaptchaToken(null);
       }
     } catch (error) {
       toast({

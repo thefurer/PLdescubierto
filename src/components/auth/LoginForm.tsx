@@ -4,6 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff } from 'lucide-react';
 import { useState } from 'react';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 interface LoginFormProps {
   email: string;
@@ -11,6 +12,9 @@ interface LoginFormProps {
   password: string;
   setPassword: (password: string) => void;
   loading: boolean;
+  captchaToken: string | null;
+  setCaptchaToken: (token: string | null) => void;
+  captcha: React.RefObject<HCaptcha>;
   onSubmit: (e: React.FormEvent) => void;
   onForgotPassword: () => void;
 }
@@ -21,6 +25,9 @@ export const LoginForm = ({
   password,
   setPassword,
   loading,
+  captchaToken,
+  setCaptchaToken,
+  captcha,
   onSubmit,
   onForgotPassword
 }: LoginFormProps) => {
@@ -68,10 +75,23 @@ export const LoginForm = ({
         </div>
       </div>
 
+      <div className="flex justify-center">
+        <HCaptcha
+          ref={captcha}
+          sitekey="f9c44570-e81a-45ec-8d28-ea56a65eafc6"
+          onVerify={(token) => {
+            setCaptchaToken(token);
+          }}
+          onExpire={() => {
+            setCaptchaToken(null);
+          }}
+        />
+      </div>
+
       <Button
         type="submit"
         className="w-full bg-ocean hover:bg-ocean-dark"
-        disabled={loading}
+        disabled={loading || !captchaToken}
       >
         {loading ? 'Procesando...' : 'Iniciar Sesión'}
       </Button>

@@ -80,6 +80,9 @@ const Auth = () => {
           password={password}
           setPassword={setPassword}
           loading={loading}
+          captchaToken={captchaToken}
+          setCaptchaToken={setCaptchaToken}
+          captcha={captcha}
           onSubmit={handleFormSubmit}
           onForgotPassword={() => setIsResetMode(true)}
         />
