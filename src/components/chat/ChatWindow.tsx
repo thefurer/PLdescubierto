@@ -5,6 +5,7 @@ import { ScrollArea } from '@/components/ui/scroll-area';
 import ChatMessage from './ChatMessage';
 import LoadingIndicator from './LoadingIndicator';
 import ChatInput from './ChatInput';
+import QuickOptions from './QuickOptions';
 
 interface Message {
   id: string;
@@ -20,6 +21,7 @@ interface ChatWindowProps {
   onInputChange: (value: string) => void;
   onSend: () => void;
   onKeyPress: (e: React.KeyboardEvent) => void;
+  onQuickOption: (message: string) => void;
 }
 
 const ChatWindow = ({ 
@@ -28,9 +30,11 @@ const ChatWindow = ({
   inputValue, 
   onInputChange, 
   onSend, 
-  onKeyPress 
+  onKeyPress,
+  onQuickOption
 }: ChatWindowProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const showQuickOptions = messages.length <= 1; // Show options if only welcome message exists
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -55,6 +59,11 @@ const ChatWindow = ({
           <p className="text-xs opacity-90">Puerto López Descubierto</p>
         </div>
       </div>
+
+      {/* Quick Options - Show only at the beginning */}
+      {showQuickOptions && (
+        <QuickOptions onOptionClick={onQuickOption} />
+      )}
 
       {/* Messages */}
       <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">

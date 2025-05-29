@@ -26,25 +26,26 @@ const ChatBot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const sendMessage = async () => {
-    if (!inputValue.trim() || isLoading) return;
+  const sendMessage = async (messageContent?: string) => {
+    const messageToSend = messageContent || inputValue.trim();
+    if (!messageToSend || isLoading) return;
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: inputValue.trim(),
+      content: messageToSend,
       timestamp: new Date()
     };
 
     setMessages(prev => [...prev, userMessage]);
-    setInputValue('');
+    if (!messageContent) setInputValue('');
     setIsLoading(true);
 
     try {
-      console.log('Sending message to chat-support function:', userMessage.content);
+      console.log('Sending message to chat-support function:', messageToSend);
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
-        body: { message: userMessage.content }
+        body: { message: messageToSend }
       });
 
       console.log('Response from chat-support:', { data, error });
@@ -84,6 +85,10 @@ const ChatBot = () => {
     }
   };
 
+  const handleQuickOption = (message: string) => {
+    sendMessage(message);
+  };
+
   const handleKeyPress = (e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
@@ -101,8 +106,9 @@ const ChatBot = () => {
           isLoading={isLoading}
           inputValue={inputValue}
           onInputChange={setInputValue}
-          onSend={sendMessage}
+          onSend={() => sendMessage()}
           onKeyPress={handleKeyPress}
+          onQuickOption={handleQuickOption}
         />
       )}
     </>
