@@ -17,11 +17,11 @@ serve(async (req) => {
     const { message } = await req.json();
     console.log('Mensaje recibido:', message);
     
-    const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
+    const googleApiKey = 'AIzaSyDN3Ax3Y7sfs_efO4pWSpLi05oSRB4IKUg';
 
-    if (!openAIApiKey) {
-      console.error('OPENAI_API_KEY no está configurada');
-      throw new Error('OPENAI_API_KEY no está configurada');
+    if (!googleApiKey) {
+      console.error('Google API Key no está configurada');
+      throw new Error('Google API Key no está configurada');
     }
 
     // Obtener información de contacto actualizada desde la base de datos
@@ -87,43 +87,54 @@ EJEMPLOS DE RESPUESTAS ESTRUCTURADAS:
 
 Mantén las respuestas informativas pero concisas. Usa emojis ocasionalmente para hacer las respuestas más amigables.`;
 
-    console.log('Enviando petición a OpenAI...');
+    const fullPrompt = `${systemPrompt}\n\nUsuario: ${message}\n\nAsistente:`;
+
+    console.log('Enviando petición a Google Gemini...');
     
-    const response = await fetch('https://api.openai.com/v1/chat/completions', {
+    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`, {
       method: 'POST',
       headers: {
-        'Authorization': `Bearer ${openAIApiKey}`,
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o-mini',
-        messages: [
-          { role: 'system', content: systemPrompt },
-          { role: 'user', content: message }
-        ],
-        max_tokens: 600,
-        temperature: 0.7,
+        contents: [{
+          parts: [{
+            text: fullPrompt
+          }]
+        }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 600,
+        }
       }),
     });
 
-    console.log('Respuesta de OpenAI recibida, status:', response.status);
+    console.log('Respuesta de Google Gemini recibida, status:', response.status);
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error(`OpenAI API error: ${response.status} - ${errorText}`);
+      console.error(`Google Gemini API error: ${response.status} - ${errorText}`);
       
       // Handle specific error types
       if (response.status === 429) {
         throw new Error('El servicio de IA está temporalmente sobrecargado. Por favor, intenta de nuevo en unos momentos.');
-      } else if (response.status === 401) {
-        throw new Error('Error de autenticación con el servicio de IA.');
+      } else if (response.status === 401 || response.status === 403) {
+        throw new Error('Error de autenticación con el servicio de IA de Google.');
       } else {
         throw new Error(`Error del servicio de IA: ${response.status}`);
       }
     }
 
     const data = await response.json();
-    const reply = data.choices[0].message.content;
+    console.log('Respuesta de Google Gemini:', data);
+    
+    let reply = 'Lo siento, no pude procesar tu mensaje. Intenta de nuevo.';
+    
+    if (data.candidates && data.candidates.length > 0 && data.candidates[0].content && data.candidates[0].content.parts) {
+      reply = data.candidates[0].content.parts[0].text;
+    }
     
     console.log('Respuesta generada exitosamente');
 
