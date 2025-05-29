@@ -57,11 +57,18 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
+      console.log('Sending message to chat-support function:', userMessage.content);
+      
       const { data, error } = await supabase.functions.invoke('chat-support', {
         body: { message: userMessage.content }
       });
 
-      if (error) throw error;
+      console.log('Response from chat-support:', { data, error });
+
+      if (error) {
+        console.error('Supabase function error:', error);
+        throw error;
+      }
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
