@@ -7,6 +7,7 @@ import Gallery from "@/components/Gallery";
 import VirtualTour from "@/components/VirtualTour";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
+import ChatBot from "@/components/ChatBot";
 
 const Index = () => {
   return (
@@ -19,6 +20,7 @@ const Index = () => {
       <VirtualTour />
       <Contact />
       <Footer />
+      <ChatBot />
     </div>
   );
 };
