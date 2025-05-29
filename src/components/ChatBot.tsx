@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -18,7 +17,7 @@ const ChatBot = () => {
     {
       id: '1',
       type: 'bot',
-      content: '¡Hola! Soy tu asistente de Puerto López Descubierto. ¿En qué puedo ayudarte hoy?',
+      content: '¡Hola! 👋 Soy tu asistente personal de **Puerto López Descubierto**.\n\n¿En qué puedo ayudarte hoy? Puedo brindarte información sobre:\n\n• **Actividades turísticas** 🏖️\n• **Mejores épocas para visitar** 🌊\n• **Clima y temporadas** ☀️\n• **Información de contacto** 📞\n• **Soporte técnico** 💻\n\n¡Estoy aquí para hacer tu experiencia en Puerto López inolvidable! 😊',
       timestamp: new Date()
     }
   ]);
