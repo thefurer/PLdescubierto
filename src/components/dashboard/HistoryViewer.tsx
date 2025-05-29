@@ -8,8 +8,8 @@ import { Loader2, RotateCcw, Clock } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const HistoryViewer = () => {
-  const [selectedSection, setSelectedSection] = useState<string>('');
-  const { history, loading, revertToVersion } = useContentHistory(selectedSection || undefined);
+  const [selectedSection, setSelectedSection] = useState<string>('all');
+  const { history, loading, revertToVersion } = useContentHistory(selectedSection === 'all' ? undefined : selectedSection);
 
   const getChangeTypeColor = (changeType: string) => {
     switch (changeType) {
@@ -49,12 +49,12 @@ const HistoryViewer = () => {
         <CardContent>
           <div className="flex gap-4 items-center">
             <div className="flex-1">
-              <Select onValueChange={setSelectedSection}>
+              <Select value={selectedSection} onValueChange={setSelectedSection}>
                 <SelectTrigger>
                   <SelectValue placeholder="Filtrar por sección (todas)" />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="">Todas las secciones</SelectItem>
+                  <SelectItem value="all">Todas las secciones</SelectItem>
                   <SelectItem value="hero">Hero</SelectItem>
                   <SelectItem value="footer">Footer</SelectItem>
                   <SelectItem value="gallery">Galería</SelectItem>
