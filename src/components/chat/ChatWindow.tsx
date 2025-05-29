@@ -6,6 +6,7 @@ import ChatMessage from './ChatMessage';
 import LoadingIndicator from './LoadingIndicator';
 import ChatInput from './ChatInput';
 import QuickOptions from './QuickOptions';
+import CompactQuickOptions from './CompactQuickOptions';
 
 interface Message {
   id: string;
@@ -34,7 +35,8 @@ const ChatWindow = ({
   onQuickOption
 }: ChatWindowProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
-  const showQuickOptions = messages.length <= 1; // Show options if only welcome message exists
+  const showFullOptions = messages.length <= 1;
+  const showCompactOptions = messages.length > 1;
 
   const scrollToBottom = () => {
     if (scrollAreaRef.current) {
@@ -50,7 +52,7 @@ const ChatWindow = ({
   }, [messages]);
 
   return (
-    <div className="fixed bottom-24 right-6 w-80 h-96 bg-white rounded-lg shadow-xl border z-40 flex flex-col">
+    <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-xl border z-40 flex flex-col">
       {/* Header */}
       <div className="bg-ocean text-white p-4 rounded-t-lg flex items-center gap-2">
         <Bot size={20} />
@@ -60,8 +62,13 @@ const ChatWindow = ({
         </div>
       </div>
 
-      {/* Quick Options - Show only at the beginning */}
-      {showQuickOptions && (
+      {/* Compact Quick Options - Show after first interaction */}
+      {showCompactOptions && (
+        <CompactQuickOptions onOptionClick={onQuickOption} />
+      )}
+
+      {/* Full Quick Options - Show only at the beginning */}
+      {showFullOptions && (
         <QuickOptions onOptionClick={onQuickOption} />
       )}
 

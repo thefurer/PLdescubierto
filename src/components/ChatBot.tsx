@@ -52,7 +52,7 @@ const ChatBot = () => {
 
       if (error) {
         console.error('Supabase function error:', error);
-        throw error;
+        throw new Error(error.message || 'Error al procesar el mensaje');
       }
 
       const botMessage: Message = {
@@ -63,17 +63,23 @@ const ChatBot = () => {
       };
 
       setMessages(prev => [...prev, botMessage]);
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error enviando mensaje:', error);
       
-      const errorMessage: Message = {
+      let errorMessage = 'Lo siento, hay un problema técnico. Puedes contactarnos directamente en info@puertolopez.descubierto.com o al +593 2 123 4567.';
+      
+      if (error.message) {
+        errorMessage = error.message;
+      }
+      
+      const botErrorMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: 'Lo siento, hay un problema técnico. Puedes contactarnos directamente en info@puertolopez.descubierto.com o al +593 2 123 4567.',
+        content: errorMessage,
         timestamp: new Date()
       };
 
-      setMessages(prev => [...prev, errorMessage]);
+      setMessages(prev => [...prev, botErrorMessage]);
       
       toast({
         title: 'Error de conexión',

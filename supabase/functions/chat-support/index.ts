@@ -15,9 +15,12 @@ serve(async (req) => {
 
   try {
     const { message } = await req.json();
+    console.log('Mensaje recibido:', message);
+    
     const openAIApiKey = Deno.env.get('OPENAI_API_KEY');
 
     if (!openAIApiKey) {
+      console.error('OPENAI_API_KEY no está configurada');
       throw new Error('OPENAI_API_KEY no está configurada');
     }
 
@@ -84,6 +87,8 @@ EJEMPLOS DE RESPUESTAS ESTRUCTURADAS:
 
 Mantén las respuestas informativas pero concisas. Usa emojis ocasionalmente para hacer las respuestas más amigables.`;
 
+    console.log('Enviando petición a OpenAI...');
+    
     const response = await fetch('https://api.openai.com/v1/chat/completions', {
       method: 'POST',
       headers: {
@@ -91,7 +96,7 @@ Mantén las respuestas informativas pero concisas. Usa emojis ocasionalmente par
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'gpt-4o',
+        model: 'gpt-4o-mini',
         messages: [
           { role: 'system', content: systemPrompt },
           { role: 'user', content: message }
@@ -101,12 +106,26 @@ Mantén las respuestas informativas pero concisas. Usa emojis ocasionalmente par
       }),
     });
 
+    console.log('Respuesta de OpenAI recibida, status:', response.status);
+
     if (!response.ok) {
-      throw new Error(`OpenAI API error: ${response.status}`);
+      const errorText = await response.text();
+      console.error(`OpenAI API error: ${response.status} - ${errorText}`);
+      
+      // Handle specific error types
+      if (response.status === 429) {
+        throw new Error('El servicio de IA está temporalmente sobrecargado. Por favor, intenta de nuevo en unos momentos.');
+      } else if (response.status === 401) {
+        throw new Error('Error de autenticación con el servicio de IA.');
+      } else {
+        throw new Error(`Error del servicio de IA: ${response.status}`);
+      }
     }
 
     const data = await response.json();
     const reply = data.choices[0].message.content;
+    
+    console.log('Respuesta generada exitosamente');
 
     return new Response(JSON.stringify({ reply }), {
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
@@ -115,8 +134,8 @@ Mantén las respuestas informativas pero concisas. Usa emojis ocasionalmente par
   } catch (error) {
     console.error('Error en chat-support:', error);
     return new Response(JSON.stringify({ 
-      error: 'Error procesando el mensaje. Por favor, contacta directamente a soporte.',
-      reply: 'Lo siento, hay un problema técnico. Puedes contactarnos directamente en info@puertolopez.descubierto.com o al +593 2 123 4567 para asistencia inmediata.'
+      error: error.message || 'Error procesando el mensaje.',
+      reply: error.message || 'Lo siento, hay un problema técnico. Puedes contactarnos directamente en info@puertolopez.descubierto.com o al +593 2 123 4567 para asistencia inmediata.'
     }), {
       status: 500,
       headers: { ...corsHeaders, 'Content-Type': 'application/json' },
