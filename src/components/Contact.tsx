@@ -1,3 +1,4 @@
+
 import { Mail, Phone, MessageSquare, Lock, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -113,8 +114,8 @@ const Contact = ({ className }: ContactProps) => {
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-ocean-dark mb-1">Nuestro correo</h4>
-                    <p className="text-gray-600">info@puertolopez.unveiled.com</p>
-                    <p className="text-gray-600">bookings@puertolopez.unveiled.com</p>
+                    <p className="text-gray-600">apincay@gmail.com</p>
+                    <p className="text-gray-600">info@whalexpeditionsecuador.com</p>
                   </div>
                 </div>
 
@@ -124,8 +125,8 @@ const Contact = ({ className }: ContactProps) => {
                   </div>
                   <div>
                     <h4 className="text-lg font-semibold text-ocean-dark mb-1">Llámanos</h4>
+                    <p className="text-gray-600">+593 99 199 5390</p>
                     <p className="text-gray-600">+593 2 123 4567</p>
-                    <p className="text-gray-600">+593 9 876 5432</p>
                   </div>
                 </div>
 
@@ -134,17 +135,21 @@ const Contact = ({ className }: ContactProps) => {
                     <MessageSquare size={20} />
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-ocean-dark mb-1">Chat en vivo</h4>
+                    <h4 className="text-lg font-semibold text-ocean-dark mb-1">Chat WhatsApp</h4>
                     <p className="text-gray-600">Disponible 24/7 para asistencia inmediata</p>
-                    <button className="mt-2 px-4 py-2 bg-ocean text-white text-sm rounded-lg hover:bg-ocean-dark transition-colors">
-                      Start Chat
-                    </button>
+                    <a
+                      href="https://wa.me/593991995390?text=Hola,%20me%20gustaría%20obtener%20más%20información%20sobre%20los%20tours%20en%20Puerto%20López"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="mt-2 inline-block px-4 py-2 bg-ocean text-white text-sm rounded-lg hover:bg-ocean-dark transition-colors"
+                    >
+                      Escribir por WhatsApp
+                    </a>
                   </div>
                 </div>
               </div>
             </div>
 
-            <div className="bg-ocean-light/30 rounded-2xl p-6 md:p-8"></div>
             <div className="bg-ocean-light/30 rounded-2xl p-6 md:p-8">
               <h3 className="text-xl font-bold text-ocean-dark mb-4">Tu Seguridad Garantizada</h3>
               

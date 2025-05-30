@@ -85,11 +85,18 @@ const Footer = () => {
               </li>
               <li className="flex items-start">
                 <Mail size={20} className="mr-2 mt-0.5 text-green-500 flex-shrink-0" />
-                <span className="text-gray-300">info@puertolopez.descubierto.com</span>
+                <span className="text-gray-300">apincay@gmail.com</span>
               </li>
               <li className="flex items-start">
                 <Phone size={20} className="mr-2 mt-0.5 text-green-500 flex-shrink-0" />
-                <span className="text-gray-300">+593 2 123 4567</span>
+                <a 
+                  href="https://wa.me/593991995390?text=Hola,%20me%20gustaría%20obtener%20más%20información%20sobre%20los%20tours%20en%20Puerto%20López"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-gray-300 hover:text-white transition-colors"
+                >
+                  +593 99 199 5390
+                </a>
               </li>
             </ul>
           </div>
