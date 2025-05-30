@@ -2,6 +2,7 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import { User, Session } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 
 interface AuthContextType {
   user: User | null;
@@ -24,14 +25,35 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
   const [user, setUser] = useState<User | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [loading, setLoading] = useState(true);
+  const { toast } = useToast();
 
   useEffect(() => {
     // Set up auth state listener
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (event, session) => {
+        console.log('Auth event:', event, session?.user?.email);
+        
         setSession(session);
         setUser(session?.user ?? null);
         setLoading(false);
+
+        // Handle auth events
+        if (event === 'SIGNED_IN' && session?.user) {
+          toast({
+            title: "¡Bienvenido!",
+            description: `Has iniciado sesión como ${session.user.email}`,
+          });
+        } else if (event === 'SIGNED_OUT') {
+          toast({
+            title: "Sesión cerrada",
+            description: "Has cerrado sesión exitosamente",
+          });
+        } else if (event === 'PASSWORD_RECOVERY') {
+          toast({
+            title: "Recuperación de contraseña",
+            description: "Puedes actualizar tu contraseña ahora",
+          });
+        }
       }
     );
 
@@ -43,7 +65,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     });
 
     return () => subscription.unsubscribe();
-  }, []);
+  }, [toast]);
 
   const signOut = async () => {
     await supabase.auth.signOut();
