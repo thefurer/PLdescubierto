@@ -17,7 +17,7 @@ const ChatBot = () => {
     {
       id: '1',
       type: 'bot',
-      content: '¡Hola! 👋 Soy tu asistente personal de **Puerto López Descubierto**.\n\n¿En qué puedo ayudarte hoy? Puedo brindarte información sobre:\n\n• **Actividades turísticas** 🏖️\n• **Mejores épocas para visitar** 🌊\n• **Clima y temporadas** ☀️\n• **Información de contacto** 📞\n• **Soporte técnico** 💻\n\n¡Estoy aquí para hacer tu experiencia en Puerto López inolvidable! 😊',
+      content: '¡Hola! 👋 Soy tu asistente personal de **Whale Expeditions Tour** en Puerto López.\n\n¿En qué puedo ayudarte hoy? Puedo brindarte información sobre:\n\n• **Actividades turísticas** 🏖️\n• **Mejores épocas para visitar** 🌊\n• **Clima y temporadas** ☀️\n• **Información de contacto** 📞\n• **Soporte técnico** 💻\n\n💬 **Para consultas rápidas por WhatsApp:** https://wa.me/593991995390?text=Hola,%20me%20gustaría%20obtener%20más%20información%20sobre%20los%20tours%20en%20Puerto%20López\n\n¡Estoy aquí para hacer tu experiencia en Puerto López inolvidable! 😊',
       timestamp: new Date()
     }
   ]);
