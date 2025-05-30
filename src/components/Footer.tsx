@@ -55,16 +55,16 @@ const Footer = () => {
             <h3 className="text-lg font-bold mb-4">Recursos</h3>
             <ul className="space-y-2">
               <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">Guía de Viaje</a>
+                <a href="/travel-guide" className="text-gray-300 hover:text-white transition-colors">Guía de Viaje</a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">Preguntas Frecuentes</a>
+                <a href="/faq" className="text-gray-300 hover:text-white transition-colors">Preguntas Frecuentes</a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">Testimonios</a>
+                <a href="/testimonials" className="text-gray-300 hover:text-white transition-colors">Testimonios</a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">Blog</a>
+                <a href="/blog" className="text-gray-300 hover:text-white transition-colors">Blog</a>
               </li>
               <li>
                 <a href="#" className="text-gray-300 hover:text-white transition-colors">Política de Privacidad</a>
