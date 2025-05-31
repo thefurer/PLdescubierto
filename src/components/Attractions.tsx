@@ -1,8 +1,9 @@
 
 import { useState } from "react";
-import { MapPin, Star, ChevronRight, Filter } from "lucide-react";
+import { MapPin, Star, ChevronRight, Filter, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useTouristAttractions } from "@/hooks/useTouristAttractions";
+import { Button } from "@/components/ui/button";
 
 type AttractionsProps = {
   className?: string;
@@ -12,6 +13,7 @@ const Attractions = ({ className }: AttractionsProps) => {
   const { attractions, loading } = useTouristAttractions();
   const [activeCategory, setActiveCategory] = useState<string>("todo");
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const [showAllAttractions, setShowAllAttractions] = useState(false);
 
   const categories = ["todo", "playa", "cultura", "naturaleza"];
   const categoryLabels = {
@@ -32,8 +34,12 @@ const Attractions = ({ className }: AttractionsProps) => {
     ? attractions 
     : attractions.filter(attr => attr.category === activeCategory);
 
-  // Limit to 8 attractions (2 rows of 4 columns)
-  const displayedAttractions = filteredAttractions.slice(0, 8);
+  // Show first 8 attractions (2 rows) or all if expanded
+  const displayedAttractions = showAllAttractions 
+    ? filteredAttractions 
+    : filteredAttractions.slice(0, 8);
+
+  const hasMoreAttractions = filteredAttractions.length > 8;
 
   if (loading) {
     return (
@@ -69,7 +75,10 @@ const Attractions = ({ className }: AttractionsProps) => {
             {categories.map((category) => (
               <button
                 key={category}
-                onClick={() => setActiveCategory(category)}
+                onClick={() => {
+                  setActiveCategory(category);
+                  setShowAllAttractions(false); // Reset view when changing category
+                }}
                 className={cn(
                   "px-6 py-2 rounded-full text-sm font-medium transition-colors",
                   activeCategory === category
@@ -108,6 +117,7 @@ const Attractions = ({ className }: AttractionsProps) => {
                     onClick={() => {
                       setActiveCategory(category);
                       setMobileFiltersOpen(false);
+                      setShowAllAttractions(false); // Reset view when changing category
                     }}
                     className={cn(
                       "block w-full text-left px-4 py-2 rounded-md text-sm",
@@ -124,7 +134,7 @@ const Attractions = ({ className }: AttractionsProps) => {
           </div>
         </div>
 
-        {/* Cuadrícula de Atracciones - Limitado a 2 filas (8 atracciones) */}
+        {/* Cuadrícula de Atracciones */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
           {displayedAttractions.map((attraction) => (
             <div
@@ -157,16 +167,36 @@ const Attractions = ({ className }: AttractionsProps) => {
           ))}
         </div>
 
-        {/* Contador de atracciones */}
+        {/* Botón Ver Más y Contador */}
         <div className="text-center">
-          <p className="text-gray-600">
+          <p className="text-gray-600 mb-4">
             Mostrando {displayedAttractions.length} de {filteredAttractions.length} atracciones
-            {filteredAttractions.length > 8 && (
+            {activeCategory !== "todo" && (
               <span className="block text-sm text-ocean mt-1">
-                Visita nuestro dashboard para ver todas las atracciones
+                en la categoría {categoryLabels[activeCategory as keyof typeof categoryLabels]}
               </span>
             )}
           </p>
+          
+          {hasMoreAttractions && (
+            <Button
+              onClick={() => setShowAllAttractions(!showAllAttractions)}
+              variant="outline"
+              className="px-8 py-3 text-ocean border-ocean hover:bg-ocean hover:text-white transition-colors"
+            >
+              {showAllAttractions ? (
+                <>
+                  Ver menos
+                  <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
+                </>
+              ) : (
+                <>
+                  Ver más atracciones
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </>
+              )}
+            </Button>
+          )}
         </div>
       </div>
     </section>
