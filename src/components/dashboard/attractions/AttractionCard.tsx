@@ -7,16 +7,19 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Save, Edit, Image } from 'lucide-react';
+import { Loader2, Save, Edit, Image, Upload } from 'lucide-react';
 import { TouristAttraction } from '@/hooks/useTouristAttractions';
+import { useToast } from '@/hooks/use-toast';
 
 interface AttractionCardProps {
   attraction: TouristAttraction;
   isEditing: boolean;
   isSaving: boolean;
+  isUploading: boolean;
   onEdit: () => void;
   onSave: (updates: Partial<TouristAttraction>) => void;
   onCancel: () => void;
+  onUploadImage: (file: File, attractionId: string) => Promise<string>;
 }
 
 const categoryLabels = {
@@ -29,10 +32,12 @@ const categoryLabels = {
 const AttractionCard = ({ 
   attraction, 
   isEditing, 
-  isSaving, 
+  isSaving,
+  isUploading,
   onEdit, 
   onSave, 
-  onCancel 
+  onCancel,
+  onUploadImage
 }: AttractionCardProps) => {
   const [formData, setFormData] = useState({
     name: attraction.name,
@@ -40,6 +45,8 @@ const AttractionCard = ({
     category: attraction.category,
     image_url: attraction.image_url || ''
   });
+  const [uploadMethod, setUploadMethod] = useState<'url' | 'file'>('url');
+  const { toast } = useToast();
 
   const handleSave = () => {
     onSave({
@@ -57,7 +64,33 @@ const AttractionCard = ({
       category: attraction.category,
       image_url: attraction.image_url || ''
     });
+    setUploadMethod('url');
     onCancel();
+  };
+
+  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: 'Error',
+          description: 'El archivo es demasiado grande. Máximo 5MB.',
+          variant: 'destructive'
+        });
+        return;
+      }
+
+      try {
+        const imageUrl = await onUploadImage(file, attraction.id);
+        setFormData(prev => ({ ...prev, image_url: imageUrl }));
+        toast({
+          title: 'Éxito',
+          description: 'Imagen subida correctamente',
+        });
+      } catch (error) {
+        // Error handling is done in the upload function
+      }
+    }
   };
 
   return (
@@ -107,21 +140,72 @@ const AttractionCard = ({
               />
             </div>
             
-            <div>
-              <Label htmlFor="image_url" className="text-sm font-medium">URL de Imagen</Label>
-              <Input
-                id="image_url"
-                value={formData.image_url}
-                onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                placeholder="https://..."
-                className="mt-1"
-              />
+            <div className="space-y-3">
+              <Label className="text-sm font-medium">Imagen de la Atracción</Label>
+              
+              <div className="flex gap-2 mb-3">
+                <Button
+                  type="button"
+                  variant={uploadMethod === 'url' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setUploadMethod('url')}
+                >
+                  URL
+                </Button>
+                <Button
+                  type="button"
+                  variant={uploadMethod === 'file' ? 'default' : 'outline'}
+                  size="sm"
+                  onClick={() => setUploadMethod('file')}
+                >
+                  <Upload className="h-4 w-4 mr-2" />
+                  Subir Archivo
+                </Button>
+              </div>
+
+              {uploadMethod === 'url' ? (
+                <Input
+                  value={formData.image_url}
+                  onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
+                  placeholder="https://ejemplo.com/imagen.jpg"
+                />
+              ) : (
+                <div className="space-y-2">
+                  <Input
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileChange}
+                    disabled={isUploading}
+                  />
+                  {isUploading && (
+                    <div className="flex items-center gap-2 text-sm text-gray-600">
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                      Subiendo imagen...
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {formData.image_url && (
+                <div className="mt-3">
+                  <div className="relative w-full h-32 rounded-lg overflow-hidden border">
+                    <img
+                      src={formData.image_url}
+                      alt="Vista previa"
+                      className="w-full h-full object-cover"
+                      onError={(e) => {
+                        e.currentTarget.src = '/placeholder.svg';
+                      }}
+                    />
+                  </div>
+                </div>
+              )}
             </div>
 
             <div className="flex gap-3 pt-4 border-t">
               <Button 
                 onClick={handleSave} 
-                disabled={isSaving}
+                disabled={isSaving || isUploading}
                 className="bg-green-600 hover:bg-green-700"
               >
                 {isSaving ? (
@@ -131,7 +215,7 @@ const AttractionCard = ({
                 )}
                 {isSaving ? 'Guardando...' : 'Guardar'}
               </Button>
-              <Button variant="outline" onClick={handleCancel}>
+              <Button variant="outline" onClick={handleCancel} disabled={isSaving || isUploading}>
                 Cancelar
               </Button>
             </div>
@@ -149,9 +233,17 @@ const AttractionCard = ({
                 <p className="text-gray-600 text-sm mb-3">{attraction.description}</p>
                 
                 {attraction.image_url && (
-                  <div className="flex items-center gap-2 text-sm text-gray-500">
-                    <Image className="h-4 w-4" />
-                    <span>Imagen personalizada configurada</span>
+                  <div className="space-y-2">
+                    <div className="relative w-full h-40 rounded-lg overflow-hidden border">
+                      <img
+                        src={attraction.image_url}
+                        alt={attraction.name}
+                        className="w-full h-full object-cover"
+                        onError={(e) => {
+                          e.currentTarget.src = '/placeholder.svg';
+                        }}
+                      />
+                    </div>
                   </div>
                 )}
               </div>

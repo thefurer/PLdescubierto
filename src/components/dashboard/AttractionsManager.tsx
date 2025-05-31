@@ -6,7 +6,7 @@ import AttractionsHeader from './attractions/AttractionsHeader';
 import CategorySection from './attractions/CategorySection';
 
 const AttractionsManager = () => {
-  const { attractions, loading, saving, updateAttraction } = useTouristAttractions();
+  const { attractions, loading, saving, uploading, updateAttraction, uploadImage } = useTouristAttractions();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
 
@@ -21,6 +21,10 @@ const AttractionsManager = () => {
 
   const handleCancel = () => {
     setEditingId(null);
+  };
+
+  const handleUploadImage = async (file: File, attractionId: string) => {
+    return await uploadImage(file, attractionId);
   };
 
   const toggleItem = (id: string) => {
@@ -64,9 +68,11 @@ const AttractionsManager = () => {
             onToggle={() => toggleItem(category)}
             editingId={editingId}
             saving={saving}
+            uploading={uploading}
             onEdit={handleEdit}
             onSave={handleSave}
             onCancel={handleCancel}
+            onUploadImage={handleUploadImage}
           />
         ))}
       </div>

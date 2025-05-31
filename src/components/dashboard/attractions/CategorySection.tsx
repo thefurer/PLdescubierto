@@ -13,9 +13,11 @@ interface CategorySectionProps {
   onToggle: () => void;
   editingId: string | null;
   saving: boolean;
+  uploading: boolean;
   onEdit: (attraction: TouristAttraction) => void;
   onSave: (id: string, updates: Partial<TouristAttraction>) => void;
   onCancel: () => void;
+  onUploadImage: (file: File, attractionId: string) => Promise<string>;
 }
 
 const categoryLabels = {
@@ -31,10 +33,12 @@ const CategorySection = ({
   isOpen, 
   onToggle, 
   editingId, 
-  saving, 
+  saving,
+  uploading,
   onEdit, 
   onSave, 
-  onCancel 
+  onCancel,
+  onUploadImage
 }: CategorySectionProps) => {
   return (
     <Card>
@@ -70,9 +74,11 @@ const CategorySection = ({
                   attraction={attraction}
                   isEditing={editingId === attraction.id}
                   isSaving={saving}
+                  isUploading={uploading}
                   onEdit={() => onEdit(attraction)}
                   onSave={(updates) => onSave(attraction.id, updates)}
                   onCancel={onCancel}
+                  onUploadImage={onUploadImage}
                 />
               ))}
             </div>

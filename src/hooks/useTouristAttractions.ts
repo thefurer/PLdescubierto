@@ -20,6 +20,7 @@ export const useTouristAttractions = () => {
   const [attractions, setAttractions] = useState<TouristAttraction[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [uploading, setUploading] = useState(false);
   const { toast } = useToast();
 
   const fetchAttractions = async () => {
@@ -53,6 +54,37 @@ export const useTouristAttractions = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const uploadImage = async (file: File, attractionId: string) => {
+    setUploading(true);
+    try {
+      const fileExt = file.name.split('.').pop();
+      const fileName = `${attractionId}-${Date.now()}.${fileExt}`;
+      const filePath = `attractions/${fileName}`;
+
+      const { error: uploadError } = await supabase.storage
+        .from('site-images')
+        .upload(filePath, file);
+
+      if (uploadError) throw uploadError;
+
+      const { data: { publicUrl } } = supabase.storage
+        .from('site-images')
+        .getPublicUrl(filePath);
+
+      return publicUrl;
+    } catch (error: any) {
+      console.error('Failed to upload image:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo subir la imagen',
+        variant: 'destructive'
+      });
+      throw error;
+    } finally {
+      setUploading(false);
     }
   };
 
@@ -124,7 +156,9 @@ export const useTouristAttractions = () => {
     attractions,
     loading,
     saving,
+    uploading,
     updateAttraction,
+    uploadImage,
     fetchAttractions
   };
 };
