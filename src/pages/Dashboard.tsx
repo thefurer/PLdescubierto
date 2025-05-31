@@ -10,13 +10,15 @@ import {
   FileText, 
   History, 
   User,
-  LogOut
+  LogOut,
+  MapPin
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ContentEditor from '@/components/dashboard/ContentEditor';
 import GalleryManager from '@/components/dashboard/GalleryManager';
 import HistoryViewer from '@/components/dashboard/HistoryViewer';
 import UserProfile from '@/components/dashboard/UserProfile';
+import AttractionsManager from '@/components/dashboard/AttractionsManager';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -86,6 +88,14 @@ const Dashboard = () => {
                     Editar Contenido
                   </Button>
                   <Button
+                    variant={activeTab === 'attractions' ? 'default' : 'ghost'}
+                    className="w-full justify-start"
+                    onClick={() => setActiveTab('attractions')}
+                  >
+                    <MapPin className="h-4 w-4 mr-2" />
+                    Gestión de Atracciones
+                  </Button>
+                  <Button
                     variant={activeTab === 'gallery' ? 'default' : 'ghost'}
                     className="w-full justify-start"
                     onClick={() => setActiveTab('gallery')}
@@ -117,6 +127,7 @@ const Dashboard = () => {
           {/* Content Area */}
           <div className="lg:col-span-3">
             {activeTab === 'content' && <ContentEditor />}
+            {activeTab === 'attractions' && <AttractionsManager />}
             {activeTab === 'gallery' && <GalleryManager />}
             {activeTab === 'history' && <HistoryViewer />}
             {activeTab === 'profile' && <UserProfile />}
