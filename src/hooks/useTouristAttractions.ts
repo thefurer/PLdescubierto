@@ -37,7 +37,13 @@ export const useTouristAttractions = () => {
       }
       
       console.log('Fetched attractions:', data);
-      setAttractions(data || []);
+      // Type assertion to ensure category is properly typed
+      const typedAttractions = (data || []).map(attraction => ({
+        ...attraction,
+        category: attraction.category as 'todo' | 'playa' | 'cultura' | 'naturaleza'
+      }));
+      
+      setAttractions(typedAttractions);
     } catch (error: any) {
       console.error('Failed to fetch attractions:', error);
       toast({
