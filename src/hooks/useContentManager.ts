@@ -19,14 +19,21 @@ export const useContentManager = () => {
 
   const fetchContent = async () => {
     try {
+      console.log('Fetching content from database...');
       const { data, error } = await supabase
         .from('site_content')
         .select('*')
         .order('section_name');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error fetching content:', error);
+        throw error;
+      }
+      
+      console.log('Fetched content:', data);
       setContent(data || []);
     } catch (error: any) {
+      console.error('Failed to fetch content:', error);
       toast({
         title: 'Error',
         description: 'No se pudo cargar el contenido',
@@ -40,26 +47,76 @@ export const useContentManager = () => {
   const updateContent = async (sectionName: string, newContent: any) => {
     setSaving(true);
     try {
+      console.log('Updating content for section:', sectionName, newContent);
+      
+      // Get current user
+      const { data: { user } } = await supabase.auth.getUser();
+      
       const { error } = await supabase
         .from('site_content')
         .update({ 
           content: newContent,
-          updated_by: (await supabase.auth.getUser()).data.user?.id 
+          updated_by: user?.id 
         })
         .eq('section_name', sectionName);
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error updating content:', error);
+        throw error;
+      }
 
+      console.log('Content updated successfully');
       toast({
         title: 'Éxito',
         description: 'Contenido actualizado correctamente',
       });
 
+      // Refresh content immediately
       await fetchContent();
     } catch (error: any) {
+      console.error('Failed to update content:', error);
       toast({
         title: 'Error',
         description: 'No se pudo actualizar el contenido',
+        variant: 'destructive'
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const createContent = async (sectionName: string, newContent: any) => {
+    setSaving(true);
+    try {
+      console.log('Creating content for section:', sectionName, newContent);
+      
+      const { data: { user } } = await supabase.auth.getUser();
+      
+      const { error } = await supabase
+        .from('site_content')
+        .insert({ 
+          section_name: sectionName,
+          content: newContent,
+          updated_by: user?.id 
+        });
+
+      if (error) {
+        console.error('Error creating content:', error);
+        throw error;
+      }
+
+      console.log('Content created successfully');
+      toast({
+        title: 'Éxito',
+        description: 'Contenido creado correctamente',
+      });
+
+      await fetchContent();
+    } catch (error: any) {
+      console.error('Failed to create content:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo crear el contenido',
         variant: 'destructive'
       });
     } finally {
@@ -80,7 +137,8 @@ export const useContentManager = () => {
           schema: 'public',
           table: 'site_content'
         },
-        () => {
+        (payload) => {
+          console.log('Real-time update received:', payload);
           fetchContent();
         }
       )
@@ -96,6 +154,7 @@ export const useContentManager = () => {
     loading,
     saving,
     updateContent,
+    createContent,
     fetchContent
   };
 };

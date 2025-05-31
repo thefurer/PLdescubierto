@@ -1,29 +1,35 @@
 
 import { ArrowDown } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useContentManager } from "@/hooks/useContentManager";
 import LanguageSelector from "./LanguageSelector";
 
 const Hero = () => {
   const { language } = useLanguage();
+  const { content } = useContentManager();
+
+  // Find hero content from database
+  const heroContent = content.find(item => item.section_name === 'hero')?.content;
 
   const texts = {
     es: {
-      title: "Descubre la Magia de",
-      subtitle: "Puerto López",
-      description: "Descubre la belleza natural, riqueza cultural y aventuras sin fin en el paraíso costero más encantador de Ecuador.",
+      title: heroContent?.title || "Descubre la Magia de",
+      subtitle: heroContent?.subtitle || "Puerto López",
+      description: heroContent?.description || "Descubre la belleza natural, riqueza cultural y aventuras sin fin en el paraíso costero más encantador de Ecuador.",
       exploreBtn: "Explorar Atracciones",
       virtualBtn: "Experiencia Virtual"
     },
     en: {
-      title: "Discover the Magic of",
-      subtitle: "Puerto Lopez",
-      description: "Unveil the natural beauty, cultural richness, and endless adventures of Ecuador's most enchanting coastal paradise.",
+      title: heroContent?.title || "Discover the Magic of",
+      subtitle: heroContent?.subtitle || "Puerto Lopez", 
+      description: heroContent?.description || "Unveil the natural beauty, cultural richness, and endless adventures of Ecuador's most enchanting coastal paradise.",
       exploreBtn: "Explore Attractions",
       virtualBtn: "Virtual Experience"
     }
   };
 
   const t = texts[language];
+  const backgroundImage = heroContent?.backgroundImage || "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&q=80";
 
   return (
     <section id="home" className="relative h-screen overflow-hidden">
@@ -31,7 +37,7 @@ const Hero = () => {
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ 
-          backgroundImage: "url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&q=80')",
+          backgroundImage: `url('${backgroundImage}')`,
           backgroundPosition: "center 30%"
         }}
       >
