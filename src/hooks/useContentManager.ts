@@ -71,8 +71,19 @@ export const useContentManager = () => {
         description: 'Contenido actualizado correctamente',
       });
 
-      // Refresh content immediately
-      await fetchContent();
+      // Force immediate local update
+      setContent(prevContent => 
+        prevContent.map(item => 
+          item.section_name === sectionName 
+            ? { ...item, content: newContent, updated_at: new Date().toISOString() }
+            : item
+        )
+      );
+
+      // Refresh content from database to ensure consistency
+      setTimeout(() => {
+        fetchContent();
+      }, 100);
     } catch (error: any) {
       console.error('Failed to update content:', error);
       toast({
@@ -127,7 +138,7 @@ export const useContentManager = () => {
   useEffect(() => {
     fetchContent();
 
-    // Set up real-time subscription
+    // Set up real-time subscription for immediate updates
     const channel = supabase
       .channel('site-content-changes')
       .on(
@@ -139,7 +150,22 @@ export const useContentManager = () => {
         },
         (payload) => {
           console.log('Real-time update received:', payload);
-          fetchContent();
+          
+          // Immediately update local state with the new data
+          if (payload.eventType === 'UPDATE' && payload.new) {
+            setContent(prevContent => 
+              prevContent.map(item => 
+                item.id === payload.new.id 
+                  ? { ...payload.new as SiteContent }
+                  : item
+              )
+            );
+          } else if (payload.eventType === 'INSERT' && payload.new) {
+            setContent(prevContent => [...prevContent, payload.new as SiteContent]);
+          } else {
+            // For other events, refresh the entire content
+            fetchContent();
+          }
         }
       )
       .subscribe();

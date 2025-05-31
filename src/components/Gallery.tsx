@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { X, ChevronLeft, ChevronRight, Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useContentManager } from "@/hooks/useContentManager";
 
 type GalleryProps = {
   className?: string;
@@ -71,8 +72,18 @@ const galleryImages = [
 ];
 
 const Gallery = ({ className }: GalleryProps) => {
+  const { content } = useContentManager();
   const [lightboxOpen, setLightboxOpen] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+
+  // Find gallery content from database
+  const galleryContent = content.find(item => item.section_name === 'gallery')?.content;
+
+  // Gallery data with database content override
+  const galleryData = {
+    title: galleryContent?.title || "Galería Visual",
+    description: galleryContent?.description || "Explora la belleza de Puerto López a través de nuestra galería de imágenes. Desde la vida marina hasta los paisajes naturales, cada imagen cuenta una historia única."
+  };
 
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
@@ -105,10 +116,18 @@ const Gallery = ({ className }: GalleryProps) => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-ocean-dark mb-4">
-            Galería <span className="text-green-500">Visual</span>
+            {galleryData.title.split(' ').map((word, index) => (
+              <span key={index}>
+                {index === galleryData.title.split(' ').length - 1 ? (
+                  <span className="text-green-500">{word}</span>
+                ) : (
+                  word + ' '
+                )}
+              </span>
+            ))}
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Explora la belleza de Puerto López a través de nuestra galería de imágenes. Desde la vida marina hasta los paisajes naturales, cada imagen cuenta una historia única.
+            {galleryData.description}
           </p>
         </div>
 
