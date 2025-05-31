@@ -6,7 +6,6 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { 
   Settings, 
-  Images, 
   FileText, 
   History, 
   User,
@@ -15,7 +14,6 @@ import {
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ContentEditor from '@/components/dashboard/ContentEditor';
-import GalleryManager from '@/components/dashboard/GalleryManager';
 import HistoryViewer from '@/components/dashboard/HistoryViewer';
 import UserProfile from '@/components/dashboard/UserProfile';
 import AttractionsManager from '@/components/dashboard/AttractionsManager';
@@ -96,14 +94,6 @@ const Dashboard = () => {
                     Gestión de Atracciones
                   </Button>
                   <Button
-                    variant={activeTab === 'gallery' ? 'default' : 'ghost'}
-                    className="w-full justify-start"
-                    onClick={() => setActiveTab('gallery')}
-                  >
-                    <Images className="h-4 w-4 mr-2" />
-                    Gestión de Imágenes
-                  </Button>
-                  <Button
                     variant={activeTab === 'history' ? 'default' : 'ghost'}
                     className="w-full justify-start"
                     onClick={() => setActiveTab('history')}
@@ -128,7 +118,6 @@ const Dashboard = () => {
           <div className="lg:col-span-3">
             {activeTab === 'content' && <ContentEditor />}
             {activeTab === 'attractions' && <AttractionsManager />}
-            {activeTab === 'gallery' && <GalleryManager />}
             {activeTab === 'history' && <HistoryViewer />}
             {activeTab === 'profile' && <UserProfile />}
           </div>

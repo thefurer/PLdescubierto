@@ -29,6 +29,16 @@ const HistoryViewer = () => {
     }
   };
 
+  const getSectionDisplayName = (sectionName: string) => {
+    const sectionNames: Record<string, string> = {
+      'hero': 'Hero',
+      'footer': 'Footer',
+      'gallery': 'Galería',
+      'tourist_attractions': 'Atracciones Turísticas'
+    };
+    return sectionNames[sectionName] || sectionName.replace('_', ' ');
+  };
+
   if (loading) {
     return (
       <div className="flex items-center justify-center h-64">
@@ -43,7 +53,7 @@ const HistoryViewer = () => {
         <CardHeader>
           <CardTitle>Historial de Cambios</CardTitle>
           <CardDescription>
-            Revisa y revierte cambios realizados en el contenido
+            Revisa y revierte cambios realizados en el contenido y atracciones
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -58,6 +68,7 @@ const HistoryViewer = () => {
                   <SelectItem value="hero">Hero</SelectItem>
                   <SelectItem value="footer">Footer</SelectItem>
                   <SelectItem value="gallery">Galería</SelectItem>
+                  <SelectItem value="tourist_attractions">Atracciones Turísticas</SelectItem>
                 </SelectContent>
               </Select>
             </div>
@@ -79,8 +90,8 @@ const HistoryViewer = () => {
               <CardHeader className="pb-3">
                 <div className="flex justify-between items-start">
                   <div>
-                    <CardTitle className="text-lg capitalize">
-                      {item.section_name.replace('_', ' ')}
+                    <CardTitle className="text-lg">
+                      {getSectionDisplayName(item.section_name)}
                     </CardTitle>
                     <div className="flex items-center gap-2 mt-1">
                       <Badge className={getChangeTypeColor(item.change_type)}>
@@ -91,7 +102,7 @@ const HistoryViewer = () => {
                       </span>
                     </div>
                   </div>
-                  {item.old_content && (
+                  {item.old_content && item.section_name !== 'tourist_attractions' && (
                     <Button
                       variant="outline"
                       size="sm"
@@ -109,7 +120,9 @@ const HistoryViewer = () => {
                     <div>
                       <h4 className="font-semibold text-sm text-red-600 mb-2">Contenido Anterior</h4>
                       <pre className="text-xs bg-red-50 p-3 rounded border overflow-auto max-h-32">
-                        {JSON.stringify(item.old_content, null, 2)}
+                        {typeof item.old_content === 'string' 
+                          ? item.old_content 
+                          : JSON.stringify(item.old_content, null, 2)}
                       </pre>
                     </div>
                   )}
@@ -117,11 +130,18 @@ const HistoryViewer = () => {
                     <div>
                       <h4 className="font-semibold text-sm text-green-600 mb-2">Contenido Nuevo</h4>
                       <pre className="text-xs bg-green-50 p-3 rounded border overflow-auto max-h-32">
-                        {JSON.stringify(item.new_content, null, 2)}
+                        {typeof item.new_content === 'string' 
+                          ? item.new_content 
+                          : JSON.stringify(item.new_content, null, 2)}
                       </pre>
                     </div>
                   )}
                 </div>
+                {item.section_name === 'tourist_attractions' && (
+                  <div className="mt-3 p-2 bg-blue-50 rounded text-sm text-blue-700">
+                    💡 Los cambios en atracciones turísticas solo pueden ser revertidos editando directamente la atracción en la sección de gestión.
+                  </div>
+                )}
               </CardContent>
             </Card>
           ))}

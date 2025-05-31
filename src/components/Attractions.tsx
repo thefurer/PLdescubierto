@@ -32,6 +32,9 @@ const Attractions = ({ className }: AttractionsProps) => {
     ? attractions 
     : attractions.filter(attr => attr.category === activeCategory);
 
+  // Limit to 8 attractions (2 rows of 4 columns)
+  const displayedAttractions = filteredAttractions.slice(0, 8);
+
   if (loading) {
     return (
       <section id="attractions" className={cn("py-20 bg-white", className)}>
@@ -52,7 +55,7 @@ const Attractions = ({ className }: AttractionsProps) => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-ocean-dark mb-4">
-            37 Atracciones <span className="text-green-500">Imprescindibles</span>
+            {attractions.length} Atracciones <span className="text-green-500">Imprescindibles</span>
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             Explora la belleza natural, riqueza cultural y aventuras sin fin que te esperan en Puerto López. Desde playas vírgenes hasta encuentros con vida silvestre, hay algo para todos.
@@ -121,9 +124,9 @@ const Attractions = ({ className }: AttractionsProps) => {
           </div>
         </div>
 
-        {/* Cuadrícula de Atracciones */}
+        {/* Cuadrícula de Atracciones - Limitado a 2 filas (8 atracciones) */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-12">
-          {filteredAttractions.map((attraction) => (
+          {displayedAttractions.map((attraction) => (
             <div
               key={attraction.id}
               className="group bg-white rounded-xl overflow-hidden shadow-md hover:shadow-lg transition-shadow"
@@ -157,7 +160,12 @@ const Attractions = ({ className }: AttractionsProps) => {
         {/* Contador de atracciones */}
         <div className="text-center">
           <p className="text-gray-600">
-            Mostrando {filteredAttractions.length} de {attractions.length} atracciones
+            Mostrando {displayedAttractions.length} de {filteredAttractions.length} atracciones
+            {filteredAttractions.length > 8 && (
+              <span className="block text-sm text-ocean mt-1">
+                Visita nuestro dashboard para ver todas las atracciones
+              </span>
+            )}
           </p>
         </div>
       </div>

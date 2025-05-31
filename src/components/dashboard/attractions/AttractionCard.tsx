@@ -3,13 +3,12 @@ import { useState } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Save, Edit, Image, Upload } from 'lucide-react';
+import { Badge } from '@/components/ui/badge';
+import { Separator } from '@/components/ui/separator';
+import { Edit2, Save, X, Upload, Link, Trash2, Plus } from 'lucide-react';
 import { TouristAttraction } from '@/hooks/useTouristAttractions';
-import { useToast } from '@/hooks/use-toast';
 
 interface AttractionCardProps {
   attraction: TouristAttraction;
@@ -45,220 +44,237 @@ const AttractionCard = ({
     category: attraction.category,
     image_url: attraction.image_url || ''
   });
-  const [uploadMethod, setUploadMethod] = useState<'url' | 'file'>('url');
-  const { toast } = useToast();
+  const [imageUrlInput, setImageUrlInput] = useState('');
+  const [showImageManager, setShowImageManager] = useState(false);
 
   const handleSave = () => {
-    onSave({
-      name: formData.name,
-      description: formData.description,
-      category: formData.category as any,
-      image_url: formData.image_url || null
-    });
+    onSave(formData);
   };
 
-  const handleCancel = () => {
-    setFormData({
-      name: attraction.name,
-      description: attraction.description || '',
-      category: attraction.category,
-      image_url: attraction.image_url || ''
-    });
-    setUploadMethod('url');
-    onCancel();
-  };
+  const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (!file) return;
 
-  const handleFileChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (file) {
-      if (file.size > 5 * 1024 * 1024) {
-        toast({
-          title: 'Error',
-          description: 'El archivo es demasiado grande. Máximo 5MB.',
-          variant: 'destructive'
-        });
-        return;
-      }
-
-      try {
-        const imageUrl = await onUploadImage(file, attraction.id);
-        setFormData(prev => ({ ...prev, image_url: imageUrl }));
-        toast({
-          title: 'Éxito',
-          description: 'Imagen subida correctamente',
-        });
-      } catch (error) {
-        // Error handling is done in the upload function
-      }
+    try {
+      const imageUrl = await onUploadImage(file, attraction.id);
+      setFormData(prev => ({ ...prev, image_url: imageUrl }));
+      setShowImageManager(false);
+    } catch (error) {
+      console.error('Error uploading image:', error);
     }
   };
 
-  return (
-    <Card className="border-l-4 border-l-blue-400">
-      <CardContent className="p-4">
-        {isEditing ? (
+  const handleUrlSubmit = () => {
+    if (imageUrlInput.trim()) {
+      setFormData(prev => ({ ...prev, image_url: imageUrlInput.trim() }));
+      setImageUrlInput('');
+      setShowImageManager(false);
+    }
+  };
+
+  const handleRemoveImage = () => {
+    setFormData(prev => ({ ...prev, image_url: '' }));
+    setShowImageManager(false);
+  };
+
+  if (isEditing) {
+    return (
+      <Card className="border-blue-200 bg-blue-50">
+        <CardContent className="p-6">
           <div className="space-y-4">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              <div>
-                <Label htmlFor="name" className="text-sm font-medium">Nombre</Label>
-                <Input
-                  id="name"
-                  value={formData.name}
-                  onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
-                  className="mt-1"
-                />
-              </div>
-              <div>
-                <Label htmlFor="category" className="text-sm font-medium">Categoría</Label>
-                <Select 
-                  value={formData.category} 
-                  onValueChange={(value) => setFormData(prev => ({ 
-                    ...prev, 
-                    category: value as 'todo' | 'playa' | 'cultura' | 'naturaleza'
-                  }))}
-                >
-                  <SelectTrigger className="mt-1">
-                    <SelectValue placeholder="Selecciona categoría" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="playa">Playa</SelectItem>
-                    <SelectItem value="cultura">Cultura</SelectItem>
-                    <SelectItem value="naturaleza">Naturaleza</SelectItem>
-                  </SelectContent>
-                </Select>
-              </div>
-            </div>
-            
             <div>
-              <Label htmlFor="description" className="text-sm font-medium">Descripción</Label>
-              <Textarea
-                id="description"
-                value={formData.description}
-                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-                rows={3}
-                className="mt-1"
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Nombre
+              </label>
+              <Input
+                value={formData.name}
+                onChange={(e) => setFormData(prev => ({ ...prev, name: e.target.value }))}
+                placeholder="Nombre de la atracción"
               />
             </div>
-            
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">Imagen de la Atracción</Label>
-              
-              <div className="flex gap-2 mb-3">
-                <Button
-                  type="button"
-                  variant={uploadMethod === 'url' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setUploadMethod('url')}
-                >
-                  URL
-                </Button>
-                <Button
-                  type="button"
-                  variant={uploadMethod === 'file' ? 'default' : 'outline'}
-                  size="sm"
-                  onClick={() => setUploadMethod('file')}
-                >
-                  <Upload className="h-4 w-4 mr-2" />
-                  Subir Archivo
-                </Button>
-              </div>
 
-              {uploadMethod === 'url' ? (
-                <Input
-                  value={formData.image_url}
-                  onChange={(e) => setFormData(prev => ({ ...prev, image_url: e.target.value }))}
-                  placeholder="https://ejemplo.com/imagen.jpg"
-                />
-              ) : (
-                <div className="space-y-2">
-                  <Input
-                    type="file"
-                    accept="image/*"
-                    onChange={handleFileChange}
-                    disabled={isUploading}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Descripción
+              </label>
+              <Textarea
+                value={formData.description}
+                onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
+                placeholder="Descripción de la atracción"
+                rows={3}
+              />
+            </div>
+
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Categoría
+              </label>
+              <Select
+                value={formData.category}
+                onValueChange={(value) => setFormData(prev => ({ 
+                  ...prev, 
+                  category: value as 'todo' | 'playa' | 'cultura' | 'naturaleza'
+                }))}
+              >
+                <SelectTrigger>
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="playa">Playa</SelectItem>
+                  <SelectItem value="cultura">Cultura</SelectItem>
+                  <SelectItem value="naturaleza">Naturaleza</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            {/* Gestión de Imagen */}
+            <div>
+              <label className="text-sm font-medium text-gray-700 mb-2 block">
+                Imagen
+              </label>
+              
+              {formData.image_url && (
+                <div className="mb-3">
+                  <img 
+                    src={formData.image_url} 
+                    alt="Preview" 
+                    className="w-full h-32 object-cover rounded-lg border"
                   />
-                  {isUploading && (
-                    <div className="flex items-center gap-2 text-sm text-gray-600">
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                      Subiendo imagen...
-                    </div>
-                  )}
                 </div>
               )}
 
-              {formData.image_url && (
-                <div className="mt-3">
-                  <div className="relative w-full h-32 rounded-lg overflow-hidden border">
-                    <img
-                      src={formData.image_url}
-                      alt="Vista previa"
-                      className="w-full h-full object-cover"
-                      onError={(e) => {
-                        e.currentTarget.src = '/placeholder.svg';
-                      }}
+              <div className="flex gap-2 mb-3">
+                <Button
+                  type="button"
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowImageManager(!showImageManager)}
+                  className="flex-1"
+                >
+                  <Plus className="h-4 w-4 mr-2" />
+                  {formData.image_url ? 'Cambiar Imagen' : 'Agregar Imagen'}
+                </Button>
+                
+                {formData.image_url && (
+                  <Button
+                    type="button"
+                    variant="outline"
+                    size="sm"
+                    onClick={handleRemoveImage}
+                    className="text-red-600 hover:text-red-700"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </Button>
+                )}
+              </div>
+
+              {showImageManager && (
+                <div className="border rounded-lg p-4 bg-gray-50 space-y-3">
+                  <div>
+                    <label className="text-xs font-medium text-gray-600 mb-1 block">
+                      Subir archivo local
+                    </label>
+                    <Input
+                      type="file"
+                      accept="image/*"
+                      onChange={handleFileUpload}
+                      disabled={isUploading}
+                      className="text-sm"
                     />
+                    {isUploading && (
+                      <p className="text-xs text-blue-600 mt-1">Subiendo imagen...</p>
+                    )}
+                  </div>
+
+                  <Separator />
+
+                  <div>
+                    <label className="text-xs font-medium text-gray-600 mb-1 block">
+                      URL de imagen
+                    </label>
+                    <div className="flex gap-2">
+                      <Input
+                        value={imageUrlInput}
+                        onChange={(e) => setImageUrlInput(e.target.value)}
+                        placeholder="https://ejemplo.com/imagen.jpg"
+                        className="text-sm"
+                      />
+                      <Button
+                        type="button"
+                        size="sm"
+                        onClick={handleUrlSubmit}
+                        disabled={!imageUrlInput.trim()}
+                      >
+                        <Link className="h-4 w-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               )}
             </div>
 
-            <div className="flex gap-3 pt-4 border-t">
+            <div className="flex gap-2 pt-4">
               <Button 
                 onClick={handleSave} 
-                disabled={isSaving || isUploading}
-                className="bg-green-600 hover:bg-green-700"
+                disabled={isSaving}
+                size="sm"
               >
-                {isSaving ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <Save className="h-4 w-4 mr-2" />
-                )}
+                <Save className="h-4 w-4 mr-2" />
                 {isSaving ? 'Guardando...' : 'Guardar'}
               </Button>
-              <Button variant="outline" onClick={handleCancel} disabled={isSaving || isUploading}>
+              <Button 
+                variant="outline" 
+                onClick={onCancel}
+                disabled={isSaving}
+                size="sm"
+              >
+                <X className="h-4 w-4 mr-2" />
                 Cancelar
               </Button>
             </div>
           </div>
-        ) : (
-          <div className="space-y-3">
-            <div className="flex items-start justify-between">
-              <div className="flex-1">
-                <div className="flex items-center gap-2 mb-2">
-                  <h4 className="font-semibold text-lg">{attraction.name}</h4>
-                  <Badge variant="secondary" className="capitalize">
-                    {categoryLabels[attraction.category as keyof typeof categoryLabels]}
-                  </Badge>
-                </div>
-                <p className="text-gray-600 text-sm mb-3">{attraction.description}</p>
-                
-                {attraction.image_url && (
-                  <div className="space-y-2">
-                    <div className="relative w-full h-40 rounded-lg overflow-hidden border">
-                      <img
-                        src={attraction.image_url}
-                        alt={attraction.name}
-                        className="w-full h-full object-cover"
-                        onError={(e) => {
-                          e.currentTarget.src = '/placeholder.svg';
-                        }}
-                      />
-                    </div>
-                  </div>
-                )}
-              </div>
-              
-              <Button
-                onClick={onEdit}
-                size="sm"
-                className="ml-4"
-              >
-                <Edit className="h-4 w-4 mr-2" />
-                Editar
-              </Button>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <Card className="hover:shadow-md transition-shadow">
+      <CardContent className="p-6">
+        <div className="flex justify-between items-start mb-4">
+          <div className="flex-1">
+            <div className="flex items-center gap-2 mb-2">
+              <h3 className="text-lg font-semibold text-gray-900">{attraction.name}</h3>
+              <Badge variant="outline" className="text-xs">
+                {categoryLabels[attraction.category as keyof typeof categoryLabels]}
+              </Badge>
             </div>
+            {attraction.description && (
+              <p className="text-gray-600 text-sm line-clamp-2">{attraction.description}</p>
+            )}
+          </div>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onEdit}
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+        </div>
+
+        {attraction.image_url && (
+          <div className="mt-3">
+            <img 
+              src={attraction.image_url} 
+              alt={attraction.name}
+              className="w-full h-32 object-cover rounded-lg border"
+            />
           </div>
         )}
+
+        <div className="mt-4 text-xs text-gray-500">
+          Última actualización: {new Date(attraction.updated_at).toLocaleDateString()}
+        </div>
       </CardContent>
     </Card>
   );
