@@ -77,7 +77,13 @@ const AttractionCard = ({
               </div>
               <div>
                 <Label htmlFor="category" className="text-sm font-medium">Categoría</Label>
-                <Select value={formData.category} onValueChange={(value) => setFormData(prev => ({ ...prev, category: value }))}>
+                <Select 
+                  value={formData.category} 
+                  onValueChange={(value) => setFormData(prev => ({ 
+                    ...prev, 
+                    category: value as 'todo' | 'playa' | 'cultura' | 'naturaleza'
+                  }))}
+                >
                   <SelectTrigger className="mt-1">
                     <SelectValue placeholder="Selecciona categoría" />
                   </SelectTrigger>
