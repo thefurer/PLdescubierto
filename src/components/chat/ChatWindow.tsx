@@ -7,6 +7,7 @@ import LoadingIndicator from './LoadingIndicator';
 import ChatInput from './ChatInput';
 import QuickOptions from './QuickOptions';
 import CompactQuickOptions from './CompactQuickOptions';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface Message {
   id: string;
@@ -35,6 +36,7 @@ const ChatWindow = ({
   onQuickOption
 }: ChatWindowProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
+  const isMobile = useIsMobile();
   const showFullOptions = messages.length <= 1;
   const showCompactOptions = messages.length > 1;
 
@@ -52,13 +54,19 @@ const ChatWindow = ({
   }, [messages]);
 
   return (
-    <div className="fixed bottom-24 right-6 w-96 h-[600px] bg-white rounded-lg shadow-xl border z-40 flex flex-col">
+    <div className={`
+      fixed z-40 bg-white rounded-lg shadow-xl border flex flex-col
+      ${isMobile 
+        ? 'bottom-20 left-2 right-2 h-[70vh] max-h-[500px]'
+        : 'bottom-20 right-4 sm:bottom-24 sm:right-6 w-80 sm:w-96 h-[500px] sm:h-[600px]'
+      }
+    `}>
       {/* Header */}
-      <div className="bg-ocean text-white p-4 rounded-t-lg flex items-center gap-2">
-        <Bot size={20} />
-        <div>
-          <h3 className="font-semibold">Asistente de Soporte</h3>
-          <p className="text-xs opacity-90">Puerto López Descubierto</p>
+      <div className="bg-ocean text-white p-3 sm:p-4 rounded-t-lg flex items-center gap-2">
+        <Bot size={18} className="sm:w-5 sm:h-5" />
+        <div className="flex-1 min-w-0">
+          <h3 className="font-semibold text-sm sm:text-base truncate">Asistente de Soporte</h3>
+          <p className="text-xs opacity-90 truncate">Puerto López Descubierto</p>
         </div>
       </div>
 
@@ -73,8 +81,8 @@ const ChatWindow = ({
       )}
 
       {/* Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-4">
-        <div className="space-y-4">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-3 sm:p-4">
+        <div className="space-y-3 sm:space-y-4">
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}
