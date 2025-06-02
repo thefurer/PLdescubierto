@@ -36,8 +36,8 @@ const CompactQuickOptions = ({ onOptionClick }: CompactQuickOptionsProps) => {
   ];
 
   return (
-    <div className="p-2 border-b bg-gray-50">
-      <div className="flex gap-1 overflow-x-auto">
+    <div className="p-2 border-b border-gray-100 bg-gradient-to-b from-gray-50/30 to-white">
+      <div className="flex gap-1 overflow-x-auto scrollbar-hide">
         {options.map((option, index) => {
           const IconComponent = option.icon;
           return (
@@ -45,10 +45,10 @@ const CompactQuickOptions = ({ onOptionClick }: CompactQuickOptionsProps) => {
               key={index}
               variant="outline"
               size="sm"
-              className="flex-shrink-0 h-8 px-2 text-xs hover:bg-ocean/5 whitespace-nowrap"
+              className="flex-shrink-0 h-7 px-2 text-xs hover:bg-ocean/5 hover:border-ocean/20 whitespace-nowrap border-gray-200 rounded-lg"
               onClick={() => onOptionClick(option.message)}
             >
-              <IconComponent size={12} className="mr-1 text-ocean" />
+              <IconComponent size={10} className="mr-1 text-ocean" />
               <span>{option.label}</span>
             </Button>
           );

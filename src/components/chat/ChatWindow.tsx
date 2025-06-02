@@ -55,18 +55,23 @@ const ChatWindow = ({
 
   return (
     <div className={`
-      fixed z-40 bg-white rounded-lg shadow-xl border flex flex-col
+      fixed z-40 bg-white/95 backdrop-blur-lg rounded-xl shadow-2xl border border-gray-200/50 flex flex-col
       ${isMobile 
-        ? 'bottom-20 left-2 right-2 h-[70vh] max-h-[500px]'
-        : 'bottom-20 right-4 sm:bottom-24 sm:right-6 w-80 sm:w-96 h-[500px] sm:h-[600px]'
+        ? 'bottom-20 left-3 right-3 h-[75vh] max-h-[550px]'
+        : 'bottom-20 right-4 sm:bottom-24 sm:right-6 w-80 sm:w-[22rem] h-[520px] sm:h-[580px]'
       }
     `}>
       {/* Header */}
-      <div className="bg-ocean text-white p-3 sm:p-4 rounded-t-lg flex items-center gap-2">
-        <Bot size={18} className="sm:w-5 sm:h-5" />
+      <div className="bg-gradient-to-r from-ocean to-ocean-dark text-white p-3 rounded-t-xl flex items-center gap-3">
+        <div className="w-8 h-8 bg-white/20 rounded-full flex items-center justify-center">
+          <Bot size={16} className="text-white" />
+        </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-semibold text-sm sm:text-base truncate">Asistente de Soporte</h3>
-          <p className="text-xs opacity-90 truncate">Puerto López Descubierto</p>
+          <h3 className="font-semibold text-sm truncate">Asistente Puerto López</h3>
+          <div className="flex items-center gap-1">
+            <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+            <p className="text-xs opacity-90">En línea</p>
+          </div>
         </div>
       </div>
 
@@ -81,8 +86,8 @@ const ChatWindow = ({
       )}
 
       {/* Messages */}
-      <ScrollArea ref={scrollAreaRef} className="flex-1 p-3 sm:p-4">
-        <div className="space-y-3 sm:space-y-4">
+      <ScrollArea ref={scrollAreaRef} className="flex-1 p-3">
+        <div className="space-y-3">
           {messages.map((message) => (
             <ChatMessage key={message.id} message={message} />
           ))}

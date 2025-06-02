@@ -13,7 +13,7 @@ interface ChatInputProps {
 
 const ChatInput = ({ inputValue, isLoading, onInputChange, onSend, onKeyPress }: ChatInputProps) => {
   return (
-    <div className="p-4 border-t">
+    <div className="p-3 border-t border-gray-100 bg-gray-50/50 rounded-b-xl">
       <div className="flex gap-2">
         <Input
           value={inputValue}
@@ -21,20 +21,17 @@ const ChatInput = ({ inputValue, isLoading, onInputChange, onSend, onKeyPress }:
           onKeyPress={onKeyPress}
           placeholder="Escribe tu mensaje..."
           disabled={isLoading}
-          className="flex-1"
+          className="flex-1 bg-white border-gray-200 focus:border-ocean focus:ring-ocean/20 rounded-lg text-sm"
         />
         <Button
           onClick={onSend}
           disabled={!inputValue.trim() || isLoading}
           size="icon"
-          className="bg-ocean hover:bg-ocean-dark"
+          className="bg-gradient-to-r from-ocean to-ocean-dark hover:from-ocean-dark hover:to-ocean rounded-lg w-9 h-9 shadow-md"
         >
-          <Send size={16} />
+          <Send size={14} />
         </Button>
       </div>
-      <p className="text-xs text-gray-500 mt-2">
-        Presiona Enter para enviar
-      </p>
     </div>
   );
 };

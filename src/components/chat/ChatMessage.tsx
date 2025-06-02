@@ -39,26 +39,26 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
 
   return (
     <div
-      className={`flex gap-3 ${
+      className={`flex gap-2 ${
         message.type === 'user' ? 'justify-end' : 'justify-start'
       }`}
     >
       {message.type === 'bot' && (
-        <div className="w-8 h-8 bg-ocean rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-          <Bot size={16} className="text-white" />
+        <div className="w-6 h-6 bg-gradient-to-br from-ocean to-ocean-dark rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+          <Bot size={12} className="text-white" />
         </div>
       )}
       
       <div
-        className={`max-w-[75%] p-4 rounded-lg text-sm leading-relaxed ${
+        className={`max-w-[80%] px-3 py-2 rounded-xl text-sm leading-relaxed ${
           message.type === 'user'
-            ? 'bg-ocean text-white rounded-br-none'
-            : 'bg-gray-50 text-gray-800 rounded-bl-none border border-gray-100'
+            ? 'bg-gradient-to-r from-ocean to-ocean-dark text-white rounded-br-md shadow-md'
+            : 'bg-gray-50 text-gray-800 rounded-bl-md border border-gray-100 shadow-sm'
         }`}
       >
         {message.type === 'bot' ? (
           <div 
-            className="whitespace-pre-wrap space-y-2"
+            className="whitespace-pre-wrap"
             dangerouslySetInnerHTML={{ 
               __html: formatMessageContent(message.content) 
             }}
@@ -67,16 +67,16 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
           <p className="whitespace-pre-wrap">{message.content}</p>
         )}
         
-        <p className={`text-xs mt-3 ${
-          message.type === 'user' ? 'text-blue-200' : 'text-gray-500'
+        <p className={`text-xs mt-2 ${
+          message.type === 'user' ? 'text-blue-100' : 'text-gray-400'
         }`}>
           {formatTime(message.timestamp)}
         </p>
       </div>
 
       {message.type === 'user' && (
-        <div className="w-8 h-8 bg-gray-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
-          <User size={16} className="text-white" />
+        <div className="w-6 h-6 bg-gradient-to-br from-gray-500 to-gray-600 rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+          <User size={12} className="text-white" />
         </div>
       )}
     </div>
