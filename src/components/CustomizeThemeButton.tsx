@@ -16,27 +16,30 @@ const CustomizeThemeButton = ({ isScrolled, isOpen, onClick }: CustomizeThemeBut
         <button
           onClick={onClick}
           className={cn(
-            "p-2 rounded-full transition-all duration-300 group",
+            "p-3 rounded-full smooth-transition group relative",
             "flex items-center justify-center",
             "hover:scale-110 active:scale-95",
             isScrolled 
-              ? "bg-ocean text-white hover:bg-ocean-dark" 
-              : "bg-white/20 backdrop-blur-sm text-white hover:bg-white/30",
-            "focus:outline-none focus:ring-2 focus:ring-green-light focus:ring-opacity-50",
-            "shadow-sm hover:shadow-md"
+              ? "bg-green-primary text-white hover:bg-green-dark shadow-lg hover:shadow-xl" 
+              : "glass-card text-white hover:bg-white/30",
+            "focus:outline-none focus:ring-2 focus:ring-green-light focus:ring-opacity-50"
           )}
           aria-label="Customize"
           aria-expanded={isOpen}
         >
           <Settings 
             size={20} 
-            className="transition-transform group-hover:rotate-45" 
+            className="smooth-transition group-hover:rotate-45" 
           />
+          {/* Pulse indicator when active */}
+          {isOpen && (
+            <div className="absolute inset-0 rounded-full bg-green-primary/20 animate-ping"></div>
+          )}
         </button>
       </TooltipTrigger>
       <TooltipContent 
         side="bottom" 
-        className="bg-green-primary text-white rounded-md px-3 py-1"
+        className="glass-card text-white rounded-lg px-3 py-2 border-green-light/20"
       >
         Personalizar tema
       </TooltipContent>

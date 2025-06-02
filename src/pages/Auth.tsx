@@ -182,18 +182,30 @@ const Auth = () => {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-ocean-light to-blue-100 px-4">
-      <div className="max-w-md w-full space-y-8">
+    <div className="min-h-screen flex items-center justify-center relative overflow-hidden">
+      {/* Enhanced Background with Gradient */}
+      <div className="absolute inset-0 gradient-bg"></div>
+      
+      {/* Ocean Wave Pattern */}
+      <div className="absolute inset-0 opacity-10">
+        <svg className="w-full h-full" viewBox="0 0 100 100" preserveAspectRatio="none">
+          <path d="M0,50 Q25,30 50,50 T100,50 L100,100 L0,100 Z" fill="white" opacity="0.1"/>
+          <path d="M0,60 Q25,40 50,60 T100,60 L100,100 L0,100 Z" fill="white" opacity="0.05"/>
+        </svg>
+      </div>
+
+      <div className="max-w-md w-full space-y-8 px-4 relative z-10">
         <div className="text-center">
-          <h2 className="text-3xl font-bold text-ocean-dark">
+          <h2 className="text-3xl font-bold text-white drop-shadow-lg">
             {getTitle()}
           </h2>
-          <p className="mt-2 text-gray-600">
+          <p className="mt-2 text-white/90 drop-shadow-md">
             {getSubtitle()}
           </p>
         </div>
 
-        <div className="bg-white rounded-lg shadow-xl border border-white/30 p-8">
+        {/* Enhanced Glass Card */}
+        <div className="glass-card rounded-2xl p-8 shadow-2xl animate-scale-in">
           {renderForm()}
 
           {!isResetMode && !isPasswordReset && !isEmailVerified && (
@@ -201,7 +213,7 @@ const Auth = () => {
               <button
                 type="button"
                 onClick={() => setIsLogin(!isLogin)}
-                className="text-ocean hover:text-ocean-dark transition-colors"
+                className="text-ocean hover:text-ocean-dark smooth-transition font-medium"
               >
                 {isLogin ? '¿No tienes cuenta? Crear una' : '¿Ya tienes cuenta? Iniciar sesión'}
               </button>
@@ -215,13 +227,17 @@ const Auth = () => {
                 onClick={() => {
                   navigate('/auth');
                 }}
-                className="text-ocean hover:text-ocean-dark transition-colors"
+                className="text-ocean hover:text-ocean-dark smooth-transition font-medium"
               >
                 ← Volver al inicio de sesión
               </button>
             </div>
           )}
         </div>
+
+        {/* Background Elements */}
+        <div className="absolute -top-20 -right-20 w-40 h-40 bg-green-primary/10 rounded-full blur-3xl"></div>
+        <div className="absolute -bottom-20 -left-20 w-32 h-32 bg-ocean/10 rounded-full blur-3xl"></div>
       </div>
     </div>
   );

@@ -33,7 +33,7 @@ const Hero = () => {
 
   return (
     <section id="home" className="relative h-screen overflow-hidden">
-      {/* Hero Background */}
+      {/* Hero Background with Enhanced Gradient */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ 
@@ -41,19 +41,27 @@ const Hero = () => {
           backgroundPosition: "center 30%"
         }}
       >
-        <div className="absolute inset-0 bg-gradient-to-b from-ocean-dark/30 via-ocean-dark/20 to-transparent"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-ocean-dark/40 via-ocean/20 to-green-primary/10"></div>
+        <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-green-primary/5"></div>
       </div>
 
-      {/* Animated Wave Overlay */}
+      {/* Enhanced Wave Overlay */}
       <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden">
         <svg 
           className="absolute bottom-0 w-[200%] h-full translate-x-0 animate-wave"
           viewBox="0 0 1000 100" 
           preserveAspectRatio="none"
         >
+          <defs>
+            <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+              <stop offset="0%" style={{stopColor:"white", stopOpacity:1}} />
+              <stop offset="50%" style={{stopColor:"hsl(var(--green-light))", stopOpacity:0.1}} />
+              <stop offset="100%" style={{stopColor:"white", stopOpacity:1}} />
+            </linearGradient>
+          </defs>
           <path 
             d="M0,0 C150,40 350,0 500,30 C650,60 850,20 1000,50 L1000,100 L0,100 Z" 
-            className="fill-white"
+            fill="url(#waveGradient)"
           ></path>
         </svg>
       </div>
@@ -63,24 +71,26 @@ const Hero = () => {
         <div className="flex justify-end mb-8">
           <LanguageSelector />
         </div>
-        <div className="max-w-3xl">
-          <h1 className="text-5xl md:text-7xl font-bold text-white mb-4 drop-shadow-lg">
-            <span className="block">{t.title}</span>
-            <span className="text-blue-500 drop-shadow-lg">{t.subtitle}</span>
+        <div className="max-w-4xl">
+          <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl">
+            <span className="block leading-tight">{t.title}</span>
+            <span className="text-green-primary drop-shadow-2xl bg-gradient-to-r from-green-primary to-green-light bg-clip-text text-transparent">
+              {t.subtitle}
+            </span>
           </h1>
-          <p className="text-xl md:text-2xl text-white mb-8 drop-shadow-md max-w-2xl">
+          <p className="text-xl md:text-2xl text-white/95 mb-10 drop-shadow-lg max-w-3xl leading-relaxed">
             {t.description}
           </p>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-4 max-w-lg">
             <a 
               href="#attractions" 
-              className="px-8 py-3 rounded-full bg-blue-500 hover:bg-blue-600 text-white font-semibold transition-colors shadow-lg focus:ring-2 focus:ring-blue-400/50 text-center"
+              className="btn-primary text-center transform hover:scale-105"
             >
               {t.exploreBtn}
             </a>
             <a 
               href="#virtual-tour" 
-              className="px-8 py-3 rounded-full bg-white/20 backdrop-blur-sm hover:bg-white/30 text-white border border-white/30 font-semibold transition-colors shadow-lg focus:ring-2 focus:ring-white/20 text-center"
+              className="btn-ghost text-center transform hover:scale-105"
             >
               {t.virtualBtn}
             </a>
@@ -88,9 +98,11 @@ const Hero = () => {
         </div>
       </div>
 
-      {/* Scroll Indicator */}
+      {/* Enhanced Scroll Indicator */}
       <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-white animate-bounce z-10">
-        <ArrowDown size={36} />
+        <div className="glass-card rounded-full p-2">
+          <ArrowDown size={28} className="text-green-primary" />
+        </div>
       </div>
     </section>
   );

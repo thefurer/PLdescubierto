@@ -1,3 +1,4 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -34,14 +35,14 @@
 
     --radius: 0.5rem;
 
-    /* Puerto Lopez Theme Colors */
-    --ocean-blue: 203 80% 45%;
-    --ocean-light: 187 65% 78%;
-    --ocean-dark: 203 80% 25%;
+    /* Puerto Lopez Theme Colors - Optimized Balance */
+    --ocean-blue: 203 85% 42%;
+    --ocean-light: 187 70% 75%;
+    --ocean-dark: 203 85% 22%;
     --sand: 43 77% 89%;
     --sand-dark: 36 51% 80%;
-    --tropical: 126 49% 42%;
-    --tropical-light: 88 52% 75%;
+    --tropical: 142 70% 38%;
+    --tropical-light: 142 55% 85%;
     --coral: 16 85% 60%;
     --sunset: 26 100% 67%;
 
@@ -54,15 +55,16 @@
     --sidebar-border: 220 13% 91%;
     --sidebar-ring: 217.2 91.2% 59.8%;
 
-    /* Green Theme Colors */
-    --green-primary: 142 76% 36%;
-    --green-light: 142 60% 87%;
-    --green-dark: 142 76% 27%;
-    --green-muted: 142 30% 94%;
+    /* Enhanced Green Theme Colors */
+    --green-primary: 142 70% 38%;
+    --green-light: 142 55% 85%;
+    --green-dark: 142 70% 28%;
+    --green-muted: 142 30% 95%;
     
-    /* Updating the previous green variables to match new theme */
-    --green: var(--green-primary);
-    --green-light: var(--green-light);
+    /* Glass Effect Variables */
+    --glass-bg: rgba(255, 255, 255, 0.08);
+    --glass-border: rgba(255, 255, 255, 0.18);
+    --glass-backdrop: blur(12px);
   }
 
   .dark {
@@ -114,6 +116,7 @@
 }
 
 @layer utilities {
+  /* Ocean Blue Colors */
   .bg-ocean {
     @apply bg-[hsl(var(--ocean-blue))];
   }
@@ -124,30 +127,6 @@
   
   .bg-ocean-dark {
     @apply bg-[hsl(var(--ocean-dark))];
-  }
-  
-  .bg-sand {
-    @apply bg-[hsl(var(--sand))];
-  }
-  
-  .bg-sand-dark {
-    @apply bg-[hsl(var(--sand-dark))];
-  }
-  
-  .bg-tropical {
-    @apply bg-[hsl(var(--tropical))];
-  }
-  
-  .bg-tropical-light {
-    @apply bg-[hsl(var(--tropical-light))];
-  }
-  
-  .bg-coral {
-    @apply bg-[hsl(var(--coral))];
-  }
-  
-  .bg-sunset {
-    @apply bg-[hsl(var(--sunset))];
   }
   
   .text-ocean {
@@ -162,22 +141,6 @@
     @apply text-[hsl(var(--ocean-dark))];
   }
   
-  .text-sand {
-    @apply text-[hsl(var(--sand))];
-  }
-  
-  .text-tropical {
-    @apply text-[hsl(var(--tropical))];
-  }
-  
-  .text-coral {
-    @apply text-[hsl(var(--coral))];
-  }
-  
-  .text-sunset {
-    @apply text-[hsl(var(--sunset))];
-  }
-  
   .border-ocean {
     @apply border-[hsl(var(--ocean-blue))];
   }
@@ -189,7 +152,8 @@
   .border-ocean-dark {
     @apply border-[hsl(var(--ocean-dark))];
   }
-  
+
+  /* Enhanced Green Colors */
   .bg-green-primary {
     @apply bg-[hsl(var(--green-primary))];
   }
@@ -217,4 +181,102 @@
   .border-green {
     @apply border-[hsl(var(--green-primary))];
   }
+
+  /* Sand Colors */
+  .bg-sand {
+    @apply bg-[hsl(var(--sand))];
+  }
+  
+  .bg-sand-dark {
+    @apply bg-[hsl(var(--sand-dark))];
+  }
+  
+  .text-sand {
+    @apply text-[hsl(var(--sand))];
+  }
+
+  /* Tropical Colors */
+  .bg-tropical {
+    @apply bg-[hsl(var(--tropical))];
+  }
+  
+  .bg-tropical-light {
+    @apply bg-[hsl(var(--tropical-light))];
+  }
+  
+  .text-tropical {
+    @apply text-[hsl(var(--tropical))];
+  }
+
+  /* Coral Colors */
+  .bg-coral {
+    @apply bg-[hsl(var(--coral))];
+  }
+  
+  .text-coral {
+    @apply text-[hsl(var(--coral))];
+  }
+
+  /* Sunset Colors */
+  .bg-sunset {
+    @apply bg-[hsl(var(--sunset))];
+  }
+  
+  .text-sunset {
+    @apply text-[hsl(var(--sunset))];
+  }
+
+  /* Glass Effect Utilities */
+  .glass-card {
+    background: var(--glass-bg);
+    backdrop-filter: var(--glass-backdrop);
+    border: 1px solid var(--glass-border);
+    box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+  }
+
+  .glass-nav {
+    background: rgba(255, 255, 255, 0.95);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+  }
+
+  /* Smooth Transitions */
+  .smooth-transition {
+    @apply transition-all duration-300 ease-in-out;
+  }
+
+  /* Enhanced Button Styles */
+  .btn-primary {
+    @apply bg-ocean hover:bg-ocean-dark text-white font-semibold px-6 py-3 rounded-full smooth-transition shadow-lg hover:shadow-xl focus:ring-2 focus:ring-ocean-light focus:ring-opacity-50;
+  }
+
+  .btn-secondary {
+    @apply bg-green-primary hover:bg-green-dark text-white font-semibold px-6 py-3 rounded-full smooth-transition shadow-lg hover:shadow-xl focus:ring-2 focus:ring-green-light focus:ring-opacity-50;
+  }
+
+  .btn-outline {
+    @apply border-2 border-ocean text-ocean hover:bg-ocean hover:text-white font-semibold px-6 py-3 rounded-full smooth-transition focus:ring-2 focus:ring-ocean-light focus:ring-opacity-50;
+  }
+
+  .btn-ghost {
+    @apply bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 font-semibold px-6 py-3 rounded-full smooth-transition focus:ring-2 focus:ring-white/20;
+  }
+}
+
+/* Custom Animations */
+@keyframes gradient-shift {
+  0% { background-position: 0% 50%; }
+  50% { background-position: 100% 50%; }
+  100% { background-position: 0% 50%; }
+}
+
+.gradient-bg {
+  background: linear-gradient(-45deg, 
+    hsl(var(--ocean-blue)), 
+    hsl(var(--green-primary)), 
+    hsl(var(--ocean-light)), 
+    hsl(var(--tropical-light))
+  );
+  background-size: 400% 400%;
+  animation: gradient-shift 15s ease infinite;
 }
