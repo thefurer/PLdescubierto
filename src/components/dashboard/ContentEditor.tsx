@@ -10,12 +10,23 @@ import { Loader2, Save, Edit, Eye, Clock, User, Sparkles, RefreshCw } from 'luci
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import HeroPreview from '@/components/dashboard/content-previews/HeroPreview';
+import FooterPreview from '@/components/dashboard/content-previews/FooterPreview';
 
-const ContentEditor = () => {
+interface ContentEditorProps {
+  filterSection?: string;
+}
+
+const ContentEditor = ({ filterSection }: ContentEditorProps) => {
   const { content, loading, saving, updateContent, fetchContent } = useContentManager();
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});
   const [previewMode, setPreviewMode] = useState<string | null>(null);
+
+  // Filter content based on filterSection prop
+  const filteredContent = filterSection 
+    ? content.filter(item => item.section_name === filterSection)
+    : content;
 
   const handleEdit = (sectionName: string, sectionContent: any) => {
     setEditingSection(sectionName);
@@ -49,8 +60,15 @@ const ContentEditor = () => {
     switch (sectionName) {
       case 'hero': return '🏠';
       case 'footer': return '📧';
-      case 'gallery': return '🖼️';
       default: return '📄';
+    }
+  };
+
+  const getSectionTitle = (sectionName: string) => {
+    switch (sectionName) {
+      case 'hero': return 'Sección de Portada';
+      case 'footer': return 'Pie de Página';
+      default: return sectionName.replace('_', ' ');
     }
   };
 
@@ -58,8 +76,36 @@ const ContentEditor = () => {
     switch (sectionName) {
       case 'hero': return 'Sección principal con imagen de fondo y texto de bienvenida';
       case 'footer': return 'Información de contacto y datos de la empresa';
-      case 'gallery': return 'Título y descripción de la galería de imágenes';
       default: return 'Sección de contenido del sitio web';
+    }
+  };
+
+  const renderPreview = (section: any, isEditing: boolean = false) => {
+    const previewContent = isEditing ? formData : section.content;
+    
+    switch (section.section_name) {
+      case 'hero':
+        return <HeroPreview content={previewContent} />;
+      case 'footer':
+        return <FooterPreview content={previewContent} />;
+      default:
+        return (
+          <div className="p-4 bg-gray-50 rounded-lg border">
+            <h4 className="font-semibold mb-3 text-gray-700">Vista Previa:</h4>
+            <div className="space-y-3">
+              {Object.entries(previewContent).map(([key, value]) => (
+                <div key={key} className="flex flex-col">
+                  <span className="text-xs font-medium text-gray-500 capitalize mb-1">
+                    {key.replace(/([A-Z])/g, ' $1')}:
+                  </span>
+                  <span className="text-sm text-gray-800 bg-white p-2 rounded border">
+                    {typeof value === 'string' ? value : JSON.stringify(value)}
+                  </span>
+                </div>
+              ))}
+            </div>
+          </div>
+        );
     }
   };
 
@@ -72,7 +118,7 @@ const ContentEditor = () => {
     );
   }
 
-  if (content.length === 0) {
+  if (filteredContent.length === 0) {
     return (
       <div className="space-y-6">
         <Card>
@@ -82,7 +128,10 @@ const ContentEditor = () => {
               Editor de Contenido
             </CardTitle>
             <CardDescription>
-              Edita el contenido de las diferentes secciones de tu sitio web
+              {filterSection 
+                ? `Edita el contenido de la sección: ${getSectionTitle(filterSection)}`
+                : 'Edita el contenido de las diferentes secciones de tu sitio web'
+              }
             </CardDescription>
           </CardHeader>
         </Card>
@@ -111,17 +160,20 @@ const ContentEditor = () => {
         <CardHeader>
           <CardTitle className="flex items-center gap-2 text-blue-900">
             <Sparkles className="h-5 w-5 text-blue-500" />
-            Editor de Contenido
+            {filterSection ? getSectionTitle(filterSection) : 'Editor de Contenido'}
           </CardTitle>
           <CardDescription className="text-blue-700">
-            Edita el contenido de las diferentes secciones de tu sitio web en tiempo real
+            {filterSection 
+              ? `Edita el contenido de la sección: ${getSectionTitle(filterSection)}`
+              : 'Edita el contenido de las diferentes secciones de tu sitio web en tiempo real'
+            }
           </CardDescription>
         </CardHeader>
         <CardContent>
           <div className="flex items-center gap-4 text-sm text-blue-600">
             <div className="flex items-center gap-1">
               <Eye className="h-4 w-4" />
-              {content.length} secciones disponibles
+              {filteredContent.length} {filteredContent.length === 1 ? 'sección disponible' : 'secciones disponibles'}
             </div>
             <Badge variant="secondary" className="bg-blue-100 text-blue-800">
               Actualización en tiempo real
@@ -131,7 +183,7 @@ const ContentEditor = () => {
       </Card>
 
       <div className="grid gap-6">
-        {content.map((section) => (
+        {filteredContent.map((section) => (
           <Card key={section.id} className="transition-all duration-200 hover:shadow-lg">
             <CardHeader className="pb-4">
               <div className="flex justify-between items-start">
@@ -139,8 +191,8 @@ const ContentEditor = () => {
                   <div className="flex items-center gap-3">
                     <span className="text-2xl">{getSectionIcon(section.section_name)}</span>
                     <div>
-                      <CardTitle className="capitalize text-xl">
-                        {section.section_name.replace('_', ' ')}
+                      <CardTitle className="text-xl">
+                        {getSectionTitle(section.section_name)}
                       </CardTitle>
                       <CardDescription className="mt-1">
                         {getSectionDescription(section.section_name)}
@@ -167,6 +219,7 @@ const ContentEditor = () => {
                         variant="outline"
                         size="sm"
                         onClick={() => handlePreview(section.section_name)}
+                        className="bg-blue-50 hover:bg-blue-100 border-blue-200"
                       >
                         <Eye className="h-4 w-4 mr-2" />
                         {previewMode === section.section_name ? 'Ocultar' : 'Vista Previa'}
@@ -254,7 +307,7 @@ const ContentEditor = () => {
                             />
                           </div>
                           <div>
-                            <Label htmlFor="email" className="text-sm font-medium">Email</Label>
+                            <Label htmlFor="email" className="text-sm font-medium">Correo Electrónico</Label>
                             <Input
                               id="email"
                               type="email"
@@ -297,30 +350,6 @@ const ContentEditor = () => {
                       </>
                     )}
 
-                    {section.section_name === 'gallery' && (
-                      <>
-                        <div>
-                          <Label htmlFor="title" className="text-sm font-medium">Título de la Galería</Label>
-                          <Input
-                            id="title"
-                            value={formData.title || ''}
-                            onChange={(e) => updateFormField('title', e.target.value)}
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="description" className="text-sm font-medium">Descripción</Label>
-                          <Textarea
-                            id="description"
-                            value={formData.description || ''}
-                            onChange={(e) => updateFormField('description', e.target.value)}
-                            rows={3}
-                            className="mt-1"
-                          />
-                        </div>
-                      </>
-                    )}
-
                     <div className="flex gap-3 pt-4 border-t">
                       <Button 
                         onClick={handleSave} 
@@ -341,41 +370,13 @@ const ContentEditor = () => {
                   </TabsContent>
                   
                   <TabsContent value="preview" className="mt-4">
-                    <div className="p-4 bg-gray-50 rounded-lg border">
-                      <h4 className="font-semibold mb-3 text-gray-700">Vista Previa:</h4>
-                      <div className="space-y-3">
-                        {Object.entries(formData).map(([key, value]) => (
-                          <div key={key} className="flex flex-col">
-                            <span className="text-xs font-medium text-gray-500 capitalize mb-1">
-                              {key.replace(/([A-Z])/g, ' $1')}:
-                            </span>
-                            <span className="text-sm text-gray-800 bg-white p-2 rounded border">
-                              {typeof value === 'string' ? value : JSON.stringify(value)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    {renderPreview(section, true)}
                   </TabsContent>
                 </Tabs>
               ) : (
                 <div className="space-y-3">
                   {previewMode === section.section_name ? (
-                    <div className="p-4 bg-blue-50 rounded-lg border border-blue-200">
-                      <h4 className="font-semibold mb-3 text-blue-700">Contenido Actual:</h4>
-                      <div className="space-y-2">
-                        {Object.entries(section.content).map(([key, value]) => (
-                          <div key={key} className="flex flex-col">
-                            <span className="text-xs font-medium text-blue-600 capitalize mb-1">
-                              {key.replace(/([A-Z])/g, ' $1')}:
-                            </span>
-                            <span className="text-sm text-gray-700 bg-white p-2 rounded border">
-                              {typeof value === 'string' ? value : JSON.stringify(value)}
-                            </span>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
+                    renderPreview(section)
                   ) : (
                     <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                       {Object.entries(section.content).slice(0, 3).map(([key, value]) => (

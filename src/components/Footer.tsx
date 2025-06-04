@@ -51,13 +51,7 @@ const Footer = () => {
                 <a href="#attractions" className="text-gray-300 hover:text-white transition-colors">Atracciones</a>
               </li>
               <li>
-                <a href="#activities" className="text-gray-300 hover:text-white transition-colors">Actividades</a>
-              </li>
-              <li>
-                <a href="#gallery" className="text-gray-300 hover:text-white transition-colors">Galería</a>
-              </li>
-              <li>
-                <a href="#virtual-tour" className="text-gray-300 hover:text-white transition-colors">Tour Virtual</a>
+                <a href="#virtual-tour" className="text-gray-300 hover:text-white transition-colors">Metaverso</a>
               </li>
               <li>
                 <a href="#contact" className="text-gray-300 hover:text-white transition-colors">Contacto</a>

@@ -53,20 +53,12 @@ const Navbar = () => {
               Atracciones
             </a>
             <a 
-              href="#activities" 
+              href="#virtual-tour" 
               className={`hover:text-green-primary smooth-transition font-medium ${
                 isScrolled ? 'text-gray-700' : 'text-white'
               }`}
             >
-              Actividades
-            </a>
-            <a 
-              href="#gallery" 
-              className={`hover:text-green-primary smooth-transition font-medium ${
-                isScrolled ? 'text-gray-700' : 'text-white'
-              }`}
-            >
-              Galería
+              Metaverso
             </a>
             <a 
               href="#contact" 
@@ -133,18 +125,11 @@ const Navbar = () => {
                 Atracciones
               </a>
               <a 
-                href="#activities" 
+                href="#virtual-tour" 
                 className="text-gray-700 hover:text-green-primary smooth-transition font-medium"
                 onClick={() => setIsOpen(false)}
               >
-                Actividades
-              </a>
-              <a 
-                href="#gallery" 
-                className="text-gray-700 hover:text-green-primary smooth-transition font-medium"
-                onClick={() => setIsOpen(false)}
-              >
-                Galería
+                Metaverso
               </a>
               <a 
                 href="#contact" 

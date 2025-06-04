@@ -10,7 +10,8 @@ import {
   History, 
   User,
   LogOut,
-  MapPin
+  MapPin,
+  Home
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ContentEditor from '@/components/dashboard/ContentEditor';
@@ -21,7 +22,7 @@ import AttractionsManager from '@/components/dashboard/AttractionsManager';
 const Dashboard = () => {
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
-  const [activeTab, setActiveTab] = useState('content');
+  const [activeTab, setActiveTab] = useState('hero');
 
   const handleSignOut = async () => {
     await signOut();
@@ -36,7 +37,7 @@ const Dashboard = () => {
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
               <h1 className="text-2xl font-bold text-ocean-dark">
-                Dashboard de Contenido
+                Panel de Administración
               </h1>
             </div>
             <div className="flex items-center space-x-4">
@@ -78,12 +79,20 @@ const Dashboard = () => {
               <CardContent className="p-0">
                 <nav className="space-y-1">
                   <Button
-                    variant={activeTab === 'content' ? 'default' : 'ghost'}
+                    variant={activeTab === 'hero' ? 'default' : 'ghost'}
                     className="w-full justify-start"
-                    onClick={() => setActiveTab('content')}
+                    onClick={() => setActiveTab('hero')}
+                  >
+                    <Home className="h-4 w-4 mr-2" />
+                    Editar Portada
+                  </Button>
+                  <Button
+                    variant={activeTab === 'footer' ? 'default' : 'ghost'}
+                    className="w-full justify-start"
+                    onClick={() => setActiveTab('footer')}
                   >
                     <FileText className="h-4 w-4 mr-2" />
-                    Editar Contenido
+                    Editar Pie de Página
                   </Button>
                   <Button
                     variant={activeTab === 'attractions' ? 'default' : 'ghost'}
@@ -116,7 +125,8 @@ const Dashboard = () => {
 
           {/* Content Area */}
           <div className="lg:col-span-3">
-            {activeTab === 'content' && <ContentEditor />}
+            {activeTab === 'hero' && <ContentEditor filterSection="hero" />}
+            {activeTab === 'footer' && <ContentEditor filterSection="footer" />}
             {activeTab === 'attractions' && <AttractionsManager />}
             {activeTab === 'history' && <HistoryViewer />}
             {activeTab === 'profile' && <UserProfile />}
