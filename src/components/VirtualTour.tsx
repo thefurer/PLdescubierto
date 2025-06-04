@@ -23,14 +23,14 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
   return (
     <section 
       id="virtual-tour" 
-      className={cn("py-20 bg-gradient-to-b from-blue-600 via-blue-500 to-blue-700", className)}
+      className={cn("py-20 bg-gradient-to-b from-ocean-light/20 via-ocean/15 to-ocean/25", className)}
     >
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-white mb-4">
-            {t.title} <span className="text-blue-200">{t.subtitle}</span>
+          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            {t.title} <span className="text-ocean">{t.subtitle}</span>
           </h2>
-          <p className="text-lg text-white/80 max-w-3xl mx-auto">
+          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
             {t.description}
           </p>
         </div>
