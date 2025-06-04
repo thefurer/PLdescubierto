@@ -2,7 +2,6 @@
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Attractions from "@/components/Attractions";
-import Gallery from "@/components/Gallery";
 import VirtualTour from "@/components/VirtualTour";
 import Contact from "@/components/Contact";
 import Footer from "@/components/Footer";
@@ -14,7 +13,6 @@ const Index = () => {
       <Navbar />
       <Hero />
       <Attractions />
-      <Gallery />
       <VirtualTour />
       <Contact />
       <Footer />
