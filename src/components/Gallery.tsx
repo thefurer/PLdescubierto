@@ -1,75 +1,16 @@
+
 import { useState } from "react";
-import { X, ChevronLeft, ChevronRight, Camera, ChevronDown } from "lucide-react";
+import { Camera } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useContentManager } from "@/hooks/useContentManager";
-import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from "@/components/ui/accordion";
+import { Accordion } from "@/components/ui/accordion";
+import { galleryImages, groupImagesByCategory } from "@/data/galleryData";
+import GalleryLightbox from "@/components/gallery/GalleryLightbox";
+import GalleryAccordionItem from "@/components/gallery/GalleryAccordionItem";
 
 type GalleryProps = {
   className?: string;
 };
-
-const galleryImages = [
-  {
-    id: 1,
-    src: "https://images.unsplash.com/photo-1518877593221-1f28583780b4?auto=format&fit=crop&q=80",
-    alt: "Humpback whale jumping out of water",
-    category: "Wildlife"
-  },
-  {
-    id: 2,
-    src: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&q=80",
-    alt: "Beautiful ocean wave at Los Frailes beach",
-    category: "Beach"
-  },
-  {
-    id: 3,
-    src: "https://images.unsplash.com/photo-1466442929976-97f336a657be?auto=format&fit=crop&q=80",
-    alt: "Local cultural site in Puerto Lopez",
-    category: "Culture"
-  },
-  {
-    id: 4,
-    src: "https://images.unsplash.com/photo-1482938289607-e9573fc25ebb?auto=format&fit=crop&q=80",
-    alt: "River between mountains in Machalilla National Park",
-    category: "Nature"
-  },
-  {
-    id: 5,
-    src: "https://images.unsplash.com/photo-1587559070757-b4efd8be928d?auto=format&fit=crop&q=80",
-    alt: "Lush ecological trail through the jungle",
-    category: "Nature"
-  },
-  {
-    id: 6,
-    src: "https://images.unsplash.com/photo-1472396961693-142e6e269027?auto=format&fit=crop&q=80",
-    alt: "Deer in natural habitat of Machalilla National Park",
-    category: "Wildlife"
-  },
-  {
-    id: 7,
-    src: "https://images.unsplash.com/photo-1606545609115-f55737664c3b?auto=format&fit=crop&q=80",
-    alt: "Fresh seafood dish from local restaurant",
-    category: "Cuisine"
-  },
-  {
-    id: 8,
-    src: "https://images.unsplash.com/photo-1568430462989-44163eb1752f?auto=format&fit=crop&q=80",
-    alt: "Whale watching tour boat near humpback whale",
-    category: "Activity"
-  },
-  {
-    id: 9,
-    src: "https://images.unsplash.com/photo-1621335829175-95205d9b3229?auto=format&fit=crop&q=80",
-    alt: "Rock formations at El Sombrerito Beach",
-    category: "Nature"
-  },
-  {
-    id: 10,
-    src: "https://images.unsplash.com/photo-1516715021267-d7c2873a369b?auto=format&fit=crop&q=80",
-    alt: "Boat excursion to Isla de la Plata",
-    category: "Activity"
-  }
-];
 
 const Gallery = ({ className }: GalleryProps) => {
   const { content } = useContentManager();
@@ -86,13 +27,7 @@ const Gallery = ({ className }: GalleryProps) => {
   };
 
   // Group images by category
-  const groupedImages = galleryImages.reduce((acc, image) => {
-    if (!acc[image.category]) {
-      acc[image.category] = [];
-    }
-    acc[image.category].push(image);
-    return acc;
-  }, {} as Record<string, typeof galleryImages>);
+  const groupedImages = groupImagesByCategory(galleryImages);
 
   const openLightbox = (index: number) => {
     setCurrentImageIndex(index);
@@ -144,48 +79,13 @@ const Gallery = ({ className }: GalleryProps) => {
         <div className="max-w-4xl mx-auto">
           <Accordion type="multiple" className="space-y-4">
             {Object.entries(groupedImages).map(([category, images]) => (
-              <AccordionItem 
-                key={category} 
-                value={category}
-                className="bg-white rounded-xl shadow-lg border-0 overflow-hidden"
-              >
-                <AccordionTrigger className="px-6 py-4 hover:no-underline">
-                  <div className="flex items-center gap-3">
-                    <div className="w-12 h-12 rounded-full bg-gradient-to-r from-ocean to-ocean-dark flex items-center justify-center">
-                      <Camera className="text-white" size={20} />
-                    </div>
-                    <div>
-                      <h3 className="text-xl font-bold text-ocean-dark text-left">{category}</h3>
-                      <p className="text-sm text-gray-600 text-left">{images.length} imágenes</p>
-                    </div>
-                  </div>
-                </AccordionTrigger>
-                <AccordionContent className="px-6 pb-6">
-                  <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
-                    {images.map((image, index) => {
-                      const globalIndex = galleryImages.findIndex(img => img.id === image.id);
-                      return (
-                        <div 
-                          key={image.id} 
-                          className="relative overflow-hidden rounded-lg aspect-square cursor-pointer group"
-                          onClick={() => openLightbox(globalIndex)}
-                        >
-                          <img 
-                            src={image.src} 
-                            alt={image.alt} 
-                            className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                          />
-                          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-4">
-                            <div className="text-white">
-                              <p className="font-medium text-sm">{image.alt}</p>
-                            </div>
-                          </div>
-                        </div>
-                      );
-                    })}
-                  </div>
-                </AccordionContent>
-              </AccordionItem>
+              <GalleryAccordionItem
+                key={category}
+                category={category}
+                images={images}
+                allImages={galleryImages}
+                onImageClick={openLightbox}
+              />
             ))}
           </Accordion>
         </div>
@@ -199,55 +99,14 @@ const Gallery = ({ className }: GalleryProps) => {
         </div>
 
         {/* Lightbox */}
-        {lightboxOpen && (
-          <div className="fixed inset-0 z-50 bg-black/90 flex items-center justify-center p-4 animate-fade-in">
-            <button 
-              className="absolute top-6 right-6 text-white hover:text-gray-300 z-10"
-              onClick={closeLightbox}
-            >
-              <X size={32} />
-            </button>
-            
-            <button 
-              className="absolute left-6 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10"
-              onClick={() => navigateToImage("prev")}
-            >
-              <ChevronLeft size={48} />
-            </button>
-            
-            <button 
-              className="absolute right-6 top-1/2 -translate-y-1/2 text-white hover:text-gray-300 z-10"
-              onClick={() => navigateToImage("next")}
-            >
-              <ChevronRight size={48} />
-            </button>
-            
-            <div className="relative max-w-5xl max-h-[80vh]">
-              <img 
-                src={galleryImages[currentImageIndex].src} 
-                alt={galleryImages[currentImageIndex].alt} 
-                className="max-h-[80vh] max-w-full object-contain"
-              />
-              <div className="absolute bottom-0 left-0 right-0 bg-black/50 text-white p-4">
-                <p className="font-medium">{galleryImages[currentImageIndex].alt}</p>
-                <p className="text-sm text-gray-300">{galleryImages[currentImageIndex].category}</p>
-              </div>
-            </div>
-
-            <div className="absolute bottom-8 left-1/2 -translate-x-1/2 flex space-x-2">
-              {galleryImages.map((_, index) => (
-                <button 
-                  key={index}
-                  className={cn(
-                    "w-3 h-3 rounded-full",
-                    index === currentImageIndex ? "bg-white" : "bg-gray-500 hover:bg-gray-400"
-                  )}
-                  onClick={() => setCurrentImageIndex(index)}
-                />
-              ))}
-            </div>
-          </div>
-        )}
+        <GalleryLightbox
+          isOpen={lightboxOpen}
+          currentImageIndex={currentImageIndex}
+          images={galleryImages}
+          onClose={closeLightbox}
+          onNavigate={navigateToImage}
+          onImageSelect={setCurrentImageIndex}
+        />
       </div>
     </section>
   );
