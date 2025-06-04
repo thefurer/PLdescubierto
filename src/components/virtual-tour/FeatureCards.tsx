@@ -1,6 +1,4 @@
-
 import { Users, Headset, Video, ChevronRight } from "lucide-react";
-
 type FeatureCardsProps = {
   texts: {
     interactive: string;
@@ -12,13 +10,13 @@ type FeatureCardsProps = {
     explore: string;
   };
 };
-
-const FeatureCards = ({ texts }: FeatureCardsProps) => {
-  return (
-    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+const FeatureCards = ({
+  texts
+}: FeatureCardsProps) => {
+  return <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div className="bg-black/20 backdrop-blur-sm rounded-xl p-6 hover:bg-black/30 transition-all border border-cyan-400/20 hover:border-cyan-400/40">
         <div className="flex items-center gap-3 mb-4">
-          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-cyan-500 to-green-600 flex items-center justify-center">
+          <div className="w-12 h-12 rounded-full bg-gradient-to-r from-cyan-500 to-green-600 flex items-center justify-center bg-zinc-950">
             <Users className="text-white" size={24} />
           </div>
           <h4 className="text-white font-bold text-lg">{texts.interactive}</h4>
@@ -54,8 +52,6 @@ const FeatureCards = ({ texts }: FeatureCardsProps) => {
           {texts.explore} <ChevronRight size={16} />
         </button>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default FeatureCards;
