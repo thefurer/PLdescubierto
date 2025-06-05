@@ -11,13 +11,15 @@ import {
   User,
   LogOut,
   MapPin,
-  Home
+  Home,
+  Shield
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import ContentEditor from '@/components/dashboard/ContentEditor';
 import HistoryViewer from '@/components/dashboard/HistoryViewer';
 import UserProfile from '@/components/dashboard/UserProfile';
 import AttractionsManager from '@/components/dashboard/AttractionsManager';
+import AdminManager from '@/components/dashboard/AdminManager';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -103,6 +105,14 @@ const Dashboard = () => {
                     Gestión de Atracciones
                   </Button>
                   <Button
+                    variant={activeTab === 'admin' ? 'default' : 'ghost'}
+                    className="w-full justify-start"
+                    onClick={() => setActiveTab('admin')}
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    Gestión de Admins
+                  </Button>
+                  <Button
                     variant={activeTab === 'history' ? 'default' : 'ghost'}
                     className="w-full justify-start"
                     onClick={() => setActiveTab('history')}
@@ -128,6 +138,7 @@ const Dashboard = () => {
             {activeTab === 'hero' && <ContentEditor filterSection="hero" />}
             {activeTab === 'footer' && <ContentEditor filterSection="footer" />}
             {activeTab === 'attractions' && <AttractionsManager />}
+            {activeTab === 'admin' && <AdminManager />}
             {activeTab === 'history' && <HistoryViewer />}
             {activeTab === 'profile' && <UserProfile />}
           </div>
