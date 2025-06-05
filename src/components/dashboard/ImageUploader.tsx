@@ -110,6 +110,13 @@ const ImageUploader = ({ onImageUploaded, currentImageUrl, disabled }: ImageUplo
     }
   };
 
+  const handleButtonClick = () => {
+    const fileInput = document.querySelector('input[type="file"]') as HTMLInputElement;
+    if (fileInput) {
+      fileInput.click();
+    }
+  };
+
   return (
     <div className="space-y-4">
       <Label className="text-sm font-medium text-gray-700">
@@ -187,7 +194,7 @@ const ImageUploader = ({ onImageUploaded, currentImageUrl, disabled }: ImageUplo
         <Button
           variant="outline"
           disabled={disabled || uploading}
-          onClick={() => document.querySelector('input[type="file"]')?.click()}
+          onClick={handleButtonClick}
           className="bg-gradient-to-r from-blue-50 to-indigo-50 hover:from-blue-100 hover:to-indigo-100 border-blue-200"
         >
           <Image className="h-4 w-4 mr-2" />
