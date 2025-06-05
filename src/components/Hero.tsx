@@ -29,8 +29,8 @@ const Hero = () => {
   };
 
   const currentTexts = texts[language];
-  // Updated to a beautiful beach sunset image
-  const backgroundImage = heroContent?.backgroundImage || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=1920";
+  // Updated to a beautiful beach sunset image that complements the site colors
+  const backgroundImage = heroContent?.backgroundImage || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1920";
 
   return (
     <section id="home" className="relative h-screen overflow-hidden">
@@ -43,7 +43,7 @@ const Hero = () => {
         }}
       >
         {/* Black transparency overlay */}
-        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="absolute inset-0 bg-black/40"></div>
         {/* Enhanced gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-ocean-dark/40 via-ocean/20 to-green-primary/10"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-green-primary/5"></div>
