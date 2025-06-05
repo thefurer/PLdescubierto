@@ -21,16 +21,31 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
   };
 
   const formatMessageContent = (content: string) => {
-    // Convert markdown-style formatting to HTML
-    let formatted = content
-      // Bold text
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      // Italic text
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      // Bullet points
-      .replace(/^• (.*$)/gim, '<div class="flex items-start gap-2 my-1"><span class="text-ocean">•</span><span>$1</span></div>')
-      // Numbered lists
-      .replace(/^(\d+)\. (.*$)/gim, '<div class="flex items-start gap-2 my-1"><span class="text-ocean font-semibold">$1.</span><span>$2</span></div>')
+    // Sanitize content first - remove any script tags and potentially dangerous HTML
+    const sanitized = content
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
+      .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
+      .replace(/<embed\b[^<]*>/gi, '')
+      .replace(/javascript:/gi, '')
+      .replace(/on\w+\s*=/gi, '');
+
+    // Convert safe markdown-style formatting to HTML
+    let formatted = sanitized
+      // Bold text - only allow simple ** formatting
+      .replace(/\*\*([\w\s.,!?áéíóúñü]+?)\*\*/g, '<strong>$1</strong>')
+      // Italic text - only allow simple * formatting  
+      .replace(/\*([\w\s.,!?áéíóúñü]+?)\*/g, '<em>$1</em>')
+      // Bullet points - sanitize content
+      .replace(/^• (.*$)/gim, (match, text) => {
+        const safeText = text.replace(/[<>]/g, '');
+        return `<div class="flex items-start gap-2 my-1"><span class="text-ocean">•</span><span>${safeText}</span></div>`;
+      })
+      // Numbered lists - sanitize content
+      .replace(/^(\d+)\. (.*$)/gim, (match, num, text) => {
+        const safeText = text.replace(/[<>]/g, '');
+        return `<div class="flex items-start gap-2 my-1"><span class="text-ocean font-semibold">${num}.</span><span>${safeText}</span></div>`;
+      })
       // Line breaks
       .replace(/\n/g, '<br/>');
 
@@ -64,6 +79,7 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
             }}
           />
         ) : (
+          // For user messages, use text content only (no HTML)
           <p className="whitespace-pre-wrap">{message.content}</p>
         )}
         

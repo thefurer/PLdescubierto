@@ -28,12 +28,30 @@ const ChatBot = () => {
 
   const sendMessage = async (messageContent?: string) => {
     const messageToSend = messageContent || inputValue.trim();
+    
+    // Input validation
     if (!messageToSend || isLoading) return;
+    
+    // Sanitize input to prevent XSS
+    const sanitizedMessage = messageToSend
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<[^>]*>/g, '')
+      .substring(0, 1000)
+      .trim();
+    
+    if (!sanitizedMessage) {
+      toast({
+        title: 'Mensaje inválido',
+        description: 'El mensaje no puede estar vacío o contener contenido no válido.',
+        variant: 'destructive'
+      });
+      return;
+    }
 
     const userMessage: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: messageToSend,
+      content: sanitizedMessage,
       timestamp: new Date()
     };
 
@@ -42,16 +60,11 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      console.log('Sending message to chat-support function:', messageToSend);
-      
       const { data, error } = await supabase.functions.invoke('chat-support', {
-        body: { message: messageToSend }
+        body: { message: sanitizedMessage }
       });
 
-      console.log('Response from chat-support:', { data, error });
-
       if (error) {
-        console.error('Supabase function error:', error);
         throw new Error(error.message || 'Error al procesar el mensaje');
       }
 
@@ -64,8 +77,6 @@ const ChatBot = () => {
 
       setMessages(prev => [...prev, botMessage]);
     } catch (error: any) {
-      console.error('Error enviando mensaje:', error);
-      
       let errorMessage = 'Lo siento, hay un problema técnico. Puedes contactarnos directamente en apincay@gmail.com o al +593 99 199 5390.';
       
       if (error.message) {

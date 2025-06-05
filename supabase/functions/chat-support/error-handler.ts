@@ -2,10 +2,11 @@
 import { CORS_HEADERS } from './constants.ts';
 
 export function createErrorResponse(error: any, status: number = 500): Response {
-  console.error('Error en chat-support:', error);
+  // Log error internally but don't expose sensitive details
+  console.error('Error en chat-support - timestamp:', new Date().toISOString());
   
-  const errorMessage = error.message || 'Error procesando el mensaje.';
-  const fallbackMessage = error.message || 'Lo siento, hay un problema técnico. Puedes contactarnos directamente en apincay@gmail.com o por WhatsApp al +593 99 199 5390 para asistencia inmediata.';
+  const errorMessage = 'Lo siento, hay un problema técnico temporal.';
+  const fallbackMessage = 'Lo siento, hay un problema técnico. Puedes contactarnos directamente en apincay@gmail.com o por WhatsApp al +593 99 199 5390 para asistencia inmediata.';
 
   return new Response(JSON.stringify({ 
     error: errorMessage,

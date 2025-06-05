@@ -15,29 +15,45 @@ serve(async (req) => {
 
   try {
     const { message }: ChatRequest = await req.json();
-    console.log('Mensaje recibido:', message);
     
-    const googleApiKey = 'AIzaSyDN3Ax3Y7sfs_efO4pWSpLi05oSRB4IKUg';
+    // Input validation - prevent XSS and injection attacks
+    if (!message || typeof message !== 'string') {
+      throw new Error('Mensaje inválido');
+    }
+    
+    // Sanitize message - remove potentially dangerous characters and limit length
+    const sanitizedMessage = message
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<[^>]*>/g, '')
+      .substring(0, 1000)
+      .trim();
+    
+    if (!sanitizedMessage) {
+      throw new Error('El mensaje no puede estar vacío');
+    }
+
+    const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
 
     if (!googleApiKey) {
-      console.error('Google API Key no está configurada');
-      throw new Error('Google API Key no está configurada');
+      console.error('Google API Key no está configurada en los secrets de Supabase');
+      throw new Error('Configuración del servicio no disponible');
     }
 
     // Obtener información de contacto actualizada desde la base de datos
     const contactInfo = await getContactInfo();
 
     const systemPrompt = buildSystemPrompt(contactInfo);
-    const fullPrompt = `${systemPrompt}\n\nUsuario: ${message}\n\nAsistente:`;
+    const fullPrompt = `${systemPrompt}\n\nUsuario: ${sanitizedMessage}\n\nAsistente:`;
 
-    console.log('Enviando petición a Google Gemini...');
-    
     const geminiClient = new GeminiClient(googleApiKey);
     const reply = await geminiClient.generateResponse(fullPrompt);
     
-    console.log('Respuesta generada exitosamente');
+    // Sanitize the AI response as well to prevent XSS
+    const sanitizedReply = reply
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .trim();
 
-    return createSuccessResponse(reply);
+    return createSuccessResponse(sanitizedReply);
 
   } catch (error) {
     return createErrorResponse(error);
