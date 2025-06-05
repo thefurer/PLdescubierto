@@ -2,13 +2,11 @@
 import { ArrowDown } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useContentManager } from "@/hooks/useContentManager";
-import { useTranslations } from "@/hooks/useTranslations";
 import LanguageSelector from "./LanguageSelector";
 
 const Hero = () => {
   const { language } = useLanguage();
   const { content } = useContentManager();
-  const { t } = useTranslations();
 
   // Find hero content from database
   const heroContent = content.find(item => item.section_name === 'hero')?.content;
