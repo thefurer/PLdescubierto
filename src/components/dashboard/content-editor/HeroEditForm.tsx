@@ -24,7 +24,7 @@ const HeroEditForm = ({ formData, updateFormField, handleImageUpload, saving }: 
             id="title"
             value={formData.title || ''}
             onChange={(e) => updateFormField('title', e.target.value)}
-            placeholder="Título del hero"
+            placeholder="Título del hero (ej: Descubre la Magia de / Discover the Magic of)"
             className="bg-white border-gray-200 focus:border-blue-400"
           />
         </div>
@@ -36,7 +36,7 @@ const HeroEditForm = ({ formData, updateFormField, handleImageUpload, saving }: 
             id="subtitle"
             value={formData.subtitle || ''}
             onChange={(e) => updateFormField('subtitle', e.target.value)}
-            placeholder="Subtítulo del hero"
+            placeholder="Subtítulo del hero (ej: Puerto López)"
             className="bg-white border-gray-200 focus:border-blue-400"
           />
         </div>
@@ -49,7 +49,7 @@ const HeroEditForm = ({ formData, updateFormField, handleImageUpload, saving }: 
           id="description"
           value={formData.description || ''}
           onChange={(e) => updateFormField('description', e.target.value)}
-          placeholder="Descripción del hero"
+          placeholder="Descripción del hero (aparecerá en ambos idiomas según la configuración)"
           rows={3}
           className="mt-2 bg-white border-gray-200 focus:border-blue-400"
         />
@@ -74,9 +74,12 @@ const HeroEditForm = ({ formData, updateFormField, handleImageUpload, saving }: 
           id="backgroundImage"
           value={formData.backgroundImage || ''}
           onChange={(e) => updateFormField('backgroundImage', e.target.value)}
-          placeholder="https://ejemplo.com/imagen.jpg"
+          placeholder="https://ejemplo.com/atardecer-playa.jpg"
           className="bg-white border-gray-200 focus:border-blue-400"
         />
+        <p className="text-xs text-gray-500 mt-1">
+          Recomendado: Una imagen de atardecer en playa que combine con los colores del sitio (tamaño: 1920x1080px)
+        </p>
       </div>
     </>
   );

@@ -21,15 +21,16 @@ const Hero = () => {
     },
     en: {
       title: heroContent?.title || "Discover the Magic of",
-      subtitle: heroContent?.subtitle || "Puerto Lopez", 
-      description: heroContent?.description || "Unveil the natural beauty, cultural richness, and endless adventures of Ecuador's most enchanting coastal paradise.",
+      subtitle: heroContent?.subtitle || "Puerto López", 
+      description: heroContent?.description || "Discover the natural beauty, cultural richness, and endless adventures in Ecuador's most enchanting coastal paradise.",
       exploreBtn: "Explore Attractions",
       virtualBtn: "Virtual Experience"
     }
   };
 
   const t = texts[language];
-  const backgroundImage = heroContent?.backgroundImage || "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&q=80";
+  // Updated to a beautiful beach sunset image that matches the site's color palette
+  const backgroundImage = heroContent?.backgroundImage || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1920";
 
   return (
     <section id="home" className="relative h-screen overflow-hidden">
