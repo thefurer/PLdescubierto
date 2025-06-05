@@ -1,16 +1,17 @@
-
 import { ArrowDown } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useContentManager } from "@/hooks/useContentManager";
 import LanguageSelector from "./LanguageSelector";
-
 const Hero = () => {
-  const { language } = useLanguage();
-  const { content } = useContentManager();
+  const {
+    language
+  } = useLanguage();
+  const {
+    content
+  } = useContentManager();
 
   // Find hero content from database
   const heroContent = content.find(item => item.section_name === 'hero')?.content;
-
   const texts = {
     es: {
       title: heroContent?.title || "Descubre la Magia de",
@@ -21,27 +22,21 @@ const Hero = () => {
     },
     en: {
       title: heroContent?.title || "Discover the Magic of",
-      subtitle: heroContent?.subtitle || "Puerto López", 
+      subtitle: heroContent?.subtitle || "Puerto López",
       description: heroContent?.description || "Discover the natural beauty, cultural richness, and endless adventures in Ecuador's most enchanting coastal paradise.",
       exploreBtn: "Explore Attractions",
       virtualBtn: "Virtual Experience"
     }
   };
-
   const currentTexts = texts[language];
   // Updated to a beautiful beach sunset image that complements the site colors
   const backgroundImage = heroContent?.backgroundImage || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1920";
-
-  return (
-    <section id="home" className="relative h-screen overflow-hidden">
+  return <section id="home" className="relative h-screen overflow-hidden">
       {/* Hero Background */}
-      <div 
-        className="absolute inset-0 bg-cover bg-center bg-no-repeat"
-        style={{ 
-          backgroundImage: `url('${backgroundImage}')`,
-          backgroundPosition: "center 30%"
-        }}
-      >
+      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
+      backgroundImage: `url('${backgroundImage}')`,
+      backgroundPosition: "center 30%"
+    }}>
         {/* Black transparency overlay */}
         <div className="absolute inset-0 bg-black/40"></div>
         {/* Enhanced gradient overlay */}
@@ -51,22 +46,24 @@ const Hero = () => {
 
       {/* Enhanced Wave Overlay */}
       <div className="absolute bottom-0 left-0 right-0 h-32 overflow-hidden">
-        <svg 
-          className="absolute bottom-0 w-[200%] h-full translate-x-0 animate-wave"
-          viewBox="0 0 1000 100" 
-          preserveAspectRatio="none"
-        >
+        <svg className="absolute bottom-0 w-[200%] h-full translate-x-0 animate-wave" viewBox="0 0 1000 100" preserveAspectRatio="none">
           <defs>
             <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
-              <stop offset="0%" style={{stopColor:"white", stopOpacity:1}} />
-              <stop offset="50%" style={{stopColor:"hsl(var(--green-light))", stopOpacity:0.1}} />
-              <stop offset="100%" style={{stopColor:"white", stopOpacity:1}} />
+              <stop offset="0%" style={{
+              stopColor: "white",
+              stopOpacity: 1
+            }} />
+              <stop offset="50%" style={{
+              stopColor: "hsl(var(--green-light))",
+              stopOpacity: 0.1
+            }} />
+              <stop offset="100%" style={{
+              stopColor: "white",
+              stopOpacity: 1
+            }} />
             </linearGradient>
           </defs>
-          <path 
-            d="M0,0 C150,40 350,0 500,30 C650,60 850,20 1000,50 L1000,100 L0,100 Z" 
-            fill="url(#waveGradient)"
-          ></path>
+          <path d="M0,0 C150,40 350,0 500,30 C650,60 850,20 1000,50 L1000,100 L0,100 Z" fill="url(#waveGradient)"></path>
         </svg>
       </div>
 
@@ -78,7 +75,7 @@ const Hero = () => {
         <div className="max-w-4xl">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl">
             <span className="block leading-tight">{currentTexts.title}</span>
-            <span className="text-green-primary drop-shadow-2xl bg-gradient-to-r from-green-primary to-green-light bg-clip-text text-transparent">
+            <span className="text-green-primary drop-shadow-2xl bg-gradient-to-r from-green-primary to-green-light bg-clip-text text-[#1080c6]">
               {currentTexts.subtitle}
             </span>
           </h1>
@@ -86,16 +83,10 @@ const Hero = () => {
             {currentTexts.description}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 max-w-lg">
-            <a 
-              href="#attractions" 
-              className="btn-primary text-center transform hover:scale-105"
-            >
+            <a href="#attractions" className="btn-primary text-center transform hover:scale-105">
               {currentTexts.exploreBtn}
             </a>
-            <a 
-              href="#virtual-tour" 
-              className="btn-ghost text-center transform hover:scale-105"
-            >
+            <a href="#virtual-tour" className="btn-ghost text-center transform hover:scale-105">
               {currentTexts.virtualBtn}
             </a>
           </div>
@@ -108,8 +99,6 @@ const Hero = () => {
           <ArrowDown size={28} className="text-green-primary" />
         </div>
       </div>
-    </section>
-  );
+    </section>;
 };
-
 export default Hero;
