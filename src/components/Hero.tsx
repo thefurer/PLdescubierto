@@ -2,11 +2,13 @@
 import { ArrowDown } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useContentManager } from "@/hooks/useContentManager";
+import { useTranslations } from "@/hooks/useTranslations";
 import LanguageSelector from "./LanguageSelector";
 
 const Hero = () => {
   const { language } = useLanguage();
   const { content } = useContentManager();
+  const { t } = useTranslations();
 
   // Find hero content from database
   const heroContent = content.find(item => item.section_name === 'hero')?.content;
@@ -28,13 +30,13 @@ const Hero = () => {
     }
   };
 
-  const t = texts[language];
-  // Updated to a beautiful beach sunset image that matches the site's color palette
-  const backgroundImage = heroContent?.backgroundImage || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1920";
+  const currentTexts = texts[language];
+  // Updated to a beautiful beach sunset image
+  const backgroundImage = heroContent?.backgroundImage || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=1920";
 
   return (
     <section id="home" className="relative h-screen overflow-hidden">
-      {/* Hero Background with Enhanced Gradient */}
+      {/* Hero Background */}
       <div 
         className="absolute inset-0 bg-cover bg-center bg-no-repeat"
         style={{ 
@@ -42,6 +44,9 @@ const Hero = () => {
           backgroundPosition: "center 30%"
         }}
       >
+        {/* Black transparency overlay */}
+        <div className="absolute inset-0 bg-black/30"></div>
+        {/* Enhanced gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-ocean-dark/40 via-ocean/20 to-green-primary/10"></div>
         <div className="absolute inset-0 bg-gradient-to-r from-transparent via-transparent to-green-primary/5"></div>
       </div>
@@ -74,26 +79,26 @@ const Hero = () => {
         </div>
         <div className="max-w-4xl">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl">
-            <span className="block leading-tight">{t.title}</span>
+            <span className="block leading-tight">{currentTexts.title}</span>
             <span className="text-green-primary drop-shadow-2xl bg-gradient-to-r from-green-primary to-green-light bg-clip-text text-transparent">
-              {t.subtitle}
+              {currentTexts.subtitle}
             </span>
           </h1>
           <p className="text-xl md:text-2xl text-white/95 mb-10 drop-shadow-lg max-w-3xl leading-relaxed">
-            {t.description}
+            {currentTexts.description}
           </p>
           <div className="flex flex-col sm:flex-row gap-4 max-w-lg">
             <a 
               href="#attractions" 
               className="btn-primary text-center transform hover:scale-105"
             >
-              {t.exploreBtn}
+              {currentTexts.exploreBtn}
             </a>
             <a 
               href="#virtual-tour" 
               className="btn-ghost text-center transform hover:scale-105"
             >
-              {t.virtualBtn}
+              {currentTexts.virtualBtn}
             </a>
           </div>
         </div>

@@ -12,11 +12,14 @@ interface HeroPreviewProps {
 
 const HeroPreview = ({ content }: HeroPreviewProps) => {
   // Updated default to beach sunset image
-  const backgroundImage = content.backgroundImage || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1920";
+  const backgroundImage = content.backgroundImage || "https://images.unsplash.com/photo-1506905925346-21bda4d32df4?auto=format&fit=crop&q=80&w=1920";
   
   return (
     <Card className="overflow-hidden border border-blue-200">
       <div className="relative h-64 bg-cover bg-center" style={{ backgroundImage: `url('${backgroundImage}')` }}>
+        {/* Black transparency overlay */}
+        <div className="absolute inset-0 bg-black/30"></div>
+        {/* Enhanced gradient overlay */}
         <div className="absolute inset-0 bg-gradient-to-b from-ocean-dark/40 via-ocean/20 to-green-primary/10"></div>
         <div className="absolute inset-0 flex flex-col justify-center px-6">
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 drop-shadow-lg">
