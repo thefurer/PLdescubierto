@@ -1,6 +1,10 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
-import { CORS_HEADERS } from '../chat-support/constants.ts'
+
+const CORS_HEADERS = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
 
 interface ContactFormData {
   name: string;
