@@ -6,12 +6,14 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { useContentManager } from '@/hooks/useContentManager';
-import { Loader2, Save, Edit, Eye, Clock, User, Sparkles, RefreshCw } from 'lucide-react';
+import { Loader2, Save, Edit, Eye, Clock, User, Sparkles, RefreshCw, Globe, Palette, Zap } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Separator } from '@/components/ui/separator';
 import HeroPreview from '@/components/dashboard/content-previews/HeroPreview';
 import FooterPreview from '@/components/dashboard/content-previews/FooterPreview';
+import ImageUploader from '@/components/dashboard/ImageUploader';
 
 interface ContentEditorProps {
   filterSection?: string;
@@ -56,11 +58,15 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 
+  const handleImageUpload = (imageUrl: string) => {
+    updateFormField('backgroundImage', imageUrl);
+  };
+
   const getSectionIcon = (sectionName: string) => {
     switch (sectionName) {
-      case 'hero': return '🏠';
-      case 'footer': return '📧';
-      default: return '📄';
+      case 'hero': return <Globe className="h-6 w-6 text-blue-500" />;
+      case 'footer': return <Palette className="h-6 w-6 text-green-500" />;
+      default: return <Zap className="h-6 w-6 text-purple-500" />;
     }
   };
 
@@ -80,6 +86,14 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
     }
   };
 
+  const getSectionColor = (sectionName: string) => {
+    switch (sectionName) {
+      case 'hero': return 'from-blue-50 to-cyan-50 border-blue-200';
+      case 'footer': return 'from-green-50 to-emerald-50 border-green-200';
+      default: return 'from-purple-50 to-pink-50 border-purple-200';
+    }
+  };
+
   const renderPreview = (section: any, isEditing: boolean = false) => {
     const previewContent = isEditing ? formData : section.content;
     
@@ -90,17 +104,22 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
         return <FooterPreview content={previewContent} />;
       default:
         return (
-          <div className="p-4 bg-gray-50 rounded-lg border">
-            <h4 className="font-semibold mb-3 text-gray-700">Vista Previa:</h4>
-            <div className="space-y-3">
+          <div className="p-6 bg-gradient-to-br from-gray-50 to-white rounded-xl border border-gray-100 shadow-sm">
+            <h4 className="font-semibold mb-4 text-gray-800 flex items-center gap-2">
+              <Eye className="h-4 w-4" />
+              Vista Previa
+            </h4>
+            <div className="grid gap-4">
               {Object.entries(previewContent).map(([key, value]) => (
-                <div key={key} className="flex flex-col">
-                  <span className="text-xs font-medium text-gray-500 capitalize mb-1">
-                    {key.replace(/([A-Z])/g, ' $1')}:
+                <div key={key} className="group">
+                  <span className="text-xs font-medium text-gray-500 capitalize mb-2 block">
+                    {key.replace(/([A-Z])/g, ' $1')}
                   </span>
-                  <span className="text-sm text-gray-800 bg-white p-2 rounded border">
-                    {typeof value === 'string' ? value : JSON.stringify(value)}
-                  </span>
+                  <div className="bg-white p-3 rounded-lg border border-gray-200 group-hover:border-blue-200 transition-colors">
+                    <span className="text-sm text-gray-800">
+                      {typeof value === 'string' ? value : JSON.stringify(value)}
+                    </span>
+                  </div>
                 </div>
               ))}
             </div>
@@ -112,8 +131,14 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center h-64 space-y-4">
-        <Loader2 className="h-8 w-8 animate-spin text-blue-500" />
-        <p className="text-gray-600">Cargando contenido...</p>
+        <div className="relative">
+          <Loader2 className="h-12 w-12 animate-spin text-blue-500" />
+          <div className="absolute inset-0 bg-blue-100 rounded-full animate-ping opacity-20"></div>
+        </div>
+        <div className="text-center space-y-2">
+          <p className="text-lg font-medium text-gray-700">Cargando contenido...</p>
+          <p className="text-sm text-gray-500">Preparando el editor para ti</p>
+        </div>
       </div>
     );
   }
@@ -121,13 +146,15 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
   if (filteredContent.length === 0) {
     return (
       <div className="space-y-6">
-        <Card>
+        <Card className="bg-gradient-to-r from-blue-50 via-indigo-50 to-purple-50 border-blue-200">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <Sparkles className="h-5 w-5 text-blue-500" />
+            <CardTitle className="flex items-center gap-3 text-blue-900">
+              <div className="p-2 bg-blue-100 rounded-lg">
+                <Sparkles className="h-6 w-6 text-blue-600" />
+              </div>
               Editor de Contenido
             </CardTitle>
-            <CardDescription>
+            <CardDescription className="text-blue-700">
               {filterSection 
                 ? `Edita el contenido de la sección: ${getSectionTitle(filterSection)}`
                 : 'Edita el contenido de las diferentes secciones de tu sitio web'
@@ -136,14 +163,14 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
           </CardHeader>
         </Card>
         
-        <Alert>
-          <AlertDescription className="flex items-center justify-between">
-            No hay contenido disponible para editar.
+        <Alert className="border-amber-200 bg-amber-50">
+          <AlertDescription className="flex items-center justify-between text-amber-800">
+            <span>No hay contenido disponible para editar.</span>
             <Button 
               variant="outline" 
               size="sm" 
               onClick={fetchContent}
-              className="ml-4"
+              className="ml-4 border-amber-300 text-amber-700 hover:bg-amber-100"
             >
               <RefreshCw className="h-4 w-4 mr-2" />
               Recargar
@@ -155,59 +182,86 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
   }
 
   return (
-    <div className="space-y-6">
-      <Card className="bg-gradient-to-r from-blue-50 to-indigo-50 border-blue-200">
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-blue-900">
-            <Sparkles className="h-5 w-5 text-blue-500" />
-            {filterSection ? getSectionTitle(filterSection) : 'Editor de Contenido'}
-          </CardTitle>
-          <CardDescription className="text-blue-700">
-            {filterSection 
-              ? `Edita el contenido de la sección: ${getSectionTitle(filterSection)}`
-              : 'Edita el contenido de las diferentes secciones de tu sitio web en tiempo real'
-            }
-          </CardDescription>
+    <div className="space-y-8">
+      {/* Header Section */}
+      <Card className={`bg-gradient-to-r ${getSectionColor(filterSection || 'hero')} shadow-lg`}>
+        <CardHeader className="pb-6">
+          <div className="flex items-center justify-between">
+            <div className="space-y-2">
+              <CardTitle className="flex items-center gap-3 text-2xl">
+                <div className="p-3 bg-white/80 rounded-xl shadow-sm">
+                  <Sparkles className="h-7 w-7 text-blue-600" />
+                </div>
+                <div>
+                  {filterSection ? getSectionTitle(filterSection) : 'Editor de Contenido'}
+                  <div className="flex items-center gap-2 mt-1">
+                    <Badge variant="secondary" className="bg-white/70 text-blue-700 border-blue-200">
+                      <Zap className="h-3 w-3 mr-1" />
+                      Tiempo Real
+                    </Badge>
+                  </div>
+                </div>
+              </CardTitle>
+              <CardDescription className="text-lg">
+                {filterSection 
+                  ? getSectionDescription(filterSection)
+                  : 'Gestiona y actualiza el contenido de tu sitio web con facilidad'
+                }
+              </CardDescription>
+            </div>
+          </div>
         </CardHeader>
         <CardContent>
-          <div className="flex items-center gap-4 text-sm text-blue-600">
-            <div className="flex items-center gap-1">
+          <div className="flex items-center gap-6 text-sm">
+            <div className="flex items-center gap-2 text-blue-600">
               <Eye className="h-4 w-4" />
-              {filteredContent.length} {filteredContent.length === 1 ? 'sección disponible' : 'secciones disponibles'}
+              <span className="font-medium">
+                {filteredContent.length} {filteredContent.length === 1 ? 'sección' : 'secciones'}
+              </span>
             </div>
-            <Badge variant="secondary" className="bg-blue-100 text-blue-800">
-              Actualización en tiempo real
-            </Badge>
+            <Separator orientation="vertical" className="h-4" />
+            <div className="flex items-center gap-2 text-green-600">
+              <div className="h-2 w-2 bg-green-500 rounded-full animate-pulse"></div>
+              <span>Sistema activo</span>
+            </div>
           </div>
         </CardContent>
       </Card>
 
-      <div className="grid gap-6">
+      {/* Content Sections */}
+      <div className="grid gap-8">
         {filteredContent.map((section) => (
-          <Card key={section.id} className="transition-all duration-200 hover:shadow-lg">
+          <Card key={section.id} className={`transition-all duration-300 hover:shadow-xl bg-gradient-to-br ${getSectionColor(section.section_name)} border-l-4`}>
             <CardHeader className="pb-4">
               <div className="flex justify-between items-start">
-                <div className="space-y-2">
-                  <div className="flex items-center gap-3">
-                    <span className="text-2xl">{getSectionIcon(section.section_name)}</span>
-                    <div>
-                      <CardTitle className="text-xl">
+                <div className="space-y-3 flex-1">
+                  <div className="flex items-center gap-4">
+                    <div className="p-3 bg-white/80 rounded-xl shadow-sm">
+                      {getSectionIcon(section.section_name)}
+                    </div>
+                    <div className="space-y-1">
+                      <CardTitle className="text-xl text-gray-800">
                         {getSectionTitle(section.section_name)}
                       </CardTitle>
-                      <CardDescription className="mt-1">
+                      <CardDescription className="text-gray-600">
                         {getSectionDescription(section.section_name)}
                       </CardDescription>
                     </div>
                   </div>
                   <div className="flex items-center gap-4 text-xs text-gray-500">
-                    <div className="flex items-center gap-1">
+                    <div className="flex items-center gap-1 bg-white/50 px-2 py-1 rounded-full">
                       <Clock className="h-3 w-3" />
-                      {new Date(section.updated_at).toLocaleString()}
+                      {new Date(section.updated_at).toLocaleDateString('es-ES', {
+                        day: 'numeric',
+                        month: 'short',
+                        hour: '2-digit',
+                        minute: '2-digit'
+                      })}
                     </div>
                     {section.updated_by && (
-                      <div className="flex items-center gap-1">
+                      <div className="flex items-center gap-1 bg-white/50 px-2 py-1 rounded-full">
                         <User className="h-3 w-3" />
-                        Editado por usuario
+                        Usuario autorizado
                       </div>
                     )}
                   </div>
@@ -219,14 +273,14 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
                         variant="outline"
                         size="sm"
                         onClick={() => handlePreview(section.section_name)}
-                        className="bg-blue-50 hover:bg-blue-100 border-blue-200"
+                        className="bg-white/70 hover:bg-white border-blue-200 text-blue-700"
                       >
                         <Eye className="h-4 w-4 mr-2" />
-                        {previewMode === section.section_name ? 'Ocultar' : 'Vista Previa'}
+                        {previewMode === section.section_name ? 'Ocultar' : 'Previsualizar'}
                       </Button>
                       <Button
                         onClick={() => handleEdit(section.section_name, section.content)}
-                        className="bg-blue-600 hover:bg-blue-700"
+                        className="bg-blue-600 hover:bg-blue-700 shadow-md"
                       >
                         <Edit className="h-4 w-4 mr-2" />
                         Editar
@@ -237,124 +291,162 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
               </div>
             </CardHeader>
             
-            <CardContent>
+            <CardContent className="pt-0">
               {editingSection === section.section_name ? (
                 <Tabs defaultValue="edit" className="w-full">
-                  <TabsList className="grid w-full grid-cols-2">
-                    <TabsTrigger value="edit">Editar</TabsTrigger>
-                    <TabsTrigger value="preview">Vista Previa</TabsTrigger>
+                  <TabsList className="grid w-full grid-cols-2 bg-white/70">
+                    <TabsTrigger value="edit" className="data-[state=active]:bg-white">
+                      <Edit className="h-4 w-4 mr-2" />
+                      Editar
+                    </TabsTrigger>
+                    <TabsTrigger value="preview" className="data-[state=active]:bg-white">
+                      <Eye className="h-4 w-4 mr-2" />
+                      Vista Previa
+                    </TabsTrigger>
                   </TabsList>
                   
-                  <TabsContent value="edit" className="space-y-4 mt-4">
-                    {section.section_name === 'hero' && (
-                      <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="title" className="text-sm font-medium">Título Principal</Label>
-                            <Input
-                              id="title"
-                              value={formData.title || ''}
-                              onChange={(e) => updateFormField('title', e.target.value)}
-                              placeholder="Título del hero"
-                              className="mt-1"
+                  <TabsContent value="edit" className="space-y-6 mt-6">
+                    <div className="bg-white/80 backdrop-blur-sm rounded-xl p-6 border border-white/50 shadow-sm">
+                      {section.section_name === 'hero' && (
+                        <>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div className="space-y-2">
+                              <Label htmlFor="title" className="text-sm font-semibold text-gray-700">
+                                Título Principal
+                              </Label>
+                              <Input
+                                id="title"
+                                value={formData.title || ''}
+                                onChange={(e) => updateFormField('title', e.target.value)}
+                                placeholder="Título del hero"
+                                className="bg-white border-gray-200 focus:border-blue-400"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="subtitle" className="text-sm font-semibold text-gray-700">
+                                Subtítulo
+                              </Label>
+                              <Input
+                                id="subtitle"
+                                value={formData.subtitle || ''}
+                                onChange={(e) => updateFormField('subtitle', e.target.value)}
+                                placeholder="Subtítulo del hero"
+                                className="bg-white border-gray-200 focus:border-blue-400"
+                              />
+                            </div>
+                          </div>
+                          <div className="mb-6">
+                            <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
+                              Descripción
+                            </Label>
+                            <Textarea
+                              id="description"
+                              value={formData.description || ''}
+                              onChange={(e) => updateFormField('description', e.target.value)}
+                              placeholder="Descripción del hero"
+                              rows={3}
+                              className="mt-2 bg-white border-gray-200 focus:border-blue-400"
                             />
                           </div>
-                          <div>
-                            <Label htmlFor="subtitle" className="text-sm font-medium">Subtítulo</Label>
+                          
+                          <Separator className="my-6" />
+                          
+                          {/* Image Upload Section */}
+                          <ImageUploader
+                            onImageUploaded={handleImageUpload}
+                            currentImageUrl={formData.backgroundImage}
+                            disabled={saving}
+                          />
+                          
+                          <Separator className="my-6" />
+                          
+                          <div className="space-y-2">
+                            <Label htmlFor="backgroundImage" className="text-sm font-semibold text-gray-700">
+                              O usar URL de imagen externa
+                            </Label>
                             <Input
-                              id="subtitle"
-                              value={formData.subtitle || ''}
-                              onChange={(e) => updateFormField('subtitle', e.target.value)}
-                              placeholder="Subtítulo del hero"
-                              className="mt-1"
+                              id="backgroundImage"
+                              value={formData.backgroundImage || ''}
+                              onChange={(e) => updateFormField('backgroundImage', e.target.value)}
+                              placeholder="https://ejemplo.com/imagen.jpg"
+                              className="bg-white border-gray-200 focus:border-blue-400"
                             />
                           </div>
-                        </div>
-                        <div>
-                          <Label htmlFor="description" className="text-sm font-medium">Descripción</Label>
-                          <Textarea
-                            id="description"
-                            value={formData.description || ''}
-                            onChange={(e) => updateFormField('description', e.target.value)}
-                            placeholder="Descripción del hero"
-                            rows={3}
-                            className="mt-1"
-                          />
-                        </div>
-                        <div>
-                          <Label htmlFor="backgroundImage" className="text-sm font-medium">URL de Imagen de Fondo</Label>
-                          <Input
-                            id="backgroundImage"
-                            value={formData.backgroundImage || ''}
-                            onChange={(e) => updateFormField('backgroundImage', e.target.value)}
-                            placeholder="https://..."
-                            className="mt-1"
-                          />
-                        </div>
-                      </>
-                    )}
+                        </>
+                      )}
 
-                    {section.section_name === 'footer' && (
-                      <>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="companyName" className="text-sm font-medium">Nombre de la Empresa</Label>
-                            <Input
-                              id="companyName"
-                              value={formData.companyName || ''}
-                              onChange={(e) => updateFormField('companyName', e.target.value)}
-                              className="mt-1"
+                      {section.section_name === 'footer' && (
+                        <>
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                            <div className="space-y-2">
+                              <Label htmlFor="companyName" className="text-sm font-semibold text-gray-700">
+                                Nombre de la Empresa
+                              </Label>
+                              <Input
+                                id="companyName"
+                                value={formData.companyName || ''}
+                                onChange={(e) => updateFormField('companyName', e.target.value)}
+                                className="bg-white border-gray-200 focus:border-green-400"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="email" className="text-sm font-semibold text-gray-700">
+                                Correo Electrónico
+                              </Label>
+                              <Input
+                                id="email"
+                                type="email"
+                                value={formData.email || ''}
+                                onChange={(e) => updateFormField('email', e.target.value)}
+                                className="bg-white border-gray-200 focus:border-green-400"
+                              />
+                            </div>
+                          </div>
+                          <div className="mb-6">
+                            <Label htmlFor="description" className="text-sm font-semibold text-gray-700">
+                              Descripción
+                            </Label>
+                            <Textarea
+                              id="description"
+                              value={formData.description || ''}
+                              onChange={(e) => updateFormField('description', e.target.value)}
+                              rows={3}
+                              className="mt-2 bg-white border-gray-200 focus:border-green-400"
                             />
                           </div>
-                          <div>
-                            <Label htmlFor="email" className="text-sm font-medium">Correo Electrónico</Label>
-                            <Input
-                              id="email"
-                              type="email"
-                              value={formData.email || ''}
-                              onChange={(e) => updateFormField('email', e.target.value)}
-                              className="mt-1"
-                            />
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="space-y-2">
+                              <Label htmlFor="phone" className="text-sm font-semibold text-gray-700">
+                                Teléfono
+                              </Label>
+                              <Input
+                                id="phone"
+                                value={formData.phone || ''}
+                                onChange={(e) => updateFormField('phone', e.target.value)}
+                                className="bg-white border-gray-200 focus:border-green-400"
+                              />
+                            </div>
+                            <div className="space-y-2">
+                              <Label htmlFor="address" className="text-sm font-semibold text-gray-700">
+                                Dirección
+                              </Label>
+                              <Input
+                                id="address"
+                                value={formData.address || ''}
+                                onChange={(e) => updateFormField('address', e.target.value)}
+                                className="bg-white border-gray-200 focus:border-green-400"
+                              />
+                            </div>
                           </div>
-                        </div>
-                        <div>
-                          <Label htmlFor="description" className="text-sm font-medium">Descripción</Label>
-                          <Textarea
-                            id="description"
-                            value={formData.description || ''}
-                            onChange={(e) => updateFormField('description', e.target.value)}
-                            rows={3}
-                            className="mt-1"
-                          />
-                        </div>
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <Label htmlFor="phone" className="text-sm font-medium">Teléfono</Label>
-                            <Input
-                              id="phone"
-                              value={formData.phone || ''}
-                              onChange={(e) => updateFormField('phone', e.target.value)}
-                              className="mt-1"
-                            />
-                          </div>
-                          <div>
-                            <Label htmlFor="address" className="text-sm font-medium">Dirección</Label>
-                            <Input
-                              id="address"
-                              value={formData.address || ''}
-                              onChange={(e) => updateFormField('address', e.target.value)}
-                              className="mt-1"
-                            />
-                          </div>
-                        </div>
-                      </>
-                    )}
+                        </>
+                      )}
+                    </div>
 
-                    <div className="flex gap-3 pt-4 border-t">
+                    <div className="flex gap-3 pt-4">
                       <Button 
                         onClick={handleSave} 
                         disabled={saving}
-                        className="bg-green-600 hover:bg-green-700"
+                        className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 shadow-md"
                       >
                         {saving ? (
                           <Loader2 className="h-4 w-4 animate-spin mr-2" />
@@ -363,32 +455,47 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
                         )}
                         {saving ? 'Guardando...' : 'Guardar Cambios'}
                       </Button>
-                      <Button variant="outline" onClick={handleCancel}>
+                      <Button 
+                        variant="outline" 
+                        onClick={handleCancel}
+                        className="bg-white/70 hover:bg-white border-gray-200"
+                      >
                         Cancelar
                       </Button>
                     </div>
                   </TabsContent>
                   
-                  <TabsContent value="preview" className="mt-4">
+                  <TabsContent value="preview" className="mt-6">
                     {renderPreview(section, true)}
                   </TabsContent>
                 </Tabs>
               ) : (
-                <div className="space-y-3">
+                <div className="space-y-4">
                   {previewMode === section.section_name ? (
                     renderPreview(section)
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                      {Object.entries(section.content).slice(0, 3).map(([key, value]) => (
-                        <div key={key} className="p-3 bg-gray-50 rounded border">
-                          <strong className="text-xs text-gray-600 capitalize block mb-1">
-                            {key.replace(/([A-Z])/g, ' $1')}:
-                          </strong>
-                          <p className="text-sm text-gray-800 truncate">
-                            {typeof value === 'string' ? value : JSON.stringify(value)}
-                          </p>
-                        </div>
-                      ))}
+                    <div className="bg-white/60 backdrop-blur-sm rounded-xl p-4 border border-white/50">
+                      <h4 className="font-medium text-gray-700 mb-3 flex items-center gap-2">
+                        <Sparkles className="h-4 w-4" />
+                        Contenido actual:
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                        {Object.entries(section.content).slice(0, 3).map(([key, value]) => (
+                          <div key={key} className="p-3 bg-white rounded-lg border border-gray-100 hover:border-blue-200 transition-colors">
+                            <strong className="text-xs text-gray-500 capitalize block mb-1">
+                              {key.replace(/([A-Z])/g, ' $1')}
+                            </strong>
+                            <p className="text-sm text-gray-800 truncate" title={typeof value === 'string' ? value : JSON.stringify(value)}>
+                              {typeof value === 'string' ? value : JSON.stringify(value)}
+                            </p>
+                          </div>
+                        ))}
+                      </div>
+                      {Object.keys(section.content).length > 3 && (
+                        <p className="text-xs text-gray-500 mt-3 text-center">
+                          +{Object.keys(section.content).length - 3} campos más...
+                        </p>
+                      )}
                     </div>
                   )}
                 </div>
