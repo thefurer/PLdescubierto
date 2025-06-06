@@ -1,16 +1,13 @@
 
-import { useState, useEffect } from 'react';
-import { ArrowLeft, Plus, Edit, Trash2, Calendar, User, Lock, Search, Filter } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Badge } from '@/components/ui/badge';
-import { useNavigate } from 'react-router-dom';
+import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BlogEditor from '@/components/blog/BlogEditor';
+import BlogHeader from '@/components/blog/BlogHeader';
+import BlogFilters from '@/components/blog/BlogFilters';
+import BlogPostCard from '@/components/blog/BlogPostCard';
+import BlogEmptyState from '@/components/blog/BlogEmptyState';
 
 interface BlogPost {
   id: string;
@@ -24,7 +21,6 @@ interface BlogPost {
 }
 
 const Blog = () => {
-  const navigate = useNavigate();
   const { user } = useAuth();
   const [posts, setPosts] = useState<BlogPost[]>([
     {
@@ -99,25 +95,18 @@ const Blog = () => {
     }
   };
 
-  const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
-    return date.toLocaleDateString('es-ES', {
-      year: 'numeric',
-      month: 'long',
-      day: 'numeric'
-    });
+  const handleCreatePost = () => {
+    setShowEditor(true);
   };
 
-  const renderContent = (content: string) => {
-    return content
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '<em>$1</em>')
-      .replace(/^# (.*$)/gm, '<h1 class="text-2xl font-bold mb-4">$1</h1>')
-      .replace(/^## (.*$)/gm, '<h2 class="text-xl font-semibold mb-3">$1</h2>')
-      .replace(/^> (.*$)/gm, '<blockquote class="border-l-4 border-blue-500 pl-4 italic text-gray-600 my-4">$1</blockquote>')
-      .replace(/^- (.*$)/gm, '<li class="ml-4">• $1</li>')
-      .replace(/^\d+\. (.*$)/gm, '<li class="ml-4 list-decimal">$1</li>')
-      .replace(/\n/g, '<br>');
+  const handleEditPostClick = (post: BlogPost) => {
+    setEditingPost(post);
+    setShowEditor(true);
+  };
+
+  const handleCancelEditor = () => {
+    setShowEditor(false);
+    setEditingPost(null);
   };
 
   if (showEditor) {
@@ -125,10 +114,7 @@ const Blog = () => {
       <BlogEditor
         post={editingPost}
         onSave={editingPost ? handleEditPost : handleAddPost}
-        onCancel={() => {
-          setShowEditor(false);
-          setEditingPost(null);
-        }}
+        onCancel={handleCancelEditor}
       />
     );
   }
@@ -139,208 +125,36 @@ const Blog = () => {
       
       <div className="pt-20 pb-12">
         <div className="container mx-auto px-4">
-          {/* Enhanced Header */}
-          <div className="flex items-center justify-between mb-12">
-            <div className="flex items-center">
-              <Button 
-                variant="ghost" 
-                onClick={() => navigate('/')}
-                className="mr-6 glass-card hover:scale-105 transition-all duration-300"
-              >
-                <ArrowLeft className="h-4 w-4 mr-2" />
-                Volver al inicio
-              </Button>
-              <div>
-                <h1 className="text-5xl font-bold bg-gradient-to-r from-ocean-dark via-ocean to-green-primary bg-clip-text text-transparent">
-                  Noticias
-                </h1>
-                <p className="text-xl text-gray-600 mt-2">Últimas noticias y eventos de Puerto López</p>
-              </div>
-            </div>
-            
-            {user ? (
-              <Button 
-                onClick={() => setShowEditor(true)}
-                className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-300"
-              >
-                <Plus className="h-4 w-4 mr-2" />
-                Nueva noticia
-              </Button>
-            ) : (
-              <Card className="p-4 bg-yellow-50 border-yellow-200 glass-card">
-                <div className="flex items-center text-yellow-800">
-                  <Lock className="h-5 w-5 mr-2" />
-                  <span className="text-sm">
-                    <Button 
-                      variant="link" 
-                      onClick={() => navigate('/auth')}
-                      className="p-0 h-auto text-yellow-800 underline"
-                    >
-                      Inicia sesión
-                    </Button>
-                    {' '}para crear publicaciones
-                  </span>
-                </div>
-              </Card>
-            )}
-          </div>
+          <BlogHeader user={user} onCreatePost={handleCreatePost} />
+          
+          <BlogFilters
+            searchTerm={searchTerm}
+            onSearchChange={setSearchTerm}
+            selectedCategory={selectedCategory}
+            onCategoryChange={setSelectedCategory}
+            categories={categories}
+          />
 
-          {/* Search and Filters */}
-          <Card className="mb-8 glass-card border-0 shadow-lg">
-            <CardContent className="p-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="md:col-span-2">
-                  <div className="relative">
-                    <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
-                    <Input
-                      placeholder="Buscar noticias..."
-                      value={searchTerm}
-                      onChange={(e) => setSearchTerm(e.target.value)}
-                      className="pl-10"
-                    />
-                  </div>
-                </div>
-                <div>
-                  <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Todas las categorías" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="all">Todas las categorías</SelectItem>
-                      {categories.map(category => (
-                        <SelectItem key={category.value} value={category.value}>
-                          {category.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Blog Posts Grid */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            {filteredPosts.map((post) => {
-              const categoryInfo = categories.find(cat => cat.value === post.category);
-              return (
-                <Card key={post.id} className="glass-card border-0 shadow-lg hover:shadow-2xl transition-all duration-500 hover:scale-105">
-                  <CardHeader>
-                    <div className="flex justify-between items-start mb-4">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-3">
-                          <Badge className={categoryInfo?.color}>
-                            {categoryInfo?.label}
-                          </Badge>
-                          <div className="flex items-center text-xs text-gray-500">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {formatDate(post.date)}
-                          </div>
-                        </div>
-                        <CardTitle className="text-xl text-ocean-dark mb-3 leading-tight">
-                          {post.title}
-                        </CardTitle>
-                        <CardDescription className="text-gray-600 text-base leading-relaxed">
-                          {post.excerpt}
-                        </CardDescription>
-                      </div>
-                      
-                      {user && (
-                        <div className="flex space-x-2 ml-4">
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => {
-                              setEditingPost(post);
-                              setShowEditor(true);
-                            }}
-                            className="glass-card"
-                          >
-                            <Edit className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => handleDeletePost(post.id)}
-                            className="glass-card hover:bg-red-50"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      )}
-                    </div>
-                    
-                    <div className="flex items-center text-sm text-gray-500">
-                      <User className="h-4 w-4 mr-1" />
-                      {post.author}
-                    </div>
-                  </CardHeader>
-                  
-                  <CardContent>
-                    {post.image && (
-                      <div className="mb-6">
-                        <img 
-                          src={post.image} 
-                          alt={post.title}
-                          className="w-full h-48 object-cover rounded-lg shadow-md"
-                        />
-                      </div>
-                    )}
-                    
-                    <div className="prose max-w-none">
-                      <div 
-                        dangerouslySetInnerHTML={{ 
-                          __html: renderContent(post.content.length > 300 
-                            ? `${post.content.substring(0, 300)}...` 
-                            : post.content
-                          )
-                        }}
-                        className="text-gray-700 leading-relaxed"
-                      />
-                    </div>
-                    
-                    <Button 
-                      variant="link" 
-                      className="p-0 mt-4 text-ocean hover:text-ocean-dark font-semibold"
-                    >
-                      Leer artículo completo →
-                    </Button>
-                  </CardContent>
-                </Card>
-              );
-            })}
+            {filteredPosts.map((post) => (
+              <BlogPostCard
+                key={post.id}
+                post={post}
+                categories={categories}
+                user={user}
+                onEdit={handleEditPostClick}
+                onDelete={handleDeletePost}
+              />
+            ))}
           </div>
 
           {filteredPosts.length === 0 && (
-            <Card className="text-center p-12 glass-card border-0 shadow-lg">
-              <CardContent>
-                <div className="space-y-4">
-                  <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
-                    <Search className="h-8 w-8 text-gray-400" />
-                  </div>
-                  <h3 className="text-xl font-semibold text-gray-600">
-                    No se encontraron noticias
-                  </h3>
-                  <p className="text-gray-500">
-                    {searchTerm || selectedCategory !== 'all'
-                      ? 'Intenta ajustar los filtros de búsqueda'
-                      : user 
-                        ? 'Sé el primero en compartir una noticia sobre Puerto López'
-                        : 'Inicia sesión para ver y crear publicaciones'
-                    }
-                  </p>
-                  {user && !searchTerm && selectedCategory === 'all' && (
-                    <Button 
-                      onClick={() => setShowEditor(true)}
-                      className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-                    >
-                      <Plus className="h-4 w-4 mr-2" />
-                      Crear primera noticia
-                    </Button>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+            <BlogEmptyState
+              searchTerm={searchTerm}
+              selectedCategory={selectedCategory}
+              user={user}
+              onCreatePost={handleCreatePost}
+            />
           )}
         </div>
       </div>
