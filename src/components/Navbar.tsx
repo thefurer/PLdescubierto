@@ -1,14 +1,15 @@
+
 import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link } from "react-router-dom";
 import UserMenu from "./UserMenu";
+
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const {
-    user
-  } = useAuth();
+  const { user } = useAuth();
+
   useEffect(() => {
     const handleScroll = () => {
       setIsScrolled(window.scrollY > 0);
@@ -16,7 +17,9 @@ const Navbar = () => {
     window.addEventListener('scroll', handleScroll);
     return () => window.removeEventListener('scroll', handleScroll);
   }, []);
-  return <nav className={`fixed w-full z-50 smooth-transition ${isScrolled ? 'glass-nav shadow-lg' : 'bg-transparent'}`}>
+
+  return (
+    <nav className={`fixed w-full z-50 smooth-transition ${isScrolled ? 'glass-nav shadow-lg' : 'bg-transparent'}`}>
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
@@ -38,18 +41,25 @@ const Navbar = () => {
             <a href="#virtual-tour" className={`hover:text-green-primary smooth-transition font-medium ${isScrolled ? 'text-gray-700' : 'text-white'}`}>
               Metaverso
             </a>
+            <Link to="/blog" className={`hover:text-green-primary smooth-transition font-medium ${isScrolled ? 'text-gray-700' : 'text-white'}`}>
+              Blog
+            </Link>
             <a href="#contact" className={`hover:text-green-primary smooth-transition font-medium ${isScrolled ? 'text-gray-700' : 'text-white'}`}>
               Contacto
             </a>
             
-            {user ? <div className="flex items-center space-x-4">
+            {user ? (
+              <div className="flex items-center space-x-4">
                 <Link to="/dashboard" className={`hover:text-green-primary smooth-transition font-medium ${isScrolled ? 'text-gray-700' : 'text-white'}`}>
                   Dashboard
                 </Link>
                 <UserMenu />
-              </div> : <Link to="/auth" className={`font-semibold px-6 py-2 rounded-full smooth-transition ${isScrolled ? 'bg-green-primary text-white hover:bg-green-dark shadow-md hover:shadow-lg' : 'btn-ghost'}`}>
+              </div>
+            ) : (
+              <Link to="/auth" className={`font-semibold px-6 py-2 rounded-full smooth-transition ${isScrolled ? 'bg-green-primary text-white hover:bg-green-dark shadow-md hover:shadow-lg' : 'btn-ghost'}`}>
                 Iniciar Sesión
-              </Link>}
+              </Link>
+            )}
           </div>
 
           {/* Mobile Menu Button */}
@@ -59,7 +69,8 @@ const Navbar = () => {
         </div>
 
         {/* Mobile Menu */}
-        {isOpen && <div className="md:hidden glass-card rounded-lg mt-2 p-4 animate-fade-in">
+        {isOpen && (
+          <div className="md:hidden glass-card rounded-lg mt-2 p-4 animate-fade-in">
             <div className="flex flex-col space-y-4">
               <a href="#home" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
                 Inicio
@@ -70,23 +81,33 @@ const Navbar = () => {
               <a href="#virtual-tour" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
                 Metaverso
               </a>
+              <Link to="/blog" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
+                Blog
+              </Link>
               <a href="#contact" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
                 Contacto
               </a>
               
-              {user ? <>
+              {user ? (
+                <>
                   <Link to="/dashboard" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
                     Dashboard
                   </Link>
                   <Link to="/profile" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
                     Mi Perfil
                   </Link>
-                </> : <Link to="/auth" className="btn-secondary text-center" onClick={() => setIsOpen(false)}>
+                </>
+              ) : (
+                <Link to="/auth" className="btn-secondary text-center" onClick={() => setIsOpen(false)}>
                   Iniciar Sesión
-                </Link>}
+                </Link>
+              )}
             </div>
-          </div>}
+          </div>
+        )}
       </div>
-    </nav>;
+    </nav>
+  );
 };
+
 export default Navbar;

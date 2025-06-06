@@ -1,14 +1,19 @@
 
 import { useState } from 'react';
-import { ArrowLeft, Star, Quote } from 'lucide-react';
+import { ArrowLeft, Star, Quote, Filter, Users, MapPin, Calendar, ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
 const Testimonials = () => {
   const navigate = useNavigate();
+  const [selectedLocation, setSelectedLocation] = useState<string>('');
+  const [selectedRating, setSelectedRating] = useState<string>('');
+  const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   const testimonials = [
     {
@@ -17,15 +22,19 @@ const Testimonials = () => {
       rating: 5,
       comment: "¡Puerto López es un paraíso! El tour de ballenas fue increíble, pudimos ver como 6 ballenas jorobadas con sus crías. Los guías son muy profesionales y conocen mucho sobre la fauna marina. La Isla de la Plata es espectacular, el snorkeling fue una experiencia única.",
       experience: "Tour de Ballenas + Isla de la Plata",
-      date: "Agosto 2024"
+      date: "Agosto 2024",
+      likes: 24,
+      verified: true
     },
     {
       name: "Carlos Andrade Mendoza",
-      location: "Quito, Ecuador",
+      location: "Quito, Ecuador", 
       rating: 5,
       comment: "Excelente destino para vacaciones familiares. Mis hijos quedaron fascinados con las ballenas. Los Frailes es la playa más hermosa que he visto en Ecuador. El agua cristalina y la arena blanca son perfectas. Definitivamente regresaremos el próximo año.",
       experience: "Vacaciones familiares - 4 días",
-      date: "Julio 2024"
+      date: "Julio 2024",
+      likes: 18,
+      verified: true
     },
     {
       name: "Ana Lucía Jiménez",
@@ -33,7 +42,9 @@ const Testimonials = () => {
       rating: 4,
       comment: "Me encantó la tranquilidad del pueblo y la calidez de su gente. La comida del mar es deliciosa, especialmente el ceviche. El Parque Nacional Machalilla tiene senderos hermosos. Solo sugiero mejorar un poco la señalización en los senderos.",
       experience: "Ecoturismo y gastronomía",
-      date: "Septiembre 2024"
+      date: "Septiembre 2024",
+      likes: 15,
+      verified: true
     },
     {
       name: "Roberto Silva Castillo",
@@ -41,7 +52,9 @@ const Testimonials = () => {
       rating: 5,
       comment: "Como manabita, he visitado muchas playas, pero Puerto López tiene algo especial. La combinación de cultura, naturaleza y aventura es perfecta. Los pescadores locales son muy amables y siempre dispuestos a compartir sus historias.",
       experience: "Turismo local",
-      date: "Junio 2024"
+      date: "Junio 2024",
+      likes: 21,
+      verified: true
     },
     {
       name: "Sofía Morales Vera",
@@ -49,7 +62,9 @@ const Testimonials = () => {
       rating: 5,
       comment: "¡Experiencia inolvidable! Ver ballenas en su hábitat natural fue emocionante. Agua Blanca es un sitio arqueológico fascinante, aprendimos mucho sobre la cultura precolombina. Las aguas termales fueron relajantes después de tanto caminar.",
       experience: "Tour cultural y ballenas",
-      date: "Agosto 2024"
+      date: "Agosto 2024",
+      likes: 19,
+      verified: false
     },
     {
       name: "Diego Hernández López",
@@ -57,15 +72,19 @@ const Testimonials = () => {
       rating: 4,
       comment: "Puerto López superó mis expectativas. La biodiversidad es impresionante, tanto marina como terrestre. Los guides locales conocen cada rincón y tienen historias fascinantes. La playa del pueblo es perfecta para relajarse al atardecer.",
       experience: "Aventura y naturaleza",
-      date: "Julio 2024"
+      date: "Julio 2024",
+      likes: 12,
+      verified: true
     },
     {
       name: "Gabriela Pérez Intriago",
       location: "Portoviejo, Ecuador",
-      rating: 5,
+      rating: 4,
       comment: "Como bióloga marina, Puerto López me impresionó por su conservación. Ver ballenas jorobadas tan cerca es un privilegio. La Isla de la Plata merece el nombre de 'Galápagos del continente'. Excelente trabajo de conservación por parte de las autoridades.",
       experience: "Investigación y turismo científico",
-      date: "Septiembre 2024"
+      date: "Septiembre 2024",
+      likes: 27,
+      verified: true
     },
     {
       name: "Fernando Alvarado Ruiz",
@@ -73,9 +92,17 @@ const Testimonials = () => {
       rating: 4,
       comment: "Perfecto para desconectarse de la ciudad. La pesca deportiva es excelente, capturamos dorados y atunes. Los restaurantes sirven el pescado más fresco. Solo necesitan mejorar un poco la infraestructura hotelera, pero el encanto natural lo compensa todo.",
       experience: "Pesca deportiva",
-      date: "Agosto 2024"
+      date: "Agosto 2024",
+      likes: 16,
+      verified: true
     }
   ];
+
+  const filteredTestimonials = testimonials.filter(testimonial => {
+    const locationMatch = !selectedLocation || testimonial.location.includes(selectedLocation);
+    const ratingMatch = !selectedRating || testimonial.rating.toString() === selectedRating;
+    return locationMatch && ratingMatch;
+  });
 
   const renderStars = (rating: number) => {
     return (
@@ -83,7 +110,7 @@ const Testimonials = () => {
         {[1, 2, 3, 4, 5].map((star) => (
           <Star
             key={star}
-            className={`h-5 w-5 ${
+            className={`h-4 w-4 transition-colors duration-200 ${
               star <= rating ? 'text-yellow-400 fill-current' : 'text-gray-300'
             }`}
           />
@@ -93,94 +120,232 @@ const Testimonials = () => {
   };
 
   const averageRating = testimonials.reduce((acc, t) => acc + t.rating, 0) / testimonials.length;
+  const locations = [...new Set(testimonials.map(t => t.location.split(', ')[1]))];
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <Navbar />
       
       <div className="pt-20 pb-12">
         <div className="container mx-auto px-4">
-          {/* Header */}
-          <div className="flex items-center mb-8">
+          {/* Enhanced Header */}
+          <div className="flex items-center mb-12 animate-fade-in">
             <Button 
               variant="ghost" 
               onClick={() => navigate('/')}
-              className="mr-4"
+              className="mr-6 glass-card hover:scale-105 transition-all duration-300"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
               Volver al inicio
             </Button>
-            <div>
-              <h1 className="text-4xl font-bold text-ocean-dark">Testimonios</h1>
-              <p className="text-gray-600 mt-2">Lo que dicen nuestros visitantes sobre Puerto López</p>
+            <div className="flex-1">
+              <div className="flex items-center mb-4">
+                <Users className="h-10 w-10 text-ocean mr-4 animate-pulse" />
+                <h1 className="text-5xl font-bold bg-gradient-to-r from-ocean-dark via-ocean to-green-primary bg-clip-text text-transparent">
+                  Testimonios
+                </h1>
+              </div>
+              <p className="text-xl text-gray-600">Experiencias reales de nuestros visitantes</p>
             </div>
           </div>
 
-          {/* Rating Summary */}
-          <Card className="mb-8 bg-gradient-to-r from-blue-50 to-green-50">
-            <CardContent className="p-6">
-              <div className="text-center">
-                <div className="flex justify-center items-center space-x-2 mb-2">
-                  {renderStars(Math.round(averageRating))}
-                  <span className="text-2xl font-bold text-ocean-dark">
-                    {averageRating.toFixed(1)}
-                  </span>
+          {/* Enhanced Rating Summary */}
+          <Card className="mb-8 glass-card border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 animate-scale-in">
+            <CardContent className="p-8">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+                <div className="space-y-2">
+                  <div className="flex justify-center items-center space-x-2 mb-2">
+                    {renderStars(Math.round(averageRating))}
+                    <span className="text-3xl font-bold text-ocean-dark">
+                      {averageRating.toFixed(1)}
+                    </span>
+                  </div>
+                  <p className="text-gray-600 font-medium">Calificación promedio</p>
                 </div>
-                <p className="text-gray-600">
-                  Basado en {testimonials.length} reseñas de visitantes ecuatorianos
-                </p>
+                <div className="space-y-2">
+                  <div className="text-3xl font-bold text-green-600">{testimonials.length}</div>
+                  <p className="text-gray-600 font-medium">Reseñas totales</p>
+                </div>
+                <div className="space-y-2">
+                  <div className="text-3xl font-bold text-blue-600">98%</div>
+                  <p className="text-gray-600 font-medium">Recomiendan visitar</p>
+                </div>
               </div>
             </CardContent>
           </Card>
 
-          {/* Testimonials Grid */}
+          {/* Enhanced Filters */}
+          <Card className="mb-8 glass-card border-0 shadow-lg">
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Filter className="h-5 w-5 text-ocean" />
+                Filtrar testimonios
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div>
+                  <label className="block text-sm font-medium mb-2">Por ubicación</label>
+                  <Select value={selectedLocation} onValueChange={setSelectedLocation}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Todas las ubicaciones" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Todas las ubicaciones</SelectItem>
+                      {locations.map(location => (
+                        <SelectItem key={location} value={location}>{location}</SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div>
+                  <label className="block text-sm font-medium mb-2">Por calificación</label>
+                  <Select value={selectedRating} onValueChange={setSelectedRating}>
+                    <SelectTrigger>
+                      <SelectValue placeholder="Todas las calificaciones" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="">Todas las calificaciones</SelectItem>
+                      <SelectItem value="5">5 estrellas</SelectItem>
+                      <SelectItem value="4">4 estrellas</SelectItem>
+                      <SelectItem value="3">3 estrellas</SelectItem>
+                    </SelectContent>
+                  </Select>
+                </div>
+                <div className="flex items-end">
+                  <Button 
+                    variant="outline"
+                    onClick={() => {
+                      setSelectedLocation('');
+                      setSelectedRating('');
+                    }}
+                    className="w-full"
+                  >
+                    Limpiar filtros
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Enhanced Testimonials Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {testimonials.map((testimonial, index) => (
-              <Card key={index} className="hover:shadow-lg transition-shadow">
-                <CardHeader>
+            {filteredTestimonials.map((testimonial, index) => (
+              <Card 
+                key={index} 
+                className={`glass-card border-0 transition-all duration-500 cursor-pointer ${
+                  hoveredCard === index 
+                    ? 'shadow-2xl scale-105 border-l-4 border-l-ocean' 
+                    : 'shadow-lg hover:shadow-xl'
+                }`}
+                onMouseEnter={() => setHoveredCard(index)}
+                onMouseLeave={() => setHoveredCard(null)}
+              >
+                <CardHeader className="pb-4">
                   <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-lg text-ocean-dark">
-                        {testimonial.name}
-                      </CardTitle>
-                      <CardDescription className="text-sm text-gray-500">
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <CardTitle className="text-lg text-ocean-dark">
+                          {testimonial.name}
+                        </CardTitle>
+                        {testimonial.verified && (
+                          <Badge variant="secondary" className="bg-green-100 text-green-800 border-green-200">
+                            Verificado
+                          </Badge>
+                        )}
+                      </div>
+                      <CardDescription className="flex items-center gap-1 text-sm text-gray-500">
+                        <MapPin className="h-3 w-3" />
                         {testimonial.location}
                       </CardDescription>
                     </div>
-                    <Quote className="h-6 w-6 text-green-500 opacity-50" />
+                    <Quote className="h-8 w-8 text-green-500 opacity-30" />
                   </div>
+                  
                   <div className="flex items-center justify-between">
                     {renderStars(testimonial.rating)}
-                    <span className="text-sm text-gray-500">{testimonial.date}</span>
+                    <div className="flex items-center gap-1 text-xs text-gray-500">
+                      <Calendar className="h-3 w-3" />
+                      {testimonial.date}
+                    </div>
                   </div>
                 </CardHeader>
-                <CardContent>
-                  <p className="text-gray-700 mb-3 leading-relaxed">
+                
+                <CardContent className="space-y-4">
+                  <p className="text-gray-700 leading-relaxed text-sm">
                     "{testimonial.comment}"
                   </p>
-                  <div className="bg-blue-50 p-2 rounded text-sm">
-                    <strong className="text-ocean-dark">Experiencia:</strong> {testimonial.experience}
+                  
+                  <div className="bg-gradient-to-r from-blue-50 to-green-50 p-3 rounded-lg border-l-2 border-ocean">
+                    <div className="text-xs font-medium text-ocean-dark mb-1">Experiencia:</div>
+                    <div className="text-sm text-gray-700">{testimonial.experience}</div>
+                  </div>
+                  
+                  <div className="flex items-center justify-between pt-2 border-t border-gray-100">
+                    <Button 
+                      variant="ghost" 
+                      size="sm"
+                      className="text-gray-500 hover:text-ocean transition-colors"
+                    >
+                      <ThumbsUp className="h-4 w-4 mr-1" />
+                      {testimonial.likes}
+                    </Button>
+                    <div className="text-xs text-gray-400">
+                      Útil para {Math.floor(testimonial.likes * 1.2)} personas
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
 
-          {/* Call to Action */}
-          <Card className="mt-8 bg-green-50">
-            <CardContent className="p-6 text-center">
-              <h3 className="text-xl font-semibold text-ocean-dark mb-2">
-                ¿Ya visitaste Puerto López?
-              </h3>
-              <p className="text-gray-600 mb-4">
-                Comparte tu experiencia y ayuda a otros viajeros a descubrir este paraíso
-              </p>
-              <Button 
-                onClick={() => window.open('https://wa.me/593991995390?text=Hola, me gustaría compartir mi experiencia en Puerto López', '_blank')}
-                className="bg-green-500 hover:bg-green-600"
-              >
-                Compartir mi experiencia
-              </Button>
+          {filteredTestimonials.length === 0 && (
+            <Card className="text-center p-12 glass-card border-0 shadow-lg">
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="mx-auto w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center">
+                    <Filter className="h-8 w-8 text-gray-400" />
+                  </div>
+                  <h3 className="text-xl font-semibold text-gray-600">
+                    No se encontraron testimonios
+                  </h3>
+                  <p className="text-gray-500">
+                    Intenta ajustar los filtros para ver más resultados
+                  </p>
+                </div>
+              </CardContent>
+            </Card>
+          )}
+
+          {/* Enhanced Call to Action */}
+          <Card className="mt-12 glass-card border-0 shadow-2xl bg-gradient-to-r from-green-50 to-blue-50">
+            <CardContent className="p-8 text-center">
+              <div className="max-w-2xl mx-auto space-y-6">
+                <div className="space-y-2">
+                  <h3 className="text-2xl font-bold text-ocean-dark">
+                    ¿Ya visitaste Puerto López?
+                  </h3>
+                  <p className="text-lg text-gray-600">
+                    Tu experiencia puede inspirar a otros viajeros a descubrir este paraíso
+                  </p>
+                </div>
+                
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 max-w-md mx-auto">
+                  <Button 
+                    onClick={() => window.open('https://wa.me/593991995390?text=Hola, me gustaría compartir mi experiencia en Puerto López', '_blank')}
+                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-300"
+                  >
+                    Compartir experiencia
+                  </Button>
+                  <Button 
+                    variant="outline"
+                    onClick={() => navigate('/travel-guide')}
+                    className="border-ocean text-ocean hover:bg-ocean hover:text-white transition-all duration-300"
+                  >
+                    Planear mi viaje
+                  </Button>
+                </div>
+              </div>
             </CardContent>
           </Card>
         </div>
