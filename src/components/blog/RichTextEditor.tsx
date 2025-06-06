@@ -208,7 +208,7 @@ const RichTextEditor = ({ value, onChange, placeholder }: RichTextEditorProps) =
 
       {/* Help text */}
       <div className="text-xs text-gray-500 bg-gray-50 p-3 rounded">
-        <strong>Guía rápida:</strong> **negrita**, *cursiva*, # Título 1, ## Título 2, > cita, - lista, 1. lista numerada
+        <strong>Guía rápida:</strong> **negrita**, *cursiva*, # Título 1, ## Título 2, &gt; cita, - lista, 1. lista numerada
       </div>
     </div>
   );

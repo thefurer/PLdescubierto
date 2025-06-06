@@ -11,8 +11,8 @@ import Footer from '@/components/Footer';
 
 const Testimonials = () => {
   const navigate = useNavigate();
-  const [selectedLocation, setSelectedLocation] = useState<string>('');
-  const [selectedRating, setSelectedRating] = useState<string>('');
+  const [selectedLocation, setSelectedLocation] = useState<string>('all');
+  const [selectedRating, setSelectedRating] = useState<string>('all');
   const [hoveredCard, setHoveredCard] = useState<number | null>(null);
 
   const testimonials = [
@@ -99,8 +99,8 @@ const Testimonials = () => {
   ];
 
   const filteredTestimonials = testimonials.filter(testimonial => {
-    const locationMatch = !selectedLocation || testimonial.location.includes(selectedLocation);
-    const ratingMatch = !selectedRating || testimonial.rating.toString() === selectedRating;
+    const locationMatch = selectedLocation === 'all' || testimonial.location.includes(selectedLocation);
+    const ratingMatch = selectedRating === 'all' || testimonial.rating.toString() === selectedRating;
     return locationMatch && ratingMatch;
   });
 
@@ -191,7 +191,7 @@ const Testimonials = () => {
                       <SelectValue placeholder="Todas las ubicaciones" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas las ubicaciones</SelectItem>
+                      <SelectItem value="all">Todas las ubicaciones</SelectItem>
                       {locations.map(location => (
                         <SelectItem key={location} value={location}>{location}</SelectItem>
                       ))}
@@ -205,7 +205,7 @@ const Testimonials = () => {
                       <SelectValue placeholder="Todas las calificaciones" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas las calificaciones</SelectItem>
+                      <SelectItem value="all">Todas las calificaciones</SelectItem>
                       <SelectItem value="5">5 estrellas</SelectItem>
                       <SelectItem value="4">4 estrellas</SelectItem>
                       <SelectItem value="3">3 estrellas</SelectItem>
@@ -216,8 +216,8 @@ const Testimonials = () => {
                   <Button 
                     variant="outline"
                     onClick={() => {
-                      setSelectedLocation('');
-                      setSelectedRating('');
+                      setSelectedLocation('all');
+                      setSelectedRating('all');
                     }}
                     className="w-full"
                   >
