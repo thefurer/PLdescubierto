@@ -59,7 +59,7 @@ const Blog = () => {
   const [showEditor, setShowEditor] = useState(false);
   const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState('all');
 
   const categories = [
     { value: 'noticias', label: 'Noticias', color: 'bg-blue-100 text-blue-800' },
@@ -72,7 +72,7 @@ const Blog = () => {
   const filteredPosts = posts.filter(post => {
     const matchesSearch = post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
                          post.excerpt.toLowerCase().includes(searchTerm.toLowerCase());
-    const matchesCategory = !selectedCategory || post.category === selectedCategory;
+    const matchesCategory = selectedCategory === 'all' || post.category === selectedCategory;
     return matchesSearch && matchesCategory;
   });
 
@@ -206,7 +206,7 @@ const Blog = () => {
                       <SelectValue placeholder="Todas las categorías" />
                     </SelectTrigger>
                     <SelectContent>
-                      <SelectItem value="">Todas las categorías</SelectItem>
+                      <SelectItem value="all">Todas las categorías</SelectItem>
                       {categories.map(category => (
                         <SelectItem key={category.value} value={category.value}>
                           {category.label}
@@ -322,14 +322,14 @@ const Blog = () => {
                     No se encontraron noticias
                   </h3>
                   <p className="text-gray-500">
-                    {searchTerm || selectedCategory 
+                    {searchTerm || selectedCategory !== 'all'
                       ? 'Intenta ajustar los filtros de búsqueda'
                       : user 
                         ? 'Sé el primero en compartir una noticia sobre Puerto López'
                         : 'Inicia sesión para ver y crear publicaciones'
                     }
                   </p>
-                  {user && !searchTerm && !selectedCategory && (
+                  {user && !searchTerm && selectedCategory === 'all' && (
                     <Button 
                       onClick={() => setShowEditor(true)}
                       className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
