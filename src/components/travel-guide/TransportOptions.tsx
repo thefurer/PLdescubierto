@@ -2,6 +2,7 @@
 import { useState } from 'react';
 import { Car, Plane, Bus, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { useTranslations } from '@/hooks/useTranslations';
 
 interface TransportOption {
   icon: React.ReactNode;
@@ -13,43 +14,44 @@ interface TransportOption {
   color: string;
 }
 
-const transportOptions: TransportOption[] = [
-  {
-    icon: <Plane className="h-8 w-8" />,
-    title: 'Por Avión',
-    description: 'Vuela a Manta (1 hora desde Quito) + 1.5 horas en bus/auto',
-    duration: '2.5 horas total',
-    cost: '$80 - $150',
-    pros: ['Más rápido', 'Cómodo'],
-    color: 'from-blue-500 to-indigo-600'
-  },
-  {
-    icon: <Bus className="h-8 w-8" />,
-    title: 'Por Bus',
-    description: 'Bus directo desde Quito, Guayaquil o Cuenca',
-    duration: '6-8 horas desde Quito',
-    cost: '$8 - $15',
-    pros: ['Económico', 'Directo'],
-    color: 'from-green-500 to-emerald-600'
-  },
-  {
-    icon: <Car className="h-8 w-8" />,
-    title: 'Por Auto',
-    description: 'Ruta escénica por la costa del Pacífico',
-    duration: '5-6 horas desde Quito',
-    cost: '$40 - $60 (gasolina)',
-    pros: ['Flexible', 'Paisajes'],
-    color: 'from-orange-500 to-red-500'
-  }
-];
-
 const TransportOptions = () => {
   const [hoveredTransport, setHoveredTransport] = useState<number | null>(null);
+  const t = useTranslations();
+
+  const transportOptions: TransportOption[] = [
+    {
+      icon: <Plane className="h-8 w-8" />,
+      title: t.byPlane,
+      description: t.planeDesc,
+      duration: t.totalTime,
+      cost: '$80 - $150',
+      pros: [t.faster, t.comfortable],
+      color: 'from-blue-500 to-indigo-600'
+    },
+    {
+      icon: <Bus className="h-8 w-8" />,
+      title: t.byBus,
+      description: t.busDesc,
+      duration: t.fromQuito,
+      cost: '$8 - $15',
+      pros: [t.economical, t.direct],
+      color: 'from-green-500 to-emerald-600'
+    },
+    {
+      icon: <Car className="h-8 w-8" />,
+      title: t.byCar,
+      description: t.carDesc,
+      duration: t.fromQuito.replace('6-8', '5-6'),
+      cost: `$40 - $60 (${t.gasoline})`,
+      pros: [t.flexible, t.landscapes],
+      color: 'from-orange-500 to-red-500'
+    }
+  ];
 
   return (
     <div className="mb-12">
-      <h2 className="text-4xl font-bold text-center mb-4 text-ocean-dark">Opciones de Transporte</h2>
-      <p className="text-xl text-center text-gray-600 mb-10">Elige la opción que mejor se adapte a tu viaje</p>
+      <h2 className="text-4xl font-bold text-center mb-4 text-ocean-dark">{t.transportOptions}</h2>
+      <p className="text-xl text-center text-gray-600 mb-10">{t.chooseTransport}</p>
       
       <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
         {transportOptions.map((option, index) => (

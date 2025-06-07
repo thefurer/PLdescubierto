@@ -1,15 +1,16 @@
-
 import { useState } from 'react';
 import { ArrowLeft, ChevronDown, ChevronUp, HelpCircle, MessageCircle, Mail, Search, Filter } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
+import { useTranslations } from '@/hooks/useTranslations';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ChatBot from '@/components/ChatBot';
 
 const FAQ = () => {
   const navigate = useNavigate();
+  const t = useTranslations();
   const [openFAQ, setOpenFAQ] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('all');
@@ -163,16 +164,16 @@ const FAQ = () => {
               className="mr-6 glass-card hover:scale-105 transition-all duration-300"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al inicio
+              {t.backToHome}
             </Button>
             <div className="flex-1">
               <div className="flex items-center mb-4">
                 <HelpCircle className="h-10 w-10 text-ocean mr-4 animate-pulse" />
                 <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-ocean bg-clip-text text-transparent">
-                  Preguntas Frecuentes
+                  {t.faqTitle}
                 </h1>
               </div>
-              <p className="text-xl text-gray-600">Encuentra respuestas a las preguntas más comunes sobre Puerto López</p>
+              <p className="text-xl text-gray-600">{t.faqSubtitle}</p>
             </div>
           </div>
 
@@ -184,7 +185,7 @@ const FAQ = () => {
                   <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
                   <input
                     type="text"
-                    placeholder="Buscar preguntas..."
+                    placeholder={t.searchQuestions}
                     className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-ocean focus:ring-4 focus:ring-ocean/20 transition-all duration-300"
                     value={searchTerm}
                     onChange={(e) => setSearchTerm(e.target.value)}
@@ -197,7 +198,7 @@ const FAQ = () => {
                     value={selectedCategory}
                     onChange={(e) => setSelectedCategory(e.target.value)}
                   >
-                    <option value="all">Todas las categorías</option>
+                    <option value="all">{t.allCategories}</option>
                     {faqData.map((cat) => (
                       <option key={cat.category} value={cat.category}>{cat.category}</option>
                     ))}
@@ -211,12 +212,12 @@ const FAQ = () => {
           <div className="space-y-8">
             {filteredFAQs.map((category, categoryIndex) => (
               <Card key={categoryIndex} className="glass-card border-0 shadow-xl hover:shadow-2xl transition-all duration-500 animate-scale-in">
-                <CardHeader className={`bg-gradient-to-r ${category.color} text-white rounded-t-lg`}>
-                  <CardTitle className="text-2xl font-bold flex items-center">
+                <div className={`bg-gradient-to-r ${category.color} text-white rounded-t-lg p-6`}>
+                  <h2 className="text-2xl font-bold flex items-center">
                     <span className="text-3xl mr-3">{category.icon}</span>
                     {category.category}
-                  </CardTitle>
-                </CardHeader>
+                  </h2>
+                </div>
                 <CardContent className="p-6">
                   <div className="space-y-4">
                     {category.questions.map((faq, questionIndex) => {
@@ -273,10 +274,10 @@ const FAQ = () => {
                 <div className="mb-6">
                   <MessageCircle className="h-16 w-16 mx-auto text-ocean mb-4 animate-bounce" />
                   <h3 className="text-3xl font-bold text-ocean-dark mb-2">
-                    ¿No encontraste lo que buscabas?
+                    {t.notFound}
                   </h3>
                   <p className="text-xl text-gray-600 mb-6">
-                    Contáctanos directamente para obtener información personalizada
+                    {t.contactDirectly}
                   </p>
                 </div>
                 <div className="flex flex-col sm:flex-row gap-6 justify-center">
@@ -285,14 +286,14 @@ const FAQ = () => {
                     className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                   >
                     <Mail className="h-5 w-5 mr-2" />
-                    Enviar Email
+                    {t.sendEmail}
                   </Button>
                   <Button 
                     onClick={() => window.open('https://wa.me/593991995390?text=Hola, tengo una pregunta sobre Puerto López', '_blank')}
                     className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                   >
                     <MessageCircle className="h-5 w-5 mr-2" />
-                    Chat WhatsApp
+                    {t.chatWhatsapp}
                   </Button>
                 </div>
               </CardContent>
@@ -302,7 +303,7 @@ const FAQ = () => {
           {/* Results Info */}
           {searchTerm && (
             <div className="mt-6 text-center text-gray-600">
-              Mostrando {filteredFAQs.reduce((total, cat) => total + cat.questions.length, 0)} resultado(s) para "{searchTerm}"
+              {t.showingResults} {filteredFAQs.reduce((total, cat) => total + cat.questions.length, 0)} {t.resultsFor} "{searchTerm}"
             </div>
           )}
         </div>

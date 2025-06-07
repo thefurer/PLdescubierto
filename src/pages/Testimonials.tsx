@@ -1,14 +1,16 @@
 import { useState } from 'react';
-import { ArrowLeft, Star, Quote, Heart, Users, MapPin, Calendar, Camera } from 'lucide-react';
+import { ArrowLeft, Star, Quote, Heart, Users, MapPin, Calendar } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
+import { useTranslations } from '@/hooks/useTranslations';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ChatBot from '@/components/ChatBot';
 
 const Testimonials = () => {
   const navigate = useNavigate();
+  const t = useTranslations();
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const testimonials = [
@@ -68,17 +70,17 @@ const Testimonials = () => {
       date: '12 de Abril, 2024',
       location: 'Paris, France',
       rating: 5,
-      comment: 'Un endroit magnifique pour se détendre et profiter de la nature. Les plages sont propres et l\'eau est claire.',
+      comment: 'Un endroit magnifique para se détendre et profiter de la nature. Les plages sont propres et l\'eau est claire.',
       category: 'pareja',
       image: 'https://images.unsplash.com/photo-1524250502761-1ac6f2e30d43?ixlib=rb-4.0.3&ixid=MnwxMjA3fDB8MHxzZWFyY2h8MjB8fHBlb3BsZXxlbnwwfHwwfHw%3D&auto=format&fit=crop&w=500&q=60'
     }
   ];
 
   const categories = [
-    { value: 'all', label: 'Todos' },
-    { value: 'familia', label: 'Familia' },
-    { value: 'pareja', label: 'Pareja' },
-    { value: 'aventura', label: 'Aventura' }
+    { value: 'all', label: t.all },
+    { value: 'familia', label: t.family },
+    { value: 'pareja', label: t.couple },
+    { value: 'aventura', label: t.adventure }
   ];
 
   const filteredTestimonials = testimonials.filter(testimonial => 
@@ -89,7 +91,7 @@ const Testimonials = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      {/* Enhanced Hero Section - Solid background without right gradient */}
+      {/* Enhanced Hero Section */}
       <div className="relative overflow-hidden bg-ocean">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
         
@@ -102,7 +104,7 @@ const Testimonials = () => {
                 className="mr-6 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
               >
                 <ArrowLeft className="h-4 w-4 mr-2" />
-                Volver al inicio
+                {t.backToHome}
               </Button>
             </div>
             
@@ -110,15 +112,15 @@ const Testimonials = () => {
               <div className="flex items-center justify-center mb-6">
                 <Heart className="h-12 w-12 text-white mr-4 animate-pulse" />
                 <h1 className="text-6xl font-bold text-white drop-shadow-lg">
-                  Testimonios
+                  {t.testimonialsTitle}
                 </h1>
               </div>
               <p className="text-2xl text-white/90 drop-shadow-md mb-8">
-                Historias reales de viajeros que han vivido la magia de Puerto López
+                {t.testimonialsSubtitle}
               </p>
               <div className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
                 <Users className="h-5 w-5 text-white mr-2" />
-                <span className="text-white font-medium">Más de 10,000 visitantes satisfechos</span>
+                <span className="text-white font-medium">{t.satisfiedVisitors}</span>
               </div>
             </div>
           </div>
@@ -130,7 +132,7 @@ const Testimonials = () => {
           {/* Category Filters */}
           <div className="mb-8">
             <h2 className="text-3xl font-bold text-center mb-4 text-ocean-dark">
-              Categorías de Testimonios
+              {t.testimonialCategories}
             </h2>
             <div className="flex justify-center gap-4">
               {categories.map((category) => (
@@ -188,7 +190,7 @@ const Testimonials = () => {
 
           {filteredTestimonials.length === 0 && (
             <div className="text-center text-gray-500 mt-8">
-              <p className="text-xl">No hay testimonios en esta categoría.</p>
+              <p className="text-xl">{t.noTestimonials}</p>
             </div>
           )}
         </div>

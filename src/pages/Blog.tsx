@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
+import { useTranslations } from '@/hooks/useTranslations';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import BlogEditor from '@/components/blog/BlogEditor';
@@ -23,6 +24,7 @@ interface BlogPost {
 
 const Blog = () => {
   const { user } = useAuth();
+  const t = useTranslations();
   const [posts, setPosts] = useState<BlogPost[]>([
     {
       id: '1',
@@ -59,11 +61,11 @@ const Blog = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
 
   const categories = [
-    { value: 'noticias', label: 'Noticias', color: 'bg-blue-100 text-blue-800' },
-    { value: 'eventos', label: 'Eventos', color: 'bg-green-100 text-green-800' },
-    { value: 'conservacion', label: 'Conservación', color: 'bg-emerald-100 text-emerald-800' },
-    { value: 'turismo', label: 'Turismo', color: 'bg-purple-100 text-purple-800' },
-    { value: 'cultura', label: 'Cultura', color: 'bg-orange-100 text-orange-800' }
+    { value: 'noticias', label: t.news, color: 'bg-blue-100 text-blue-800' },
+    { value: 'eventos', label: t.events, color: 'bg-green-100 text-green-800' },
+    { value: 'conservacion', label: t.conservation, color: 'bg-emerald-100 text-emerald-800' },
+    { value: 'turismo', label: t.tourism, color: 'bg-purple-100 text-purple-800' },
+    { value: 'cultura', label: t.culture, color: 'bg-orange-100 text-orange-800' }
   ];
 
   const filteredPosts = posts.filter(post => {

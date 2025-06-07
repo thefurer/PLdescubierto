@@ -2,9 +2,11 @@
 import { ArrowLeft, Compass, MapPin } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useNavigate } from 'react-router-dom';
+import { useTranslations } from '@/hooks/useTranslations';
 
 const TravelGuideHero = () => {
   const navigate = useNavigate();
+  const t = useTranslations();
 
   return (
     <div className="relative overflow-hidden bg-ocean">
@@ -19,7 +21,7 @@ const TravelGuideHero = () => {
               className="mr-6 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
             >
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al inicio
+              {t.backToHome}
             </Button>
           </div>
           
@@ -27,15 +29,15 @@ const TravelGuideHero = () => {
             <div className="flex items-center justify-center mb-6">
               <Compass className="h-12 w-12 text-white mr-4 animate-pulse" />
               <h1 className="text-6xl font-bold text-white drop-shadow-lg">
-                Guía de Viaje
+                {t.travelGuideTitle}
               </h1>
             </div>
             <p className="text-2xl text-white/90 drop-shadow-md mb-8">
-              Todo lo que necesitas saber para llegar a Puerto López
+              {t.travelGuideSubtitle}
             </p>
             <div className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
               <MapPin className="h-5 w-5 text-white mr-2" />
-              <span className="text-white font-medium">Explora destinos únicos en Ecuador</span>
+              <span className="text-white font-medium">{t.exploreDestinations}</span>
             </div>
           </div>
         </div>

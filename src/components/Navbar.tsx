@@ -3,13 +3,16 @@ import { useState, useEffect } from "react";
 import { Menu, X } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
 import { Link, useLocation } from "react-router-dom";
+import { useTranslations } from "@/hooks/useTranslations";
 import UserMenu from "./UserMenu";
+import LanguageSelector from "./LanguageSelector";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
   const { user } = useAuth();
   const location = useLocation();
+  const t = useTranslations();
 
   // Check if we're on a resource page
   const isResourcePage = ['/travel-guide', '/faq', '/testimonials', '/blog'].includes(location.pathname);
@@ -73,31 +76,33 @@ const Navbar = () => {
           {/* Desktop Menu */}
           <div className="hidden md:flex items-center space-x-8">
             <a href="#home" className={getTextClass()}>
-              Inicio
+              {t.home}
             </a>
             <a href="#attractions" className={getTextClass()}>
-              Atracciones
+              {t.attractions}
             </a>
             <a href="#virtual-tour" className={getTextClass()}>
-              Metaverso
+              {t.virtualTour}
             </a>
             <Link to="/blog" className={getTextClass()}>
-              Blog
+              {t.blog}
             </Link>
             <a href="#contact" className={getTextClass()}>
-              Contacto
+              {t.contact}
             </a>
+            
+            <LanguageSelector />
             
             {user ? (
               <div className="flex items-center space-x-4">
                 <Link to="/dashboard" className={getTextClass()}>
-                  Dashboard
+                  {t.dashboard}
                 </Link>
                 <UserMenu />
               </div>
             ) : (
               <Link to="/auth" className={getButtonClass()}>
-                Iniciar Sesión
+                {t.login}
               </Link>
             )}
           </div>
@@ -113,33 +118,35 @@ const Navbar = () => {
           <div className="md:hidden glass-card rounded-lg mt-2 p-4 animate-fade-in">
             <div className="flex flex-col space-y-4">
               <a href="#home" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                Inicio
+                {t.home}
               </a>
               <a href="#attractions" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                Atracciones
+                {t.attractions}
               </a>
               <a href="#virtual-tour" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                Metaverso
+                {t.virtualTour}
               </a>
               <Link to="/blog" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                Blog
+                {t.blog}
               </Link>
               <a href="#contact" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                Contacto
+                {t.contact}
               </a>
+              
+              <LanguageSelector />
               
               {user ? (
                 <>
                   <Link to="/dashboard" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                    Dashboard
+                    {t.dashboard}
                   </Link>
                   <Link to="/profile" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                    Mi Perfil
+                    {t.profile}
                   </Link>
                 </>
               ) : (
                 <Link to="/auth" className="btn-secondary text-center" onClick={() => setIsOpen(false)}>
-                  Iniciar Sesión
+                  {t.login}
                 </Link>
               )}
             </div>

@@ -1,12 +1,15 @@
 
 import { Mail, Phone, MessageSquare, Lock, Shield } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "@/hooks/useTranslations";
 
 type ContactProps = {
   className?: string;
 };
 
 const Contact = ({ className }: ContactProps) => {
+  const t = useTranslations();
+
   return (
     <section 
       id="contact" 
@@ -15,23 +18,23 @@ const Contact = ({ className }: ContactProps) => {
       <div className="container mx-auto px-4">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-bold text-ocean-dark mb-4">
-            Contácta <span className="text-green-500">con nuestros asesores</span>
+            {t.contactTitle}
           </h2>
           <p className="text-lg text-gray-600 max-w-3xl mx-auto">
-            Obtenga asistencia personalizada para planificar sus vacaciones de ensueño en Puerto López. Nuestros asesores expertos están listos para ayudarle a crear el itinerario perfecto.
+            {t.contactDescription}
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
           {/* Formulario de Contacto */}
           <div className="bg-white rounded-2xl shadow-xl p-6 md:p-8">
-            <h3 className="text-2xl font-bold text-ocean-dark mb-6">Contáctanos</h3>
+            <h3 className="text-2xl font-bold text-ocean-dark mb-6">{t.contactUs}</h3>
             
             <form className="space-y-6">
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <div>
             <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-1">
-              Tu Nombre
+              {t.yourName}
             </label>
             <input
               id="name"
@@ -43,7 +46,7 @@ const Contact = ({ className }: ContactProps) => {
           </div>
           <div>
             <label htmlFor="email" className="block text-sm font-medium text-gray-700 mb-1">
-              Correo Electrónico
+              {t.yourEmail}
             </label>
             <input
               id="email"
@@ -57,7 +60,7 @@ const Contact = ({ className }: ContactProps) => {
 
               <div>
           <label htmlFor="subject" className="block text-sm font-medium text-gray-700 mb-1">
-            Asunto
+            {t.subject}
           </label>
           <input
             id="subject"
@@ -70,7 +73,7 @@ const Contact = ({ className }: ContactProps) => {
 
               <div>
           <label htmlFor="message" className="block text-sm font-medium text-gray-700 mb-1">
-            Tu Mensaje
+            {t.yourMessage}
           </label>
           <textarea
             id="message"
@@ -89,7 +92,7 @@ const Contact = ({ className }: ContactProps) => {
             required
           />
           <label htmlFor="terms" className="ml-2 block text-sm text-gray-600">
-            Acepto la política de privacidad y los términos de servicio
+            {t.acceptTerms}
           </label>
               </div>
 
@@ -97,7 +100,7 @@ const Contact = ({ className }: ContactProps) => {
           type="submit"
           className="w-full py-3 bg-ocean text-white font-semibold rounded-lg hover:bg-ocean-dark transition-colors shadow-md"
               >
-          Enviar Mensaje
+          {t.sendMessage}
               </button>
             </form>
           </div>
@@ -113,7 +116,7 @@ const Contact = ({ className }: ContactProps) => {
                     <Mail size={20} />
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-ocean-dark mb-1">Nuestro correo</h4>
+                    <h4 className="text-lg font-semibold text-ocean-dark mb-1">{t.ourEmail}</h4>
                     <p className="text-gray-600">apincay@gmail.com</p>
                     <p className="text-gray-600">info@whalexpeditionsecuador.com</p>
                   </div>
@@ -124,7 +127,7 @@ const Contact = ({ className }: ContactProps) => {
                     <Phone size={20} />
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-ocean-dark mb-1">Llámanos</h4>
+                    <h4 className="text-lg font-semibold text-ocean-dark mb-1">{t.callUs}</h4>
                     <p className="text-gray-600">+593 99 199 5390</p>
                     <p className="text-gray-600">+593 2 123 4567</p>
                   </div>
@@ -135,15 +138,15 @@ const Contact = ({ className }: ContactProps) => {
                     <MessageSquare size={20} />
                   </div>
                   <div>
-                    <h4 className="text-lg font-semibold text-ocean-dark mb-1">Chat WhatsApp</h4>
-                    <p className="text-gray-600">Disponible 24/7 para asistencia inmediata</p>
+                    <h4 className="text-lg font-semibold text-ocean-dark mb-1">{t.whatsappChat}</h4>
+                    <p className="text-gray-600">{t.whatsappAvailable}</p>
                     <a
                       href="https://wa.me/593991995390?text=Hola,%20me%20gustaría%20obtener%20más%20información%20sobre%20los%20tours%20en%20Puerto%20López"
                       target="_blank"
                       rel="noopener noreferrer"
                       className="mt-2 inline-block px-4 py-2 bg-ocean text-white text-sm rounded-lg hover:bg-ocean-dark transition-colors"
                     >
-                      Escribir por WhatsApp
+                      {t.writeWhatsapp}
                     </a>
                   </div>
                 </div>
@@ -151,7 +154,7 @@ const Contact = ({ className }: ContactProps) => {
             </div>
 
             <div className="bg-ocean-light/30 rounded-2xl p-6 md:p-8">
-              <h3 className="text-xl font-bold text-ocean-dark mb-4">Tu Seguridad Garantizada</h3>
+              <h3 className="text-xl font-bold text-ocean-dark mb-4">{t.securityGuaranteed}</h3>
               
               <div className="space-y-4">
               <div className="flex items-start">
@@ -159,8 +162,8 @@ const Contact = ({ className }: ContactProps) => {
                 <Lock size={18} />
                 </div>
                 <div>
-                <h4 className="text-base font-semibold text-ocean-dark mb-1">Comunicaciones Seguras</h4>
-                <p className="text-gray-600 text-sm">Todas las comunicaciones están cifradas y seguras</p>
+                <h4 className="text-base font-semibold text-ocean-dark mb-1">{t.secureComms}</h4>
+                <p className="text-gray-600 text-sm">{t.secureCommsDesc}</p>
                 </div>
               </div>
 
@@ -169,30 +172,30 @@ const Contact = ({ className }: ContactProps) => {
                 <Shield size={18} />
                 </div>
                 <div>
-                <h4 className="text-base font-semibold text-ocean-dark mb-1">Protección de Datos</h4>
-                <p className="text-gray-600 text-sm">Tu información personal está protegida por nuestra política de privacidad</p>
+                <h4 className="text-base font-semibold text-ocean-dark mb-1">{t.dataProtection}</h4>
+                <p className="text-gray-600 text-sm">{t.dataProtectionDesc}</p>
                 </div>
               </div>
               </div>
 
               <div className="mt-6 p-4 bg-white rounded-lg">
-              <h4 className="text-base font-semibold text-ocean-dark mb-2">Opciones de Personalización</h4>
+              <h4 className="text-base font-semibold text-ocean-dark mb-2">{t.customizationOptions}</h4>
               <ul className="text-gray-600 text-sm space-y-2">
                 <li className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-coral mr-2"></div>
-                <span>Itinerarios personalizados</span>
+                <span>{t.customItineraries}</span>
                 </li>
                 <li className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-coral mr-2"></div>
-                <span>Tours grupales y privados</span>
+                <span>{t.groupTours}</span>
                 </li>
                 <li className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-coral mr-2"></div>
-                <span>Preferencias de alojamiento</span>
+                <span>{t.accommodationPrefs}</span>
                 </li>
                 <li className="flex items-center">
                 <div className="w-4 h-4 rounded-full bg-coral mr-2"></div>
-                <span>Requisitos dietéticos especiales</span>
+                <span>{t.dietaryReqs}</span>
                 </li>
               </ul>
               </div>
