@@ -8,6 +8,7 @@ import BlogHeader from '@/components/blog/BlogHeader';
 import BlogFilters from '@/components/blog/BlogFilters';
 import BlogPostCard from '@/components/blog/BlogPostCard';
 import BlogEmptyState from '@/components/blog/BlogEmptyState';
+import ChatBot from '@/components/ChatBot';
 
 interface BlogPost {
   id: string;
@@ -160,6 +161,7 @@ const Blog = () => {
       </div>
 
       <Footer />
+      <ChatBot />
     </div>
   );
 };

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { ArrowLeft, MapPin, Car, Plane, Bus, Clock, Navigation, Star, Compass } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -5,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import ChatBot from '@/components/ChatBot';
 
 const TravelGuide = () => {
   const navigate = useNavigate();
@@ -82,9 +84,8 @@ const TravelGuide = () => {
     <div className="min-h-screen bg-white">
       <Navbar />
       
-      {/* Enhanced Hero Section with Better Gradient */}
-      <div className="relative overflow-hidden">
-        <div className="absolute inset-0 bg-gradient-to-br from-ocean via-blue-500 to-green-primary opacity-95"></div>
+      {/* Enhanced Hero Section - Solid background without right gradient */}
+      <div className="relative overflow-hidden bg-ocean">
         <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
         
         <div className="relative pt-28 pb-16">
@@ -301,6 +302,7 @@ const TravelGuide = () => {
       </div>
 
       <Footer />
+      <ChatBot />
     </div>
   );
 };

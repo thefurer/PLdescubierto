@@ -6,6 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { useNavigate } from 'react-router-dom';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
+import ChatBot from '@/components/ChatBot';
 
 const FAQ = () => {
   const navigate = useNavigate();
@@ -308,6 +309,7 @@ const FAQ = () => {
       </div>
 
       <Footer />
+      <ChatBot />
     </div>
   );
 };
