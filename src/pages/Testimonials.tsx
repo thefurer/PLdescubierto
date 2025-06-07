@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { ArrowLeft, Star, Quote, Filter, Users, MapPin, Calendar, ThumbsUp } from 'lucide-react';
 import { Button } from '@/components/ui/button';
@@ -123,32 +122,50 @@ const Testimonials = () => {
   const locations = [...new Set(testimonials.map(t => t.location.split(', ')[1]))];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
-      <div className="pt-20 pb-12">
-        <div className="container mx-auto px-4">
-          {/* Enhanced Header */}
-          <div className="flex items-center mb-12 animate-fade-in">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
-              className="mr-6 glass-card hover:scale-105 transition-all duration-300"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              Volver al inicio
-            </Button>
-            <div className="flex-1">
-              <div className="flex items-center mb-4">
-                <Users className="h-10 w-10 text-ocean mr-4 animate-pulse" />
-                <h1 className="text-5xl font-bold bg-gradient-to-r from-ocean-dark via-ocean to-green-primary bg-clip-text text-transparent">
+      {/* Enhanced Hero Section with Better Gradient */}
+      <div className="relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-green-primary via-emerald-500 to-ocean opacity-95"></div>
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
+        
+        <div className="relative pt-28 pb-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center mb-8 animate-fade-in">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/')}
+                className="mr-6 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver al inicio
+              </Button>
+            </div>
+            
+            <div className="text-center max-w-4xl mx-auto">
+              <div className="flex items-center justify-center mb-6">
+                <Users className="h-12 w-12 text-white mr-4 animate-pulse" />
+                <h1 className="text-6xl font-bold text-white drop-shadow-lg">
                   Testimonios
                 </h1>
               </div>
-              <p className="text-xl text-gray-600">Experiencias reales de nuestros visitantes</p>
+              <p className="text-2xl text-white/90 drop-shadow-md mb-8">
+                Experiencias reales de nuestros visitantes
+              </p>
+              <div className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+                <Star className="h-5 w-5 text-white mr-2" />
+                <span className="text-white font-medium">
+                  {averageRating.toFixed(1)} estrellas promedio de {testimonials.length} reseñas
+                </span>
+              </div>
             </div>
           </div>
+        </div>
+      </div>
 
+      <div className="py-12 bg-gray-50/50">
+        <div className="container mx-auto px-4">
           {/* Enhanced Rating Summary */}
           <Card className="mb-8 glass-card border-0 shadow-2xl hover:shadow-3xl transition-all duration-500 animate-scale-in">
             <CardContent className="p-8">
