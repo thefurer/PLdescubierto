@@ -6,22 +6,23 @@ import { Badge } from '@/components/ui/badge';
 import { Star, ChevronLeft, ChevronRight } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 
-interface Review {
+interface ReviewWithProfile {
   id: string;
   rating: number;
   title: string;
   content: string;
-  is_verified: boolean;
-  visit_date?: string;
-  helpful_count: number;
+  is_verified: boolean | null;
+  visit_date: string | null;
+  helpful_count: number | null;
   created_at: string;
+  user_id: string;
   profiles?: {
-    full_name: string;
-  };
+    full_name: string | null;
+  } | null;
 }
 
 const Reviews = () => {
-  const [reviews, setReviews] = useState<Review[]>([]);
+  const [reviews, setReviews] = useState<ReviewWithProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(0);
   const reviewsPerPage = 3;
@@ -32,27 +33,31 @@ const Reviews = () => {
 
   const fetchReviews = async () => {
     try {
-      const { data, error } = await supabase
+      // Hacemos la consulta sin intentar hacer join con profiles
+      // ya que no existe foreign key directa
+      const { data: reviewsData, error } = await supabase
         .from('reviews')
-        .select(`
-          id,
-          rating,
-          title,
-          content,
-          is_verified,
-          visit_date,
-          helpful_count,
-          created_at,
-          profiles (
-            full_name
-          )
-        `)
+        .select('*')
         .eq('status', 'approved')
         .order('helpful_count', { ascending: false })
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setReviews(data || []);
+
+      // Obtenemos los perfiles por separado
+      const userIds = reviewsData?.map(review => review.user_id) || [];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, full_name')
+        .in('id', userIds);
+
+      // Combinamos los datos manualmente
+      const reviewsWithProfiles = reviewsData?.map(review => ({
+        ...review,
+        profiles: profilesData?.find(profile => profile.id === review.user_id) || null
+      })) || [];
+
+      setReviews(reviewsWithProfiles);
     } catch (error) {
       console.error('Error fetching reviews:', error);
     } finally {

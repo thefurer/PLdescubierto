@@ -9,7 +9,7 @@ import { Loader2, Star, CheckCircle, XCircle, Eye } from 'lucide-react';
 
 const ReviewsManager = () => {
   const { reviews, loading, updateReviewStatus } = useReviews();
-  const [selectedReview, setSelectedReview] = useState<any>(null);
+  const [selectedReview, setSelectedReview] = useState<string | null>(null);
 
   const getStatusBadge = (status: string) => {
     switch (status) {

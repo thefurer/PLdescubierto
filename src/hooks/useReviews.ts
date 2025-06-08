@@ -3,23 +3,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import type { Tables } from '@/integrations/supabase/types';
 
-export interface Review {
-  id: string;
-  user_id: string;
-  attraction_id?: string;
-  rating: number;
-  title: string;
-  content: string;
-  is_verified: boolean;
-  verification_method?: 'visit_confirmation' | 'photo_verification' | 'admin_verified';
-  visit_date?: string;
-  photos: string[];
-  helpful_count: number;
-  status: 'pending' | 'approved' | 'rejected';
-  created_at: string;
-  updated_at: string;
-}
+export type Review = Tables<'reviews'>;
 
 export const useReviews = () => {
   const [reviews, setReviews] = useState<Review[]>([]);
@@ -55,11 +41,19 @@ export const useReviews = () => {
   };
 
   const createReview = async (reviewData: Partial<Review>) => {
+    if (!user?.id) return null;
+    
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from('reviews')
-        .insert([{ ...reviewData, user_id: user?.id }])
+        .insert({ 
+          ...reviewData, 
+          user_id: user.id,
+          rating: reviewData.rating || 5,
+          title: reviewData.title || 'Sin título',
+          content: reviewData.content || 'Sin contenido'
+        })
         .select()
         .single();
 

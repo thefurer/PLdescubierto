@@ -9,20 +9,21 @@ import { Badge } from '@/components/ui/badge';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2, UserCheck, Users, Shield } from 'lucide-react';
+import type { Tables } from '@/integrations/supabase/types';
 
-interface UserRole {
+interface UserRoleWithProfile {
   id: string;
   user_id: string;
   role: 'admin' | 'moderator' | 'user';
-  created_at: string;
+  created_at: string | null;
   profiles?: {
-    email: string;
-    full_name: string;
-  };
+    email: string | null;
+    full_name: string | null;
+  } | null;
 }
 
 const UserRoleManager = () => {
-  const [userRoles, setUserRoles] = useState<UserRole[]>([]);
+  const [userRoles, setUserRoles] = useState<UserRoleWithProfile[]>([]);
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
   const [selectedRole, setSelectedRole] = useState<'admin' | 'moderator' | 'user'>('user');
@@ -31,22 +32,28 @@ const UserRoleManager = () => {
   const fetchUserRoles = async () => {
     setLoading(true);
     try {
-      const { data, error } = await supabase
+      // Obtenemos los roles de usuario sin hacer join
+      const { data: rolesData, error } = await supabase
         .from('user_roles')
-        .select(`
-          id,
-          user_id,
-          role,
-          created_at,
-          profiles (
-            email,
-            full_name
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setUserRoles(data || []);
+
+      // Obtenemos los perfiles por separado
+      const userIds = rolesData?.map(role => role.user_id) || [];
+      const { data: profilesData } = await supabase
+        .from('profiles')
+        .select('id, email, full_name')
+        .in('id', userIds);
+
+      // Combinamos los datos manualmente
+      const rolesWithProfiles = rolesData?.map(role => ({
+        ...role,
+        profiles: profilesData?.find(profile => profile.id === role.user_id) || null
+      })) || [];
+
+      setUserRoles(rolesWithProfiles);
     } catch (error: any) {
       toast({
         title: 'Error',

@@ -53,7 +53,9 @@ const MembershipManager = () => {
               <Label htmlFor="membership-type">Tipo de Membresía</Label>
               <Select
                 value={newMembership.type}
-                onValueChange={(value) => setNewMembership({ ...newMembership, type: value as any })}
+                onValueChange={(value: 'basic' | 'premium' | 'vip') => 
+                  setNewMembership({ ...newMembership, type: value })
+                }
               >
                 <SelectTrigger>
                   <SelectValue placeholder="Seleccionar tipo" />

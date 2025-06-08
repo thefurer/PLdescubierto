@@ -3,18 +3,9 @@ import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/contexts/AuthContext';
+import type { Tables } from '@/integrations/supabase/types';
 
-export interface Membership {
-  id: string;
-  user_id: string;
-  type: 'basic' | 'premium' | 'vip';
-  status: 'active' | 'inactive' | 'expired';
-  start_date: string;
-  end_date?: string;
-  features: Record<string, any>;
-  created_at: string;
-  updated_at: string;
-}
+export type Membership = Tables<'memberships'>;
 
 export const useMemberships = () => {
   const [memberships, setMemberships] = useState<Membership[]>([]);
@@ -44,11 +35,18 @@ export const useMemberships = () => {
   };
 
   const createMembership = async (membershipData: Partial<Membership>) => {
+    if (!user?.id) return null;
+    
     setLoading(true);
     try {
       const { data, error } = await supabase
         .from('memberships')
-        .insert([{ ...membershipData, user_id: user?.id }])
+        .insert({ 
+          ...membershipData, 
+          user_id: user.id,
+          type: membershipData.type || 'basic',
+          status: membershipData.status || 'active'
+        })
         .select()
         .single();
 
