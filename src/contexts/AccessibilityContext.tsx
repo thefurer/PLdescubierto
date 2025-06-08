@@ -33,33 +33,49 @@ const AccessibilityContext = createContext<AccessibilityContextType | undefined>
 
 export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [settings, setSettings] = useState<AccessibilitySettings>(() => {
-    const saved = localStorage.getItem('accessibility-settings');
-    return saved ? JSON.parse(saved) : defaultSettings;
+    try {
+      const saved = localStorage.getItem('accessibility-settings');
+      return saved ? { ...defaultSettings, ...JSON.parse(saved) } : defaultSettings;
+    } catch (error) {
+      console.warn('Error loading accessibility settings:', error);
+      return defaultSettings;
+    }
   });
 
   useEffect(() => {
-    localStorage.setItem('accessibility-settings', JSON.stringify(settings));
-    
-    // Aplicar configuraciones al documento
-    const root = document.documentElement;
-    
-    // Tamaño de fuente
-    root.setAttribute('data-font-size', settings.fontSize);
-    
-    // Alto contraste
-    root.setAttribute('data-high-contrast', settings.highContrast.toString());
-    
-    // Movimiento reducido
-    root.setAttribute('data-reduced-motion', settings.reducedMotion.toString());
-    
-    // Indicadores de foco
-    root.setAttribute('data-focus-indicators', settings.focusIndicators.toString());
-    
-    // Optimización para lectores de pantalla
-    root.setAttribute('data-screen-reader', settings.screenReaderOptimized.toString());
-    
-    // Subrayado de enlaces
-    root.setAttribute('data-underline-links', settings.underlineLinks.toString());
+    try {
+      localStorage.setItem('accessibility-settings', JSON.stringify(settings));
+      
+      // Aplicar configuraciones al documento
+      const root = document.documentElement;
+      
+      // Asegurar que todos los valores estén definidos antes de convertir a string
+      if (settings.fontSize) {
+        root.setAttribute('data-font-size', settings.fontSize);
+      }
+      
+      if (typeof settings.highContrast === 'boolean') {
+        root.setAttribute('data-high-contrast', settings.highContrast.toString());
+      }
+      
+      if (typeof settings.reducedMotion === 'boolean') {
+        root.setAttribute('data-reduced-motion', settings.reducedMotion.toString());
+      }
+      
+      if (typeof settings.focusIndicators === 'boolean') {
+        root.setAttribute('data-focus-indicators', settings.focusIndicators.toString());
+      }
+      
+      if (typeof settings.screenReaderOptimized === 'boolean') {
+        root.setAttribute('data-screen-reader', settings.screenReaderOptimized.toString());
+      }
+      
+      if (typeof settings.underlineLinks === 'boolean') {
+        root.setAttribute('data-underline-links', settings.underlineLinks.toString());
+      }
+    } catch (error) {
+      console.warn('Error applying accessibility settings:', error);
+    }
   }, [settings]);
 
   const updateSettings = (newSettings: Partial<AccessibilitySettings>) => {
