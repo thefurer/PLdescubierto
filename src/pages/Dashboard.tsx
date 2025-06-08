@@ -1,8 +1,6 @@
-
 import { useState } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/button';
 import { 
   Settings, 
@@ -20,6 +18,9 @@ import HistoryViewer from '@/components/dashboard/HistoryViewer';
 import UserProfile from '@/components/dashboard/UserProfile';
 import AttractionsManager from '@/components/dashboard/AttractionsManager';
 import AdminManager from '@/components/dashboard/AdminManager';
+import MembershipManager from '@/components/dashboard/MembershipManager';
+import ReviewsManager from '@/components/dashboard/ReviewsManager';
+import UserRoleManager from '@/components/dashboard/UserRoleManager';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -105,6 +106,30 @@ const Dashboard = () => {
                     Gestión de Atracciones
                   </Button>
                   <Button
+                    variant={activeTab === 'memberships' ? 'default' : 'ghost'}
+                    className="w-full justify-start"
+                    onClick={() => setActiveTab('memberships')}
+                  >
+                    <Shield className="h-4 w-4 mr-2" />
+                    Membresías Premium
+                  </Button>
+                  <Button
+                    variant={activeTab === 'reviews' ? 'default' : 'ghost'}
+                    className="w-full justify-start"
+                    onClick={() => setActiveTab('reviews')}
+                  >
+                    <User className="h-4 w-4 mr-2" />
+                    Gestión de Reseñas
+                  </Button>
+                  <Button
+                    variant={activeTab === 'users' ? 'default' : 'ghost'}
+                    className="w-full justify-start"
+                    onClick={() => setActiveTab('users')}
+                  >
+                    <Settings className="h-4 w-4 mr-2" />
+                    Gestión de Usuarios
+                  </Button>
+                  <Button
                     variant={activeTab === 'admin' ? 'default' : 'ghost'}
                     className="w-full justify-start"
                     onClick={() => setActiveTab('admin')}
@@ -138,6 +163,9 @@ const Dashboard = () => {
             {activeTab === 'hero' && <ContentEditor filterSection="hero" />}
             {activeTab === 'footer' && <ContentEditor filterSection="footer" />}
             {activeTab === 'attractions' && <AttractionsManager />}
+            {activeTab === 'memberships' && <MembershipManager />}
+            {activeTab === 'reviews' && <ReviewsManager />}
+            {activeTab === 'users' && <UserRoleManager />}
             {activeTab === 'admin' && <AdminManager />}
             {activeTab === 'history' && <HistoryViewer />}
             {activeTab === 'profile' && <UserProfile />}
