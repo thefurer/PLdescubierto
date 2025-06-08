@@ -1,7 +1,8 @@
 
 import { useRef, useEffect } from 'react';
-import { Bot } from 'lucide-react';
+import { Bot, Trash2 } from 'lucide-react';
 import { ScrollArea } from '@/components/ui/scroll-area';
+import { Button } from '@/components/ui/button';
 import ChatMessage from './ChatMessage';
 import LoadingIndicator from './LoadingIndicator';
 import ChatInput from './ChatInput';
@@ -24,6 +25,7 @@ interface ChatWindowProps {
   onSend: () => void;
   onKeyPress: (e: React.KeyboardEvent) => void;
   onQuickOption: (message: string) => void;
+  onClearConversation: () => void;
 }
 
 const ChatWindow = ({ 
@@ -33,7 +35,8 @@ const ChatWindow = ({
   onInputChange, 
   onSend, 
   onKeyPress,
-  onQuickOption
+  onQuickOption,
+  onClearConversation
 }: ChatWindowProps) => {
   const scrollAreaRef = useRef<HTMLDivElement>(null);
   const isMobile = useIsMobile();
@@ -73,6 +76,18 @@ const ChatWindow = ({
             <p className="text-xs opacity-90">En línea</p>
           </div>
         </div>
+        {messages.length > 1 && (
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={onClearConversation}
+            className="text-white hover:bg-white/20 p-1 h-8 w-8"
+            aria-label="Limpiar conversación"
+            title="Limpiar conversación"
+          >
+            <Trash2 size={16} />
+          </Button>
+        )}
       </div>
 
       {/* Compact Quick Options - Show after first interaction */}

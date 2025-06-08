@@ -26,6 +26,22 @@ const ChatBot = () => {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
+  const clearConversation = () => {
+    setMessages([
+      {
+        id: '1',
+        type: 'bot',
+        content: '¡Hola! 👋 Soy tu asistente personal de Puerto López.\n\n¿En qué puedo ayudarte hoy?',
+        timestamp: new Date()
+      }
+    ]);
+    setInputValue('');
+    toast({
+      title: 'Conversación limpiada',
+      description: 'El historial del chat ha sido borrado.',
+    });
+  };
+
   const sendMessage = async (messageContent?: string) => {
     const messageToSend = messageContent || inputValue.trim();
     
@@ -126,6 +142,7 @@ const ChatBot = () => {
           onSend={() => sendMessage()}
           onKeyPress={handleKeyPress}
           onQuickOption={handleQuickOption}
+          onClearConversation={clearConversation}
         />
       )}
     </>

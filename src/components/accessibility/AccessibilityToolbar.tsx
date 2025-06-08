@@ -14,7 +14,8 @@ import {
   Focus,
   RotateCcw,
   ChevronUp,
-  ChevronDown
+  ChevronDown,
+  Underline
 } from 'lucide-react';
 
 const AccessibilityToolbar = () => {
@@ -24,6 +25,7 @@ const AccessibilityToolbar = () => {
     toggleHighContrast, 
     increaseFontSize, 
     decreaseFontSize, 
+    toggleUnderlineLinks,
     resetSettings,
     updateSettings 
   } = useAccessibility();
@@ -104,6 +106,19 @@ const AccessibilityToolbar = () => {
               >
                 <Eye className="h-4 w-4 mr-2" />
                 Alto contraste {settings.highContrast && '✓'}
+              </Button>
+
+              {/* Subrayado de enlaces */}
+              <Button
+                variant={settings.underlineLinks ? "default" : "outline"}
+                size="sm"
+                onClick={toggleUnderlineLinks}
+                className="w-full justify-start"
+                aria-pressed={settings.underlineLinks}
+                aria-label={settings.underlineLinks ? 'Desactivar subrayado de enlaces' : 'Activar subrayado de enlaces'}
+              >
+                <Underline className="h-4 w-4 mr-2" />
+                Subrayar enlaces {settings.underlineLinks && '✓'}
               </Button>
 
               {/* Movimiento reducido */}

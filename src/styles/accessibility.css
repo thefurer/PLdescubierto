@@ -60,6 +60,24 @@
   background: linear-gradient(to right, hsl(var(--primary)), hsl(var(--accent))) !important;
 }
 
+/* Control de subrayado de enlaces */
+[data-underline-links="true"] a {
+  text-decoration: underline;
+  text-underline-offset: 0.2em;
+}
+
+[data-underline-links="true"] a:hover {
+  text-decoration-thickness: 2px;
+}
+
+[data-underline-links="false"] a {
+  text-decoration: none !important;
+}
+
+[data-underline-links="false"] a:hover {
+  text-decoration: none !important;
+}
+
 /* Movimiento reducido */
 [data-reduced-motion="true"] *,
 [data-reduced-motion="true"] *::before,
@@ -101,16 +119,6 @@
   background: hsl(var(--muted)) !important;
   color: hsl(var(--muted-foreground)) !important;
   font-size: 0.875rem !important;
-}
-
-/* Enlaces más accesibles */
-a {
-  text-decoration: underline;
-  text-underline-offset: 0.2em;
-}
-
-a:hover {
-  text-decoration-thickness: 2px;
 }
 
 /* Mejores espacios clicables */

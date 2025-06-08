@@ -7,6 +7,7 @@ interface AccessibilitySettings {
   reducedMotion: boolean;
   focusIndicators: boolean;
   screenReaderOptimized: boolean;
+  underlineLinks: boolean;
 }
 
 interface AccessibilityContextType {
@@ -15,6 +16,7 @@ interface AccessibilityContextType {
   toggleHighContrast: () => void;
   increaseFontSize: () => void;
   decreaseFontSize: () => void;
+  toggleUnderlineLinks: () => void;
   resetSettings: () => void;
 }
 
@@ -24,6 +26,7 @@ const defaultSettings: AccessibilitySettings = {
   reducedMotion: false,
   focusIndicators: true,
   screenReaderOptimized: false,
+  underlineLinks: true,
 };
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);
@@ -54,6 +57,9 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     
     // Optimización para lectores de pantalla
     root.setAttribute('data-screen-reader', settings.screenReaderOptimized.toString());
+    
+    // Subrayado de enlaces
+    root.setAttribute('data-underline-links', settings.underlineLinks.toString());
   }, [settings]);
 
   const updateSettings = (newSettings: Partial<AccessibilitySettings>) => {
@@ -80,6 +86,10 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
     }
   };
 
+  const toggleUnderlineLinks = () => {
+    updateSettings({ underlineLinks: !settings.underlineLinks });
+  };
+
   const resetSettings = () => {
     setSettings(defaultSettings);
   };
@@ -91,6 +101,7 @@ export const AccessibilityProvider: React.FC<{ children: React.ReactNode }> = ({
       toggleHighContrast,
       increaseFontSize,
       decreaseFontSize,
+      toggleUnderlineLinks,
       resetSettings,
     }}>
       {children}
