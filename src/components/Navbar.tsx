@@ -1,154 +1,162 @@
 
 import { useState, useEffect } from "react";
-import { Menu, X } from "lucide-react";
+import { Link } from "react-router-dom";
+import { Menu, X, User, LogOut, Settings, Calendar } from "lucide-react";
+import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
-import { Link, useLocation } from "react-router-dom";
-import { useTranslations } from "@/hooks/useTranslations";
 import UserMenu from "./UserMenu";
+import LanguageSelector from "./LanguageSelector";
 import AccessibilityToolbar from "./accessibility/AccessibilityToolbar";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [isScrolled, setIsScrolled] = useState(false);
-  const { user } = useAuth();
-  const location = useLocation();
-  const t = useTranslations();
-
-  // Check if we're on a resource page
-  const isResourcePage = ['/travel-guide', '/faq', '/testimonials', '/blog'].includes(location.pathname);
+  const { user, signOut } = useAuth();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 0);
+      setIsScrolled(window.scrollY > 10);
     };
-    window.addEventListener('scroll', handleScroll);
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // Different styling for resource pages
-  const getNavbarClass = () => {
-    if (isResourcePage) {
-      return 'fixed w-full z-50 bg-white/95 backdrop-blur-md border-b border-gray-200/50 shadow-sm';
+  const handleSignOut = async () => {
+    try {
+      await signOut();
+      setIsOpen(false);
+    } catch (error) {
+      console.error("Error signing out:", error);
     }
-    return `fixed w-full z-50 smooth-transition ${isScrolled ? 'glass-nav shadow-lg' : 'bg-transparent'}`;
   };
 
-  const getTextClass = (baseClass = '') => {
-    if (isResourcePage) {
-      return `${baseClass} text-gray-700 hover:text-green-primary smooth-transition font-medium`;
-    }
-    return `${baseClass} hover:text-green-primary smooth-transition font-medium ${isScrolled ? 'text-gray-700' : 'text-white'}`;
-  };
-
-  const getLogoClass = () => {
-    if (isResourcePage) {
-      return 'text-ocean-dark';
-    }
-    return isScrolled ? 'text-ocean-dark' : 'text-white';
-  };
-
-  const getButtonClass = () => {
-    if (isResourcePage) {
-      return 'font-semibold px-6 py-2 rounded-full bg-green-primary text-white hover:bg-green-dark shadow-md hover:shadow-lg smooth-transition';
-    }
-    return `font-semibold px-6 py-2 rounded-full smooth-transition ${isScrolled ? 'bg-green-primary text-white hover:bg-green-dark shadow-md hover:shadow-lg' : 'btn-ghost'}`;
-  };
-
-  const getMobileButtonClass = () => {
-    if (isResourcePage) {
-      return 'text-gray-700';
-    }
-    return isScrolled ? 'text-gray-700' : 'text-white';
-  };
+  const navItems = [
+    { name: "Inicio", href: "/" },
+    { name: "Atracciones", href: "/#attractions" },
+    { name: "Guía de Viaje", href: "/travel-guide" },
+    { name: "Planificar Itinerario", href: "/itinerary-planner", icon: Calendar },
+    { name: "Testimonios", href: "/testimonials" },
+    { name: "Blog", href: "/blog" },
+    { name: "FAQ", href: "/faq" },
+  ];
 
   return (
-    <nav className={getNavbarClass()}>
+    <nav
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
+        isScrolled
+          ? "bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-200/50"
+          : "bg-transparent"
+      }`}
+    >
       <div className="container mx-auto px-4">
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
-          <Link to="/" className="text-2xl font-bold smooth-transition">
-            <span className={getLogoClass()}>
+          <Link to="/" className="flex items-center space-x-2">
+            <div className="w-10 h-10 bg-gradient-to-br from-ocean to-ocean-dark rounded-lg flex items-center justify-center">
+              <span className="text-white font-bold text-lg">PL</span>
+            </div>
+            <span className="font-bold text-xl text-ocean-dark hidden sm:block">
               Puerto López
             </span>
-            <span className="ml-1 text-green-primary text-slate-50"></span>
           </Link>
 
-          {/* Desktop Menu */}
-          <div className="hidden md:flex items-center space-x-8">
-            <a href="#home" className={getTextClass()}>
-              {t.home}
-            </a>
-            <a href="#attractions" className={getTextClass()}>
-              {t.attractions}
-            </a>
-            <a href="#virtual-tour" className={getTextClass()}>
-              {t.virtualTour}
-            </a>
-            <Link to="/blog" className={getTextClass()}>
-              {t.blog}
-            </Link>
-            <a href="#contact" className={getTextClass()}>
-              {t.contact}
-            </a>
-            
-            {/* Accessibility Toolbar */}
-            <AccessibilityToolbar compact />
-            
-            {user ? (
-              <div className="flex items-center space-x-4">
-                <Link to="/dashboard" className={getTextClass()}>
-                  {t.dashboard}
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-1">
+            {navItems.map((item) => {
+              const IconComponent = item.icon;
+              return (
+                <Link
+                  key={item.name}
+                  to={item.href}
+                  className="px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors flex items-center gap-2"
+                >
+                  {IconComponent && <IconComponent className="h-4 w-4" />}
+                  {item.name}
                 </Link>
-                <UserMenu />
-              </div>
-            ) : (
-              <Link to="/auth" className={getButtonClass()}>
-                {t.login}
-              </Link>
-            )}
+              );
+            })}
           </div>
 
-          {/* Mobile Menu Button */}
-          <div className="md:hidden flex items-center space-x-2">
+          {/* Right side items */}
+          <div className="flex items-center space-x-2">
             <AccessibilityToolbar compact />
-            <button className={`smooth-transition ${getMobileButtonClass()}`} onClick={() => setIsOpen(!isOpen)}>
-              {isOpen ? <X size={24} /> : <Menu size={24} />}
-            </button>
+            <LanguageSelector />
+            
+            {user ? (
+              <UserMenu />
+            ) : (
+              <Link to="/auth">
+                <Button className="bg-ocean hover:bg-ocean-dark text-white hidden sm:flex">
+                  <User className="h-4 w-4 mr-2" />
+                  Iniciar Sesión
+                </Button>
+              </Link>
+            )}
+
+            {/* Mobile menu button */}
+            <Button
+              variant="ghost"
+              className="lg:hidden"
+              onClick={() => setIsOpen(!isOpen)}
+            >
+              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
+            </Button>
           </div>
         </div>
 
-        {/* Mobile Menu */}
+        {/* Mobile Navigation */}
         {isOpen && (
-          <div className="md:hidden glass-card rounded-lg mt-2 p-4 animate-fade-in">
-            <div className="flex flex-col space-y-4">
-              <a href="#home" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                {t.home}
-              </a>
-              <a href="#attractions" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                {t.attractions}
-              </a>
-              <a href="#virtual-tour" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                {t.virtualTour}
-              </a>
-              <Link to="/blog" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                {t.blog}
-              </Link>
-              <a href="#contact" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                {t.contact}
-              </a>
+          <div className="lg:hidden bg-white/95 backdrop-blur-lg border-t border-gray-200/50">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              {navItems.map((item) => {
+                const IconComponent = item.icon;
+                return (
+                  <Link
+                    key={item.name}
+                    to={item.href}
+                    className="block px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors flex items-center gap-2"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    {IconComponent && <IconComponent className="h-4 w-4" />}
+                    {item.name}
+                  </Link>
+                );
+              })}
               
               {user ? (
-                <>
-                  <Link to="/dashboard" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                    {t.dashboard}
+                <div className="border-t border-gray-200 pt-4">
+                  <Link
+                    to="/profile"
+                    className="block px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <User className="h-4 w-4 inline mr-2" />
+                    Perfil
                   </Link>
-                  <Link to="/profile" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
-                    {t.profile}
+                  <Link
+                    to="/dashboard"
+                    className="block px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <Settings className="h-4 w-4 inline mr-2" />
+                    Dashboard
                   </Link>
-                </>
+                  <button
+                    onClick={handleSignOut}
+                    className="w-full text-left px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors"
+                  >
+                    <LogOut className="h-4 w-4 inline mr-2" />
+                    Cerrar Sesión
+                  </button>
+                </div>
               ) : (
-                <Link to="/auth" className="btn-secondary text-center" onClick={() => setIsOpen(false)}>
-                  {t.login}
+                <Link
+                  to="/auth"
+                  className="block px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors"
+                  onClick={() => setIsOpen(false)}
+                >
+                  <User className="h-4 w-4 inline mr-2" />
+                  Iniciar Sesión
                 </Link>
               )}
             </div>

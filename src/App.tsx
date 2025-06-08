@@ -17,6 +17,7 @@ import TravelGuide from "./pages/TravelGuide";
 import FAQ from "./pages/FAQ";
 import Testimonials from "./pages/Testimonials";
 import Blog from "./pages/Blog";
+import ItineraryPlanner from "./pages/ItineraryPlanner";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -40,6 +41,7 @@ const App = () => (
                     <Route path="/faq" element={<FAQ />} />
                     <Route path="/testimonials" element={<Testimonials />} />
                     <Route path="/blog" element={<Blog />} />
+                    <Route path="/itinerary-planner" element={<ItineraryPlanner />} />
                     <Route 
                       path="/dashboard" 
                       element={

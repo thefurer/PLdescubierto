@@ -1,5 +1,5 @@
 
-import { Phone, Calendar, MapPin, CloudSun, Headphones } from 'lucide-react';
+import { Phone, Calendar, MapPin, CloudSun, Headphones, Route } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface QuickOptionsProps {
@@ -8,6 +8,11 @@ interface QuickOptionsProps {
 
 const QuickOptions = ({ onOptionClick }: QuickOptionsProps) => {
   const options = [
+    {
+      icon: Route,
+      label: 'Personalizar Itinerario',
+      message: 'Quiero personalizar mi itinerario turístico para Puerto López'
+    },
     {
       icon: Phone,
       label: 'Información de contacto',
