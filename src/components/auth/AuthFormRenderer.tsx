@@ -5,7 +5,7 @@ import { LoginForm } from './LoginForm';
 import { SignupForm } from './SignupForm';
 import { PasswordResetForm } from './PasswordResetForm';
 import { PasswordUpdateForm } from './PasswordUpdateForm';
-import { EmailVerificationStatus } from './EmailVerificationStatus';
+import { EmailConfirmationStatus } from './EmailConfirmationStatus';
 
 interface AuthFormRendererProps {
   isLogin: boolean;
@@ -88,11 +88,15 @@ export const AuthFormRenderer = ({
     }
   };
 
+  const handleContinueAfterVerification = () => {
+    window.location.href = '/';
+  };
+
   if (isEmailVerified) {
     return (
-      <EmailVerificationStatus
-        verified={true}
-        onResendEmail={undefined}
+      <EmailConfirmationStatus
+        isVerified={true}
+        onContinue={handleContinueAfterVerification}
       />
     );
   }

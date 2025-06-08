@@ -23,19 +23,19 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
   return (
     <section 
       id="virtual-tour" 
-      className={cn("py-20 bg-gradient-to-b from-ocean-light/20 via-ocean/15 to-ocean/25", className)}
+      className={cn("py-24 bg-gradient-to-b from-ocean-light/20 via-ocean/15 to-ocean/25", className)}
     >
       <div className="container mx-auto px-4">
-        <div className="text-center mb-12">
-          <h2 className="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+        <div className="text-center mb-16">
+          <h2 className="text-4xl md:text-5xl font-bold text-gray-800 mb-6">
             {t.title} <span className="text-ocean">{t.subtitle}</span>
           </h2>
-          <p className="text-lg text-gray-600 max-w-3xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-4xl mx-auto leading-relaxed">
             {t.description}
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-12">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-10 mb-16">
           <MetaversePreview 
             activeLocation={currentLocation}
             texts={{
