@@ -52,10 +52,14 @@ const Navbar = () => {
         <div className="flex justify-between items-center h-16">
           {/* Logo */}
           <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-ocean to-ocean-dark rounded-lg flex items-center justify-center">
+            <div className="w-10 h-10 bg-gradient-to-br from-ocean to-ocean-dark rounded-lg flex items-center justify-center shadow-lg">
               <span className="text-white font-bold text-lg">PL</span>
             </div>
-            <span className="font-bold text-xl text-ocean-dark hidden sm:block">
+            <span className={`font-bold text-xl transition-all duration-300 ${
+              isScrolled 
+                ? "text-ocean-dark" 
+                : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-extrabold"
+            } hidden sm:block`}>
               Puerto López
             </span>
           </Link>
@@ -68,7 +72,11 @@ const Navbar = () => {
                 <Link
                   key={item.name}
                   to={item.href}
-                  className="px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors flex items-center gap-2"
+                  className={`px-3 py-2 rounded-md transition-all duration-300 flex items-center gap-2 ${
+                    isScrolled
+                      ? "text-gray-700 hover:text-ocean hover:bg-ocean/5"
+                      : "text-white hover:text-green-primary hover:bg-white/10 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] font-semibold hover:drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
+                  }`}
                 >
                   {IconComponent && <IconComponent className="h-4 w-4" />}
                   {item.name}
@@ -86,7 +94,11 @@ const Navbar = () => {
               <UserMenu />
             ) : (
               <Link to="/auth">
-                <Button className="bg-ocean hover:bg-ocean-dark text-white hidden sm:flex">
+                <Button className={`transition-all duration-300 hidden sm:flex ${
+                  isScrolled
+                    ? "bg-ocean hover:bg-ocean-dark text-white"
+                    : "bg-white/90 hover:bg-white text-ocean-dark shadow-lg hover:shadow-xl backdrop-blur-sm"
+                }`}>
                   <User className="h-4 w-4 mr-2" />
                   Iniciar Sesión
                 </Button>
@@ -96,7 +108,11 @@ const Navbar = () => {
             {/* Mobile menu button */}
             <Button
               variant="ghost"
-              className="lg:hidden"
+              className={`lg:hidden transition-all duration-300 ${
+                isScrolled
+                  ? "text-gray-700 hover:bg-gray-100"
+                  : "text-white hover:bg-white/10 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
+              }`}
               onClick={() => setIsOpen(!isOpen)}
             >
               {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
