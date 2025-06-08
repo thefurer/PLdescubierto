@@ -5,7 +5,6 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslations } from "@/hooks/useTranslations";
 import UserMenu from "./UserMenu";
-import LanguageSelector from "./LanguageSelector";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -91,8 +90,6 @@ const Navbar = () => {
               {t.contact}
             </a>
             
-            <LanguageSelector />
-            
             {user ? (
               <div className="flex items-center space-x-4">
                 <Link to="/dashboard" className={getTextClass()}>
@@ -132,8 +129,6 @@ const Navbar = () => {
               <a href="#contact" className="text-gray-700 hover:text-green-primary smooth-transition font-medium" onClick={() => setIsOpen(false)}>
                 {t.contact}
               </a>
-              
-              <LanguageSelector />
               
               {user ? (
                 <>
