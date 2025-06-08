@@ -8,7 +8,6 @@ import { AuthProvider } from "@/contexts/AuthContext";
 import { AccessibilityProvider } from "@/contexts/AccessibilityContext";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import FocusManager from "@/components/accessibility/FocusManager";
-import AccessibilityToolbar from "@/components/accessibility/AccessibilityToolbar";
 import SkipToContent from "@/components/accessibility/SkipToContent";
 import Index from "./pages/Index";
 import Auth from "./pages/Auth";
@@ -33,7 +32,6 @@ const App = () => (
             <BrowserRouter>
               <div className="min-h-screen w-full">
                 <SkipToContent />
-                <AccessibilityToolbar />
                 <main id="main-content" tabIndex={-1}>
                   <Routes>
                     <Route path="/" element={<Index />} />

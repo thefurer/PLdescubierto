@@ -5,6 +5,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Link, useLocation } from "react-router-dom";
 import { useTranslations } from "@/hooks/useTranslations";
 import UserMenu from "./UserMenu";
+import AccessibilityToolbar from "./accessibility/AccessibilityToolbar";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
@@ -90,6 +91,9 @@ const Navbar = () => {
               {t.contact}
             </a>
             
+            {/* Accessibility Toolbar */}
+            <AccessibilityToolbar compact />
+            
             {user ? (
               <div className="flex items-center space-x-4">
                 <Link to="/dashboard" className={getTextClass()}>
@@ -105,9 +109,12 @@ const Navbar = () => {
           </div>
 
           {/* Mobile Menu Button */}
-          <button className={`md:hidden smooth-transition ${getMobileButtonClass()}`} onClick={() => setIsOpen(!isOpen)}>
-            {isOpen ? <X size={24} /> : <Menu size={24} />}
-          </button>
+          <div className="md:hidden flex items-center space-x-2">
+            <AccessibilityToolbar compact />
+            <button className={`smooth-transition ${getMobileButtonClass()}`} onClick={() => setIsOpen(!isOpen)}>
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile Menu */}

@@ -18,7 +18,11 @@ import {
   Underline
 } from 'lucide-react';
 
-const AccessibilityToolbar = () => {
+interface AccessibilityToolbarProps {
+  compact?: boolean;
+}
+
+const AccessibilityToolbar = ({ compact = false }: AccessibilityToolbarProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const { 
     settings, 
@@ -36,14 +40,128 @@ const AccessibilityToolbar = () => {
 
   const getFontSizeLabel = () => {
     const labels = {
-      small: 'Pequeño',
-      medium: 'Mediano',
-      large: 'Grande',
-      'extra-large': 'Extra Grande'
+      small: 'S',
+      medium: 'M',
+      large: 'L',
+      'extra-large': 'XL'
     };
     return labels[settings.fontSize];
   };
 
+  if (compact) {
+    return (
+      <div className="relative" role="toolbar" aria-label="Herramientas de accesibilidad">
+        <Button
+          variant="ghost"
+          size="sm"
+          onClick={toggleExpanded}
+          className="h-8 w-8 p-0"
+          aria-expanded={isExpanded}
+          aria-controls="accessibility-options"
+          aria-label={isExpanded ? 'Ocultar opciones de accesibilidad' : 'Mostrar opciones de accesibilidad'}
+        >
+          <Settings className="h-4 w-4" aria-hidden="true" />
+        </Button>
+
+        {isExpanded && (
+          <Card className="absolute top-10 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-lg border-2 border-green-primary min-w-[280px]">
+            <CardContent className="p-3">
+              <div className="space-y-2">
+                {/* Tamaño de fuente */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium">Fuente</span>
+                  <div className="flex items-center gap-1">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={decreaseFontSize}
+                      className="h-6 w-6 p-0"
+                      aria-label="Disminuir tamaño de fuente"
+                      disabled={settings.fontSize === 'small'}
+                    >
+                      <Minus className="h-3 w-3" />
+                    </Button>
+                    <Badge variant="secondary" className="h-6 min-w-[24px] text-xs">
+                      {getFontSizeLabel()}
+                    </Badge>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={increaseFontSize}
+                      className="h-6 w-6 p-0"
+                      aria-label="Aumentar tamaño de fuente"
+                      disabled={settings.fontSize === 'extra-large'}
+                    >
+                      <Plus className="h-3 w-3" />
+                    </Button>
+                  </div>
+                </div>
+
+                {/* Controles compactos */}
+                <div className="grid grid-cols-2 gap-1">
+                  <Button
+                    variant={settings.highContrast ? "default" : "outline"}
+                    size="sm"
+                    onClick={toggleHighContrast}
+                    className="h-8 text-xs"
+                    aria-pressed={settings.highContrast}
+                  >
+                    <Eye className="h-3 w-3 mr-1" />
+                    Contraste
+                  </Button>
+
+                  <Button
+                    variant={settings.underlineLinks ? "default" : "outline"}
+                    size="sm"
+                    onClick={toggleUnderlineLinks}
+                    className="h-8 text-xs"
+                    aria-pressed={settings.underlineLinks}
+                  >
+                    <Underline className="h-3 w-3 mr-1" />
+                    Enlaces
+                  </Button>
+
+                  <Button
+                    variant={settings.reducedMotion ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => updateSettings({ reducedMotion: !settings.reducedMotion })}
+                    className="h-8 text-xs"
+                    aria-pressed={settings.reducedMotion}
+                  >
+                    <Focus className="h-3 w-3 mr-1" />
+                    Sin anim.
+                  </Button>
+
+                  <Button
+                    variant={settings.screenReaderOptimized ? "default" : "outline"}
+                    size="sm"
+                    onClick={() => updateSettings({ screenReaderOptimized: !settings.screenReaderOptimized })}
+                    className="h-8 text-xs"
+                    aria-pressed={settings.screenReaderOptimized}
+                  >
+                    <Volume2 className="h-3 w-3 mr-1" />
+                    Lector
+                  </Button>
+                </div>
+
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={resetSettings}
+                  className="w-full h-6 text-xs text-orange-600 hover:text-orange-700"
+                >
+                  <RotateCcw className="h-3 w-3 mr-1" />
+                  Restaurar
+                </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+    );
+  }
+
+  // Version original para pantallas grandes o usos específicos
   return (
     <div className="fixed top-20 right-4 z-50" role="toolbar" aria-label="Herramientas de accesibilidad">
       <Card className="bg-white/95 backdrop-blur-sm shadow-lg border-2 border-green-primary">
