@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/contexts/AuthContext';
+import { supabase } from '@/integrations/supabase/client';
 
 export const useAuthState = () => {
   const [isLogin, setIsLogin] = useState(true);
@@ -16,6 +17,40 @@ export const useAuthState = () => {
   const verified = searchParams.get('verified');
   const isPasswordReset = mode === 'reset';
   const isEmailVerified = verified === 'true';
+
+  // Handle password recovery tokens from URL hash
+  useEffect(() => {
+    const handleRecoveryToken = async () => {
+      const hash = window.location.hash;
+      
+      if (hash && hash.includes('access_token') && hash.includes('type=recovery')) {
+        try {
+          // Extract tokens from hash
+          const hashParams = new URLSearchParams(hash.substring(1));
+          const accessToken = hashParams.get('access_token');
+          const refreshToken = hashParams.get('refresh_token');
+          
+          if (accessToken && refreshToken) {
+            // Set the session with the recovery tokens
+            const { error } = await supabase.auth.setSession({
+              access_token: accessToken,
+              refresh_token: refreshToken,
+            });
+            
+            if (!error) {
+              // Clear the hash and redirect to password reset mode
+              window.history.replaceState({}, document.title, '/auth?mode=reset');
+              window.location.reload();
+            }
+          }
+        } catch (error) {
+          console.error('Error handling recovery token:', error);
+        }
+      }
+    };
+
+    handleRecoveryToken();
+  }, []);
 
   // Redirect if already authenticated
   useEffect(() => {

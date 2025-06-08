@@ -28,7 +28,7 @@ export const useAuthForm = () => {
 
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
-        redirectTo: `${window.location.origin}/auth?mode=reset`,
+        redirectTo: `${window.location.origin}/auth`,
         captchaToken: captchaToken
       });
 
@@ -209,8 +209,14 @@ export const useAuthForm = () => {
       } else {
         toast({
           title: "Contraseña actualizada",
-          description: "Tu contraseña ha sido actualizada exitosamente."
+          description: "Tu contraseña ha sido actualizada exitosamente. Redirigiendo al inicio..."
         });
+        
+        // Redirect to home page after successful password update
+        setTimeout(() => {
+          window.location.href = '/';
+        }, 2000);
+        
         return true;
       }
     } catch (error) {
