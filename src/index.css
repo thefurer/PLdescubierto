@@ -10,3 +10,6 @@
 
 /* Animation keyframes and effects */
 @import './styles/animations.css';
+
+/* Accessibility styles and utilities */
+@import './styles/accessibility.css';

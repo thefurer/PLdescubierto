@@ -92,6 +92,141 @@ export type Database = {
         }
         Relationships: []
       }
+      marketplace_products: {
+        Row: {
+          category: string
+          created_at: string
+          description: string
+          id: string
+          images: Json | null
+          is_active: boolean | null
+          name: string
+          price: number
+          shipping_info: Json | null
+          stock_quantity: number | null
+          tags: string[] | null
+          updated_at: string
+          vendor_id: string
+        }
+        Insert: {
+          category: string
+          created_at?: string
+          description: string
+          id?: string
+          images?: Json | null
+          is_active?: boolean | null
+          name: string
+          price: number
+          shipping_info?: Json | null
+          stock_quantity?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          vendor_id: string
+        }
+        Update: {
+          category?: string
+          created_at?: string
+          description?: string
+          id?: string
+          images?: Json | null
+          is_active?: boolean | null
+          name?: string
+          price?: number
+          shipping_info?: Json | null
+          stock_quantity?: number | null
+          tags?: string[] | null
+          updated_at?: string
+          vendor_id?: string
+        }
+        Relationships: []
+      }
+      memberships: {
+        Row: {
+          created_at: string
+          end_date: string | null
+          features: Json | null
+          id: string
+          start_date: string
+          status: string
+          type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          end_date?: string | null
+          features?: Json | null
+          id?: string
+          start_date?: string
+          status?: string
+          type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          end_date?: string | null
+          features?: Json | null
+          id?: string
+          start_date?: string
+          status?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      premium_guides: {
+        Row: {
+          content_type: string
+          created_at: string
+          description: string
+          download_count: number | null
+          file_size: number | null
+          file_url: string | null
+          id: string
+          is_active: boolean | null
+          price: number
+          rating: number | null
+          required_membership: string | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+        }
+        Insert: {
+          content_type: string
+          created_at?: string
+          description: string
+          download_count?: number | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          price: number
+          rating?: number | null
+          required_membership?: string | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+        }
+        Update: {
+          content_type?: string
+          created_at?: string
+          description?: string
+          download_count?: number | null
+          file_size?: number | null
+          file_url?: string | null
+          id?: string
+          is_active?: boolean | null
+          price?: number
+          rating?: number | null
+          required_membership?: string | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -124,6 +259,121 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      reservations: {
+        Row: {
+          attraction_id: string | null
+          contact_info: Json
+          created_at: string
+          guests_count: number
+          id: string
+          reservation_date: string
+          reservation_type: string
+          special_requests: string | null
+          status: string
+          time_slot: string | null
+          total_price: number
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          attraction_id?: string | null
+          contact_info?: Json
+          created_at?: string
+          guests_count?: number
+          id?: string
+          reservation_date: string
+          reservation_type: string
+          special_requests?: string | null
+          status?: string
+          time_slot?: string | null
+          total_price: number
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          attraction_id?: string | null
+          contact_info?: Json
+          created_at?: string
+          guests_count?: number
+          id?: string
+          reservation_date?: string
+          reservation_type?: string
+          special_requests?: string | null
+          status?: string
+          time_slot?: string | null
+          total_price?: number
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reservations_attraction_id_fkey"
+            columns: ["attraction_id"]
+            isOneToOne: false
+            referencedRelation: "tourist_attractions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      reviews: {
+        Row: {
+          attraction_id: string | null
+          content: string
+          created_at: string
+          helpful_count: number | null
+          id: string
+          is_verified: boolean | null
+          photos: Json | null
+          rating: number
+          status: string
+          title: string
+          updated_at: string
+          user_id: string
+          verification_method: string | null
+          visit_date: string | null
+        }
+        Insert: {
+          attraction_id?: string | null
+          content: string
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          is_verified?: boolean | null
+          photos?: Json | null
+          rating: number
+          status?: string
+          title: string
+          updated_at?: string
+          user_id: string
+          verification_method?: string | null
+          visit_date?: string | null
+        }
+        Update: {
+          attraction_id?: string | null
+          content?: string
+          created_at?: string
+          helpful_count?: number | null
+          id?: string
+          is_verified?: boolean | null
+          photos?: Json | null
+          rating?: number
+          status?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+          verification_method?: string | null
+          visit_date?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "reviews_attraction_id_fkey"
+            columns: ["attraction_id"]
+            isOneToOne: false
+            referencedRelation: "tourist_attractions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       site_content: {
         Row: {
