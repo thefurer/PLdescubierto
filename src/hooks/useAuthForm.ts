@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -17,9 +16,20 @@ export const useAuthForm = () => {
     e.preventDefault();
     setLoading(true);
 
+    if (!captchaToken) {
+      toast({
+        title: "Verificación requerida",
+        description: "Por favor completa la verificación CAPTCHA.",
+        variant: "destructive"
+      });
+      setLoading(false);
+      return;
+    }
+
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(email, {
         redirectTo: `${window.location.origin}/auth?mode=reset`,
+        captchaToken: captchaToken
       });
 
       if (error) {
@@ -33,6 +43,12 @@ export const useAuthForm = () => {
           title: "Email enviado",
           description: "Te hemos enviado un enlace para restablecer tu contraseña. Revisa tu correo electrónico."
         });
+      }
+
+      // Reset captcha after password reset attempt
+      if (captcha.current) {
+        captcha.current.resetCaptcha();
+        setCaptchaToken(null);
       }
     } catch (error) {
       toast({

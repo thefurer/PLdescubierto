@@ -2,11 +2,15 @@
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import HCaptcha from '@hcaptcha/react-hcaptcha';
 
 interface PasswordResetFormProps {
   email: string;
   setEmail: (email: string) => void;
   loading: boolean;
+  captchaToken: string | null;
+  setCaptchaToken: (token: string | null) => void;
+  captcha: React.RefObject<HCaptcha>;
   onSubmit: (e: React.FormEvent) => void;
   onBackToLogin: () => void;
 }
@@ -15,6 +19,9 @@ export const PasswordResetForm = ({
   email,
   setEmail,
   loading,
+  captchaToken,
+  setCaptchaToken,
+  captcha,
   onSubmit,
   onBackToLogin
 }: PasswordResetFormProps) => {
@@ -33,10 +40,23 @@ export const PasswordResetForm = ({
         />
       </div>
 
+      <div className="flex justify-center">
+        <HCaptcha
+          ref={captcha}
+          sitekey="f9c44570-e81a-45ec-8d28-ea56a65eafc6"
+          onVerify={(token) => {
+            setCaptchaToken(token);
+          }}
+          onExpire={() => {
+            setCaptchaToken(null);
+          }}
+        />
+      </div>
+
       <Button
         type="submit"
         className="w-full bg-ocean hover:bg-ocean-dark"
-        disabled={loading}
+        disabled={loading || !captchaToken}
       >
         {loading ? 'Procesando...' : 'Enviar enlace de restablecimiento'}
       </Button>
