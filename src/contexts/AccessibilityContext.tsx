@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, useEffect } from 'react';
 
 interface AccessibilitySettings {
@@ -24,9 +23,9 @@ const defaultSettings: AccessibilitySettings = {
   fontSize: 'medium',
   highContrast: false,
   reducedMotion: false,
-  focusIndicators: true,
+  focusIndicators: false,
   screenReaderOptimized: false,
-  underlineLinks: true,
+  underlineLinks: false,
 };
 
 const AccessibilityContext = createContext<AccessibilityContextType | undefined>(undefined);

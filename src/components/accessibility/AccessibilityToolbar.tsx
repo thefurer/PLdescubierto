@@ -55,12 +55,13 @@ const AccessibilityToolbar = ({ compact = false }: AccessibilityToolbarProps) =>
           variant="ghost"
           size="sm"
           onClick={toggleExpanded}
-          className="h-8 w-8 p-0"
+          className="h-8 px-3 flex items-center gap-2"
           aria-expanded={isExpanded}
           aria-controls="accessibility-options"
           aria-label={isExpanded ? 'Ocultar opciones de accesibilidad' : 'Mostrar opciones de accesibilidad'}
         >
           <Settings className="h-4 w-4" aria-hidden="true" />
+          <span className="text-sm font-medium">Accesibilidad</span>
         </Button>
 
         {isExpanded && (
