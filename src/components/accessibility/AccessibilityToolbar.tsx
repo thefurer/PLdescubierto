@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { useLanguage } from '@/hooks/useLanguage';
 import {
   Settings,
   Plus,
@@ -15,7 +16,10 @@ import {
   RotateCcw,
   ChevronUp,
   ChevronDown,
-  Underline
+  Underline,
+  Globe,
+  Play,
+  Pause
 } from 'lucide-react';
 
 interface AccessibilityToolbarProps {
@@ -24,6 +28,7 @@ interface AccessibilityToolbarProps {
 
 const AccessibilityToolbar = ({ compact = false }: AccessibilityToolbarProps) => {
   const [isExpanded, setIsExpanded] = useState(false);
+  const [isReading, setIsReading] = useState(false);
   const { 
     settings, 
     toggleHighContrast, 
@@ -33,6 +38,7 @@ const AccessibilityToolbar = ({ compact = false }: AccessibilityToolbarProps) =>
     resetSettings,
     updateSettings 
   } = useAccessibility();
+  const { language, setLanguage } = useLanguage();
 
   const toggleExpanded = () => {
     setIsExpanded(!isExpanded);
@@ -46,6 +52,32 @@ const AccessibilityToolbar = ({ compact = false }: AccessibilityToolbarProps) =>
       'extra-large': 'XL'
     };
     return labels[settings.fontSize];
+  };
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'es' ? 'en' : 'es');
+  };
+
+  const toggleScreenReader = () => {
+    if (isReading) {
+      // Detener lectura
+      speechSynthesis.cancel();
+      setIsReading(false);
+    } else {
+      // Iniciar lectura
+      const textContent = document.body.innerText;
+      const utterance = new SpeechSynthesisUtterance(textContent);
+      utterance.lang = language === 'es' ? 'es-ES' : 'en-US';
+      utterance.rate = 0.8;
+      utterance.pitch = 1;
+      
+      utterance.onend = () => setIsReading(false);
+      utterance.onerror = () => setIsReading(false);
+      
+      speechSynthesis.speak(utterance);
+      setIsReading(true);
+    }
+    updateSettings({ screenReaderOptimized: !settings.screenReaderOptimized });
   };
 
   if (compact) {
@@ -65,9 +97,24 @@ const AccessibilityToolbar = ({ compact = false }: AccessibilityToolbarProps) =>
         </Button>
 
         {isExpanded && (
-          <Card className="absolute top-10 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-lg border-2 border-green-primary min-w-[280px]">
+          <Card className="absolute top-10 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-lg border-2 border-green-primary min-w-[300px]">
             <CardContent className="p-3">
               <div className="space-y-2">
+                {/* Idioma */}
+                <div className="flex items-center justify-between">
+                  <span className="text-xs font-medium">Idioma</span>
+                  <Button
+                    variant="outline"
+                    size="sm"
+                    onClick={toggleLanguage}
+                    className="h-6 px-2 text-xs"
+                    aria-label={`Cambiar a ${language === 'es' ? 'inglés' : 'español'}`}
+                  >
+                    <Globe className="h-3 w-3 mr-1" />
+                    {language.toUpperCase()}
+                  </Button>
+                </div>
+
                 {/* Tamaño de fuente */}
                 <div className="flex items-center justify-between">
                   <span className="text-xs font-medium">Fuente</span>
@@ -134,13 +181,13 @@ const AccessibilityToolbar = ({ compact = false }: AccessibilityToolbarProps) =>
                   </Button>
 
                   <Button
-                    variant={settings.screenReaderOptimized ? "default" : "outline"}
+                    variant={isReading ? "default" : "outline"}
                     size="sm"
-                    onClick={() => updateSettings({ screenReaderOptimized: !settings.screenReaderOptimized })}
+                    onClick={toggleScreenReader}
                     className="h-8 text-xs"
-                    aria-pressed={settings.screenReaderOptimized}
+                    aria-pressed={isReading}
                   >
-                    <Volume2 className="h-3 w-3 mr-1" />
+                    {isReading ? <Pause className="h-3 w-3 mr-1" /> : <Play className="h-3 w-3 mr-1" />}
                     Lector
                   </Button>
                 </div>
@@ -186,6 +233,18 @@ const AccessibilityToolbar = ({ compact = false }: AccessibilityToolbarProps) =>
 
           {isExpanded && (
             <div id="accessibility-options" className="space-y-3 animate-fade-in">
+              {/* Idioma */}
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={toggleLanguage}
+                className="w-full justify-start"
+                aria-label={`Cambiar idioma a ${language === 'es' ? 'inglés' : 'español'}`}
+              >
+                <Globe className="h-4 w-4 mr-2" />
+                Idioma: {language.toUpperCase()}
+              </Button>
+
               {/* Tamaño de fuente */}
               <div className="space-y-2">
                 <label className="text-sm font-medium">Tamaño de fuente</label>
@@ -253,17 +312,17 @@ const AccessibilityToolbar = ({ compact = false }: AccessibilityToolbarProps) =>
                 Reducir animaciones {settings.reducedMotion && '✓'}
               </Button>
 
-              {/* Optimización para lectores de pantalla */}
+              {/* Lector de pantalla funcional */}
               <Button
-                variant={settings.screenReaderOptimized ? "default" : "outline"}
+                variant={isReading ? "default" : "outline"}
                 size="sm"
-                onClick={() => updateSettings({ screenReaderOptimized: !settings.screenReaderOptimized })}
+                onClick={toggleScreenReader}
                 className="w-full justify-start"
-                aria-pressed={settings.screenReaderOptimized}
-                aria-label={settings.screenReaderOptimized ? 'Desactivar optimización de lector de pantalla' : 'Activar optimización de lector de pantalla'}
+                aria-pressed={isReading}
+                aria-label={isReading ? 'Detener lectura de página' : 'Iniciar lectura de página'}
               >
-                <Volume2 className="h-4 w-4 mr-2" />
-                Lector pantalla {settings.screenReaderOptimized && '✓'}
+                {isReading ? <Pause className="h-4 w-4 mr-2" /> : <Volume2 className="h-4 w-4 mr-2" />}
+                {isReading ? 'Detener lectura' : 'Leer página'} {isReading && '🔊'}
               </Button>
 
               {/* Indicadores de foco */}

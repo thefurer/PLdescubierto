@@ -5,7 +5,6 @@ import { Menu, X, User, LogOut, Settings, Calendar } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import UserMenu from "./UserMenu";
-import LanguageSelector from "./LanguageSelector";
 import AccessibilityToolbar from "./accessibility/AccessibilityToolbar";
 
 const Navbar = () => {
@@ -35,9 +34,7 @@ const Navbar = () => {
     { name: "Atracciones", href: "/#attractions" },
     { name: "Guía de Viaje", href: "/travel-guide" },
     { name: "Planificar Itinerario", href: "/itinerary-planner", icon: Calendar },
-    { name: "Testimonios", href: "/testimonials" },
     { name: "Blog", href: "/blog" },
-    { name: "FAQ", href: "/faq" },
   ];
 
   return (
@@ -88,7 +85,6 @@ const Navbar = () => {
           {/* Right side items */}
           <div className="flex items-center space-x-2">
             <AccessibilityToolbar compact />
-            <LanguageSelector />
             
             {user ? (
               <UserMenu />
