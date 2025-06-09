@@ -1,7 +1,8 @@
 import { ArrowDown } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useContentManager } from "@/hooks/useContentManager";
-import LanguageSelector from "./LanguageSelector";
+import LanguageToggle from "./accessibility/LanguageToggle";
+
 const Hero = () => {
   const {
     language
@@ -70,7 +71,7 @@ const Hero = () => {
       {/* Hero Content */}
       <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-10">
         <div className="flex justify-end mb-8">
-          <LanguageSelector />
+          <LanguageToggle />
         </div>
         <div className="max-w-4xl">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl">
@@ -101,4 +102,5 @@ const Hero = () => {
       </div>
     </section>;
 };
+
 export default Hero;
