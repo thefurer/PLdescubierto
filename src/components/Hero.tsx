@@ -1,3 +1,4 @@
+
 import { ArrowDown } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useContentManager } from "@/hooks/useContentManager";
@@ -32,12 +33,19 @@ const Hero = () => {
   const currentTexts = texts[language];
   // Updated to a beautiful beach sunset image that complements the site colors
   const backgroundImage = heroContent?.backgroundImage || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1920";
-  return <section id="home" className="relative h-screen overflow-hidden">
+  
+  return (
+    <section id="home" className="relative h-screen overflow-hidden">
+      {/* Language Toggle - positioned absolutely in top right */}
+      <div className="absolute top-4 right-4 z-20">
+        <LanguageToggle />
+      </div>
+
       {/* Hero Background */}
       <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
-      backgroundImage: `url('${backgroundImage}')`,
-      backgroundPosition: "center 30%"
-    }}>
+        backgroundImage: `url('${backgroundImage}')`,
+        backgroundPosition: "center 30%"
+      }}>
         {/* Black transparency overlay */}
         <div className="absolute inset-0 bg-black/40"></div>
         {/* Enhanced gradient overlay */}
@@ -51,17 +59,17 @@ const Hero = () => {
           <defs>
             <linearGradient id="waveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
               <stop offset="0%" style={{
-              stopColor: "white",
-              stopOpacity: 1
-            }} />
+                stopColor: "white",
+                stopOpacity: 1
+              }} />
               <stop offset="50%" style={{
-              stopColor: "hsl(var(--green-light))",
-              stopOpacity: 0.1
-            }} />
+                stopColor: "hsl(var(--green-light))",
+                stopOpacity: 0.1
+              }} />
               <stop offset="100%" style={{
-              stopColor: "white",
-              stopOpacity: 1
-            }} />
+                stopColor: "white",
+                stopOpacity: 1
+              }} />
             </linearGradient>
           </defs>
           <path d="M0,0 C150,40 350,0 500,30 C650,60 850,20 1000,50 L1000,100 L0,100 Z" fill="url(#waveGradient)"></path>
@@ -70,9 +78,6 @@ const Hero = () => {
 
       {/* Hero Content */}
       <div className="container mx-auto px-4 h-full flex flex-col justify-center relative z-10">
-        <div className="flex justify-end mb-8">
-          <LanguageToggle />
-        </div>
         <div className="max-w-4xl">
           <h1 className="text-5xl md:text-7xl font-bold text-white mb-6 drop-shadow-2xl">
             <span className="block leading-tight">{currentTexts.title}</span>
@@ -100,7 +105,8 @@ const Hero = () => {
           <ArrowDown size={28} className="text-green-primary" />
         </div>
       </div>
-    </section>;
+    </section>
+  );
 };
 
 export default Hero;
