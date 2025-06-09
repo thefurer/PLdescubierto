@@ -1,4 +1,5 @@
 
+
 import { ArrowDown } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useContentManager } from "@/hooks/useContentManager";
@@ -36,8 +37,8 @@ const Hero = () => {
   
   return (
     <section id="home" className="relative h-screen overflow-hidden">
-      {/* Language Toggle - positioned absolutely in top right */}
-      <div className="absolute top-4 right-4 z-20">
+      {/* Language Toggle - positioned in the middle-right of the screen */}
+      <div className="absolute top-1/2 right-6 -translate-y-1/2 z-20">
         <LanguageToggle />
       </div>
 
@@ -110,3 +111,4 @@ const Hero = () => {
 };
 
 export default Hero;
+
