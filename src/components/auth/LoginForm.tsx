@@ -1,10 +1,11 @@
 
+import React, { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff } from 'lucide-react';
-import { useState } from 'react';
-import HCaptcha from '@hcaptcha/react-hcaptcha';
+import CaptchaWrapper from './CaptchaWrapper';
+import { useSecureForm } from '@/hooks/useSecureForm';
 
 interface LoginFormProps {
   email: string;
@@ -14,7 +15,7 @@ interface LoginFormProps {
   loading: boolean;
   captchaToken: string | null;
   setCaptchaToken: (token: string | null) => void;
-  captcha: React.RefObject<HCaptcha>;
+  captcha: React.RefObject<any>;
   onSubmit: (e: React.FormEvent) => void;
   onForgotPassword: () => void;
 }
@@ -32,10 +33,25 @@ export const LoginForm = ({
   onForgotPassword
 }: LoginFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
+  const { errors, validateForm, sanitizeFormData, clearErrors } = useSecureForm();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    clearErrors();
+    
+    const formData = { email, password };
+    const sanitizedData = sanitizeFormData(formData);
+    
+    if (validateForm(sanitizedData)) {
+      // Update with sanitized data
+      setEmail(sanitizedData.email);
+      onSubmit(e);
+    }
+  };
 
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
@@ -43,64 +59,61 @@ export const LoginForm = ({
           value={email}
           onChange={(e) => setEmail(e.target.value)}
           required
-          className="mt-1"
-          placeholder="tu@email.com"
+          disabled={loading}
+          className={errors.email ? 'border-red-500' : ''}
+          autoComplete="email"
         />
+        {errors.email && (
+          <p className="text-sm text-red-600">{errors.email}</p>
+        )}
       </div>
 
-      <div>
+      <div className="space-y-2">
         <Label htmlFor="password">Contraseña</Label>
-        <div className="relative mt-1">
+        <div className="relative">
           <Input
             id="password"
-            type={showPassword ? 'text' : 'password'}
+            type={showPassword ? "text" : "password"}
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             required
-            className="pr-10"
-            placeholder="Tu contraseña"
-            minLength={6}
+            disabled={loading}
+            className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
+            autoComplete="current-password"
           />
           <button
             type="button"
-            className="absolute inset-y-0 right-0 flex items-center pr-3"
             onClick={() => setShowPassword(!showPassword)}
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            disabled={loading}
           >
-            {showPassword ? (
-              <EyeOff className="h-4 w-4 text-gray-400" />
-            ) : (
-              <Eye className="h-4 w-4 text-gray-400" />
-            )}
+            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
           </button>
         </div>
+        {errors.password && (
+          <p className="text-sm text-red-600">{errors.password}</p>
+        )}
       </div>
 
-      <div className="flex justify-center">
-        <HCaptcha
-          ref={captcha}
-          sitekey="f9c44570-e81a-45ec-8d28-ea56a65eafc6"
-          onVerify={(token) => {
-            setCaptchaToken(token);
-          }}
-          onExpire={() => {
-            setCaptchaToken(null);
-          }}
-        />
-      </div>
+      <CaptchaWrapper
+        onVerify={setCaptchaToken}
+        captchaRef={captcha}
+      />
 
       <Button
         type="submit"
-        className="w-full bg-ocean hover:bg-ocean-dark"
+        className="w-full"
         disabled={loading || !captchaToken}
       >
-        {loading ? 'Procesando...' : 'Iniciar Sesión'}
+        {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
       </Button>
 
       <div className="text-center">
         <button
           type="button"
           onClick={onForgotPassword}
-          className="text-ocean hover:text-ocean-dark transition-colors text-sm"
+          className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+          disabled={loading}
         >
           ¿Olvidaste tu contraseña?
         </button>

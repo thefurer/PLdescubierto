@@ -1,8 +1,11 @@
 
+import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import HCaptcha from '@hcaptcha/react-hcaptcha';
+import { ArrowLeft } from 'lucide-react';
+import CaptchaWrapper from './CaptchaWrapper';
+import { useSecureForm } from '@/hooks/useSecureForm';
 
 interface PasswordResetFormProps {
   email: string;
@@ -10,7 +13,7 @@ interface PasswordResetFormProps {
   loading: boolean;
   captchaToken: string | null;
   setCaptchaToken: (token: string | null) => void;
-  captcha: React.RefObject<HCaptcha>;
+  captcha: React.RefObject<any>;
   onSubmit: (e: React.FormEvent) => void;
   onBackToLogin: () => void;
 }
@@ -25,49 +28,67 @@ export const PasswordResetForm = ({
   onSubmit,
   onBackToLogin
 }: PasswordResetFormProps) => {
+  const { errors, validateForm, sanitizeFormData, clearErrors } = useSecureForm();
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    clearErrors();
+    
+    const formData = { email, password: 'dummy' }; // Password not needed for reset
+    const sanitizedData = sanitizeFormData(formData);
+    
+    // Only validate email for password reset
+    if (sanitizedData.email && errors.email === undefined) {
+      setEmail(sanitizedData.email);
+      onSubmit(e);
+    }
+  };
+
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
-      <div>
+    <form onSubmit={handleSubmit} className="space-y-4">
+      <div className="space-y-2">
         <Label htmlFor="email">Email</Label>
         <Input
           id="email"
           type="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
+          placeholder="Ingresa tu email"
           required
-          className="mt-1"
-          placeholder="tu@email.com"
+          disabled={loading}
+          className={errors.email ? 'border-red-500' : ''}
+          autoComplete="email"
         />
+        {errors.email && (
+          <p className="text-sm text-red-600">{errors.email}</p>
+        )}
+        <p className="text-sm text-gray-600">
+          Te enviaremos un enlace para restablecer tu contraseña
+        </p>
       </div>
 
-      <div className="flex justify-center">
-        <HCaptcha
-          ref={captcha}
-          sitekey="f9c44570-e81a-45ec-8d28-ea56a65eafc6"
-          onVerify={(token) => {
-            setCaptchaToken(token);
-          }}
-          onExpire={() => {
-            setCaptchaToken(null);
-          }}
-        />
-      </div>
+      <CaptchaWrapper
+        onVerify={setCaptchaToken}
+        captchaRef={captcha}
+      />
 
       <Button
         type="submit"
-        className="w-full bg-ocean hover:bg-ocean-dark"
+        className="w-full"
         disabled={loading || !captchaToken}
       >
-        {loading ? 'Procesando...' : 'Enviar enlace de restablecimiento'}
+        {loading ? 'Enviando...' : 'Enviar Enlace'}
       </Button>
 
       <div className="text-center">
         <button
           type="button"
           onClick={onBackToLogin}
-          className="text-ocean hover:text-ocean-dark transition-colors text-sm"
+          className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
+          disabled={loading}
         >
-          ← Volver al inicio de sesión
+          <ArrowLeft size={16} className="mr-1" />
+          Volver al inicio de sesión
         </button>
       </div>
     </form>

@@ -1,158 +1,135 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-const CORS_HEADERS = {
+const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-};
-
-interface ContactFormData {
-  name: string;
-  email: string;
-  message: string;
-  phone?: string;
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Content-Security-Policy': "default-src 'self'; script-src 'self'; object-src 'none';",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block'
 }
 
-// Rate limiting store (in production, use Redis or similar)
-const rateLimit = new Map<string, { count: number; resetTime: number }>();
+// Input validation functions
+const validateEmail = (email: string): boolean => {
+  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+  return emailRegex.test(email) && email.length <= 254
+}
 
-const isValidEmail = (email: string): boolean => {
-  const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-  return emailRegex.test(email);
-};
-
-const checkRateLimit = (ip: string): boolean => {
-  const now = Date.now();
-  const windowMs = 15 * 60 * 1000; // 15 minutes
-  const maxRequests = 5; // 5 requests per window
-
-  const userLimit = rateLimit.get(ip);
-  
-  if (!userLimit || now > userLimit.resetTime) {
-    rateLimit.set(ip, { count: 1, resetTime: now + windowMs });
-    return true;
-  }
-
-  if (userLimit.count >= maxRequests) {
-    return false;
-  }
-
-  userLimit.count++;
-  return true;
-};
+const validateName = (name: string): boolean => {
+  return /^[a-zA-ZÀ-ÿ\s\-']{2,50}$/.test(name.trim())
+}
 
 const sanitizeInput = (input: string): string => {
-  return input.trim().replace(/[<>]/g, '');
-};
+  return input.trim().replace(/[<>]/g, '')
+}
 
 serve(async (req) => {
-  // Handle CORS
   if (req.method === 'OPTIONS') {
-    return new Response('ok', { headers: CORS_HEADERS });
-  }
-
-  if (req.method !== 'POST') {
-    return new Response(
-      JSON.stringify({ error: 'Method not allowed' }),
-      { 
-        status: 405, 
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
-      }
-    );
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    // Get client IP for rate limiting
-    const clientIP = req.headers.get('x-forwarded-for') || 'unknown';
-
-    // Check rate limit
-    if (!checkRateLimit(clientIP)) {
+    const { name, email, message } = await req.json()
+    
+    // Input validation
+    if (!name || !email || !message) {
       return new Response(
-        JSON.stringify({ error: 'Demasiadas solicitudes. Intenta de nuevo en 15 minutos.' }),
-        { 
-          status: 429, 
-          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
-        }
-      );
-    }
-
-    // Parse and validate request body
-    const body: ContactFormData = await req.json();
-
-    // Validate required fields
-    if (!body.name || !body.email || !body.message) {
-      return new Response(
-        JSON.stringify({ error: 'Todos los campos obligatorios deben ser completados' }),
+        JSON.stringify({ error: 'Todos los campos son requeridos' }),
         { 
           status: 400, 
-          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
-      );
+      )
     }
 
     // Validate email format
-    if (!isValidEmail(body.email)) {
+    if (!validateEmail(email)) {
       return new Response(
         JSON.stringify({ error: 'Formato de email inválido' }),
         { 
           status: 400, 
-          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
-      );
+      )
     }
 
-    // Validate field lengths
-    if (body.name.length > 100 || body.email.length > 255 || body.message.length > 2000) {
+    // Validate name format
+    if (!validateName(name)) {
       return new Response(
-        JSON.stringify({ error: 'Uno o más campos exceden la longitud máxima permitida' }),
+        JSON.stringify({ error: 'Formato de nombre inválido' }),
         { 
           status: 400, 
-          headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
         }
-      );
+      )
+    }
+
+    // Length validation
+    if (message.length > 2000) {
+      return new Response(
+        JSON.stringify({ error: 'El mensaje es demasiado largo' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
     }
 
     // Sanitize inputs
     const sanitizedData = {
-      name: sanitizeInput(body.name),
-      email: sanitizeInput(body.email),
-      message: sanitizeInput(body.message),
-      phone: body.phone ? sanitizeInput(body.phone) : undefined,
-      submittedAt: new Date().toISOString(),
-      clientIP
-    };
+      name: sanitizeInput(name),
+      email: sanitizeInput(email.toLowerCase()),
+      message: sanitizeInput(message)
+    }
 
-    // Here you would typically:
-    // 1. Save to database
-    // 2. Send email notification
-    // 3. Log the submission
-    console.log('Contact form submission:', {
-      name: sanitizedData.name,
-      email: sanitizedData.email,
-      submittedAt: sanitizedData.submittedAt
-    });
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    )
 
-    // For now, just return success
+    // Store the contact form submission securely
+    const { error } = await supabaseClient
+      .from('content_history')
+      .insert({
+        section_name: 'contact_form',
+        new_content: {
+          ...sanitizedData,
+          timestamp: new Date().toISOString(),
+          clientIP: req.headers.get('x-forwarded-for') || 'unknown'
+        },
+        change_type: 'contact_submission'
+      })
+
+    if (error) {
+      console.error('Database error:', error)
+      return new Response(
+        JSON.stringify({ error: 'Error al procesar el formulario' }),
+        { 
+          status: 500, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
+
     return new Response(
-      JSON.stringify({ 
-        success: true, 
-        message: 'Tu mensaje ha sido enviado correctamente. Te contactaremos pronto.' 
-      }),
+      JSON.stringify({ success: true, message: 'Formulario enviado correctamente' }),
       { 
-        status: 200, 
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
-    );
+    )
 
   } catch (error) {
-    console.error('Contact form error:', error);
+    console.error('Contact form error:', error)
     
     return new Response(
       JSON.stringify({ error: 'Error interno del servidor' }),
       { 
         status: 500, 
-        headers: { ...CORS_HEADERS, 'Content-Type': 'application/json' }
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
-    );
+    )
   }
-});
+})

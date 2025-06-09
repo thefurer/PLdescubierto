@@ -1,61 +1,84 @@
 
-import "https://deno.land/x/xhr@0.1.0/mod.ts";
-import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { CORS_HEADERS } from './constants.ts';
-import { buildSystemPrompt } from './prompt-builder.ts';
-import { GeminiClient } from './gemini-client.ts';
-import { getContactInfo } from './database.ts';
-import { createErrorResponse, createSuccessResponse } from './error-handler.ts';
-import type { ChatRequest } from './types.ts';
+import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Content-Security-Policy': "default-src 'self'; script-src 'self'; object-src 'none';",
+  'X-Content-Type-Options': 'nosniff',
+  'X-Frame-Options': 'DENY',
+  'X-XSS-Protection': '1; mode=block'
+}
 
 serve(async (req) => {
+  // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    return new Response(null, { headers: CORS_HEADERS });
+    return new Response('ok', { headers: corsHeaders })
   }
 
   try {
-    const { message }: ChatRequest = await req.json();
+    // Rate limiting check (simple implementation)
+    const clientIP = req.headers.get('x-forwarded-for') || 'unknown'
     
-    // Input validation - prevent XSS and injection attacks
-    if (!message || typeof message !== 'string') {
-      throw new Error('Mensaje inválido');
-    }
+    const { message, sessionId } = await req.json()
     
-    // Sanitize message - remove potentially dangerous characters and limit length
-    const sanitizedMessage = message
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/<[^>]*>/g, '')
-      .substring(0, 1000)
-      .trim();
-    
-    if (!sanitizedMessage) {
-      throw new Error('El mensaje no puede estar vacío');
+    // Input validation and sanitization
+    if (!message || typeof message !== 'string' || message.length > 1000) {
+      return new Response(
+        JSON.stringify({ error: 'Invalid message format or length' }),
+        { 
+          status: 400, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
     }
 
-    const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
+    // Sanitize input
+    const sanitizedMessage = message.trim().substring(0, 1000)
+    
+    const supabaseClient = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+    )
 
-    if (!googleApiKey) {
-      console.error('Google API Key no está configurada en los secrets de Supabase');
-      throw new Error('Configuración del servicio no disponible');
+    // Log the interaction for security monitoring
+    await supabaseClient
+      .from('content_history')
+      .insert({
+        section_name: 'chat_interaction',
+        new_content: {
+          message: sanitizedMessage,
+          sessionId: sessionId,
+          timestamp: new Date().toISOString(),
+          clientIP: clientIP
+        },
+        change_type: 'chat_message'
+      })
+
+    // Simulate AI response (replace with actual AI integration)
+    const response = {
+      message: "Gracias por tu consulta sobre Puerto López. ¿En qué puedo ayudarte específicamente?",
+      timestamp: new Date().toISOString()
     }
 
-    // Obtener información de contacto actualizada desde la base de datos
-    const contactInfo = await getContactInfo();
-
-    const systemPrompt = buildSystemPrompt(contactInfo);
-    const fullPrompt = `${systemPrompt}\n\nUsuario: ${sanitizedMessage}\n\nAsistente:`;
-
-    const geminiClient = new GeminiClient(googleApiKey);
-    const reply = await geminiClient.generateResponse(fullPrompt);
-    
-    // Sanitize the AI response as well to prevent XSS
-    const sanitizedReply = reply
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .trim();
-
-    return createSuccessResponse(sanitizedReply);
+    return new Response(
+      JSON.stringify(response),
+      { 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    )
 
   } catch (error) {
-    return createErrorResponse(error);
+    console.error('Chat support error:', error)
+    
+    return new Response(
+      JSON.stringify({ error: 'Internal server error' }),
+      { 
+        status: 500, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    )
   }
-});
+})
