@@ -87,7 +87,19 @@ const Navbar = () => {
             <AccessibilityToolbar compact />
             
             {user ? (
-              <UserMenu />
+              <div className="hidden lg:flex items-center space-x-2">
+                <Link to="/dashboard">
+                  <Button className={`transition-all duration-300 ${
+                    isScrolled
+                      ? "bg-green-600 hover:bg-green-700 text-white"
+                      : "bg-green-primary hover:bg-green-600 text-white shadow-lg hover:shadow-xl"
+                  }`}>
+                    <Settings className="h-4 w-4 mr-2" />
+                    Dashboard
+                  </Button>
+                </Link>
+                <UserMenu />
+              </div>
             ) : (
               <Link to="/auth">
                 <Button className={`transition-all duration-300 hidden sm:flex ${
@@ -138,20 +150,20 @@ const Navbar = () => {
               {user ? (
                 <div className="border-t border-gray-200 pt-4">
                   <Link
-                    to="/profile"
-                    className="block px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <User className="h-4 w-4 inline mr-2" />
-                    Perfil
-                  </Link>
-                  <Link
                     to="/dashboard"
                     className="block px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors"
                     onClick={() => setIsOpen(false)}
                   >
                     <Settings className="h-4 w-4 inline mr-2" />
                     Dashboard
+                  </Link>
+                  <Link
+                    to="/profile"
+                    className="block px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors"
+                    onClick={() => setIsOpen(false)}
+                  >
+                    <User className="h-4 w-4 inline mr-2" />
+                    Perfil
                   </Link>
                   <button
                     onClick={handleSignOut}
