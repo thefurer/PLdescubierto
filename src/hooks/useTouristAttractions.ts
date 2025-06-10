@@ -95,21 +95,26 @@ export const useTouristAttractions = () => {
       
       const { data: { user } } = await supabase.auth.getUser();
       
-      // Only include fields that exist in the tourist_attractions table
-      const allowedFields = ['name', 'description', 'category', 'image_url', 'display_order', 'is_active'];
-      const cleanUpdates = Object.keys(updates).reduce((acc, key) => {
-        if (allowedFields.includes(key)) {
-          acc[key] = updates[key as keyof TouristAttraction];
-        }
-        return acc;
-      }, {} as any);
+      // Create update object with only the fields that exist in the database
+      const updateData: any = {};
+      
+      if (updates.name !== undefined) updateData.name = updates.name;
+      if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.category !== undefined) updateData.category = updates.category;
+      if (updates.image_url !== undefined) updateData.image_url = updates.image_url;
+      if (updates.display_order !== undefined) updateData.display_order = updates.display_order;
+      if (updates.is_active !== undefined) updateData.is_active = updates.is_active;
+      
+      // Add updated_by if user exists
+      if (user?.id) {
+        updateData.updated_by = user.id;
+      }
+
+      console.log('Clean update data:', updateData);
 
       const { error } = await supabase
         .from('tourist_attractions')
-        .update({ 
-          ...cleanUpdates,
-          updated_by: user?.id 
-        })
+        .update(updateData)
         .eq('id', id);
 
       if (error) {
