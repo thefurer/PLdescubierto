@@ -95,10 +95,19 @@ export const useTouristAttractions = () => {
       
       const { data: { user } } = await supabase.auth.getUser();
       
+      // Only include fields that exist in the tourist_attractions table
+      const allowedFields = ['name', 'description', 'category', 'image_url', 'display_order', 'is_active'];
+      const cleanUpdates = Object.keys(updates).reduce((acc, key) => {
+        if (allowedFields.includes(key)) {
+          acc[key] = updates[key as keyof TouristAttraction];
+        }
+        return acc;
+      }, {} as any);
+
       const { error } = await supabase
         .from('tourist_attractions')
         .update({ 
-          ...updates,
+          ...cleanUpdates,
           updated_by: user?.id 
         })
         .eq('id', id);
