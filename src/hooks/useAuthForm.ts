@@ -41,10 +41,10 @@ export const useAuthForm = () => {
 
       if (error) {
         console.error('Password reset error:', error);
-        if (error.message.includes('captcha') || error.message.includes('sitekey-secret-mismatch')) {
+        if (error.message.includes('captcha') || error.message.includes('sitekey') || error.message.includes('invalid')) {
           toast({
-            title: "Error de configuración",
-            description: "Hay un problema con la configuración de seguridad. Por favor intenta de nuevo en unos minutos.",
+            title: "Error de verificación",
+            description: "Hay un problema con la verificación de seguridad. Por favor recarga la página e intenta nuevamente.",
             variant: "destructive"
           });
         } else {
@@ -100,10 +100,10 @@ export const useAuthForm = () => {
 
       if (error) {
         console.error('Login error:', error);
-        if (error.message.includes('captcha') || error.message.includes('sitekey-secret-mismatch')) {
+        if (error.message.includes('captcha') || error.message.includes('sitekey') || error.message.includes('invalid')) {
           toast({
             title: "Error de verificación",
-            description: "Hay un problema con la verificación de seguridad. Por favor recarga la página e intenta de nuevo.",
+            description: "Hay un problema con la verificación CAPTCHA. Por favor recarga la página e intenta nuevamente.",
             variant: "destructive"
           });
         } else if (error.message.includes('Invalid login credentials')) {

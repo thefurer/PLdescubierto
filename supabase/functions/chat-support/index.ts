@@ -1,6 +1,7 @@
 
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+import { GeminiClient } from './gemini-client.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -19,10 +20,7 @@ serve(async (req) => {
   }
 
   try {
-    // Rate limiting check (simple implementation)
-    const clientIP = req.headers.get('x-forwarded-for') || 'unknown'
-    
-    const { message, sessionId } = await req.json()
+    const { message } = await req.json()
     
     // Input validation and sanitization
     if (!message || typeof message !== 'string' || message.length > 1000) {
@@ -38,45 +36,91 @@ serve(async (req) => {
     // Sanitize input
     const sanitizedMessage = message.trim().substring(0, 1000)
     
-    const supabaseClient = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-    )
-
-    // Log the interaction for security monitoring
-    await supabaseClient
-      .from('content_history')
-      .insert({
-        section_name: 'chat_interaction',
-        new_content: {
-          message: sanitizedMessage,
-          sessionId: sessionId,
-          timestamp: new Date().toISOString(),
-          clientIP: clientIP
-        },
-        change_type: 'chat_message'
-      })
-
-    // Simulate AI response (replace with actual AI integration)
-    const response = {
-      message: "Gracias por tu consulta sobre Puerto López. ¿En qué puedo ayudarte específicamente?",
-      timestamp: new Date().toISOString()
+    // Get Google API key from environment
+    const googleApiKey = Deno.env.get('GOOGLE_API_KEY')
+    if (!googleApiKey) {
+      console.error('Google API key not found')
+      return new Response(
+        JSON.stringify({ 
+          reply: 'Lo siento, el servicio de chat no está disponible en este momento. Puedes contactarnos directamente en apincay@gmail.com o al +593 99 199 5390.' 
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
     }
 
-    return new Response(
-      JSON.stringify(response),
-      { 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-      }
-    )
+    // Initialize Gemini client
+    const geminiClient = new GeminiClient(googleApiKey)
+    
+    // Create context-aware prompt for Puerto López
+    const contextPrompt = `Eres un asistente turístico especializado en Puerto López, Ecuador. 
+    
+Puerto López es un destino costero en la provincia de Manabí, conocido por:
+- Observación de ballenas jorobadas (junio-septiembre)
+- Parque Nacional Machalilla
+- Isla de la Plata (conocida como "Galápagos de los pobres")
+- Playas hermosas como Los Frailes
+- Agua Blanca (sitio arqueológico)
+- Ecoturismo y naturaleza
+
+Responde de manera amigable, informativa y útil. Proporciona información práctica sobre actividades, hospedaje, transporte y consejos para visitar Puerto López.
+
+Pregunta del usuario: ${sanitizedMessage}
+
+Responde en español de manera concisa y útil:`
+
+    try {
+      const aiResponse = await geminiClient.generateResponse(contextPrompt)
+      
+      // Log interaction for monitoring
+      const supabaseClient = createClient(
+        Deno.env.get('SUPABASE_URL') ?? '',
+        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+      )
+
+      await supabaseClient
+        .from('content_history')
+        .insert({
+          section_name: 'chat_interaction',
+          new_content: {
+            message: sanitizedMessage,
+            response: aiResponse,
+            timestamp: new Date().toISOString()
+          },
+          change_type: 'chat_message'
+        })
+
+      return new Response(
+        JSON.stringify({ reply: aiResponse }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    } catch (aiError) {
+      console.error('AI service error:', aiError)
+      
+      return new Response(
+        JSON.stringify({ 
+          reply: 'Lo siento, hay un problema técnico temporal. Puedes contactarnos directamente en apincay@gmail.com o al +593 99 199 5390.' 
+        }),
+        { 
+          status: 200, 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
+    }
 
   } catch (error) {
     console.error('Chat support error:', error)
     
     return new Response(
-      JSON.stringify({ error: 'Internal server error' }),
+      JSON.stringify({ 
+        reply: 'Lo siento, ocurrió un error. Puedes contactarnos directamente en apincay@gmail.com o al +593 99 199 5390.' 
+      }),
       { 
-        status: 500, 
+        status: 200, 
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       }
     )

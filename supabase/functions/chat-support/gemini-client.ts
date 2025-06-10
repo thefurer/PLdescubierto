@@ -1,6 +1,5 @@
 
 import { GEMINI_CONFIG } from './constants.ts';
-import type { ChatRequest, ChatResponse } from './types.ts';
 
 export class GeminiClient {
   private apiKey: string;
