@@ -1,3 +1,4 @@
+
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -11,6 +12,13 @@ export const useAuthForm = () => {
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
   const { toast } = useToast();
   const captcha = useRef<HCaptcha>(null);
+
+  const resetCaptcha = () => {
+    if (captcha.current) {
+      captcha.current.resetCaptcha();
+      setCaptchaToken(null);
+    }
+  };
 
   const handlePasswordReset = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -33,11 +41,19 @@ export const useAuthForm = () => {
       });
 
       if (error) {
-        toast({
-          title: "Error",
-          description: error.message,
-          variant: "destructive"
-        });
+        if (error.message.includes('captcha')) {
+          toast({
+            title: "Error de verificación",
+            description: "Error en la verificación CAPTCHA. Intenta de nuevo.",
+            variant: "destructive"
+          });
+        } else {
+          toast({
+            title: "Error",
+            description: error.message,
+            variant: "destructive"
+          });
+        }
       } else {
         toast({
           title: "Email enviado",
@@ -45,17 +61,14 @@ export const useAuthForm = () => {
         });
       }
 
-      // Reset captcha after password reset attempt
-      if (captcha.current) {
-        captcha.current.resetCaptcha();
-        setCaptchaToken(null);
-      }
+      resetCaptcha();
     } catch (error) {
       toast({
         title: "Error",
         description: "Algo salió mal. Intenta de nuevo.",
         variant: "destructive"
       });
+      resetCaptcha();
     } finally {
       setLoading(false);
     }
@@ -77,7 +90,7 @@ export const useAuthForm = () => {
 
     try {
       const { error } = await supabase.auth.signInWithPassword({
-        email,
+        email: email.trim().toLowerCase(),
         password,
         options: {
           captchaToken: captchaToken
@@ -85,7 +98,13 @@ export const useAuthForm = () => {
       });
 
       if (error) {
-        if (error.message.includes('Invalid login credentials')) {
+        if (error.message.includes('captcha') || error.message.includes('sitekey-secret-mismatch')) {
+          toast({
+            title: "Error de configuración",
+            description: "Error en la configuración de HCaptcha. Contacta al administrador.",
+            variant: "destructive"
+          });
+        } else if (error.message.includes('Invalid login credentials')) {
           toast({
             title: "Error de inicio de sesión",
             description: "Credenciales inválidas. Verifica tu email y contraseña.",
@@ -111,17 +130,14 @@ export const useAuthForm = () => {
         });
       }
 
-      // Reset captcha after login attempt
-      if (captcha.current) {
-        captcha.current.resetCaptcha();
-        setCaptchaToken(null);
-      }
+      resetCaptcha();
     } catch (error) {
       toast({
         title: "Error",
         description: "Algo salió mal. Intenta de nuevo.",
         variant: "destructive"
       });
+      resetCaptcha();
     } finally {
       setLoading(false);
     }
@@ -143,19 +159,25 @@ export const useAuthForm = () => {
 
     try {
       const { error } = await supabase.auth.signUp({
-        email,
+        email: email.trim().toLowerCase(),
         password,
         options: {
           data: {
-            full_name: fullName
+            full_name: fullName.trim()
           },
-          captchaToken: captchaToken || undefined,
+          captchaToken: captchaToken,
           emailRedirectTo: `${window.location.origin}/auth?verified=true`
         }
       });
 
       if (error) {
-        if (error.message.includes('User already registered')) {
+        if (error.message.includes('captcha') || error.message.includes('sitekey-secret-mismatch')) {
+          toast({
+            title: "Error de configuración",
+            description: "Error en la configuración de HCaptcha. Contacta al administrador.",
+            variant: "destructive"
+          });
+        } else if (error.message.includes('User already registered')) {
           toast({
             title: "Usuario ya registrado",
             description: "Este email ya está registrado. Intenta iniciar sesión.",
@@ -176,17 +198,14 @@ export const useAuthForm = () => {
         });
       }
 
-      // Reset captcha after signup attempt
-      if (captcha.current) {
-        captcha.current.resetCaptcha();
-        setCaptchaToken(null);
-      }
+      resetCaptcha();
     } catch (error) {
       toast({
         title: "Error",
         description: "Algo salió mal. Intenta de nuevo.",
         variant: "destructive"
       });
+      resetCaptcha();
     } finally {
       setLoading(false);
     }
@@ -212,7 +231,6 @@ export const useAuthForm = () => {
           description: "Tu contraseña ha sido actualizada exitosamente. Redirigiendo al inicio..."
         });
         
-        // Redirect to home page after successful password update
         setTimeout(() => {
           window.location.href = '/';
         }, 2000);
