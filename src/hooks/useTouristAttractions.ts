@@ -38,7 +38,6 @@ export const useTouristAttractions = () => {
       }
       
       console.log('Fetched attractions:', data);
-      // Type assertion to ensure category is properly typed
       const typedAttractions = (data || []).map(attraction => ({
         ...attraction,
         category: attraction.category as 'todo' | 'playa' | 'cultura' | 'naturaleza'
@@ -60,20 +59,28 @@ export const useTouristAttractions = () => {
   const uploadImage = async (file: File, attractionId: string) => {
     setUploading(true);
     try {
+      console.log('Starting image upload for attraction:', attractionId);
+      
       const fileExt = file.name.split('.').pop();
       const fileName = `${attractionId}-${Date.now()}.${fileExt}`;
       const filePath = `attractions/${fileName}`;
+
+      console.log('Uploading to path:', filePath);
 
       const { error: uploadError } = await supabase.storage
         .from('site-images')
         .upload(filePath, file);
 
-      if (uploadError) throw uploadError;
+      if (uploadError) {
+        console.error('Upload error:', uploadError);
+        throw uploadError;
+      }
 
       const { data: { publicUrl } } = supabase.storage
         .from('site-images')
         .getPublicUrl(filePath);
 
+      console.log('Image uploaded successfully:', publicUrl);
       return publicUrl;
     } catch (error: any) {
       console.error('Failed to upload image:', error);
@@ -93,49 +100,76 @@ export const useTouristAttractions = () => {
     try {
       console.log('Updating attraction:', id, updates);
       
-      const { data: { user } } = await supabase.auth.getUser();
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError) {
+        console.error('Error getting user:', userError);
+      }
       
-      // Create update object with only the fields that exist in the database
-      const updateData: any = {};
+      // Create a clean update object with only the allowed fields for tourist_attractions table
+      const allowedFields = ['name', 'description', 'category', 'image_url', 'display_order', 'is_active'];
+      const updateData: Record<string, any> = {};
       
-      if (updates.name !== undefined) updateData.name = updates.name;
-      if (updates.description !== undefined) updateData.description = updates.description;
-      if (updates.category !== undefined) updateData.category = updates.category;
-      if (updates.image_url !== undefined) updateData.image_url = updates.image_url;
-      if (updates.display_order !== undefined) updateData.display_order = updates.display_order;
-      if (updates.is_active !== undefined) updateData.is_active = updates.is_active;
+      // Only include fields that exist in the database schema and have been provided
+      allowedFields.forEach(field => {
+        if (updates[field as keyof TouristAttraction] !== undefined) {
+          updateData[field] = updates[field as keyof TouristAttraction];
+        }
+      });
       
       // Add updated_by if user exists
       if (user?.id) {
         updateData.updated_by = user.id;
       }
 
-      console.log('Clean update data:', updateData);
+      console.log('Clean update data for database:', updateData);
 
-      const { error } = await supabase
+      // Use a direct update without relying on triggers that might be causing issues
+      const { data, error } = await supabase
         .from('tourist_attractions')
         .update(updateData)
-        .eq('id', id);
+        .eq('id', id)
+        .select()
+        .single();
 
       if (error) {
-        console.error('Error updating attraction:', error);
+        console.error('Database error details:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.details);
+        console.error('Error hint:', error.hint);
         throw error;
       }
 
-      console.log('Attraction updated successfully');
+      console.log('Attraction updated successfully:', data);
+      
       toast({
         title: 'Éxito',
         description: 'Atracción actualizada correctamente',
       });
 
+      // Refresh the attractions list
       await fetchAttractions();
+      
+      return data;
     } catch (error: any) {
       console.error('Failed to update attraction:', error);
+      
+      // Provide more specific error messages
+      let errorMessage = 'No se pudo actualizar la atracción';
+      if (error.code === '42703') {
+        errorMessage = 'Error de configuración de base de datos. Contacte al administrador.';
+      } else if (error.message) {
+        errorMessage = `Error: ${error.message}`;
+      }
+      
       toast({
         title: 'Error',
-        description: 'No se pudo actualizar la atracción',
+        description: errorMessage,
         variant: 'destructive'
       });
+      
+      throw error;
     } finally {
       setSaving(false);
     }
