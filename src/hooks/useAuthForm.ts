@@ -94,7 +94,14 @@ export const useAuthForm = () => {
       if (error) {
         console.error('Login error:', error);
         
-        if (error.message.includes('Invalid login credentials')) {
+        // Manejo específico de errores de HCaptcha
+        if (error.message.includes('captcha')) {
+          toast({
+            title: "Error de verificación",
+            description: "Error en la verificación CAPTCHA. Por favor intenta de nuevo.",
+            variant: "destructive"
+          });
+        } else if (error.message.includes('Invalid login credentials')) {
           toast({
             title: "Error de inicio de sesión",
             description: "Credenciales inválidas. Verifica tu email y contraseña.",
@@ -109,7 +116,7 @@ export const useAuthForm = () => {
         } else {
           toast({
             title: "Error de inicio de sesión",
-            description: "No se pudo iniciar sesión. Verifica tus credenciales.",
+            description: `No se pudo iniciar sesión: ${error.message}`,
             variant: "destructive"
           });
         }
@@ -140,6 +147,8 @@ export const useAuthForm = () => {
     e.preventDefault();
     setLoading(true);
 
+    console.log('Iniciando registro con:', { email, captchaToken: !!captchaToken });
+
     if (!captchaToken) {
       toast({
         title: "Verificación requerida",
@@ -163,10 +172,19 @@ export const useAuthForm = () => {
         }
       });
 
+      console.log('Respuesta de registro:', { data, error });
+
       if (error) {
         console.error('Signup error:', error);
         
-        if (error.message.includes('User already registered')) {
+        // Manejo específico de errores de HCaptcha
+        if (error.message.includes('captcha')) {
+          toast({
+            title: "Error de verificación",
+            description: "Error en la verificación CAPTCHA. Por favor intenta de nuevo.",
+            variant: "destructive"
+          });
+        } else if (error.message.includes('User already registered')) {
           toast({
             title: "Usuario ya registrado",
             description: "Este email ya está registrado. Intenta iniciar sesión.",
@@ -175,7 +193,7 @@ export const useAuthForm = () => {
         } else {
           toast({
             title: "Error de registro",
-            description: "No se pudo crear la cuenta. Intenta de nuevo.",
+            description: `No se pudo crear la cuenta: ${error.message}`,
             variant: "destructive"
           });
         }
