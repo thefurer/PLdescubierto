@@ -11,7 +11,7 @@ interface AttractionCardProps {
   isSaving: boolean;
   isUploading: boolean;
   onEdit: () => void;
-  onSave: (updates: Partial<TouristAttraction>) => void;
+  onSave: (updates: Partial<TouristAttraction>) => Promise<void>;
   onCancel: () => void;
   onUploadImage: (file: File, attractionId: string) => Promise<string>;
 }

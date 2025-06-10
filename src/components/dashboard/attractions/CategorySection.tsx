@@ -15,7 +15,7 @@ interface CategorySectionProps {
   saving: boolean;
   uploading: boolean;
   onEdit: (attraction: TouristAttraction) => void;
-  onSave: (id: string, updates: Partial<TouristAttraction>) => void;
+  onSave: (id: string, updates: Partial<TouristAttraction>) => Promise<void>;
   onCancel: () => void;
   onUploadImage: (file: File, attractionId: string) => Promise<string>;
 }
