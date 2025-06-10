@@ -6,7 +6,6 @@ import { Label } from '@/components/ui/label';
 import { Eye, EyeOff } from 'lucide-react';
 import CaptchaWrapper from './CaptchaWrapper';
 import PasswordStrengthIndicator from './PasswordStrengthIndicator';
-import { useSecureForm } from '@/hooks/useSecureForm';
 import { usePasswordValidation } from '@/hooks/usePasswordValidation';
 
 interface SignupFormProps {
@@ -37,20 +36,41 @@ export const SignupForm = ({
   onSubmit
 }: SignupFormProps) => {
   const [showPassword, setShowPassword] = useState(false);
-  const { errors, validateForm, sanitizeFormData, clearErrors } = useSecureForm();
-  const { validation } = usePasswordValidation();
+  const [errors, setErrors] = useState<{email?: string; password?: string; fullName?: string}>({});
+  const { validation, validatePassword } = usePasswordValidation();
+
+  const validateForm = () => {
+    const newErrors: {email?: string; password?: string; fullName?: string} = {};
+
+    if (!fullName || !fullName.trim()) {
+      newErrors.fullName = 'El nombre completo es requerido';
+    } else if (!/^[a-zA-ZÀ-ÿ\s\-']{2,50}$/.test(fullName.trim())) {
+      newErrors.fullName = 'Formato de nombre inválido';
+    }
+
+    if (!email || !email.trim()) {
+      newErrors.email = 'El email es requerido';
+    } else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+      newErrors.email = 'Formato de email inválido';
+    }
+
+    if (!password || !password.trim()) {
+      newErrors.password = 'La contraseña es requerida';
+    } else {
+      const passwordValidation = validatePassword(password);
+      if (!passwordValidation.isValid) {
+        newErrors.password = passwordValidation.errors[0];
+      }
+    }
+
+    setErrors(newErrors);
+    return Object.keys(newErrors).length === 0;
+  };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    clearErrors();
     
-    const formData = { email, password, fullName };
-    const sanitizedData = sanitizeFormData(formData);
-    
-    if (validateForm(sanitizedData)) {
-      // Update with sanitized data
-      setEmail(sanitizedData.email);
-      setFullName(sanitizedData.fullName || '');
+    if (validateForm() && validation.isValid) {
       onSubmit(e);
     }
   };

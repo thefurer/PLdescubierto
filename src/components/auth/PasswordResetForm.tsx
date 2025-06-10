@@ -34,12 +34,10 @@ export const PasswordResetForm = ({
     e.preventDefault();
     clearErrors();
     
-    const formData = { email, password: 'dummy' }; // Password not needed for reset
-    const sanitizedData = sanitizeFormData(formData);
-    
     // Only validate email for password reset
-    if (sanitizedData.email && errors.email === undefined) {
-      setEmail(sanitizedData.email);
+    if (email && email.trim()) {
+      const sanitizedEmail = email.trim().toLowerCase();
+      setEmail(sanitizedEmail);
       onSubmit(e);
     }
   };
