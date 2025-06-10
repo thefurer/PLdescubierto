@@ -1,3 +1,4 @@
+
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -41,19 +42,11 @@ export const useAuthForm = () => {
 
       if (error) {
         console.error('Password reset error:', error);
-        if (error.message.includes('captcha') || error.message.includes('sitekey') || error.message.includes('invalid')) {
-          toast({
-            title: "Error de verificación",
-            description: "Hay un problema con la verificación de seguridad. Por favor recarga la página e intenta nuevamente.",
-            variant: "destructive"
-          });
-        } else {
-          toast({
-            title: "Error",
-            description: error.message,
-            variant: "destructive"
-          });
-        }
+        toast({
+          title: "Error",
+          description: "No se pudo enviar el email de restablecimiento. Intenta de nuevo.",
+          variant: "destructive"
+        });
       } else {
         toast({
           title: "Email enviado",
@@ -90,7 +83,7 @@ export const useAuthForm = () => {
     }
 
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password,
         options: {
@@ -100,13 +93,8 @@ export const useAuthForm = () => {
 
       if (error) {
         console.error('Login error:', error);
-        if (error.message.includes('captcha') || error.message.includes('sitekey') || error.message.includes('invalid')) {
-          toast({
-            title: "Error de verificación",
-            description: "Hay un problema con la verificación CAPTCHA. Por favor recarga la página e intenta nuevamente.",
-            variant: "destructive"
-          });
-        } else if (error.message.includes('Invalid login credentials')) {
+        
+        if (error.message.includes('Invalid login credentials')) {
           toast({
             title: "Error de inicio de sesión",
             description: "Credenciales inválidas. Verifica tu email y contraseña.",
@@ -120,16 +108,18 @@ export const useAuthForm = () => {
           });
         } else {
           toast({
-            title: "Error",
-            description: error.message,
+            title: "Error de inicio de sesión",
+            description: "No se pudo iniciar sesión. Verifica tus credenciales.",
             variant: "destructive"
           });
         }
-      } else {
+      } else if (data.user) {
         toast({
           title: "¡Bienvenido!",
           description: "Has iniciado sesión exitosamente."
         });
+        // Redirigir a la página principal
+        window.location.href = '/';
       }
 
       resetCaptcha();
@@ -161,7 +151,7 @@ export const useAuthForm = () => {
     }
 
     try {
-      const { error } = await supabase.auth.signUp({
+      const { data, error } = await supabase.auth.signUp({
         email: email.trim().toLowerCase(),
         password,
         options: {
@@ -175,13 +165,8 @@ export const useAuthForm = () => {
 
       if (error) {
         console.error('Signup error:', error);
-        if (error.message.includes('captcha') || error.message.includes('sitekey-secret-mismatch')) {
-          toast({
-            title: "Error de configuración",
-            description: "Hay un problema con la verificación de seguridad. Por favor recarga la página e intenta de nuevo.",
-            variant: "destructive"
-          });
-        } else if (error.message.includes('User already registered')) {
+        
+        if (error.message.includes('User already registered')) {
           toast({
             title: "Usuario ya registrado",
             description: "Este email ya está registrado. Intenta iniciar sesión.",
@@ -189,12 +174,12 @@ export const useAuthForm = () => {
           });
         } else {
           toast({
-            title: "Error",
-            description: error.message,
+            title: "Error de registro",
+            description: "No se pudo crear la cuenta. Intenta de nuevo.",
             variant: "destructive"
           });
         }
-      } else {
+      } else if (data.user) {
         toast({
           title: "¡Cuenta creada!",
           description: "Hemos enviado un enlace de verificación a tu correo. Por favor verifica tu email antes de iniciar sesión.",
