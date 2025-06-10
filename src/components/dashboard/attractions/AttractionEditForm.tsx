@@ -13,7 +13,7 @@ interface AttractionEditFormProps {
   attraction: TouristAttraction;
   isSaving: boolean;
   isUploading: boolean;
-  onSave: (updates: Partial<TouristAttraction>) => void;
+  onSave: (updates: Partial<TouristAttraction>) => Promise<void>;
   onCancel: () => void;
   onUploadImage: (file: File, attractionId: string) => Promise<string>;
 }

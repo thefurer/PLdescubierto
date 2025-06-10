@@ -106,25 +106,24 @@ export const useTouristAttractions = () => {
         console.error('Error getting user:', userError);
       }
       
-      // Create a clean update object with only the allowed fields for tourist_attractions table
-      const allowedFields = ['name', 'description', 'category', 'image_url', 'display_order', 'is_active'];
+      // Create update object with only the fields that should be updated
       const updateData: Record<string, any> = {};
       
-      // Only include fields that exist in the database schema and have been provided
-      allowedFields.forEach(field => {
-        if (updates[field as keyof TouristAttraction] !== undefined) {
-          updateData[field] = updates[field as keyof TouristAttraction];
-        }
-      });
+      // Only include fields that are defined in updates and exist in the database schema
+      if (updates.name !== undefined) updateData.name = updates.name;
+      if (updates.description !== undefined) updateData.description = updates.description;
+      if (updates.category !== undefined) updateData.category = updates.category;
+      if (updates.image_url !== undefined) updateData.image_url = updates.image_url;
+      if (updates.display_order !== undefined) updateData.display_order = updates.display_order;
+      if (updates.is_active !== undefined) updateData.is_active = updates.is_active;
       
       // Add updated_by if user exists
       if (user?.id) {
         updateData.updated_by = user.id;
       }
 
-      console.log('Clean update data for database:', updateData);
+      console.log('Update data being sent to database:', updateData);
 
-      // Use a direct update without relying on triggers that might be causing issues
       const { data, error } = await supabase
         .from('tourist_attractions')
         .update(updateData)
@@ -134,10 +133,6 @@ export const useTouristAttractions = () => {
 
       if (error) {
         console.error('Database error details:', error);
-        console.error('Error code:', error.code);
-        console.error('Error message:', error.message);
-        console.error('Error details:', error.details);
-        console.error('Error hint:', error.hint);
         throw error;
       }
 
@@ -155,11 +150,8 @@ export const useTouristAttractions = () => {
     } catch (error: any) {
       console.error('Failed to update attraction:', error);
       
-      // Provide more specific error messages
       let errorMessage = 'No se pudo actualizar la atracción';
-      if (error.code === '42703') {
-        errorMessage = 'Error de configuración de base de datos. Contacte al administrador.';
-      } else if (error.message) {
+      if (error.message) {
         errorMessage = `Error: ${error.message}`;
       }
       
