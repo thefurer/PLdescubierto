@@ -1,4 +1,3 @@
-
 import { useState, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -41,10 +40,11 @@ export const useAuthForm = () => {
       });
 
       if (error) {
-        if (error.message.includes('captcha')) {
+        console.error('Password reset error:', error);
+        if (error.message.includes('captcha') || error.message.includes('sitekey-secret-mismatch')) {
           toast({
-            title: "Error de verificación",
-            description: "Error en la verificación CAPTCHA. Intenta de nuevo.",
+            title: "Error de configuración",
+            description: "Hay un problema con la configuración de seguridad. Por favor intenta de nuevo en unos minutos.",
             variant: "destructive"
           });
         } else {
@@ -63,6 +63,7 @@ export const useAuthForm = () => {
 
       resetCaptcha();
     } catch (error) {
+      console.error('Unexpected error:', error);
       toast({
         title: "Error",
         description: "Algo salió mal. Intenta de nuevo.",
@@ -98,10 +99,11 @@ export const useAuthForm = () => {
       });
 
       if (error) {
+        console.error('Login error:', error);
         if (error.message.includes('captcha') || error.message.includes('sitekey-secret-mismatch')) {
           toast({
-            title: "Error de configuración",
-            description: "Error en la configuración de HCaptcha. Contacta al administrador.",
+            title: "Error de verificación",
+            description: "Hay un problema con la verificación de seguridad. Por favor recarga la página e intenta de nuevo.",
             variant: "destructive"
           });
         } else if (error.message.includes('Invalid login credentials')) {
@@ -132,6 +134,7 @@ export const useAuthForm = () => {
 
       resetCaptcha();
     } catch (error) {
+      console.error('Unexpected error:', error);
       toast({
         title: "Error",
         description: "Algo salió mal. Intenta de nuevo.",
@@ -171,10 +174,11 @@ export const useAuthForm = () => {
       });
 
       if (error) {
+        console.error('Signup error:', error);
         if (error.message.includes('captcha') || error.message.includes('sitekey-secret-mismatch')) {
           toast({
             title: "Error de configuración",
-            description: "Error en la configuración de HCaptcha. Contacta al administrador.",
+            description: "Hay un problema con la verificación de seguridad. Por favor recarga la página e intenta de nuevo.",
             variant: "destructive"
           });
         } else if (error.message.includes('User already registered')) {
@@ -200,6 +204,7 @@ export const useAuthForm = () => {
 
       resetCaptcha();
     } catch (error) {
+      console.error('Unexpected error:', error);
       toast({
         title: "Error",
         description: "Algo salió mal. Intenta de nuevo.",
