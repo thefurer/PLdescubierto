@@ -8,19 +8,8 @@ interface CaptchaWrapperProps {
 }
 
 const CaptchaWrapper = ({ onVerify, captchaRef }: CaptchaWrapperProps) => {
-  // Use environment variable for HCaptcha site key - this should match your HCaptcha dashboard
-  const siteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY;
-
-  // If no site key is configured, show a message
-  if (!siteKey) {
-    return (
-      <div className="w-full flex justify-center p-4 bg-yellow-50 border border-yellow-200 rounded-md">
-        <p className="text-sm text-yellow-800">
-          Configuración de HCaptcha requerida. Por favor configura VITE_HCAPTCHA_SITE_KEY.
-        </p>
-      </div>
-    );
-  }
+  // Use the provided HCaptcha site key
+  const siteKey = import.meta.env.VITE_HCAPTCHA_SITE_KEY || 'f9c44570-e81a-45ec-8d28-ea56a65eafc6';
 
   const handleError = (error: string) => {
     console.error('HCaptcha error:', error);
