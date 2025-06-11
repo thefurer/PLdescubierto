@@ -18,7 +18,7 @@ const ChatBot = () => {
     {
       id: '1',
       type: 'bot',
-      content: '¡Hola! 👋 Soy tu asistente personal de Puerto López.\n\n¿En qué puedo ayudarte hoy?',
+      content: '¡Hola! 👋 Soy tu asistente personal de Puerto López.\n\n¿En qué puedo ayudarte hoy? Puedo darte información sobre:\n• Atracciones turísticas\n• Actividades disponibles\n• Recomendaciones de viaje\n• Y mucho más...',
       timestamp: new Date()
     }
   ]);
@@ -31,13 +31,13 @@ const ChatBot = () => {
       {
         id: '1',
         type: 'bot',
-        content: '¡Hola! 👋 Soy tu asistente personal de Puerto López.\n\n¿En qué puedo ayudarte hoy?',
+        content: '¡Hola! 👋 Soy tu asistente personal de Puerto López.\n\n¿En qué puedo ayudarte hoy? Puedo darte información sobre:\n• Atracciones turísticas\n• Actividades disponibles\n• Recomendaciones de viaje\n• Y mucho más...',
         timestamp: new Date()
       }
     ]);
     setInputValue('');
     toast({
-      title: 'Conversación limpiada',
+      title: 'Conversación reiniciada',
       description: 'El historial del chat ha sido borrado.',
     });
   };
@@ -93,7 +93,7 @@ const ChatBot = () => {
 
       setMessages(prev => [...prev, botMessage]);
     } catch (error: any) {
-      let errorMessage = 'Lo siento, hay un problema técnico. Puedes contactarnos directamente en apincay@gmail.com o al +593 99 199 5390.';
+      let errorMessage = 'Lo siento, hay un problema técnico momentáneo.\n\n📧 Puedes contactarnos directamente:\n• Email: apincay@gmail.com\n• WhatsApp: +593 99 199 5390\n\n¡Estaremos encantados de ayudarte!';
       
       if (error.message) {
         errorMessage = error.message;

@@ -102,7 +102,7 @@ const Dashboard = () => {
                     onClick={() => setActiveTab('attractions')}
                   >
                     <MapPin className="h-4 w-4 mr-2" />
-                    Gestión de Atracciones
+                    Editar Atracciones
                   </Button>
                   <Button
                     variant={activeTab === 'admin' ? 'default' : 'ghost'}

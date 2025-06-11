@@ -21,11 +21,10 @@ const LanguageToggle = ({ compact = false }: LanguageToggleProps) => {
         variant="outline"
         size="sm"
         onClick={toggleLanguage}
-        className="h-6 px-2 text-xs"
+        className="h-8 w-10 px-2 text-sm font-semibold"
         aria-label={`Cambiar a ${language === 'es' ? 'inglés' : 'español'}`}
       >
-        <Globe className="h-3 w-3 mr-1" />
-        {language.toUpperCase()}
+        ES
       </Button>
     );
   }

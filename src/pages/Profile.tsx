@@ -10,7 +10,9 @@ import { useToast } from '@/hooks/use-toast';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Camera, User, Phone, Lock, Mail } from 'lucide-react';
+import { Camera, User, Phone, Lock, Mail, Eye, EyeOff } from 'lucide-react';
+import PasswordStrengthIndicator from '@/components/auth/PasswordStrengthIndicator';
+import { usePasswordValidation } from '@/hooks/usePasswordValidation';
 
 interface Profile {
   id: string;
@@ -30,15 +32,23 @@ const Profile = () => {
   const [fullName, setFullName] = useState('');
   const [phone, setPhone] = useState('');
   const [bio, setBio] = useState('');
-  const [currentPassword, setCurrentPassword] = useState('');
   const [newPassword, setNewPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [showNewPassword, setShowNewPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const { validation, validatePassword } = usePasswordValidation();
 
   useEffect(() => {
     if (user) {
       fetchProfile();
     }
   }, [user]);
+
+  useEffect(() => {
+    if (newPassword) {
+      validatePassword(newPassword);
+    }
+  }, [newPassword, validatePassword]);
 
   const fetchProfile = async () => {
     try {
@@ -147,19 +157,19 @@ const Profile = () => {
   };
 
   const changePassword = async () => {
-    if (newPassword !== confirmPassword) {
+    if (!validation.isValid) {
       toast({
-        title: "Error",
-        description: "Las contraseñas no coinciden.",
+        title: "Contraseña inválida",
+        description: "La contraseña no cumple con todos los requisitos de seguridad.",
         variant: "destructive"
       });
       return;
     }
 
-    if (newPassword.length < 6) {
+    if (newPassword !== confirmPassword) {
       toast({
         title: "Error",
-        description: "La contraseña debe tener al menos 6 caracteres.",
+        description: "Las contraseñas no coinciden.",
         variant: "destructive"
       });
       return;
@@ -178,7 +188,6 @@ const Profile = () => {
         description: "Tu contraseña ha sido cambiada exitosamente."
       });
 
-      setCurrentPassword('');
       setNewPassword('');
       setConfirmPassword('');
     } catch (error: any) {
@@ -319,35 +328,64 @@ const Profile = () => {
                   Seguridad
                 </CardTitle>
                 <CardDescription>
-                  Cambia tu contraseña
+                  Cambia tu contraseña de acceso
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
                   <Label htmlFor="newPassword">Nueva contraseña</Label>
-                  <Input
-                    id="newPassword"
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) => setNewPassword(e.target.value)}
-                    placeholder="Nueva contraseña"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="newPassword"
+                      type={showNewPassword ? 'text' : 'password'}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
+                      placeholder="Tu nueva contraseña"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center pr-3"
+                      onClick={() => setShowNewPassword(!showNewPassword)}
+                    >
+                      {showNewPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
+                  <PasswordStrengthIndicator password={newPassword} errors={validation.errors} />
                 </div>
 
                 <div>
                   <Label htmlFor="confirmPassword">Confirmar contraseña</Label>
-                  <Input
-                    id="confirmPassword"
-                    type="password"
-                    value={confirmPassword}
-                    onChange={(e) => setConfirmPassword(e.target.value)}
-                    placeholder="Confirma tu nueva contraseña"
-                  />
+                  <div className="relative">
+                    <Input
+                      id="confirmPassword"
+                      type={showConfirmPassword ? 'text' : 'password'}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      placeholder="Confirma tu nueva contraseña"
+                      className="pr-10"
+                    />
+                    <button
+                      type="button"
+                      className="absolute inset-y-0 right-0 flex items-center pr-3"
+                      onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                      {showConfirmPassword ? (
+                        <EyeOff className="h-4 w-4 text-gray-400" />
+                      ) : (
+                        <Eye className="h-4 w-4 text-gray-400" />
+                      )}
+                    </button>
+                  </div>
                 </div>
 
                 <Button 
                   onClick={changePassword} 
-                  disabled={loading || !newPassword || !confirmPassword}
+                  disabled={loading || !newPassword || !confirmPassword || !validation.isValid}
                   className="bg-ocean hover:bg-ocean-dark"
                 >
                   {loading ? 'Cambiando...' : 'Cambiar Contraseña'}
