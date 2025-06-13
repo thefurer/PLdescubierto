@@ -33,7 +33,9 @@ export default {
         jsx: 'react-jsx',
         compilerOptions: {
           esModuleInterop: true,
-          allowSyntheticDefaultImports: true
+          allowSyntheticDefaultImports: true,
+          skipLibCheck: true,
+          types: ['jest', 'node']
         }
       },
     }],
