@@ -29,11 +29,15 @@ export default {
   ],
   transform: {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
-      tsconfig: {
-        jsx: 'react-jsx',
-        types: ['jest', 'node', '@testing-library/jest-dom']
-      },
+      tsconfig: 'tsconfig.json'
     }],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  globals: {
+    'ts-jest': {
+      tsconfig: {
+        jsx: 'react-jsx',
+      },
+    },
+  },
 };
