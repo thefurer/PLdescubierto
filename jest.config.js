@@ -31,8 +31,13 @@ export default {
     '^.+\\.(ts|tsx)$': ['ts-jest', {
       tsconfig: {
         jsx: 'react-jsx',
+        moduleResolution: 'node',
+        types: ['jest', '@testing-library/jest-dom']
       },
     }],
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx', 'json'],
+  transformIgnorePatterns: [
+    'node_modules/(?!(@testing-library)/)'
+  ],
 };
