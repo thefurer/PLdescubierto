@@ -1,6 +1,6 @@
 
 import '@testing-library/jest-dom';
-import { afterEach } from '@jest/globals';
+import { afterEach, jest } from '@jest/globals';
 import { cleanup } from '@testing-library/react';
 
 // Cleanup after each test case
