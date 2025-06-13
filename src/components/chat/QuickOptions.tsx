@@ -1,5 +1,5 @@
 
-import { Phone, Calendar, MapPin, CloudSun, Headphones, Route } from 'lucide-react';
+import { Phone, Calendar, MapPin, CloudSun, Route } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface QuickOptionsProps {
@@ -32,11 +32,6 @@ const QuickOptions = ({ onOptionClick }: QuickOptionsProps) => {
       icon: CloudSun,
       label: 'Clima y temporadas',
       message: 'Información sobre el clima y temporadas en Puerto López'
-    },
-    {
-      icon: Headphones,
-      label: 'Soporte técnico',
-      message: 'Necesito ayuda con soporte técnico'
     }
   ];
 

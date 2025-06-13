@@ -16,13 +16,17 @@ const AccessibilityButton = ({ isExpanded, onToggle, compact = false }: Accessib
         variant="ghost"
         size="sm"
         onClick={onToggle}
-        className="h-8 px-3 flex items-center gap-2"
+        className={`h-8 px-3 flex items-center gap-2 transition-all duration-300 ${
+          isExpanded
+            ? "text-ocean hover:text-ocean-dark hover:bg-ocean/5"
+            : "text-gray-700 hover:text-ocean hover:bg-ocean/5"
+        }`}
         aria-expanded={isExpanded}
         aria-controls="accessibility-options"
         aria-label={isExpanded ? 'Ocultar opciones de accesibilidad' : 'Mostrar opciones de accesibilidad'}
       >
-        <Settings className="h-4 w-4" aria-hidden="true" />
-        <span className="text-sm font-medium">Accesibilidad</span>
+        <Settings className={`h-4 w-4 ${isExpanded ? "text-ocean" : "text-gray-700 hover:text-ocean"}`} aria-hidden="true" />
+        <span className={`text-sm font-medium ${isExpanded ? "text-ocean" : "text-gray-700"}`}>Accesibilidad</span>
       </Button>
     );
   }
