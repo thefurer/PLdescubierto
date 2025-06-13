@@ -35,7 +35,7 @@ export default {
           esModuleInterop: true,
           allowSyntheticDefaultImports: true,
           skipLibCheck: true,
-          types: ['jest', 'node']
+          types: ['jest', 'node', '@testing-library/jest-dom']
         }
       },
     }],
