@@ -6,7 +6,7 @@ export function createErrorResponse(error: any, status: number = 500): Response 
   console.error('Error en chat-support - timestamp:', new Date().toISOString());
   
   const errorMessage = 'Lo siento, hay un problema técnico temporal.';
-  const fallbackMessage = 'Lo siento, hay un problema técnico. Puedes contactarnos directamente en apincay@gmail.com o por WhatsApp al +593 99 199 5390 para asistencia inmediata.';
+  const fallbackMessage = 'Lo siento, hay un problema técnico. Puedes contactarnos directamente:\n\n📞 +593 99 199 5390\n📞 +593 2 123 4567\n📧 apincay@gmail.com';
 
   return new Response(JSON.stringify({ 
     error: errorMessage,
