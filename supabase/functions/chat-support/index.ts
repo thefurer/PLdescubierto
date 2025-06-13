@@ -42,7 +42,7 @@ serve(async (req) => {
       console.error('Google API key not found')
       return new Response(
         JSON.stringify({ 
-          reply: 'Lo siento, el servicio de chat no está disponible en este momento. Puedes contactarnos directamente en apincay@gmail.com o al +593 99 199 5390.' 
+          reply: 'Lo siento, el servicio de chat no está disponible en este momento. Puedes contactarnos directamente en apincay@gmail.com o al +593 2 123 4567.' 
         }),
         { 
           status: 200, 
@@ -69,7 +69,7 @@ Responde de manera amigable, informativa y útil. Proporciona información prác
 
 Pregunta del usuario: ${sanitizedMessage}
 
-Responde en español de manera concisa y útil:`
+Responde en español de manera concisa y útil. NO uses asteriscos, palabras strong, ni formato especial:`
 
     try {
       const aiResponse = await geminiClient.generateResponse(contextPrompt)
@@ -103,7 +103,7 @@ Responde en español de manera concisa y útil:`
       
       return new Response(
         JSON.stringify({ 
-          reply: 'Lo siento, hay un problema técnico temporal. Puedes contactarnos directamente en apincay@gmail.com o al +593 99 199 5390.' 
+          reply: 'Lo siento, hay un problema técnico temporal. Puedes contactarnos directamente en apincay@gmail.com o al +593 2 123 4567.' 
         }),
         { 
           status: 200, 
@@ -117,7 +117,7 @@ Responde en español de manera concisa y útil:`
     
     return new Response(
       JSON.stringify({ 
-        reply: 'Lo siento, ocurrió un error. Puedes contactarnos directamente en apincay@gmail.com o al +593 99 199 5390.' 
+        reply: 'Lo siento, ocurrió un error. Puedes contactarnos directamente en apincay@gmail.com o al +593 2 123 4567.' 
       }),
       { 
         status: 200, 

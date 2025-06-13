@@ -23,7 +23,7 @@ PREGUNTAS PARA PERSONALIZAR:
 
 Mensaje del usuario: ${sanitizedMessage}
 
-Responde de manera personalizada y práctica, sugiriendo actividades específicas según sus intereses.`;
+Responde de manera personalizada y práctica, sugiriendo actividades específicas según sus intereses. NO uses asteriscos, palabras strong, ni formato especial.`;
 
   return await geminiClient.generateResponse(contextPrompt);
 }
@@ -33,7 +33,6 @@ export async function handleContactRequest(sanitizedMessage: string, geminiClien
 
 📞 Teléfono: +593 2 123 4567
 📧 Email: apincay@gmail.com
-🌐 WhatsApp: +593 99 199 5390
 
 Estamos disponibles para ayudarte a planificar tu visita perfecta a Puerto López. No dudes en contactarnos para:
 • Reservas de tours
@@ -64,7 +63,7 @@ ACTIVIDADES POR ÉPOCA:
 
 Mensaje del usuario: ${sanitizedMessage}
 
-Sé específico sobre fechas y explica por qué cada época es mejor para ciertas actividades.`;
+Sé específico sobre fechas y explica por qué cada época es mejor para ciertas actividades. NO uses asteriscos, palabras strong, ni formato especial.`;
 
   return await geminiClient.generateResponse(contextPrompt);
 }
@@ -99,7 +98,7 @@ EXPERIENCIAS LOCALES:
 
 Mensaje del usuario: ${sanitizedMessage}
 
-Recomienda actividades específicas según el interés del visitante y sugiere combinaciones para diferentes tipos de viajeros.`;
+Recomienda actividades específicas según el interés del visitante y sugiere combinaciones para diferentes tipos de viajeros. NO uses asteriscos, palabras strong, ni formato especial.`;
 
   return await geminiClient.generateResponse(contextPrompt);
 }
@@ -135,7 +134,7 @@ RECOMENDACIONES POR CLIMA:
 
 Mensaje del usuario: ${sanitizedMessage}
 
-Sé específico sobre cómo el clima afecta cada actividad y qué ropa/equipo recomendar.`;
+Sé específico sobre cómo el clima afecta cada actividad y qué ropa/equipo recomendar. NO uses asteriscos, palabras strong, ni formato especial.`;
 
   return await geminiClient.generateResponse(contextPrompt);
 }
@@ -155,7 +154,7 @@ Responde de manera amigable, informativa y útil. Proporciona información prác
 
 Pregunta del usuario: ${sanitizedMessage}
 
-Responde en español de manera concisa y útil:`;
+Responde en español de manera concisa y útil. NO uses asteriscos, palabras strong, ni formato especial:`;
 
   return await geminiClient.generateResponse(contextPrompt);
 }
