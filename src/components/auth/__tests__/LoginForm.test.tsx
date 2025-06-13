@@ -1,21 +1,15 @@
 
 import { render, screen, fireEvent, waitFor } from '@testing-library/react';
 import { BrowserRouter } from 'react-router-dom';
-import LoginForm from '../LoginForm';
-import { AuthContext } from '@/contexts/AuthContext';
-
-const mockAuthContextValue = {
-  user: null,
-  loading: false,
-  signOut: jest.fn(),
-};
+import { LoginForm } from '../LoginForm';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const MockAuthProvider = ({ children }: { children: React.ReactNode }) => (
-  <AuthContext.Provider value={mockAuthContextValue}>
+  <AuthProvider>
     <BrowserRouter>
       {children}
     </BrowserRouter>
-  </AuthContext.Provider>
+  </AuthProvider>
 );
 
 describe('LoginForm', () => {
@@ -27,8 +21,9 @@ describe('LoginForm', () => {
     loading: false,
     captchaToken: 'test-token',
     setCaptchaToken: jest.fn(),
-    captcha: null,
+    captcha: { current: null },
     onSubmit: jest.fn(),
+    onForgotPassword: jest.fn(),
   };
 
   beforeEach(() => {
