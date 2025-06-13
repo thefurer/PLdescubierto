@@ -2,15 +2,6 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts"
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 import { GeminiClient } from './gemini-client.ts'
-import { createErrorResponse, createSuccessResponse } from './error-handler.ts'
-import { validateMessage } from './validation.ts'
-import { classifyMessage } from './message-classifier.ts'
-import { 
-  handleContactInfoRequest, 
-  handleItineraryRequest, 
-  handleSeasonInfoRequest, 
-  handleActivitiesRequest 
-} from './message-handlers.ts'
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -31,11 +22,10 @@ serve(async (req) => {
   try {
     const { message } = await req.json()
     
-    // Validate and sanitize input
-    const validation = validateMessage(message);
-    if (!validation.isValid) {
+    // Input validation and sanitization
+    if (!message || typeof message !== 'string' || message.length > 1000) {
       return new Response(
-        JSON.stringify({ error: validation.error }),
+        JSON.stringify({ error: 'Invalid message format or length' }),
         { 
           status: 400, 
           headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -43,29 +33,16 @@ serve(async (req) => {
       )
     }
 
-    const sanitizedMessage = validation.sanitizedMessage!;
+    // Sanitize input
+    const sanitizedMessage = message.trim().substring(0, 1000)
     
-    // Classify message and handle predefined responses
-    const messageType = classifyMessage(sanitizedMessage);
-    
-    switch (messageType) {
-      case 'contact':
-        return handleContactInfoRequest();
-      case 'itinerary':
-        return handleItineraryRequest();
-      case 'season':
-        return handleSeasonInfoRequest();
-      case 'activities':
-        return handleActivitiesRequest();
-    }
-
-    // Handle general AI responses
+    // Get Google API key from environment
     const googleApiKey = Deno.env.get('GOOGLE_API_KEY')
     if (!googleApiKey) {
       console.error('Google API key not found')
       return new Response(
         JSON.stringify({ 
-          reply: 'Lo siento, el servicio de chat no está disponible en este momento. Puedes contactarnos directamente:\n\n📞 +593 99 199 5390\n📞 +593 2 123 4567\n📧 apincay@gmail.com' 
+          reply: 'Lo siento, el servicio de chat no está disponible en este momento. Puedes contactarnos directamente en apincay@gmail.com o al +593 99 199 5390.' 
         }),
         { 
           status: 200, 
@@ -79,17 +56,6 @@ serve(async (req) => {
     
     // Create context-aware prompt for Puerto López
     const contextPrompt = `Eres un asistente turístico especializado en Puerto López, Ecuador. 
-
-IMPORTANTE: 
-- NUNCA uses etiquetas HTML como <strong>, <em>, <b>, etc. en tus respuestas
-- Usa formato de texto plano con emojis y símbolos para dar énfasis
-- Para texto destacado usa **texto** o MAYÚSCULAS
-- Para listas usa • o números
-
-Información de contacto oficial:
-- Teléfonos: +593 99 199 5390 (WhatsApp), +593 2 123 4567
-- Email: apincay@gmail.com
-- Ubicación: Puerto López, Manabí, Ecuador
     
 Puerto López es un destino costero en la provincia de Manabí, conocido por:
 - Observación de ballenas jorobadas (junio-septiembre)
@@ -103,17 +69,10 @@ Responde de manera amigable, informativa y útil. Proporciona información prác
 
 Pregunta del usuario: ${sanitizedMessage}
 
-Responde en español de manera concisa y útil, SIN usar etiquetas HTML:`
+Responde en español de manera concisa y útil:`
 
     try {
       const aiResponse = await geminiClient.generateResponse(contextPrompt)
-      
-      // Clean any remaining HTML tags that might slip through
-      const cleanResponse = aiResponse
-        .replace(/<[^>]*>/g, '')
-        .replace(/&lt;/g, '<')
-        .replace(/&gt;/g, '>')
-        .replace(/&amp;/g, '&')
       
       // Log interaction for monitoring
       const supabaseClient = createClient(
@@ -127,19 +86,24 @@ Responde en español de manera concisa y útil, SIN usar etiquetas HTML:`
           section_name: 'chat_interaction',
           new_content: {
             message: sanitizedMessage,
-            response: cleanResponse,
+            response: aiResponse,
             timestamp: new Date().toISOString()
           },
           change_type: 'chat_message'
         })
 
-      return createSuccessResponse(cleanResponse)
+      return new Response(
+        JSON.stringify({ reply: aiResponse }),
+        { 
+          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        }
+      )
     } catch (aiError) {
       console.error('AI service error:', aiError)
       
       return new Response(
         JSON.stringify({ 
-          reply: 'Lo siento, hay un problema técnico temporal. Puedes contactarnos directamente:\n\n📞 +593 99 199 5390\n📞 +593 2 123 4567\n📧 apincay@gmail.com' 
+          reply: 'Lo siento, hay un problema técnico temporal. Puedes contactarnos directamente en apincay@gmail.com o al +593 99 199 5390.' 
         }),
         { 
           status: 200, 
@@ -151,6 +115,14 @@ Responde en español de manera concisa y útil, SIN usar etiquetas HTML:`
   } catch (error) {
     console.error('Chat support error:', error)
     
-    return createErrorResponse(error)
+    return new Response(
+      JSON.stringify({ 
+        reply: 'Lo siento, ocurrió un error. Puedes contactarnos directamente en apincay@gmail.com o al +593 99 199 5390.' 
+      }),
+      { 
+        status: 200, 
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+      }
+    )
   }
 })

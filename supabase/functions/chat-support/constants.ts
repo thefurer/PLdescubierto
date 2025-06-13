@@ -2,11 +2,6 @@
 export const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self'; object-src 'none';",
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'X-XSS-Protection': '1; mode=block'
 };
 
 export const CONTACT_INFO = {
@@ -14,7 +9,6 @@ export const CONTACT_INFO = {
   email: 'apincay@gmail.com',
   website: 'https://www.whalexpeditionsecuador.com/',
   whatsapp: '+593 99 199 5390',
-  phone: '+593 2 123 4567',
   location: 'Puerto López, Manabí, Ecuador'
 };
 

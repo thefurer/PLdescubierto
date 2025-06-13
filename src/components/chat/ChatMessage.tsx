@@ -32,10 +32,10 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
 
     // Convert safe markdown-style formatting to HTML
     let formatted = sanitized
-      // Bold text - improved regex to handle asterisks better
-      .replace(/\*\*([^*]+?)\*\*/g, '<strong>$1</strong>')
-      // Italic text - improved regex
-      .replace(/\*([^*\n]+?)\*/g, '<em>$1</em>')
+      // Bold text - only allow simple ** formatting
+      .replace(/\*\*([\w\s.,!?áéíóúñü]+?)\*\*/g, '<strong>$1</strong>')
+      // Italic text - only allow simple * formatting  
+      .replace(/\*([\w\s.,!?áéíóúñü]+?)\*/g, '<em>$1</em>')
       // Bullet points - sanitize content
       .replace(/^• (.*$)/gim, (match, text) => {
         const safeText = text.replace(/[<>]/g, '');
