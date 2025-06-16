@@ -11,8 +11,8 @@ interface HeroPreviewProps {
 }
 
 const HeroPreview = ({ content }: HeroPreviewProps) => {
-  // Updated to match the new beach sunset image
-  const backgroundImage = content.backgroundImage || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1920";
+  // Updated to match the new 360-degree panoramic image
+  const backgroundImage = content.backgroundImage || "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=7372&h=4392";
   
   return (
     <Card className="overflow-hidden border border-blue-200">
