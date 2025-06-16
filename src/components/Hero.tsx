@@ -1,4 +1,5 @@
 
+
 import { ArrowDown } from "lucide-react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useContentManager } from "@/hooks/useContentManager";
@@ -31,8 +32,8 @@ const Hero = () => {
     }
   };
   const currentTexts = texts[language];
-  // Updated to a stunning 360-degree beach panorama that captures the essence of Puerto López
-  const backgroundImage = heroContent?.backgroundImage || "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&q=80&w=7372&h=4392";
+  // Updated to a beautiful beach sunset image that complements the site colors
+  const backgroundImage = heroContent?.backgroundImage || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1920";
   
   return (
     <section id="home" className="relative h-screen overflow-hidden">
@@ -110,3 +111,4 @@ const Hero = () => {
 };
 
 export default Hero;
+
