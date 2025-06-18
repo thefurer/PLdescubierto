@@ -108,7 +108,7 @@ const Footer = () => {
 
         <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400">
           <p>&copy; {new Date().getFullYear()} {footerData.companyName}. {t.allRightsReserved}</p>
-          <p className="mt-2 text-sm">Un escaparate del paraíso costero de Ecuador. Hecho por Abel Castillo - UNESUM (SmartCityCore - PL: smartcitycore.com) </p>
+          <p className="mt-2 text-sm">Un escaparate del paraíso costero de Ecuador. Hecho por Abel Castillo - UNESUM (SmartCityCore - PL: smartcity-core.com)</p>
         </div>
       </div>
     </footer>;
