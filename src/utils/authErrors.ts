@@ -24,6 +24,11 @@ export const useAuthErrorHandler = () => {
 };
 
 const handleLoginError = (error: any, toast: any) => {
+  // No manejar errores de CAPTCHA aquí para login - se maneja en useLogin
+  if (error.message.includes('captcha')) {
+    return;
+  }
+
   if (error.message.includes('Invalid login credentials')) {
     toast({
       title: "Error de inicio de sesión",

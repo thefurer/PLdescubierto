@@ -15,14 +15,23 @@ export const useLogin = () => {
     setLoading(true);
 
     try {
-      // Login sin CAPTCHA - solo email y contraseña
+      // Intentar login sin CAPTCHA primero
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password
       });
 
       if (error) {
-        handleAuthError(error, 'login');
+        // Si el error es específicamente de CAPTCHA, mostrar mensaje personalizado
+        if (error.message.includes('captcha verification process failed')) {
+          toast({
+            title: "Error de configuración",
+            description: "Hay un problema con la configuración del servidor. Por favor contacta al administrador.",
+            variant: "destructive"
+          });
+        } else {
+          handleAuthError(error, 'login');
+        }
       } else if (data.user) {
         toast({
           title: "¡Bienvenido!",
