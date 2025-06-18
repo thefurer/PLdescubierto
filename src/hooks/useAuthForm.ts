@@ -16,6 +16,13 @@ export const useAuthForm = () => {
   const { handleSignup } = useSignup();
   const { handlePasswordReset } = usePasswordReset();
 
+  const resetCaptcha = () => {
+    setCaptchaToken(null);
+    if (captcha.current) {
+      captcha.current.resetCaptcha();
+    }
+  };
+
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     await handleLogin(email, password, captchaToken, setLoading);
@@ -23,19 +30,12 @@ export const useAuthForm = () => {
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await handleSignup(email, password, fullName, captchaToken, setLoading);
+    await handleSignup(email, password, fullName, captchaToken, resetCaptcha, setLoading);
   };
 
   const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await handlePasswordReset(email, captchaToken, setLoading);
-  };
-
-  const resetCaptcha = () => {
-    setCaptchaToken(null);
-    if (captcha.current) {
-      captcha.current.resetCaptcha();
-    }
+    await handlePasswordReset(email, captchaToken, resetCaptcha, setLoading);
   };
 
   return {
