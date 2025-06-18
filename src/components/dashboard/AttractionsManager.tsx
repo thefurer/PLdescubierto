@@ -1,6 +1,7 @@
 
 import { useState } from 'react';
-import { useTouristAttractions, TouristAttraction } from '@/hooks/useTouristAttractions';
+import { useTouristAttractions } from '@/hooks/useTouristAttractions';
+import { TouristAttraction } from '@/types/touristAttractions';
 import { Loader2 } from 'lucide-react';
 import AttractionsHeader from './attractions/AttractionsHeader';
 import CategorySection from './attractions/CategorySection';

@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { MapPin, Clock, Users, Star, ChevronLeft, ChevronRight } from 'lucide-react';
-import { TouristAttraction } from '@/hooks/useTouristAttractions';
+import { TouristAttraction } from '@/types/touristAttractions';
 
 interface AttractionModalProps {
   attraction: TouristAttraction | null;

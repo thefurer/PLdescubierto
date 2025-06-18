@@ -1,7 +1,7 @@
 
 import { useState } from "react";
 import { MapPin, Star } from "lucide-react";
-import { TouristAttraction } from "@/hooks/useTouristAttractions";
+import { TouristAttraction } from "@/types/touristAttractions";
 import { AttractionModal } from "./AttractionModal";
 
 interface AttractionCardProps {
