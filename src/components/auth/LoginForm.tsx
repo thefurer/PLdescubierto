@@ -4,7 +4,6 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Eye, EyeOff } from 'lucide-react';
-import CaptchaWrapper from './CaptchaWrapper';
 
 interface LoginFormProps {
   email: string;
@@ -12,9 +11,6 @@ interface LoginFormProps {
   password: string;
   setPassword: (password: string) => void;
   loading: boolean;
-  captchaToken: string | null;
-  setCaptchaToken: (token: string | null) => void;
-  captcha: React.RefObject<any>;
   onSubmit: (e: React.FormEvent) => void;
   onForgotPassword: () => void;
 }
@@ -25,9 +21,6 @@ export const LoginForm = ({
   password,
   setPassword,
   loading,
-  captchaToken,
-  setCaptchaToken,
-  captcha,
   onSubmit,
   onForgotPassword
 }: LoginFormProps) => {
@@ -105,15 +98,10 @@ export const LoginForm = ({
         )}
       </div>
 
-      <CaptchaWrapper
-        onVerify={setCaptchaToken}
-        captchaRef={captcha}
-      />
-
       <Button
         type="submit"
         className="w-full"
-        disabled={loading || !captchaToken}
+        disabled={loading}
       >
         {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
       </Button>

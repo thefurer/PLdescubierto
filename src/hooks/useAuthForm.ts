@@ -36,7 +36,7 @@ export const useAuthForm = (): AuthHookReturn => {
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    await loginUser(email, password, captchaToken, resetCaptcha, setLoading);
+    await loginUser(email, password, setLoading);
   };
 
   const handleSignup = async (e: React.FormEvent) => {

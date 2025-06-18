@@ -10,29 +10,14 @@ export const useLogin = () => {
   const handleLogin = async (
     email: string,
     password: string,
-    captchaToken: string | null,
-    resetCaptcha: () => void,
     setLoading: (loading: boolean) => void
   ) => {
     setLoading(true);
 
-    if (!captchaToken) {
-      toast({
-        title: "Verificación requerida",
-        description: "Por favor completa la verificación CAPTCHA.",
-        variant: "destructive"
-      });
-      setLoading(false);
-      return;
-    }
-
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
-        password,
-        options: {
-          captchaToken: captchaToken
-        }
+        password
       });
 
       if (error) {
@@ -45,8 +30,6 @@ export const useLogin = () => {
         // Redirigir a la página principal
         window.location.href = '/';
       }
-
-      resetCaptcha();
     } catch (error) {
       console.error('Unexpected error:', error);
       toast({
@@ -54,7 +37,6 @@ export const useLogin = () => {
         description: "Algo salió mal. Intenta de nuevo.",
         variant: "destructive"
       });
-      resetCaptcha();
     } finally {
       setLoading(false);
     }

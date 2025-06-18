@@ -133,9 +133,6 @@ export const AuthFormRenderer = ({
         password={password}
         setPassword={setPassword}
         loading={loading}
-        captchaToken={captchaToken}
-        setCaptchaToken={setCaptchaToken}
-        captcha={captcha}
         onSubmit={onFormSubmit}
         onForgotPassword={onForgotPassword}
       />
