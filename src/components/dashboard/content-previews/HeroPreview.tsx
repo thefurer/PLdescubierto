@@ -11,33 +11,47 @@ interface HeroPreviewProps {
 }
 
 const HeroPreview = ({ content }: HeroPreviewProps) => {
-  // Updated to match the new beach sunset image
-  const backgroundImage = content.backgroundImage || "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80&w=1920";
+  const backgroundImage = content.backgroundImage || "/lovable-uploads/78e98eed-30a8-4449-aca7-86cb97de3b2e.png";
   
   return (
     <Card className="overflow-hidden border border-blue-200">
       <div className="relative h-64 bg-cover bg-center" style={{ backgroundImage: `url('${backgroundImage}')` }}>
-        {/* Black transparency overlay */}
-        <div className="absolute inset-0 bg-black/40"></div>
-        {/* Enhanced gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-b from-ocean-dark/40 via-ocean/20 to-green-primary/10"></div>
-        <div className="absolute inset-0 flex flex-col justify-center px-6">
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/30"></div>
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/40"></div>
+        
+        <div className="absolute inset-0 flex flex-col justify-center items-center px-6 text-center">
+          {/* Main Title */}
           <h1 className="text-2xl md:text-3xl font-bold text-white mb-2 drop-shadow-lg">
-            <span className="block">{content.title || "Descubre la Magia de"}</span>
-            {content.subtitle && (
-              <span className="text-green-primary bg-gradient-to-r from-green-primary to-green-light bg-clip-text text-transparent">
-                {content.subtitle}
-              </span>
-            )}
+            {content.title || "Puerto López"}
           </h1>
-          <p className="text-sm md:text-base text-white/95 drop-shadow-lg max-w-md">
-            {content.description || "Descubre la belleza natural, riqueza cultural y aventuras sin fin en el paraíso costero más encantador de Ecuador."}
+          
+          {/* Subtitle with green accent */}
+          <h2 className="text-lg md:text-xl font-bold text-green-400 mb-3 drop-shadow-lg">
+            {content.subtitle || "Descubre sus Atracciones"}
+          </h2>
+          
+          {/* Description */}
+          <p className="text-sm text-white/95 drop-shadow-lg mb-4">
+            {content.description || "Bellezas Naturales y Culturales"}
           </p>
-          <div className="flex gap-2 mt-4">
-            <div className="px-3 py-1 bg-green-primary text-white text-xs rounded-full">
+
+          {/* Navigation Menu Preview */}
+          <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 mb-3 border border-white/20">
+            <div className="flex flex-wrap justify-center gap-2 text-xs">
+              <div className="px-3 py-1 text-white rounded-lg">Inicio</div>
+              <div className="px-3 py-1 text-white rounded-lg">Atracciones</div>
+              <div className="px-3 py-1 text-white rounded-lg">Guía de Viaje</div>
+              <div className="px-3 py-1 text-white rounded-lg">Planificar</div>
+            </div>
+          </div>
+
+          {/* Action Buttons Preview */}
+          <div className="flex gap-2">
+            <div className="px-3 py-1 bg-blue-500 text-white text-xs rounded-lg">
               Explorar Atracciones
             </div>
-            <div className="px-3 py-1 bg-white/20 text-white text-xs rounded-full border border-white/30">
+            <div className="px-3 py-1 bg-gray-700/80 text-white text-xs rounded-lg border border-white/30">
               Experiencia Virtual
             </div>
           </div>
