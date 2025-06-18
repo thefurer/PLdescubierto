@@ -5,13 +5,17 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { useContentManager } from "@/hooks/useContentManager";
 import LanguageToggle from "./accessibility/LanguageToggle";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from "@/components/ui/navigation-menu";
-import AccessibilityButton from "./accessibility/AccessibilityButton";
+import AccessibilityToolbar from "./accessibility/AccessibilityToolbar";
 import UserMenu from "./UserMenu";
+import { useAuth } from "@/contexts/AuthContext";
+import { Button } from "@/components/ui/button";
+import { User } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const Hero = () => {
   const { language } = useLanguage();
   const { content } = useContentManager();
-  const [isAccessibilityExpanded, setIsAccessibilityExpanded] = useState(false);
+  const { user } = useAuth();
 
   // Find hero content from database
   const heroContent = content.find(item => item.section_name === 'hero')?.content;
@@ -49,27 +53,40 @@ const Hero = () => {
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
       }}
     >
-      {/* Top navigation bar with accessibility and user menu */}
-      <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-6">
-        <div className="flex items-center gap-4">
-          <AccessibilityButton 
-            isExpanded={isAccessibilityExpanded}
-            onToggle={() => setIsAccessibilityExpanded(!isAccessibilityExpanded)}
-            compact={true}
-          />
-        </div>
-        <div className="flex items-center gap-4">
-          <LanguageToggle />
-          <UserMenu />
+      {/* Fixed Top navigation bar with accessibility and user menu */}
+      <div className="fixed top-0 left-0 right-0 z-50 bg-white/10 backdrop-blur-lg border-b border-white/20 shadow-lg">
+        <div className="flex justify-between items-center p-4">
+          <div className="flex items-center gap-4">
+            <AccessibilityToolbar compact />
+          </div>
+          <div className="flex items-center gap-4">
+            <LanguageToggle compact />
+            {user ? (
+              <UserMenu />
+            ) : (
+              <Link to="/auth">
+                <Button 
+                  size="sm"
+                  className="bg-white/90 hover:bg-white text-ocean-dark shadow-lg hover:shadow-xl backdrop-blur-sm"
+                >
+                  <User className="h-4 w-4 mr-2" />
+                  Iniciar Sesión
+                </Button>
+              </Link>
+            )}
+          </div>
         </div>
       </div>
 
       {/* Hero Content */}
       <div className="container mx-auto px-4 h-full flex flex-col justify-center items-center relative z-10 text-center">
         <div className="max-w-4xl">
-          {/* Main Title */}
-          <h1 className="text-6xl md:text-8xl font-bold text-white mb-4 drop-shadow-lg">
-            {currentTexts.title}
+          {/* Main Title with Wave Effect */}
+          <h1 className="text-6xl md:text-8xl font-bold text-white mb-4 drop-shadow-lg relative overflow-hidden">
+            <span className="relative inline-block">
+              <span className="relative z-10">{currentTexts.title}</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-blue-400/30 via-cyan-300/30 to-blue-500/30 animate-wave opacity-70"></div>
+            </span>
           </h1>
           
           {/* Subtitle with green accent */}
