@@ -15,6 +15,7 @@ export const useLogin = () => {
     setLoading(true);
 
     try {
+      // Login sin CAPTCHA - solo email y contraseña
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password

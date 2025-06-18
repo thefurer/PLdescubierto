@@ -7,16 +7,6 @@ export const useAuthErrorHandler = () => {
   const handleAuthError = (error: any, operation: 'login' | 'signup' | 'reset') => {
     console.error(`${operation} error:`, error);
     
-    // Manejo específico de errores de HCaptcha
-    if (error.message.includes('captcha')) {
-      toast({
-        title: "Error de verificación",
-        description: "Error en la verificación CAPTCHA. Por favor intenta de nuevo.",
-        variant: "destructive"
-      });
-      return;
-    }
-
     switch (operation) {
       case 'login':
         handleLoginError(error, toast);
@@ -56,6 +46,16 @@ const handleLoginError = (error: any, toast: any) => {
 };
 
 const handleSignupError = (error: any, toast: any) => {
+  // Manejo específico de errores de HCaptcha para registro
+  if (error.message.includes('captcha')) {
+    toast({
+      title: "Error de verificación",
+      description: "Error en la verificación CAPTCHA. Por favor intenta de nuevo.",
+      variant: "destructive"
+    });
+    return;
+  }
+
   if (error.message.includes('User already registered')) {
     toast({
       title: "Usuario ya registrado",
@@ -72,6 +72,16 @@ const handleSignupError = (error: any, toast: any) => {
 };
 
 const handleResetError = (error: any, toast: any) => {
+  // Manejo específico de errores de HCaptcha para reset
+  if (error.message.includes('captcha')) {
+    toast({
+      title: "Error de verificación",
+      description: "Error en la verificación CAPTCHA. Por favor intenta de nuevo.",
+      variant: "destructive"
+    });
+    return;
+  }
+
   toast({
     title: "Error",
     description: "No se pudo enviar el email de restablecimiento. Intenta de nuevo.",
