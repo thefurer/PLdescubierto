@@ -16,17 +16,3 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     detectSessionInUrl: true
   }
 });
-
-// Cliente especial para login sin CAPTCHA
-export const supabaseAuth = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, {
-  auth: {
-    autoRefreshToken: true,
-    persistSession: true,
-    detectSessionInUrl: true
-  },
-  global: {
-    headers: {
-      'X-Skip-Captcha': 'true'
-    }
-  }
-});

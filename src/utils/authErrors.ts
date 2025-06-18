@@ -24,11 +24,6 @@ export const useAuthErrorHandler = () => {
 };
 
 const handleLoginError = (error: any, toast: any) => {
-  // No manejar errores de CAPTCHA aquí para login - se maneja en useLogin
-  if (error.message.includes('captcha')) {
-    return;
-  }
-
   if (error.message.includes('Invalid login credentials')) {
     toast({
       title: "Error de inicio de sesión",
@@ -39,6 +34,12 @@ const handleLoginError = (error: any, toast: any) => {
     toast({
       title: "Email no verificado",
       description: "Por favor verifica tu email antes de iniciar sesión. Revisa tu bandeja de entrada.",
+      variant: "destructive"
+    });
+  } else if (error.message.includes('captcha')) {
+    toast({
+      title: "Error de verificación",
+      description: "Error en la verificación CAPTCHA. Por favor intenta de nuevo.",
       variant: "destructive"
     });
   } else {

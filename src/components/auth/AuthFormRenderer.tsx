@@ -1,3 +1,4 @@
+
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { LoginForm } from './LoginForm';
@@ -132,6 +133,9 @@ export const AuthFormRenderer = ({
         password={password}
         setPassword={setPassword}
         loading={loading}
+        captchaToken={captchaToken}
+        setCaptchaToken={setCaptchaToken}
+        captcha={captcha}
         onSubmit={onFormSubmit}
         onForgotPassword={onForgotPassword}
       />
