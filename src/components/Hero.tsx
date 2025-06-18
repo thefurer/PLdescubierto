@@ -35,72 +35,31 @@ const Hero = () => {
     }
   };
   const currentTexts = texts[language];
-  const backgroundImage = heroContent?.backgroundImage || "/lovable-uploads/78e98eed-30a8-4449-aca7-86cb97de3b2e.png";
   
   return (
-    <section id="home" className="relative h-screen overflow-hidden">
+    <section id="home" className="relative h-screen overflow-hidden bg-gradient-to-b from-gray-100 to-gray-200">
       {/* Language Toggle - positioned in the middle-right of the screen */}
       <div className="absolute top-1/2 right-6 -translate-y-1/2 z-20">
         <LanguageToggle />
-      </div>
-
-      {/* Hero Background */}
-      <div className="absolute inset-0 bg-cover bg-center bg-no-repeat" style={{
-        backgroundImage: `url('${backgroundImage}')`,
-        backgroundPosition: "center center"
-      }}>
-        {/* Overlay with gradient */}
-        <div className="absolute inset-0 bg-black/30"></div>
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-black/10 to-black/40"></div>
       </div>
 
       {/* Hero Content */}
       <div className="container mx-auto px-4 h-full flex flex-col justify-center items-center relative z-10 text-center">
         <div className="max-w-4xl">
           {/* Main Title */}
-          <h1 className="text-6xl md:text-8xl font-bold text-white mb-4 drop-shadow-2xl">
+          <h1 className="text-6xl md:text-8xl font-bold text-gray-800 mb-4">
             {currentTexts.title}
           </h1>
           
           {/* Subtitle with green accent */}
-          <h2 className="text-4xl md:text-5xl font-bold text-green-400 mb-6 drop-shadow-2xl">
+          <h2 className="text-4xl md:text-5xl font-bold text-green-600 mb-6">
             {currentTexts.subtitle}
           </h2>
           
           {/* Description */}
-          <p className="text-xl md:text-2xl text-white/95 mb-12 drop-shadow-lg">
+          <p className="text-xl md:text-2xl text-gray-700 mb-12">
             {currentTexts.description}
           </p>
-
-          {/* Navigation Menu - sin imagen de fondo */}
-          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-8 border border-white/20">
-            <div className="flex flex-wrap justify-center gap-4">
-              <a 
-                href="#home" 
-                className="px-6 py-3 text-white hover:bg-white/20 rounded-xl transition-all duration-300 font-medium"
-              >
-                {currentTexts.inicio}
-              </a>
-              <a 
-                href="#attractions" 
-                className="px-6 py-3 text-white hover:bg-white/20 rounded-xl transition-all duration-300 font-medium"
-              >
-                {currentTexts.atracciones}
-              </a>
-              <a 
-                href="/travel-guide" 
-                className="px-6 py-3 text-white hover:bg-white/20 rounded-xl transition-all duration-300 font-medium"
-              >
-                {currentTexts.guiaViaje}
-              </a>
-              <a 
-                href="/itinerary-planner" 
-                className="px-6 py-3 text-white hover:bg-white/20 rounded-xl transition-all duration-300 font-medium"
-              >
-                {currentTexts.planificar}
-              </a>
-            </div>
-          </div>
 
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
@@ -112,7 +71,7 @@ const Hero = () => {
             </a>
             <a 
               href="#virtual-tour" 
-              className="bg-gray-700/80 hover:bg-gray-600/80 text-white px-8 py-4 rounded-xl font-semibold text-lg transform hover:scale-105 transition-all duration-300 shadow-xl border border-white/30 backdrop-blur-sm"
+              className="bg-gray-700 hover:bg-gray-600 text-white px-8 py-4 rounded-xl font-semibold text-lg transform hover:scale-105 transition-all duration-300 shadow-xl"
             >
               {currentTexts.virtualBtn}
             </a>
@@ -121,9 +80,9 @@ const Hero = () => {
       </div>
 
       {/* Enhanced Scroll Indicator */}
-      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-white animate-bounce z-10">
-        <div className="bg-white/10 backdrop-blur-sm rounded-full p-3 border border-white/20">
-          <ArrowDown size={28} className="text-white" />
+      <div className="absolute bottom-12 left-1/2 -translate-x-1/2 text-gray-600 animate-bounce z-10">
+        <div className="bg-white/20 backdrop-blur-sm rounded-full p-3 border border-gray-300">
+          <ArrowDown size={28} className="text-gray-600" />
         </div>
       </div>
     </section>
