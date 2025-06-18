@@ -9,13 +9,14 @@ import AccessibilityToolbar from "./accessibility/AccessibilityToolbar";
 import UserMenu from "./UserMenu";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "@/components/ui/button";
-import { User } from "lucide-react";
-import { Link } from "react-router-dom";
+import { User, Settings } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
 
 const Hero = () => {
   const { language } = useLanguage();
   const { content } = useContentManager();
   const { user } = useAuth();
+  const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
 
   // Handle scroll effect for navbar
@@ -75,9 +76,23 @@ const Hero = () => {
             <AccessibilityToolbar compact />
           </div>
           <div className="flex items-center gap-4">
-            <LanguageToggle compact />
+            {!user && <LanguageToggle compact />}
             {user ? (
-              <UserMenu />
+              <div className="flex items-center gap-3">
+                <Button
+                  onClick={() => navigate('/dashboard')}
+                  size="sm"
+                  className={`transition-all duration-300 ${
+                    isScrolled
+                      ? "bg-green-primary hover:bg-green-600 text-white"
+                      : "bg-white/90 hover:bg-white text-ocean-dark shadow-lg hover:shadow-xl backdrop-blur-sm"
+                  }`}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Dashboard
+                </Button>
+                <UserMenu />
+              </div>
             ) : (
               <Link to="/auth">
                 <Button 
@@ -149,8 +164,7 @@ const Hero = () => {
                     className="text-white hover:text-green-400 px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 font-medium"
                   >
                     {currentTexts.planificar}
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
+                  </NavigationMenuItem>
               </NavigationMenuList>
             </NavigationMenu>
           </div>

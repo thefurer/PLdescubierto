@@ -66,6 +66,12 @@ const Auth = () => {
     resetCaptcha();
   };
 
+  const handleSwitchMode = () => {
+    setIsLogin(!isLogin);
+    setIsResetMode(false);
+    resetCaptcha();
+  };
+
   const handlePasswordUpdate = async (newPassword: string): Promise<boolean> => {
     try {
       // Password update logic would go here
@@ -95,6 +101,7 @@ const Auth = () => {
         onFormSubmit={handleFormSubmit}
         onForgotPassword={handleForgotPassword}
         onPasswordUpdate={handlePasswordUpdate}
+        onSwitchMode={handleSwitchMode}
       />
     </AuthContainer>
   );
