@@ -1,51 +1,41 @@
 
-import { useAuthFormState } from './useAuthFormState';
-import { useCaptcha } from './useCaptcha';
-import { usePasswordReset } from './usePasswordReset';
+import { useState, useRef } from 'react';
 import { useLogin } from './useLogin';
 import { useSignup } from './useSignup';
-import type { AuthHookReturn } from '@/types/auth';
+import { usePasswordReset } from './usePasswordReset';
 
-export const useAuthForm = (): AuthHookReturn => {
-  const {
-    email,
-    setEmail,
-    password,
-    setPassword,
-    fullName,
-    setFullName,
-    loading,
-    setLoading
-  } = useAuthFormState();
+export const useAuthForm = () => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [fullName, setFullName] = useState('');
+  const [loading, setLoading] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captcha = useRef<any>(null);
 
-  const {
-    captchaToken,
-    setCaptchaToken,
-    captcha,
-    resetCaptcha
-  } = useCaptcha();
+  const { handleLogin } = useLogin();
+  const { handleSignup } = useSignup();
+  const { handlePasswordReset } = usePasswordReset();
 
-  const { handlePasswordReset: resetPassword, handlePasswordUpdate } = usePasswordReset();
-  const { handleLogin: loginUser } = useLogin();
-  const { handleSignup: signupUser } = useSignup();
-
-  const handlePasswordReset = async (e: React.FormEvent) => {
+  const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await resetPassword(email, captchaToken, resetCaptcha, setLoading);
+    await handleLogin(email, password, captchaToken, setLoading);
   };
 
-  const handleLogin = async (e: React.FormEvent) => {
+  const handleSignupSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await loginUser(email, password, setLoading);
+    await handleSignup(email, password, fullName, captchaToken, setLoading);
   };
 
-  const handleSignup = async (e: React.FormEvent) => {
+  const handleResetSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signupUser(email, password, fullName, captchaToken, resetCaptcha, setLoading);
+    await handlePasswordReset(email, captchaToken, setLoading);
   };
 
-  const handlePasswordUpdateWrapper = async (newPassword: string) => {
-    return await handlePasswordUpdate(newPassword, setLoading);
+  const resetCaptcha = () => {
+    setCaptchaToken(null);
+    if (captcha.current) {
+      captcha.current.resetCaptcha();
+    }
   };
 
   return {
@@ -59,9 +49,9 @@ export const useAuthForm = (): AuthHookReturn => {
     captchaToken,
     setCaptchaToken,
     captcha,
-    handlePasswordReset,
-    handleLogin,
-    handleSignup,
-    handlePasswordUpdate: handlePasswordUpdateWrapper
+    handleLoginSubmit,
+    handleSignupSubmit,
+    handleResetSubmit,
+    resetCaptcha
   };
 };

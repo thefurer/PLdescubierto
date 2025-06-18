@@ -9,6 +9,14 @@ export interface TouristAttraction {
   description: string;
   category: 'todo' | 'playa' | 'cultura' | 'naturaleza';
   image_url?: string;
+  gallery_images?: string[];
+  activities?: string[];
+  additional_info?: {
+    duration?: string;
+    capacity?: string;
+    price?: string;
+    [key: string]: any;
+  };
   display_order: number;
   is_active: boolean;
   created_at: string;
@@ -40,7 +48,10 @@ export const useTouristAttractions = () => {
       console.log('Fetched attractions:', data);
       const typedAttractions = (data || []).map(attraction => ({
         ...attraction,
-        category: attraction.category as 'todo' | 'playa' | 'cultura' | 'naturaleza'
+        category: attraction.category as 'todo' | 'playa' | 'cultura' | 'naturaleza',
+        gallery_images: attraction.gallery_images || [],
+        activities: attraction.activities || [],
+        additional_info: attraction.additional_info || {}
       }));
       
       setAttractions(typedAttractions);
@@ -114,6 +125,9 @@ export const useTouristAttractions = () => {
       if (updates.description !== undefined) updateData.description = updates.description;
       if (updates.category !== undefined) updateData.category = updates.category;
       if (updates.image_url !== undefined) updateData.image_url = updates.image_url;
+      if (updates.gallery_images !== undefined) updateData.gallery_images = updates.gallery_images;
+      if (updates.activities !== undefined) updateData.activities = updates.activities;
+      if (updates.additional_info !== undefined) updateData.additional_info = updates.additional_info;
       if (updates.display_order !== undefined) updateData.display_order = updates.display_order;
       if (updates.is_active !== undefined) updateData.is_active = updates.is_active;
       

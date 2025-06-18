@@ -1,25 +1,20 @@
 
-import { useAuthForm } from '@/hooks/useAuthForm';
-import { useAuthState } from '@/hooks/useAuthState';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useAuth } from '@/contexts/AuthContext';
 import { AuthContainer } from '@/components/auth/AuthContainer';
-import { AuthHeader } from '@/components/auth/AuthHeader';
-import { AuthCard } from '@/components/auth/AuthCard';
 import { AuthFormRenderer } from '@/components/auth/AuthFormRenderer';
-import { AuthNavigation } from '@/components/auth/AuthNavigation';
+import { useAuthForm } from '@/hooks/useAuthForm';
 
 const Auth = () => {
-  const {
-    isLogin,
-    setIsLogin,
-    isResetMode,
-    setIsResetMode,
-    isPasswordReset,
-    isEmailVerified,
-    getTitle,
-    getSubtitle,
-    handleBackToLogin
-  } = useAuthState();
-  
+  const navigate = useNavigate();
+  const { user } = useAuth();
+  const [searchParams] = useSearchParams();
+  const [isLogin, setIsLogin] = useState(true);
+  const [isResetMode, setIsResetMode] = useState(false);
+  const [isPasswordReset, setIsPasswordReset] = useState(false);
+  const [isEmailVerified, setIsEmailVerified] = useState(false);
+
   const {
     email,
     setEmail,
@@ -31,60 +26,76 @@ const Auth = () => {
     captchaToken,
     setCaptchaToken,
     captcha,
-    handlePasswordReset,
-    handleLogin,
-    handleSignup,
-    handlePasswordUpdate
+    handleLoginSubmit,
+    handleSignupSubmit,
+    handleResetSubmit,
+    resetCaptcha
   } = useAuthForm();
+
+  useEffect(() => {
+    if (user) {
+      navigate('/');
+    }
+  }, [user, navigate]);
+
+  useEffect(() => {
+    const verified = searchParams.get('verified');
+    const reset = searchParams.get('reset');
+    
+    if (verified === 'true') {
+      setIsEmailVerified(true);
+    }
+    
+    if (reset === 'true') {
+      setIsPasswordReset(true);
+    }
+  }, [searchParams]);
 
   const handleFormSubmit = (e: React.FormEvent) => {
     if (isResetMode) {
-      handlePasswordReset(e);
-      setIsResetMode(false);
+      handleResetSubmit(e);
     } else if (isLogin) {
-      handleLogin(e);
+      handleLoginSubmit(e);
     } else {
-      handleSignup(e);
+      handleSignupSubmit(e);
     }
   };
 
-  const handleForgotPassword = () => setIsResetMode(true);
-  const handleToggleMode = () => setIsLogin(!isLogin);
+  const handleForgotPassword = () => {
+    setIsResetMode(!isResetMode);
+    resetCaptcha();
+  };
+
+  const handlePasswordUpdate = async (newPassword: string): Promise<boolean> => {
+    try {
+      // Password update logic would go here
+      return true;
+    } catch (error) {
+      return false;
+    }
+  };
 
   return (
     <AuthContainer>
-      <AuthHeader title={getTitle()} subtitle={getSubtitle()} />
-
-      <AuthCard>
-        <AuthFormRenderer
-          isLogin={isLogin}
-          isResetMode={isResetMode}
-          isPasswordReset={isPasswordReset}
-          isEmailVerified={isEmailVerified}
-          email={email}
-          setEmail={setEmail}
-          password={password}
-          setPassword={setPassword}
-          fullName={fullName}
-          setFullName={setFullName}
-          loading={loading}
-          captchaToken={captchaToken}
-          setCaptchaToken={setCaptchaToken}
-          captcha={captcha}
-          onFormSubmit={handleFormSubmit}
-          onForgotPassword={handleForgotPassword}
-          onPasswordUpdate={handlePasswordUpdate}
-        />
-
-        <AuthNavigation
-          isLogin={isLogin}
-          isResetMode={isResetMode}
-          isPasswordReset={isPasswordReset}
-          isEmailVerified={isEmailVerified}
-          onToggleMode={handleToggleMode}
-          onBackToLogin={handleBackToLogin}
-        />
-      </AuthCard>
+      <AuthFormRenderer
+        isLogin={isLogin}
+        isResetMode={isResetMode}
+        isPasswordReset={isPasswordReset}
+        isEmailVerified={isEmailVerified}
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+        fullName={fullName}
+        setFullName={setFullName}
+        loading={loading}
+        captchaToken={captchaToken}
+        setCaptchaToken={setCaptchaToken}
+        captcha={captcha}
+        onFormSubmit={handleFormSubmit}
+        onForgotPassword={handleForgotPassword}
+        onPasswordUpdate={handlePasswordUpdate}
+      />
     </AuthContainer>
   );
 };

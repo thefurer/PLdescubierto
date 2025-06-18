@@ -9,6 +9,53 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      attraction_activities: {
+        Row: {
+          activity_name: string
+          attraction_id: string | null
+          created_at: string | null
+          description: string | null
+          difficulty_level: string | null
+          duration: string | null
+          id: string
+          is_active: boolean | null
+          price: number | null
+          updated_at: string | null
+        }
+        Insert: {
+          activity_name: string
+          attraction_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          duration?: string | null
+          id?: string
+          is_active?: boolean | null
+          price?: number | null
+          updated_at?: string | null
+        }
+        Update: {
+          activity_name?: string
+          attraction_id?: string | null
+          created_at?: string | null
+          description?: string | null
+          difficulty_level?: string | null
+          duration?: string | null
+          id?: string
+          is_active?: boolean | null
+          price?: number | null
+          updated_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attraction_activities_attraction_id_fkey"
+            columns: ["attraction_id"]
+            isOneToOne: false
+            referencedRelation: "tourist_attractions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_history: {
         Row: {
           change_type: string
@@ -404,10 +451,13 @@ export type Database = {
       }
       tourist_attractions: {
         Row: {
+          activities: string[] | null
+          additional_info: Json | null
           category: string
           created_at: string
           description: string | null
           display_order: number | null
+          gallery_images: string[] | null
           id: string
           image_url: string | null
           is_active: boolean | null
@@ -416,10 +466,13 @@ export type Database = {
           updated_by: string | null
         }
         Insert: {
+          activities?: string[] | null
+          additional_info?: Json | null
           category: string
           created_at?: string
           description?: string | null
           display_order?: number | null
+          gallery_images?: string[] | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null
@@ -428,10 +481,13 @@ export type Database = {
           updated_by?: string | null
         }
         Update: {
+          activities?: string[] | null
+          additional_info?: Json | null
           category?: string
           created_at?: string
           description?: string | null
           display_order?: number | null
+          gallery_images?: string[] | null
           id?: string
           image_url?: string | null
           is_active?: boolean | null

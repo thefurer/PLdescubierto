@@ -10,17 +10,24 @@ export const useLogin = () => {
   const handleLogin = async (
     email: string,
     password: string,
+    captchaToken: string | null,
     setLoading: (loading: boolean) => void
   ) => {
     setLoading(true);
 
     try {
+      console.log('Login attempt with captcha token:', captchaToken ? 'present' : 'missing');
+      
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
-        password
+        password,
+        options: {
+          captchaToken: captchaToken || undefined
+        }
       });
 
       if (error) {
+        console.error('Login error:', error);
         handleAuthError(error, 'login');
       } else if (data.user) {
         toast({

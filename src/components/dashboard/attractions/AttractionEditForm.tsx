@@ -4,7 +4,7 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
-import { Save, X, AlertCircle } from 'lucide-react';
+import { Save, X, AlertCircle, Plus, Trash2 } from 'lucide-react';
 import { TouristAttraction } from '@/hooks/useTouristAttractions';
 import AttractionImageManager from './AttractionImageManager';
 import { useToast } from '@/hooks/use-toast';
@@ -31,10 +31,14 @@ const AttractionEditForm = ({
     name: attraction.name,
     description: attraction.description || '',
     category: attraction.category,
-    image_url: attraction.image_url || ''
+    image_url: attraction.image_url || '',
+    gallery_images: attraction.gallery_images || [],
+    activities: attraction.activities || [],
+    additional_info: attraction.additional_info || {}
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
+  const [newActivity, setNewActivity] = useState('');
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
@@ -73,8 +77,49 @@ const AttractionEditForm = ({
     setFormData(prev => ({ ...prev, image_url: imageUrl }));
   };
 
+  const addActivity = () => {
+    if (newActivity.trim()) {
+      setFormData(prev => ({
+        ...prev,
+        activities: [...prev.activities, newActivity.trim()]
+      }));
+      setNewActivity('');
+    }
+  };
+
+  const removeActivity = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      activities: prev.activities.filter((_, i) => i !== index)
+    }));
+  };
+
+  const updateAdditionalInfo = (key: string, value: string) => {
+    setFormData(prev => ({
+      ...prev,
+      additional_info: {
+        ...prev.additional_info,
+        [key]: value
+      }
+    }));
+  };
+
+  const addGalleryImage = (imageUrl: string) => {
+    setFormData(prev => ({
+      ...prev,
+      gallery_images: [...prev.gallery_images, imageUrl]
+    }));
+  };
+
+  const removeGalleryImage = (index: number) => {
+    setFormData(prev => ({
+      ...prev,
+      gallery_images: prev.gallery_images.filter((_, i) => i !== index)
+    }));
+  };
+
   return (
-    <div className="space-y-4">
+    <div className="space-y-6">
       <div>
         <label className="text-sm font-medium text-gray-700 mb-2 block">
           Nombre *
@@ -143,6 +188,7 @@ const AttractionEditForm = ({
         )}
       </div>
 
+      {/* Imagen Principal */}
       <AttractionImageManager
         currentImageUrl={formData.image_url}
         attractionId={attraction.id}
@@ -150,6 +196,96 @@ const AttractionEditForm = ({
         onImageUpdate={handleImageUpdate}
         onUploadImage={onUploadImage}
       />
+
+      {/* Galería de Imágenes */}
+      <div>
+        <label className="text-sm font-medium text-gray-700 mb-2 block">
+          Galería de Imágenes (máximo 5)
+        </label>
+        <div className="space-y-2">
+          {formData.gallery_images.map((image, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <img src={image} alt={`Galería ${index + 1}`} className="w-16 h-16 object-cover rounded" />
+              <Input value={image} readOnly className="flex-1" />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => removeGalleryImage(index)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          {formData.gallery_images.length < 5 && (
+            <div className="text-sm text-gray-500">
+              Las imágenes de galería se pueden agregar subiendo imágenes adicionales desde el gestor de imágenes principal.
+            </div>
+          )}
+        </div>
+      </div>
+
+      {/* Actividades */}
+      <div>
+        <label className="text-sm font-medium text-gray-700 mb-2 block">
+          Actividades
+        </label>
+        <div className="space-y-2">
+          {formData.activities.map((activity, index) => (
+            <div key={index} className="flex items-center space-x-2">
+              <Input value={activity} readOnly className="flex-1" />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => removeActivity(index)}
+              >
+                <Trash2 className="h-4 w-4" />
+              </Button>
+            </div>
+          ))}
+          <div className="flex space-x-2">
+            <Input
+              value={newActivity}
+              onChange={(e) => setNewActivity(e.target.value)}
+              placeholder="Nueva actividad"
+              className="flex-1"
+            />
+            <Button
+              type="button"
+              variant="outline"
+              size="sm"
+              onClick={addActivity}
+            >
+              <Plus className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      </div>
+
+      {/* Información Adicional */}
+      <div>
+        <label className="text-sm font-medium text-gray-700 mb-2 block">
+          Información Adicional
+        </label>
+        <div className="space-y-2">
+          <Input
+            value={formData.additional_info.duration || ''}
+            onChange={(e) => updateAdditionalInfo('duration', e.target.value)}
+            placeholder="Duración (ej: 2-3 horas)"
+          />
+          <Input
+            value={formData.additional_info.capacity || ''}
+            onChange={(e) => updateAdditionalInfo('capacity', e.target.value)}
+            placeholder="Capacidad (ej: 20 personas max)"
+          />
+          <Input
+            value={formData.additional_info.price || ''}
+            onChange={(e) => updateAdditionalInfo('price', e.target.value)}
+            placeholder="Precio (ej: $15 por persona)"
+          />
+        </div>
+      </div>
 
       <div className="flex gap-2 pt-4 border-t">
         <Button 
