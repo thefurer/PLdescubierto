@@ -29,9 +29,11 @@ Responde de manera personalizada y práctica, sugiriendo actividades específica
 }
 
 export async function handleContactRequest(sanitizedMessage: string, geminiClient: GeminiClient): Promise<string> {
-  return `¡Por supuesto! Aquí tienes la información de contacto de Puerto López Descubierto:
+  return `¡Por supuesto! Aquí tienes la información de contacto:
 
-📞 Teléfono: +593 2 123 4567
+📞 WhatsApp: +593 99 199 5390
+(También puedes dirigirte al menú del footer y hacer clic en el número que aparece)
+
 📧 Email: apincay@gmail.com
 
 Estamos disponibles para ayudarte a planificar tu visita perfecta a Puerto López. No dudes en contactarnos para:
