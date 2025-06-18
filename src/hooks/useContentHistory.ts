@@ -11,6 +11,7 @@ export interface ContentHistory {
   new_content?: any;
   change_type: string;
   changed_by?: string;
+  changed_by_name?: string;
   changed_at: string;
 }
 
@@ -21,9 +22,22 @@ export const useContentHistory = (sectionName?: string) => {
 
   const fetchHistory = async () => {
     try {
+      // Get current user
+      const { data: { user }, error: userError } = await supabase.auth.getUser();
+      if (userError || !user) {
+        console.error('User not authenticated:', userError);
+        setHistory([]);
+        setLoading(false);
+        return;
+      }
+
       let query = supabase
         .from('content_history')
-        .select('*')
+        .select(`
+          *,
+          profiles!inner(full_name, email)
+        `)
+        .eq('changed_by', user.id) // Only show history for current user
         .order('changed_at', { ascending: false });
 
       if (sectionName) {
@@ -33,8 +47,16 @@ export const useContentHistory = (sectionName?: string) => {
       const { data, error } = await query;
 
       if (error) throw error;
-      setHistory(data || []);
+      
+      // Transform the data to include user names
+      const transformedData = (data || []).map(item => ({
+        ...item,
+        changed_by_name: item.profiles?.full_name || item.profiles?.email || 'Usuario desconocido'
+      }));
+      
+      setHistory(transformedData);
     } catch (error: any) {
+      console.error('Error fetching history:', error);
       toast({
         title: 'Error',
         description: 'No se pudo cargar el historial',
@@ -71,7 +93,11 @@ export const useContentHistory = (sectionName?: string) => {
         description: 'Contenido revertido correctamente',
       });
 
+      // Refresh history after reverting
+      await fetchHistory();
+
     } catch (error: any) {
+      console.error('Error reverting content:', error);
       toast({
         title: 'Error',
         description: 'No se pudo revertir el contenido',

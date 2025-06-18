@@ -1,187 +1,188 @@
 
 import { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
-import { Menu, X, User, LogOut, Settings, Calendar } from "lucide-react";
+import { Menu, X, User, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/contexts/AuthContext";
-import UserMenu from "./UserMenu";
-import AccessibilityToolbar from "./accessibility/AccessibilityToolbar";
+import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isScrolled, setIsScrolled] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
+  const navigate = useNavigate();
 
   useEffect(() => {
     const handleScroll = () => {
-      setIsScrolled(window.scrollY > 10);
+      setScrolled(window.scrollY > 50);
     };
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
   const handleSignOut = async () => {
-    try {
-      await signOut();
-      setIsOpen(false);
-    } catch (error) {
-      console.error("Error signing out:", error);
+    await signOut();
+    navigate('/');
+  };
+
+  const scrollToSection = (sectionId: string) => {
+    const element = document.getElementById(sectionId);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth" });
     }
+    setIsOpen(false);
   };
 
   const navItems = [
-    { name: "Inicio", href: "/" },
-    { name: "Atracciones", href: "/#attractions" },
-    { name: "Guía de Viaje", href: "/travel-guide" },
-    { name: "Planificar Itinerario", href: "/itinerary-planner", icon: Calendar },
-    { name: "Blog", href: "/blog" },
+    { label: "Inicio", id: "hero" },
+    { label: "Atracciones", id: "attractions" },
+    { label: "Galería", id: "gallery" },
+    { label: "Actividades", id: "activities" },
+    { label: "Testimonios", id: "testimonials" },
+    { label: "Contacto", id: "contact" },
   ];
 
   return (
     <nav
       className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled
-          ? "bg-white/95 backdrop-blur-lg shadow-lg border-b border-gray-200/50"
+        scrolled
+          ? "bg-white/95 backdrop-blur-md shadow-lg"
           : "bg-transparent"
       }`}
     >
       <div className="container mx-auto px-4">
-        <div className="flex justify-between items-center h-16">
+        <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <Link to="/" className="flex items-center space-x-2">
-            <div className="w-10 h-10 bg-gradient-to-br from-ocean to-ocean-dark rounded-lg flex items-center justify-center shadow-lg">
-              <span className="text-white font-bold text-lg">PL</span>
-            </div>
-            <span className={`font-bold text-xl transition-all duration-300 ${
-              isScrolled 
-                ? "text-ocean-dark" 
-                : "text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.8)] font-extrabold"
-            } hidden sm:block`}>
+          <div className="flex items-center">
+            <h1 className={`text-2xl font-bold transition-colors ${
+              scrolled ? "text-ocean-dark" : "text-white"
+            }`}>
               Puerto López
-            </span>
-          </Link>
-
-          {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-1">
-            {navItems.map((item) => {
-              const IconComponent = item.icon;
-              return (
-                <Link
-                  key={item.name}
-                  to={item.href}
-                  className={`px-3 py-2 rounded-md transition-all duration-300 flex items-center gap-2 ${
-                    isScrolled
-                      ? "text-gray-700 hover:text-ocean hover:bg-ocean/5"
-                      : "text-white hover:text-green-primary hover:bg-white/10 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)] font-semibold hover:drop-shadow-[0_2px_4px_rgba(0,0,0,0.9)]"
-                  }`}
-                >
-                  {IconComponent && <IconComponent className="h-4 w-4" />}
-                  {item.name}
-                </Link>
-              );
-            })}
+            </h1>
           </div>
 
-          {/* Right side items */}
-          <div className="flex items-center space-x-2">
-            <AccessibilityToolbar compact />
-            
+          {/* Desktop Navigation */}
+          <div className="hidden lg:flex items-center space-x-8">
+            {navItems.map((item) => (
+              <button
+                key={item.id}
+                onClick={() => scrollToSection(item.id)}
+                className={`font-medium transition-colors hover:text-green-primary ${
+                  scrolled ? "text-ocean" : "text-white"
+                }`}
+              >
+                {item.label}
+              </button>
+            ))}
+          </div>
+
+          {/* User Menu / Auth Buttons */}
+          <div className="flex items-center space-x-4">
             {user ? (
-              <div className="hidden lg:flex items-center space-x-2">
-                <Link to="/dashboard">
-                  <Button className={`transition-all duration-300 ${
-                    isScrolled
-                      ? "bg-green-600 hover:bg-green-700 text-white"
-                      : "bg-green-primary hover:bg-green-600 text-white shadow-lg hover:shadow-xl"
-                  }`}>
-                    <Settings className="h-4 w-4 mr-2" />
-                    Dashboard
-                  </Button>
-                </Link>
-                <UserMenu />
-              </div>
-            ) : (
-              <Link to="/auth">
-                <Button className={`transition-all duration-300 hidden sm:flex ${
-                  isScrolled
-                    ? "bg-ocean hover:bg-ocean-dark text-white"
-                    : "bg-white/90 hover:bg-white text-ocean-dark shadow-lg hover:shadow-xl backdrop-blur-sm"
-                }`}>
-                  <User className="h-4 w-4 mr-2" />
-                  Iniciar Sesión
+              <>
+                {/* Dashboard Button - Show only when authenticated */}
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/dashboard')}
+                  className={`hidden md:flex ${
+                    scrolled 
+                      ? "border-ocean text-ocean hover:bg-ocean hover:text-white" 
+                      : "border-white text-white hover:bg-white hover:text-ocean"
+                  }`}
+                >
+                  <Settings className="h-4 w-4 mr-2" />
+                  Dashboard
                 </Button>
-              </Link>
+
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className={`${
+                        scrolled 
+                          ? "border-ocean text-ocean hover:bg-ocean hover:text-white" 
+                          : "border-white text-white hover:bg-white hover:text-ocean"
+                      }`}
+                    >
+                      <User className="h-4 w-4 mr-2" />
+                      {user.user_metadata?.full_name || user.email}
+                    </Button>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="end">
+                    <DropdownMenuItem onClick={() => navigate('/profile')}>
+                      <User className="h-4 w-4 mr-2" />
+                      Mi Perfil
+                    </DropdownMenuItem>
+                    <DropdownMenuItem onClick={() => navigate('/dashboard')} className="md:hidden">
+                      <Settings className="h-4 w-4 mr-2" />
+                      Dashboard
+                    </DropdownMenuItem>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem onClick={handleSignOut}>
+                      <LogOut className="h-4 w-4 mr-2" />
+                      Cerrar Sesión
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </>
+            ) : (
+              <Button
+                onClick={() => navigate('/auth')}
+                className={`${
+                  scrolled 
+                    ? "bg-green-primary hover:bg-green-600 text-white" 
+                    : "bg-white text-ocean hover:bg-green-primary hover:text-white"
+                }`}
+              >
+                Iniciar Sesión
+              </Button>
             )}
 
             {/* Mobile menu button */}
-            <Button
-              variant="ghost"
-              className={`lg:hidden transition-all duration-300 ${
-                isScrolled
-                  ? "text-gray-700 hover:bg-gray-100"
-                  : "text-white hover:bg-white/10 drop-shadow-[0_1px_3px_rgba(0,0,0,0.8)]"
-              }`}
+            <button
               onClick={() => setIsOpen(!isOpen)}
+              className={`lg:hidden p-2 rounded-md transition-colors ${
+                scrolled 
+                  ? "text-ocean hover:bg-ocean/10" 
+                  : "text-white hover:bg-white/10"
+              }`}
             >
-              {isOpen ? <X className="h-6 w-6" /> : <Menu className="h-6 w-6" />}
-            </Button>
+              {isOpen ? <X size={24} /> : <Menu size={24} />}
+            </button>
           </div>
         </div>
 
         {/* Mobile Navigation */}
         {isOpen && (
-          <div className="lg:hidden bg-white/95 backdrop-blur-lg border-t border-gray-200/50">
-            <div className="px-2 pt-2 pb-3 space-y-1">
-              {navItems.map((item) => {
-                const IconComponent = item.icon;
-                return (
-                  <Link
-                    key={item.name}
-                    to={item.href}
-                    className="block px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors flex items-center gap-2"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    {IconComponent && <IconComponent className="h-4 w-4" />}
-                    {item.name}
-                  </Link>
-                );
-              })}
-              
-              {user ? (
-                <div className="border-t border-gray-200 pt-4">
-                  <Link
-                    to="/dashboard"
-                    className="block px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <Settings className="h-4 w-4 inline mr-2" />
-                    Dashboard
-                  </Link>
-                  <Link
-                    to="/profile"
-                    className="block px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors"
-                    onClick={() => setIsOpen(false)}
-                  >
-                    <User className="h-4 w-4 inline mr-2" />
-                    Perfil
-                  </Link>
-                  <button
-                    onClick={handleSignOut}
-                    className="w-full text-left px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors"
-                  >
-                    <LogOut className="h-4 w-4 inline mr-2" />
-                    Cerrar Sesión
-                  </button>
-                </div>
-              ) : (
-                <Link
-                  to="/auth"
-                  className="block px-3 py-2 rounded-md text-gray-700 hover:text-ocean hover:bg-ocean/5 transition-colors"
-                  onClick={() => setIsOpen(false)}
+          <div className="lg:hidden">
+            <div className="px-2 pt-2 pb-3 space-y-1 bg-white rounded-lg shadow-lg mt-2">
+              {navItems.map((item) => (
+                <button
+                  key={item.id}
+                  onClick={() => scrollToSection(item.id)}
+                  className="block px-3 py-2 text-ocean hover:text-green-primary hover:bg-green-50 rounded-md font-medium w-full text-left"
                 >
-                  <User className="h-4 w-4 inline mr-2" />
+                  {item.label}
+                </button>
+              ))}
+              {!user && (
+                <button
+                  onClick={() => {
+                    navigate('/auth');
+                    setIsOpen(false);
+                  }}
+                  className="block px-3 py-2 text-green-primary hover:bg-green-50 rounded-md font-medium w-full text-left"
+                >
                   Iniciar Sesión
-                </Link>
+                </button>
               )}
             </div>
           </div>

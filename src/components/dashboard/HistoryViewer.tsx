@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { useContentHistory } from '@/hooks/useContentHistory';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, RotateCcw, Clock } from 'lucide-react';
+import { Loader2, RotateCcw, Clock, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 const HistoryViewer = () => {
@@ -51,9 +51,9 @@ const HistoryViewer = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Historial de Cambios</CardTitle>
+          <CardTitle>Mi Historial de Cambios</CardTitle>
           <CardDescription>
-            Revisa y revierte cambios realizados en el contenido y atracciones
+            Revisa y revierte cambios que has realizado en el contenido y atracciones
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -80,7 +80,8 @@ const HistoryViewer = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-64">
             <Clock className="h-12 w-12 text-gray-400 mb-4" />
-            <p className="text-gray-500">No hay cambios registrados</p>
+            <p className="text-gray-500">No tienes cambios registrados</p>
+            <p className="text-sm text-gray-400 mt-2">Los cambios que realices aparecerán aquí</p>
           </CardContent>
         </Card>
       ) : (
@@ -93,12 +94,24 @@ const HistoryViewer = () => {
                     <CardTitle className="text-lg">
                       {getSectionDisplayName(item.section_name)}
                     </CardTitle>
-                    <div className="flex items-center gap-2 mt-1">
+                    <div className="flex items-center gap-2 mt-1 flex-wrap">
                       <Badge className={getChangeTypeColor(item.change_type)}>
                         {getChangeTypeText(item.change_type)}
                       </Badge>
+                      {item.changed_by_name && (
+                        <div className="flex items-center gap-1 text-sm text-gray-600">
+                          <User className="h-3 w-3" />
+                          <span>{item.changed_by_name}</span>
+                        </div>
+                      )}
                       <span className="text-sm text-gray-500">
-                        {new Date(item.changed_at).toLocaleString()}
+                        {new Date(item.changed_at).toLocaleString('es-ES', {
+                          year: 'numeric',
+                          month: 'short',
+                          day: 'numeric',
+                          hour: '2-digit',
+                          minute: '2-digit'
+                        })}
                       </span>
                     </div>
                   </div>
