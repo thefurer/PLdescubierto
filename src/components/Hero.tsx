@@ -72,7 +72,7 @@ const Hero = () => {
             {currentTexts.description}
           </p>
 
-          {/* Navigation Menu */}
+          {/* Navigation Menu - sin imagen de fondo */}
           <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-8 border border-white/20">
             <div className="flex flex-wrap justify-center gap-4">
               <a 

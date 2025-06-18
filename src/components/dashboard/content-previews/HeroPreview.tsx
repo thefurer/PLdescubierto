@@ -36,7 +36,7 @@ const HeroPreview = ({ content }: HeroPreviewProps) => {
             {content.description || "Bellezas Naturales y Culturales"}
           </p>
 
-          {/* Navigation Menu Preview */}
+          {/* Navigation Menu Preview - sin imagen de fondo */}
           <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 mb-3 border border-white/20">
             <div className="flex flex-wrap justify-center gap-2 text-xs">
               <div className="px-3 py-1 text-white rounded-lg">Inicio</div>
