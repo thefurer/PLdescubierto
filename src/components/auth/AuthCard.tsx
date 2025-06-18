@@ -7,7 +7,7 @@ interface AuthCardProps {
 
 export const AuthCard = ({ children }: AuthCardProps) => {
   return (
-    <div className="glass-card rounded-2xl p-8 shadow-2xl animate-scale-in">
+    <div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200 animate-scale-in">
       {children}
     </div>
   );

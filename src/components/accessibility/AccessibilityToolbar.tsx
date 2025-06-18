@@ -25,7 +25,7 @@ const AccessibilityToolbar = ({ compact = false }: AccessibilityToolbarProps) =>
         />
 
         {isExpanded && (
-          <Card className="absolute top-10 right-0 z-50 bg-white/95 backdrop-blur-sm shadow-lg border-2 border-green-primary min-w-[300px]">
+          <Card className="absolute top-10 left-0 z-50 bg-white/95 backdrop-blur-sm shadow-lg border-2 border-green-primary min-w-[300px]">
             <CardContent className="p-3">
               <AccessibilityControls compact />
             </CardContent>

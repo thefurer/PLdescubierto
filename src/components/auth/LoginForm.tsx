@@ -53,9 +53,9 @@ export const LoginForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-6">
       <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
+        <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
         <Input
           id="email"
           type="email"
@@ -63,8 +63,9 @@ export const LoginForm = ({
           onChange={(e) => setEmail(e.target.value)}
           required
           disabled={loading}
-          className={errors.email ? 'border-red-500' : ''}
+          className={`${errors.email ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'} transition-colors`}
           autoComplete="email"
+          placeholder="ejemplo@correo.com"
         />
         {errors.email && (
           <p className="text-sm text-red-600">{errors.email}</p>
@@ -72,7 +73,7 @@ export const LoginForm = ({
       </div>
 
       <div className="space-y-2">
-        <Label htmlFor="password">Contraseña</Label>
+        <Label htmlFor="password" className="text-gray-700 font-medium">Contraseña</Label>
         <div className="relative">
           <Input
             id="password"
@@ -81,13 +82,14 @@ export const LoginForm = ({
             onChange={(e) => setPassword(e.target.value)}
             required
             disabled={loading}
-            className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
+            className={`${errors.password ? 'border-red-500 focus:border-red-500 pr-10' : 'border-gray-300 focus:border-blue-500 pr-10'} transition-colors`}
             autoComplete="current-password"
+            placeholder="Tu contraseña"
           />
           <button
             type="button"
             onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
+            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
             disabled={loading}
           >
             {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
@@ -100,7 +102,7 @@ export const LoginForm = ({
 
       <Button
         type="submit"
-        className="w-full"
+        className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 transition-colors"
         disabled={loading}
       >
         {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
@@ -110,7 +112,7 @@ export const LoginForm = ({
         <button
           type="button"
           onClick={onForgotPassword}
-          className="text-sm text-blue-600 hover:text-blue-800 hover:underline"
+          className="text-sm text-blue-600 hover:text-blue-800 hover:underline transition-colors"
           disabled={loading}
         >
           ¿Olvidaste tu contraseña?

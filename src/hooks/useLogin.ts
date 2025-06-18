@@ -18,7 +18,6 @@ export const useLogin = () => {
       const { data, error } = await supabase.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
         password
-        // Removed captchaToken requirement for login
       });
 
       if (error) {
