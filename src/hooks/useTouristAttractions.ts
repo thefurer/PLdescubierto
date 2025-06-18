@@ -51,7 +51,9 @@ export const useTouristAttractions = () => {
         category: attraction.category as 'todo' | 'playa' | 'cultura' | 'naturaleza',
         gallery_images: attraction.gallery_images || [],
         activities: attraction.activities || [],
-        additional_info: attraction.additional_info || {}
+        additional_info: typeof attraction.additional_info === 'object' && attraction.additional_info !== null 
+          ? attraction.additional_info as { duration?: string; capacity?: string; price?: string; [key: string]: any; }
+          : {}
       }));
       
       setAttractions(typedAttractions);
