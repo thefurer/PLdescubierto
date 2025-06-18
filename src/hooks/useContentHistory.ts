@@ -33,10 +33,7 @@ export const useContentHistory = (sectionName?: string) => {
 
       let query = supabase
         .from('content_history')
-        .select(`
-          *,
-          profiles!inner(full_name, email)
-        `)
+        .select('*')
         .eq('changed_by', user.id) // Only show history for current user
         .order('changed_at', { ascending: false });
 
@@ -44,17 +41,36 @@ export const useContentHistory = (sectionName?: string) => {
         query = query.eq('section_name', sectionName);
       }
 
-      const { data, error } = await query;
+      const { data: historyData, error } = await query;
 
       if (error) throw error;
       
-      // Transform the data to include user names
-      const transformedData = (data || []).map(item => ({
-        ...item,
-        changed_by_name: item.profiles?.full_name || item.profiles?.email || 'Usuario desconocido'
-      }));
+      // Now fetch user profiles for the changed_by users
+      const userIds = [...new Set(historyData?.map(item => item.changed_by).filter(Boolean))];
       
-      setHistory(transformedData);
+      if (userIds.length > 0) {
+        const { data: profiles, error: profilesError } = await supabase
+          .from('profiles')
+          .select('id, full_name, email')
+          .in('id', userIds);
+
+        if (profilesError) {
+          console.error('Error fetching profiles:', profilesError);
+        }
+
+        // Transform the data to include user names
+        const transformedData = (historyData || []).map(item => {
+          const profile = profiles?.find(p => p.id === item.changed_by);
+          return {
+            ...item,
+            changed_by_name: profile?.full_name || profile?.email || 'Usuario desconocido'
+          };
+        });
+        
+        setHistory(transformedData);
+      } else {
+        setHistory(historyData || []);
+      }
     } catch (error: any) {
       console.error('Error fetching history:', error);
       toast({
