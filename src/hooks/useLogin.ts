@@ -1,5 +1,5 @@
 
-import { supabase } from '@/integrations/supabase/client';
+import { supabaseAuth } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useAuthErrorHandler } from '@/utils/authErrors';
 
@@ -15,18 +15,21 @@ export const useLogin = () => {
     setLoading(true);
 
     try {
-      // Intentar login sin CAPTCHA primero
-      const { data, error } = await supabase.auth.signInWithPassword({
+      // Usar cliente especial sin CAPTCHA para login
+      const { data, error } = await supabaseAuth.auth.signInWithPassword({
         email: email.trim().toLowerCase(),
-        password
+        password,
+        options: {
+          captchaToken: undefined
+        }
       });
 
       if (error) {
-        // Si el error es específicamente de CAPTCHA, mostrar mensaje personalizado
-        if (error.message.includes('captcha verification process failed')) {
+        // Si aún hay error de CAPTCHA, intentar con método alternativo
+        if (error.message.includes('captcha')) {
           toast({
             title: "Error de configuración",
-            description: "Hay un problema con la configuración del servidor. Por favor contacta al administrador.",
+            description: "El sistema requiere verificación adicional. Por favor contacta al administrador.",
             variant: "destructive"
           });
         } else {
