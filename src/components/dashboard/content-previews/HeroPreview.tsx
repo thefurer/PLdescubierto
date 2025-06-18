@@ -36,6 +36,16 @@ const HeroPreview = ({ content }: HeroPreviewProps) => {
             {content.description || "Bellezas Naturales y Culturales"}
           </p>
 
+          {/* Navigation Menu Preview - sin imagen de fondo */}
+          <div className="bg-white/10 backdrop-blur-md rounded-lg p-2 mb-3 border border-white/20">
+            <div className="flex flex-wrap justify-center gap-2 text-xs">
+              <div className="px-3 py-1 text-white rounded-lg">Inicio</div>
+              <div className="px-3 py-1 text-white rounded-lg">Atracciones</div>
+              <div className="px-3 py-1 text-white rounded-lg">Guía de Viaje</div>
+              <div className="px-3 py-1 text-white rounded-lg">Planificar</div>
+            </div>
+          </div>
+
           {/* Action Buttons Preview */}
           <div className="flex gap-2">
             <div className="px-3 py-1 bg-blue-500 text-white text-xs rounded-lg">

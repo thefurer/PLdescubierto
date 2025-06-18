@@ -72,6 +72,36 @@ const Hero = () => {
             {currentTexts.description}
           </p>
 
+          {/* Navigation Menu - sin imagen de fondo */}
+          <div className="bg-white/10 backdrop-blur-md rounded-2xl p-4 mb-8 border border-white/20">
+            <div className="flex flex-wrap justify-center gap-4">
+              <a 
+                href="#home" 
+                className="px-6 py-3 text-white hover:bg-white/20 rounded-xl transition-all duration-300 font-medium"
+              >
+                {currentTexts.inicio}
+              </a>
+              <a 
+                href="#attractions" 
+                className="px-6 py-3 text-white hover:bg-white/20 rounded-xl transition-all duration-300 font-medium"
+              >
+                {currentTexts.atracciones}
+              </a>
+              <a 
+                href="/travel-guide" 
+                className="px-6 py-3 text-white hover:bg-white/20 rounded-xl transition-all duration-300 font-medium"
+              >
+                {currentTexts.guiaViaje}
+              </a>
+              <a 
+                href="/itinerary-planner" 
+                className="px-6 py-3 text-white hover:bg-white/20 rounded-xl transition-all duration-300 font-medium"
+              >
+                {currentTexts.planificar}
+              </a>
+            </div>
+          </div>
+
           {/* Action Buttons */}
           <div className="flex flex-col sm:flex-row gap-4 justify-center max-w-lg mx-auto">
             <a 
