@@ -1,5 +1,6 @@
 
 import { ArrowDown } from "lucide-react";
+import { useState } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useContentManager } from "@/hooks/useContentManager";
 import LanguageToggle from "./accessibility/LanguageToggle";
@@ -10,6 +11,7 @@ import UserMenu from "./UserMenu";
 const Hero = () => {
   const { language } = useLanguage();
   const { content } = useContentManager();
+  const [isAccessibilityExpanded, setIsAccessibilityExpanded] = useState(false);
 
   // Find hero content from database
   const heroContent = content.find(item => item.section_name === 'hero')?.content;
@@ -44,13 +46,17 @@ const Hero = () => {
       id="home" 
       className="relative h-screen overflow-hidden bg-cover bg-center bg-no-repeat"
       style={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1500375592092-40eb2168fd21?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
       }}
     >
       {/* Top navigation bar with accessibility and user menu */}
       <div className="absolute top-0 left-0 right-0 z-20 flex justify-between items-center p-6">
         <div className="flex items-center gap-4">
-          <AccessibilityButton />
+          <AccessibilityButton 
+            isExpanded={isAccessibilityExpanded}
+            onToggle={() => setIsAccessibilityExpanded(!isAccessibilityExpanded)}
+            compact={true}
+          />
         </div>
         <div className="flex items-center gap-4">
           <LanguageToggle />
