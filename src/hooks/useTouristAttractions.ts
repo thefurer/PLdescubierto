@@ -39,7 +39,12 @@ export const useTouristAttractions = () => {
         description: 'Atracción actualizada correctamente',
       });
 
-      // Refresh the attractions list
+      // Immediately update local state for real-time reflection
+      setAttractions(prev => prev.map(attraction => 
+        attraction.id === id ? { ...attraction, ...updates, updated_at: new Date().toISOString() } : attraction
+      ));
+      
+      // Then refresh from database to ensure consistency
       await fetchAttractions();
     } catch (error: any) {
       console.error('Failed to update attraction:', error);
@@ -76,7 +81,20 @@ export const useTouristAttractions = () => {
         },
         (payload) => {
           console.log('Real-time attraction update:', payload);
-          fetchAttractions();
+          // Immediately reflect changes without full refresh for better UX
+          if (payload.eventType === 'UPDATE' && payload.new) {
+            setAttractions(prev => prev.map(attraction => 
+              attraction.id === payload.new.id ? {
+                ...attraction,
+                ...payload.new,
+                gallery_images: payload.new.gallery_images || [],
+                activities: payload.new.activities || [],
+                additional_info: typeof payload.new.additional_info === 'object' && payload.new.additional_info !== null 
+                  ? payload.new.additional_info as { duration?: string; capacity?: string; price?: string; [key: string]: any; }
+                  : {}
+              } : attraction
+            ));
+          }
         }
       )
       .subscribe();

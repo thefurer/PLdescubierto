@@ -11,6 +11,12 @@ export interface TouristAttraction {
     duration?: string;
     capacity?: string;
     price?: string;
+    schedules?: Array<{
+      day: string;
+      openTime: string;
+      closeTime: string;
+      isClosed: boolean;
+    }>;
     [key: string]: any;
   };
   display_order: number;

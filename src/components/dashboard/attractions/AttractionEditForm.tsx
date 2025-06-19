@@ -37,8 +37,7 @@ const AttractionEditForm = ({
     image_url: attraction.image_url || '',
     gallery_images: attraction.gallery_images || [],
     activities: attraction.activities || [],
-    additional_info: attraction.additional_info || {},
-    schedules: attraction.additional_info?.schedules || []
+    additional_info: attraction.additional_info || {}
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
@@ -70,14 +69,7 @@ const AttractionEditForm = ({
     }
 
     try {
-      const updatedData = {
-        ...formData,
-        additional_info: {
-          ...formData.additional_info,
-          schedules: formData.schedules
-        }
-      };
-      await onSave(updatedData);
+      await onSave(formData);
     } catch (error) {
       console.error('Error saving attraction:', error);
     }
@@ -92,7 +84,13 @@ const AttractionEditForm = ({
   };
 
   const handleSchedulesUpdate = (schedules: any[]) => {
-    setFormData(prev => ({ ...prev, schedules }));
+    setFormData(prev => ({
+      ...prev,
+      additional_info: {
+        ...prev.additional_info,
+        schedules: schedules
+      }
+    }));
   };
 
   const addActivity = () => {
@@ -284,7 +282,7 @@ const AttractionEditForm = ({
         <TabsContent value="schedules">
           <ScheduleManager
             attractionId={attraction.id}
-            currentSchedules={formData.schedules}
+            currentSchedules={formData.additional_info.schedules || []}
             onSave={handleSchedulesUpdate}
           />
         </TabsContent>

@@ -62,12 +62,12 @@ export const AttractionModal = ({ attraction, isOpen, onClose }: AttractionModal
 
   const activities = attraction.activities || [];
   const additionalInfo = attraction.additional_info || {};
-
-  // Mock data for schedules - in a real app this would come from the database
-  const schedules = [
-    { day: 'Lunes - Viernes', hours: '8:00 AM - 6:00 PM' },
-    { day: 'Sábados', hours: '9:00 AM - 8:00 PM' },
-    { day: 'Domingos', hours: '10:00 AM - 5:00 PM' }
+  
+  // Get schedules from database or use default
+  const schedules = additionalInfo.schedules || [
+    { day: 'Lunes - Viernes', openTime: '8:00', closeTime: '18:00', isClosed: false },
+    { day: 'Sábados', openTime: '9:00', closeTime: '20:00', isClosed: false },
+    { day: 'Domingos', openTime: '10:00', closeTime: '17:00', isClosed: false }
   ];
 
   return (
@@ -86,6 +86,7 @@ export const AttractionModal = ({ attraction, isOpen, onClose }: AttractionModal
               src={images[currentImageIndex]}
               alt={attraction.name}
               className="w-full h-full object-cover transition-opacity duration-500"
+              key={currentImageIndex}
             />
             
             {images.length > 1 && (
@@ -218,7 +219,13 @@ export const AttractionModal = ({ attraction, isOpen, onClose }: AttractionModal
                 {schedules.map((schedule, index) => (
                   <div key={index} className="flex justify-between items-center p-3 bg-gray-50 rounded-lg">
                     <span className="font-medium text-gray-700">{schedule.day}</span>
-                    <span className="text-green-primary font-semibold">{schedule.hours}</span>
+                    {schedule.isClosed ? (
+                      <span className="text-red-500 font-semibold">Cerrado</span>
+                    ) : (
+                      <span className="text-green-primary font-semibold">
+                        {schedule.openTime} - {schedule.closeTime}
+                      </span>
+                    )}
                   </div>
                 ))}
               </div>

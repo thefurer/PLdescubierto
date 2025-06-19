@@ -7,6 +7,7 @@ import { Eye, EyeOff } from 'lucide-react';
 import CaptchaWrapper from './CaptchaWrapper';
 import PasswordStrengthIndicator from './PasswordStrengthIndicator';
 import { usePasswordValidation } from '@/hooks/usePasswordValidation';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 interface SignupFormProps {
   email: string;
@@ -76,84 +77,99 @@ export const SignupForm = ({
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="fullName">Nombre Completo</Label>
-        <Input
-          id="fullName"
-          type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          required
-          disabled={loading}
-          className={errors.fullName ? 'border-red-500' : ''}
-          autoComplete="name"
-        />
-        {errors.fullName && (
-          <p className="text-sm text-red-600">{errors.fullName}</p>
-        )}
-      </div>
+    <Card className="w-full max-w-md mx-auto shadow-xl border-0 bg-white/95 backdrop-blur-sm">
+      <CardHeader className="space-y-1 text-center pb-4">
+        <CardTitle className="text-2xl font-bold text-gray-800">
+          Crear Cuenta
+        </CardTitle>
+        <p className="text-sm text-gray-600">
+          Completa tus datos para registrarte
+        </p>
+      </CardHeader>
+      <CardContent>
+        <form onSubmit={handleSubmit} className="space-y-6">
+          <div className="space-y-2">
+            <Label htmlFor="fullName" className="text-gray-700 font-medium">Nombre Completo</Label>
+            <Input
+              id="fullName"
+              type="text"
+              value={fullName}
+              onChange={(e) => setFullName(e.target.value)}
+              required
+              disabled={loading}
+              className={`${errors.fullName ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'} transition-colors h-11`}
+              autoComplete="name"
+              placeholder="Tu nombre completo"
+            />
+            {errors.fullName && (
+              <p className="text-sm text-red-600">{errors.fullName}</p>
+            )}
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          required
-          disabled={loading}
-          className={errors.email ? 'border-red-500' : ''}
-          autoComplete="email"
-        />
-        {errors.email && (
-          <p className="text-sm text-red-600">{errors.email}</p>
-        )}
-      </div>
+          <div className="space-y-2">
+            <Label htmlFor="email" className="text-gray-700 font-medium">Email</Label>
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              disabled={loading}
+              className={`${errors.email ? 'border-red-500 focus:border-red-500' : 'border-gray-300 focus:border-blue-500'} transition-colors h-11`}
+              autoComplete="email"
+              placeholder="ejemplo@correo.com"
+            />
+            {errors.email && (
+              <p className="text-sm text-red-600">{errors.email}</p>
+            )}
+          </div>
 
-      <div className="space-y-2">
-        <Label htmlFor="password">Contraseña</Label>
-        <div className="relative">
-          <Input
-            id="password"
-            type={showPassword ? "text" : "password"}
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            disabled={loading}
-            className={errors.password ? 'border-red-500 pr-10' : 'pr-10'}
-            autoComplete="new-password"
+          <div className="space-y-2">
+            <Label htmlFor="password" className="text-gray-700 font-medium">Contraseña</Label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                disabled={loading}
+                className={`${errors.password ? 'border-red-500 focus:border-red-500 pr-10' : 'border-gray-300 focus:border-blue-500 pr-10'} transition-colors h-11`}
+                autoComplete="new-password"
+                placeholder="Tu contraseña"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600 transition-colors"
+                disabled={loading}
+              >
+                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-sm text-red-600">{errors.password}</p>
+            )}
+            <PasswordStrengthIndicator 
+              password={password} 
+              errors={validation.errors} 
+            />
+          </div>
+
+          <CaptchaWrapper
+            onVerify={setCaptchaToken}
+            captchaRef={captcha}
           />
-          <button
-            type="button"
-            onClick={() => setShowPassword(!showPassword)}
-            className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-600"
-            disabled={loading}
+
+          <Button
+            type="submit"
+            className="w-full bg-green-600 hover:bg-green-700 text-white font-medium py-3 h-12 transition-colors"
+            disabled={loading || !captchaToken || !validation.isValid}
           >
-            {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
-          </button>
-        </div>
-        {errors.password && (
-          <p className="text-sm text-red-600">{errors.password}</p>
-        )}
-        <PasswordStrengthIndicator 
-          password={password} 
-          errors={validation.errors} 
-        />
-      </div>
-
-      <CaptchaWrapper
-        onVerify={setCaptchaToken}
-        captchaRef={captcha}
-      />
-
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={loading || !captchaToken || !validation.isValid}
-      >
-        {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
-      </Button>
-    </form>
+            {loading ? 'Creando cuenta...' : 'Crear Cuenta'}
+          </Button>
+        </form>
+      </CardContent>
+    </Card>
   );
 };
