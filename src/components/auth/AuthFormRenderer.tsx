@@ -1,4 +1,3 @@
-
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { LoginForm } from './LoginForm';
@@ -25,6 +24,8 @@ interface AuthFormRendererProps {
   onFormSubmit: (e: React.FormEvent) => void;
   onForgotPassword: () => void;
   onPasswordUpdate: (password: string) => Promise<boolean>;
+  onSwitchToSignup: () => void;
+  onSwitchToLogin: () => void;
 }
 
 export const AuthFormRenderer = ({
@@ -44,7 +45,9 @@ export const AuthFormRenderer = ({
   captcha,
   onFormSubmit,
   onForgotPassword,
-  onPasswordUpdate
+  onPasswordUpdate,
+  onSwitchToSignup,
+  onSwitchToLogin
 }: AuthFormRendererProps) => {
   const { toast } = useToast();
 
@@ -138,24 +141,37 @@ export const AuthFormRenderer = ({
         captcha={captcha}
         onSubmit={onFormSubmit}
         onForgotPassword={onForgotPassword}
+        onSwitchToSignup={onSwitchToSignup}
       />
     );
   }
 
   // For signup, we still keep the captcha requirement
   return (
-    <SignupForm
-      email={email}
-      setEmail={setEmail}
-      password={password}
-      setPassword={setPassword}
-      fullName={fullName}
-      setFullName={setFullName}
-      loading={loading}
-      captchaToken={captchaToken}
-      setCaptchaToken={setCaptchaToken}
-      captcha={captcha}
-      onSubmit={onFormSubmit}
-    />
+    <div className="space-y-4">
+      <SignupForm
+        email={email}
+        setEmail={setEmail}
+        password={password}
+        setPassword={setPassword}
+        fullName={fullName}
+        setFullName={setFullName}
+        loading={loading}
+        captchaToken={captchaToken}
+        setCaptchaToken={setCaptchaToken}
+        captcha={captcha}
+        onSubmit={onFormSubmit}
+      />
+      <div className="text-center">
+        <button
+          type="button"
+          onClick={onSwitchToLogin}
+          className="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors"
+          disabled={loading}
+        >
+          ¿Ya tienes cuenta? Inicia sesión
+        </button>
+      </div>
+    </div>
   );
 };

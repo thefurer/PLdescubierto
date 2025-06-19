@@ -143,21 +143,19 @@ export const LoginForm = ({
               ¿Olvidaste tu contraseña?
             </button>
             
-            {onSwitchToSignup && (
-              <div className="pt-2 border-t border-gray-200">
-                <p className="text-sm text-gray-600">
-                  ¿No tienes una cuenta?{' '}
-                  <button
-                    type="button"
-                    onClick={onSwitchToSignup}
-                    className="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors"
-                    disabled={loading}
-                  >
-                    Regístrate aquí
-                  </button>
-                </p>
-              </div>
-            )}
+            <div className="pt-2 border-t border-gray-200">
+              <p className="text-sm text-gray-600">
+                ¿No tienes una cuenta?{' '}
+                <button
+                  type="button"
+                  onClick={onSwitchToSignup}
+                  className="text-blue-600 hover:text-blue-800 hover:underline font-medium transition-colors"
+                  disabled={loading}
+                >
+                  Regístrate aquí
+                </button>
+              </p>
+            </div>
           </div>
         </form>
       </CardContent>
