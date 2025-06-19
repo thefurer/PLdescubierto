@@ -1,16 +1,13 @@
 
 import { useState } from 'react';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Save, X, AlertCircle, Plus, Trash2 } from 'lucide-react';
-import { TouristAttraction } from '@/hooks/useTouristAttractions';
-import AttractionImageManager from './AttractionImageManager';
-import GalleryImageManager from './GalleryImageManager';
-import ScheduleManager from './ScheduleManager';
+import { TouristAttraction } from '@/types/touristAttractions';
 import { useToast } from '@/hooks/use-toast';
+import BasicInfoTab from './form/BasicInfoTab';
+import ImagesTab from './form/ImagesTab';
+import ActivitiesTab from './form/ActivitiesTab';
+import SchedulesTab from './form/SchedulesTab';
+import FormActions from './form/FormActions';
 
 interface AttractionEditFormProps {
   attraction: TouristAttraction;
@@ -41,7 +38,6 @@ const AttractionEditForm = ({
   });
 
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-  const [newActivity, setNewActivity] = useState('');
 
   const validateForm = () => {
     const errors: Record<string, string> = {};
@@ -75,6 +71,14 @@ const AttractionEditForm = ({
     }
   };
 
+  const handleFormDataChange = (updates: Partial<TouristAttraction>) => {
+    setFormData(prev => ({ ...prev, ...updates }));
+  };
+
+  const handleErrorClear = (field: string) => {
+    setFormErrors(prev => ({ ...prev, [field]: '' }));
+  };
+
   const handleImageUpdate = (imageUrl: string) => {
     setFormData(prev => ({ ...prev, image_url: imageUrl }));
   };
@@ -83,39 +87,16 @@ const AttractionEditForm = ({
     setFormData(prev => ({ ...prev, gallery_images: images }));
   };
 
+  const handleActivitiesUpdate = (activities: string[]) => {
+    setFormData(prev => ({ ...prev, activities }));
+  };
+
   const handleSchedulesUpdate = (schedules: any[]) => {
     setFormData(prev => ({
       ...prev,
       additional_info: {
         ...prev.additional_info,
         schedules: schedules
-      }
-    }));
-  };
-
-  const addActivity = () => {
-    if (newActivity.trim()) {
-      setFormData(prev => ({
-        ...prev,
-        activities: [...prev.activities, newActivity.trim()]
-      }));
-      setNewActivity('');
-    }
-  };
-
-  const removeActivity = (index: number) => {
-    setFormData(prev => ({
-      ...prev,
-      activities: prev.activities.filter((_, i) => i !== index)
-    }));
-  };
-
-  const updateAdditionalInfo = (key: string, value: string) => {
-    setFormData(prev => ({
-      ...prev,
-      additional_info: {
-        ...prev.additional_info,
-        [key]: value
       }
     }));
   };
@@ -130,185 +111,49 @@ const AttractionEditForm = ({
           <TabsTrigger value="schedules">Horarios</TabsTrigger>
         </TabsList>
 
-        <TabsContent value="basic" className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
-              Nombre *
-            </label>
-            <Input
-              value={formData.name}
-              onChange={(e) => {
-                setFormData(prev => ({ ...prev, name: e.target.value }));
-                if (formErrors.name) {
-                  setFormErrors(prev => ({ ...prev, name: '' }));
-                }
-              }}
-              placeholder="Nombre de la atracción"
-              className={formErrors.name ? 'border-red-500' : ''}
-            />
-            {formErrors.name && (
-              <div className="flex items-center mt-1 text-red-600 text-sm">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                {formErrors.name}
-              </div>
-            )}
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
-              Descripción
-            </label>
-            <Textarea
-              value={formData.description}
-              onChange={(e) => setFormData(prev => ({ ...prev, description: e.target.value }))}
-              placeholder="Descripción de la atracción"
-              rows={4}
-            />
-          </div>
-
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
-              Categoría *
-            </label>
-            <Select
-              value={formData.category}
-              onValueChange={(value) => {
-                setFormData(prev => ({ 
-                  ...prev, 
-                  category: value as 'todo' | 'playa' | 'cultura' | 'naturaleza'
-                }));
-                if (formErrors.category) {
-                  setFormErrors(prev => ({ ...prev, category: '' }));
-                }
-              }}
-            >
-              <SelectTrigger className={formErrors.category ? 'border-red-500' : ''}>
-                <SelectValue placeholder="Selecciona una categoría" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="playa">Playa</SelectItem>
-                <SelectItem value="cultura">Cultura</SelectItem>
-                <SelectItem value="naturaleza">Naturaleza</SelectItem>
-              </SelectContent>
-            </Select>
-            {formErrors.category && (
-              <div className="flex items-center mt-1 text-red-600 text-sm">
-                <AlertCircle className="h-4 w-4 mr-1" />
-                {formErrors.category}
-              </div>
-            )}
-          </div>
-
-          {/* Información Adicional */}
-          <div className="space-y-4">
-            <h3 className="text-lg font-medium">Información Adicional</h3>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-              <Input
-                value={formData.additional_info.duration || ''}
-                onChange={(e) => updateAdditionalInfo('duration', e.target.value)}
-                placeholder="Duración (ej: 2-3 horas)"
-              />
-              <Input
-                value={formData.additional_info.capacity || ''}
-                onChange={(e) => updateAdditionalInfo('capacity', e.target.value)}
-                placeholder="Capacidad (ej: 20 personas max)"
-              />
-              <Input
-                value={formData.additional_info.price || ''}
-                onChange={(e) => updateAdditionalInfo('price', e.target.value)}
-                placeholder="Precio (ej: $15 por persona)"
-              />
-            </div>
-          </div>
+        <TabsContent value="basic">
+          <BasicInfoTab
+            formData={formData}
+            formErrors={formErrors}
+            onFormDataChange={handleFormDataChange}
+            onErrorClear={handleErrorClear}
+          />
         </TabsContent>
 
-        <TabsContent value="images" className="space-y-4">
-          <AttractionImageManager
-            currentImageUrl={formData.image_url}
+        <TabsContent value="images">
+          <ImagesTab
             attractionId={attraction.id}
+            currentImageUrl={formData.image_url}
+            currentGalleryImages={formData.gallery_images}
             isUploading={isUploading}
             onImageUpdate={handleImageUpdate}
-            onUploadImage={onUploadImage}
-          />
-
-          <GalleryImageManager
-            attractionId={attraction.id}
-            currentImages={formData.gallery_images}
-            isUploading={isUploading}
-            onImagesUpdate={handleGalleryUpdate}
+            onGalleryUpdate={handleGalleryUpdate}
             onUploadImage={onUploadImage}
           />
         </TabsContent>
 
-        <TabsContent value="activities" className="space-y-4">
-          <div>
-            <label className="text-sm font-medium text-gray-700 mb-2 block">
-              Actividades
-            </label>
-            <div className="space-y-2">
-              {formData.activities.map((activity, index) => (
-                <div key={index} className="flex items-center space-x-2">
-                  <Input value={activity} readOnly className="flex-1" />
-                  <Button
-                    type="button"
-                    variant="outline"
-                    size="sm"
-                    onClick={() => removeActivity(index)}
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </Button>
-                </div>
-              ))}
-              <div className="flex space-x-2">
-                <Input
-                  value={newActivity}
-                  onChange={(e) => setNewActivity(e.target.value)}
-                  placeholder="Nueva actividad"
-                  className="flex-1"
-                />
-                <Button
-                  type="button"
-                  variant="outline"
-                  size="sm"
-                  onClick={addActivity}
-                >
-                  <Plus className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          </div>
+        <TabsContent value="activities">
+          <ActivitiesTab
+            activities={formData.activities}
+            onActivitiesUpdate={handleActivitiesUpdate}
+          />
         </TabsContent>
 
         <TabsContent value="schedules">
-          <ScheduleManager
+          <SchedulesTab
             attractionId={attraction.id}
             currentSchedules={formData.additional_info.schedules || []}
-            onSave={handleSchedulesUpdate}
+            onSchedulesUpdate={handleSchedulesUpdate}
           />
         </TabsContent>
       </Tabs>
 
-      <div className="flex gap-2 pt-4 border-t">
-        <Button 
-          onClick={handleSave} 
-          disabled={isSaving || isUploading}
-          size="sm"
-          className="flex-1"
-        >
-          <Save className="h-4 w-4 mr-2" />
-          {isSaving ? 'Guardando...' : 'Guardar Cambios'}
-        </Button>
-        <Button 
-          variant="outline" 
-          onClick={onCancel}
-          disabled={isSaving || isUploading}
-          size="sm"
-          className="flex-1"
-        >
-          <X className="h-4 w-4 mr-2" />
-          Cancelar
-        </Button>
-      </div>
+      <FormActions
+        isSaving={isSaving}
+        isUploading={isUploading}
+        onSave={handleSave}
+        onCancel={onCancel}
+      />
     </div>
   );
 };
