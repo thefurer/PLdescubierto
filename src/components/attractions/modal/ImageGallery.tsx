@@ -11,35 +11,59 @@ interface ImageGalleryProps {
 export const ImageGallery = ({ images, attractionName }: ImageGalleryProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
-  // Auto-advance images every 3 seconds
-  useEffect(() => {
-    if (images.length <= 1) return;
+  console.log('ImageGallery received images:', images);
+  console.log('Images length:', images.length);
 
+  // Auto-advance images every 3 seconds when there are multiple images
+  useEffect(() => {
+    if (images.length <= 1) {
+      console.log('Not starting auto-advance: only', images.length, 'image(s)');
+      return;
+    }
+
+    console.log('Starting auto-advance for', images.length, 'images');
     const interval = setInterval(() => {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      setCurrentImageIndex((prev) => {
+        const next = (prev + 1) % images.length;
+        console.log('Auto-advancing from image', prev, 'to', next);
+        return next;
+      });
     }, 3000);
 
-    return () => clearInterval(interval);
+    return () => {
+      console.log('Cleaning up auto-advance interval');
+      clearInterval(interval);
+    };
   }, [images.length]);
 
   // Reset image index when images change
   useEffect(() => {
+    console.log('Images changed, resetting to index 0');
     setCurrentImageIndex(0);
   }, [images]);
 
   const nextImage = () => {
     if (images.length > 1) {
-      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+      const next = (currentImageIndex + 1) % images.length;
+      console.log('Manual next: going from', currentImageIndex, 'to', next);
+      setCurrentImageIndex(next);
     }
   };
 
   const prevImage = () => {
     if (images.length > 1) {
-      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+      const prev = (currentImageIndex - 1 + images.length) % images.length;
+      console.log('Manual prev: going from', currentImageIndex, 'to', prev);
+      setCurrentImageIndex(prev);
     }
   };
 
-  if (images.length === 0) return null;
+  if (images.length === 0) {
+    console.log('No images to display');
+    return null;
+  }
+
+  console.log('Displaying image', currentImageIndex, 'of', images.length, ':', images[currentImageIndex]);
 
   return (
     <div className="relative w-full h-64 md:h-80 overflow-hidden rounded-lg bg-gray-100">
@@ -50,46 +74,52 @@ export const ImageGallery = ({ images, attractionName }: ImageGalleryProps) => {
         onError={(e) => {
           console.log('Error loading image:', images[currentImageIndex]);
         }}
+        onLoad={() => {
+          console.log('Successfully loaded image:', images[currentImageIndex]);
+        }}
       />
       
       {/* Navigation arrows - show when there are multiple images */}
       {images.length > 1 && (
         <>
-          {/* Left arrow - only show if not on first image or if we want to show it always */}
+          {/* Left arrow */}
           <Button
             variant="outline"
             size="sm"
-            className="absolute top-1/2 left-2 -translate-y-1/2 bg-white/80 hover:bg-white transition-all duration-200 shadow-lg"
+            className="absolute top-1/2 left-2 -translate-y-1/2 bg-white/80 hover:bg-white transition-all duration-200 shadow-lg z-10"
             onClick={prevImage}
           >
             <ChevronLeft className="h-4 w-4" />
           </Button>
           
-          {/* Right arrow - always visible when there are multiple images */}
+          {/* Right arrow */}
           <Button
             variant="outline"
             size="sm"
-            className="absolute top-1/2 right-2 -translate-y-1/2 bg-white/80 hover:bg-white transition-all duration-200 shadow-lg"
+            className="absolute top-1/2 right-2 -translate-y-1/2 bg-white/80 hover:bg-white transition-all duration-200 shadow-lg z-10"
             onClick={nextImage}
           >
             <ChevronRight className="h-4 w-4" />
           </Button>
           
           {/* Image indicators */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2">
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
             {images.map((_, index) => (
               <button
                 key={index}
                 className={`w-2 h-2 rounded-full transition-all duration-300 ${
                   index === currentImageIndex ? 'bg-white scale-125' : 'bg-white/50'
                 }`}
-                onClick={() => setCurrentImageIndex(index)}
+                onClick={() => {
+                  console.log('Indicator clicked: going to image', index);
+                  setCurrentImageIndex(index);
+                }}
               />
             ))}
           </div>
           
           {/* Image counter */}
-          <div className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full">
+          <div className="absolute top-3 right-3 bg-black/50 text-white text-xs px-2 py-1 rounded-full z-10">
             {currentImageIndex + 1} / {images.length}
           </div>
         </>

@@ -23,16 +23,23 @@ const categoryLabels = {
 export const AttractionModal = ({ attraction, isOpen, onClose }: AttractionModalProps) => {
   if (!attraction) return null;
 
-  // Priorizar gallery_images, luego image_url como fallback
+  // Crear array de imágenes: primero gallery_images, luego image_url si no hay galería
   let images: string[] = [];
   
+  // Si hay gallery_images, usar esas
   if (attraction.gallery_images && attraction.gallery_images.length > 0) {
-    images = attraction.gallery_images;
-  } else if (attraction.image_url) {
+    images = [...attraction.gallery_images];
+  }
+  
+  // Si no hay gallery_images pero sí image_url, usar image_url
+  if (images.length === 0 && attraction.image_url) {
     images = [attraction.image_url];
   }
 
-  console.log('Modal images for', attraction.name, ':', images);
+  console.log('Attraction:', attraction.name);
+  console.log('Gallery images:', attraction.gallery_images);
+  console.log('Image URL:', attraction.image_url);
+  console.log('Final images array:', images);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
