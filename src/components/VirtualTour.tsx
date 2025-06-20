@@ -5,7 +5,6 @@ import { useLanguage } from "@/hooks/useLanguage";
 import { getVirtualTourLocations, virtualTourTexts } from "@/data/virtualTourData";
 import MetaversePreview from "@/components/virtual-tour/MetaversePreview";
 import LocationSelector from "@/components/virtual-tour/LocationSelector";
-import FeatureCards from "@/components/virtual-tour/FeatureCards";
 
 type VirtualTourProps = {
   className?: string;
@@ -56,18 +55,6 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
             }}
           />
         </div>
-
-        <FeatureCards
-          texts={{
-            interactive: t.interactive,
-            interactiveDesc: t.interactiveDesc,
-            social: t.social,
-            socialDesc: t.socialDesc,
-            immersive: t.immersive,
-            immersiveDesc: t.immersiveDesc,
-            explore: t.explore
-          }}
-        />
       </div>
     </section>
   );
