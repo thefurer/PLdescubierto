@@ -23,10 +23,16 @@ const categoryLabels = {
 export const AttractionModal = ({ attraction, isOpen, onClose }: AttractionModalProps) => {
   if (!attraction) return null;
 
-  // Usar gallery_images si existe, sino usar image_url como fallback
-  const images = attraction.gallery_images && attraction.gallery_images.length > 0 
-    ? attraction.gallery_images 
-    : attraction.image_url ? [attraction.image_url] : [];
+  // Priorizar gallery_images, luego image_url como fallback
+  let images: string[] = [];
+  
+  if (attraction.gallery_images && attraction.gallery_images.length > 0) {
+    images = attraction.gallery_images;
+  } else if (attraction.image_url) {
+    images = [attraction.image_url];
+  }
+
+  console.log('Modal images for', attraction.name, ':', images);
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
@@ -37,8 +43,10 @@ export const AttractionModal = ({ attraction, isOpen, onClose }: AttractionModal
           </DialogTitle>
         </DialogHeader>
 
-        {/* Image Gallery */}
-        <ImageGallery images={images} attractionName={attraction.name} />
+        {/* Image Gallery with auto-advance */}
+        {images.length > 0 && (
+          <ImageGallery images={images} attractionName={attraction.name} />
+        )}
 
         {/* Category and Rating */}
         <div className="flex items-center justify-between">
