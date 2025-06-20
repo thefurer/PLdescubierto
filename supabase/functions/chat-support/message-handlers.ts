@@ -32,9 +32,9 @@ export async function handleContactRequest(sanitizedMessage: string, geminiClien
   return `¡Por supuesto! Aquí tienes la información de contacto:
 
 📞 WhatsApp: +593 99 199 5390
-(También puedes dirigirte al menú del footer y hacer clic en el número que aparece)
+📧 Email: apincay72@gmail.com
 
-📧 Email: apincay@gmail.com
+También puedes ir al chat directo haciendo clic en el número telefónico que se encuentra en el footer de la página.
 
 Estamos disponibles para ayudarte a planificar tu visita perfecta a Puerto López. No dudes en contactarnos para:
 • Reservas de tours
