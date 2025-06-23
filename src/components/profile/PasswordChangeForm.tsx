@@ -1,6 +1,5 @@
 
-import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Button } from '@/components/ui/button';
@@ -17,16 +16,10 @@ const PasswordChangeForm = () => {
   const [confirmPassword, setConfirmPassword] = useState('');
   const [showNewPassword, setShowNewPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-  const { validation, validatePassword } = usePasswordValidation();
-
-  useEffect(() => {
-    if (newPassword) {
-      validatePassword(newPassword);
-    }
-  }, [newPassword, validatePassword]);
+  const passwordValidation = usePasswordValidation(newPassword);
 
   const changePassword = async () => {
-    if (!validation.isValid) {
+    if (!passwordValidation.isValid) {
       toast({
         title: "Contraseña inválida",
         description: "La contraseña no cumple con todos los requisitos de seguridad.",
@@ -95,7 +88,7 @@ const PasswordChangeForm = () => {
             )}
           </button>
         </div>
-        <PasswordStrengthIndicator password={newPassword} errors={validation.errors} />
+        <PasswordStrengthIndicator password={newPassword} />
       </div>
 
       <div>
@@ -125,7 +118,7 @@ const PasswordChangeForm = () => {
 
       <Button 
         onClick={changePassword} 
-        disabled={loading || !newPassword || !confirmPassword || !validation.isValid}
+        disabled={loading || !newPassword || !confirmPassword || !passwordValidation.isValid}
         className="bg-ocean hover:bg-ocean-dark"
       >
         {loading ? 'Cambiando...' : 'Cambiar Contraseña'}

@@ -1,3 +1,4 @@
+
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import { LoginForm } from './LoginForm';
@@ -146,22 +147,10 @@ export const AuthFormRenderer = ({
     );
   }
 
-  // For signup, we still keep the captcha requirement
+  // For signup, use the new SignupForm that manages its own state
   return (
     <div className="space-y-4">
-      <SignupForm
-        email={email}
-        setEmail={setEmail}
-        password={password}
-        setPassword={setPassword}
-        fullName={fullName}
-        setFullName={setFullName}
-        loading={loading}
-        captchaToken={captchaToken}
-        setCaptchaToken={setCaptchaToken}
-        captcha={captcha}
-        onSubmit={onFormSubmit}
-      />
+      <SignupForm onToggleMode={onSwitchToLogin} />
       <div className="text-center">
         <button
           type="button"

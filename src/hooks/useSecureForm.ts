@@ -18,7 +18,6 @@ interface FormErrors {
 
 export const useSecureForm = () => {
   const [errors, setErrors] = useState<FormErrors>({});
-  const { validatePassword } = usePasswordValidation();
 
   const validateForm = (data: SecureFormData): boolean => {
     const newErrors: FormErrors = {};
@@ -34,7 +33,8 @@ export const useSecureForm = () => {
     if (!data.password) {
       newErrors.password = 'La contraseña es requerida';
     } else {
-      const passwordValidation = validatePassword(data.password);
+      // Use the hook to validate password
+      const passwordValidation = usePasswordValidation(data.password);
       if (!passwordValidation.isValid) {
         newErrors.password = passwordValidation.errors[0];
       }
