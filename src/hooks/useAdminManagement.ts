@@ -1,7 +1,37 @@
 
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { useAuth } from '@/contexts/AuthContext';
 import { useToast } from '@/hooks/use-toast';
+
+interface AdminUser {
+  id: string;
+  email: string;
+  full_name: string;
+  created_at: string;
+  permissions?: AdminPermission[];
+}
+
+interface AdminPermission {
+  id: string;
+  section_name: string;
+  can_view: boolean;
+  can_edit: boolean;
+  can_delete: boolean;
+  granted_at: string;
+}
+
+interface AdminAction {
+  id: string;
+  admin_id: string;
+  admin_name: string;
+  admin_email: string;
+  action_type: string;
+  target_table: string | null;
+  target_id: string | null;
+  details: any;
+  created_at: string;
+}
 
 interface AuthorizedEmail {
   id: string;
@@ -9,61 +39,124 @@ interface AuthorizedEmail {
   authorized_by: string;
   authorized_at: string;
   is_active: boolean;
-  notes?: string;
-}
-
-interface AdminPermission {
-  id: string;
-  user_id: string;
-  section_name: string;
-  can_view: boolean;
-  can_edit: boolean;
-  can_delete: boolean;
-  granted_by: string;
-  granted_at: string;
-  is_active: boolean;
-  user_email?: string;
-  user_name?: string;
-}
-
-interface AdminAction {
-  id: string;
-  admin_id: string;
-  action_type: string;
-  target_table?: string;
-  target_id?: string;
-  details: any;
-  created_at: string;
-  admin_email?: string;
-  admin_name?: string;
+  notes: string | null;
 }
 
 export const useAdminManagement = () => {
-  const [authorizedEmails, setAuthorizedEmails] = useState<AuthorizedEmail[]>([]);
-  const [adminPermissions, setAdminPermissions] = useState<AdminPermission[]>([]);
-  const [adminActions, setAdminActions] = useState<AdminAction[]>([]);
+  const { user } = useAuth();
+  const { toast } = useToast();
   const [loading, setLoading] = useState(false);
   const [isMainAdmin, setIsMainAdmin] = useState(false);
-  const { toast } = useToast();
+  const [adminUsers, setAdminUsers] = useState<AdminUser[]>([]);
+  const [adminActions, setAdminActions] = useState<AdminAction[]>([]);
+  const [authorizedEmails, setAuthorizedEmails] = useState<AuthorizedEmail[]>([]);
 
   // Verificar si el usuario actual es el admin principal
-  const checkMainAdmin = async () => {
+  useEffect(() => {
+    const checkMainAdmin = async () => {
+      if (!user) return;
+
+      try {
+        const { data, error } = await supabase.rpc('is_main_admin', {
+          user_id: user.id
+        });
+
+        if (error) throw error;
+        setIsMainAdmin(data || false);
+      } catch (error) {
+        console.error('Error checking main admin status:', error);
+        setIsMainAdmin(false);
+      }
+    };
+
+    checkMainAdmin();
+  }, [user]);
+
+  // Cargar usuarios administradores
+  const loadAdminUsers = async () => {
     try {
-      const { data, error } = await supabase.rpc('is_main_admin', {
-        user_id: (await supabase.auth.getUser()).data.user?.id
-      });
+      setLoading(true);
       
+      const { data: roles, error: rolesError } = await supabase
+        .from('user_roles')
+        .select('user_id, created_at')
+        .eq('role', 'admin');
+
+      if (rolesError) throw rolesError;
+
+      // Obtener información de usuarios desde auth.users usando una función RPC
+      const userIds = roles.map(role => role.user_id);
+      
+      const users: AdminUser[] = [];
+      for (const userId of userIds) {
+        const { data: userData, error: userError } = await supabase.auth.admin.getUserById(userId);
+        if (!userError && userData.user) {
+          users.push({
+            id: userData.user.id,
+            email: userData.user.email || '',
+            full_name: userData.user.user_metadata?.full_name || userData.user.email || '',
+            created_at: userData.user.created_at || '',
+          });
+        }
+      }
+
+      setAdminUsers(users);
+    } catch (error) {
+      console.error('Error loading admin users:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudieron cargar los usuarios administradores',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Cargar historial de acciones
+  const loadAdminActions = async () => {
+    try {
+      setLoading(true);
+      
+      const { data, error } = await supabase
+        .from('admin_actions_log')
+        .select('*')
+        .order('created_at', { ascending: false })
+        .limit(100);
+
       if (error) throw error;
-      setIsMainAdmin(data || false);
-    } catch (error: any) {
-      console.error('Error checking main admin status:', error);
-      setIsMainAdmin(false);
+
+      // Enriquecer con información del administrador
+      const enrichedActions: AdminAction[] = [];
+      for (const action of data) {
+        const { data: userData, error: userError } = await supabase.auth.admin.getUserById(action.admin_id);
+        if (!userError && userData.user) {
+          enrichedActions.push({
+            ...action,
+            admin_name: userData.user.user_metadata?.full_name || userData.user.email || '',
+            admin_email: userData.user.email || ''
+          });
+        }
+      }
+
+      setAdminActions(enrichedActions);
+    } catch (error) {
+      console.error('Error loading admin actions:', error);
+      toast({
+        title: 'Error',
+        description: 'No se pudo cargar el historial de acciones',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
     }
   };
 
   // Cargar emails autorizados
   const loadAuthorizedEmails = async () => {
     try {
+      setLoading(true);
+      
       const { data, error } = await supabase
         .from('authorized_emails')
         .select('*')
@@ -71,79 +164,23 @@ export const useAdminManagement = () => {
 
       if (error) throw error;
       setAuthorizedEmails(data || []);
-    } catch (error: any) {
+    } catch (error) {
+      console.error('Error loading authorized emails:', error);
       toast({
         title: 'Error',
         description: 'No se pudieron cargar los emails autorizados',
         variant: 'destructive'
       });
+    } finally {
+      setLoading(false);
     }
   };
 
-  // Cargar permisos de administradores
-  const loadAdminPermissions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('admin_permissions')
-        .select(`
-          *,
-          profiles!admin_permissions_user_id_fkey(email, full_name)
-        `)
-        .eq('is_active', true)
-        .order('granted_at', { ascending: false });
-
-      if (error) throw error;
-      
-      const permissionsWithUserInfo = data?.map(permission => ({
-        ...permission,
-        user_email: permission.profiles?.email || 'Email no disponible',
-        user_name: permission.profiles?.full_name || 'Nombre no disponible'
-      })) || [];
-
-      setAdminPermissions(permissionsWithUserInfo);
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: 'No se pudieron cargar los permisos de administradores',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  // Cargar historial de acciones
-  const loadAdminActions = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('admin_actions_log')
-        .select(`
-          *,
-          profiles!admin_actions_log_admin_id_fkey(email, full_name)
-        `)
-        .order('created_at', { ascending: false })
-        .limit(100);
-
-      if (error) throw error;
-      
-      const actionsWithUserInfo = data?.map(action => ({
-        ...action,
-        admin_email: action.profiles?.email || 'Email no disponible',
-        admin_name: action.profiles?.full_name || 'Nombre no disponible'
-      })) || [];
-
-      setAdminActions(actionsWithUserInfo);
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: 'No se pudo cargar el historial de acciones',
-        variant: 'destructive'
-      });
-    }
-  };
-
-  // Autorizar un email
+  // Autorizar email
   const authorizeEmail = async (email: string, notes?: string) => {
-    setLoading(true);
     try {
+      setLoading(true);
+      
       const { error } = await supabase.rpc('authorize_email', {
         user_email: email,
         notes: notes || null
@@ -158,6 +195,7 @@ export const useAdminManagement = () => {
 
       await loadAuthorizedEmails();
     } catch (error: any) {
+      console.error('Error authorizing email:', error);
       toast({
         title: 'Error',
         description: error.message || 'No se pudo autorizar el email',
@@ -170,8 +208,9 @@ export const useAdminManagement = () => {
 
   // Revocar autorización de email
   const revokeEmailAuthorization = async (emailId: string) => {
-    setLoading(true);
     try {
+      setLoading(true);
+      
       const { error } = await supabase
         .from('authorized_emails')
         .update({ is_active: false })
@@ -181,49 +220,15 @@ export const useAdminManagement = () => {
 
       toast({
         title: 'Éxito',
-        description: 'Autorización revocada correctamente',
+        description: 'Autorización de email revocada',
       });
 
       await loadAuthorizedEmails();
     } catch (error: any) {
+      console.error('Error revoking email authorization:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo revocar la autorización',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  // Asignar permisos granulares
-  const assignSectionPermissions = async (
-    userId: string,
-    section: string,
-    permissions: { can_view: boolean; can_edit: boolean; can_delete: boolean }
-  ) => {
-    setLoading(true);
-    try {
-      const { error } = await supabase.rpc('assign_section_permissions', {
-        target_user_id: userId,
-        section: section,
-        can_view: permissions.can_view,
-        can_edit: permissions.can_edit,
-        can_delete: permissions.can_delete
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: 'Éxito',
-        description: 'Permisos asignados correctamente',
-      });
-
-      await loadAdminPermissions();
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'No se pudieron asignar los permisos',
+        description: error.message || 'No se pudo revocar la autorización',
         variant: 'destructive'
       });
     } finally {
@@ -240,36 +245,61 @@ export const useAdminManagement = () => {
 
       if (error) throw error;
       return data || false;
-    } catch (error: any) {
+    } catch (error) {
       console.error('Error checking email authorization:', error);
       return false;
     }
   };
 
-  useEffect(() => {
-    checkMainAdmin();
-  }, []);
+  // Asignar permisos
+  const assignPermissions = async (
+    userId: string,
+    section: string,
+    permissions: { can_view: boolean; can_edit: boolean; can_delete: boolean }
+  ) => {
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase.rpc('assign_section_permissions', {
+        target_user_id: userId,
+        section: section,
+        can_view: permissions.can_view,
+        can_edit: permissions.can_edit,
+        can_delete: permissions.can_delete
+      });
 
-  useEffect(() => {
-    if (isMainAdmin) {
-      loadAuthorizedEmails();
-      loadAdminPermissions();
-      loadAdminActions();
+      if (error) throw error;
+
+      toast({
+        title: 'Éxito',
+        description: 'Permisos asignados correctamente',
+      });
+
+      await loadAdminUsers();
+    } catch (error: any) {
+      console.error('Error assigning permissions:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'No se pudieron asignar los permisos',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
     }
-  }, [isMainAdmin]);
+  };
 
   return {
-    authorizedEmails,
-    adminPermissions,
-    adminActions,
     loading,
     isMainAdmin,
+    adminUsers,
+    adminActions,
+    authorizedEmails,
+    loadAdminUsers,
+    loadAdminActions,
+    loadAuthorizedEmails,
     authorizeEmail,
     revokeEmailAuthorization,
-    assignSectionPermissions,
     checkEmailAuthorization,
-    loadAuthorizedEmails,
-    loadAdminPermissions,
-    loadAdminActions
+    assignPermissions
   };
 };

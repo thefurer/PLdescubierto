@@ -4,10 +4,9 @@ import { Check, X } from 'lucide-react';
 
 interface PasswordStrengthIndicatorProps {
   password: string;
-  errors: string[];
 }
 
-const PasswordStrengthIndicator = ({ password, errors }: PasswordStrengthIndicatorProps) => {
+export const PasswordStrengthIndicator = ({ password }: PasswordStrengthIndicatorProps) => {
   const requirements = [
     { label: 'Al menos 8 caracteres', test: password.length >= 8 },
     { label: 'Una letra mayúscula', test: /[A-Z]/.test(password) },

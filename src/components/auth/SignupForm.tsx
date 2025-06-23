@@ -20,7 +20,7 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
   const [loading, setLoading] = useState(false);
   const [isEmailAuthorized, setIsEmailAuthorized] = useState(false);
   const { signUp } = useAuth();
-  const { strength, isValid } = usePasswordValidation(password);
+  const { isValid } = usePasswordValidation(password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -94,7 +94,7 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
             disabled={loading}
           />
         </div>
-        {password && <PasswordStrengthIndicator strength={strength} />}
+        {password && <PasswordStrengthIndicator password={password} />}
       </div>
 
       <Button
