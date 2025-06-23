@@ -1,0 +1,76 @@
+
+import { useState } from 'react';
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Shield, Users, History, Mail } from 'lucide-react';
+import { useAdminManagement } from '@/hooks/useAdminManagement';
+import EmailAuthorizationManager from './admin/EmailAuthorizationManager';
+import PermissionsManager from './admin/PermissionsManager';
+import ActionsHistoryViewer from './admin/ActionsHistoryViewer';
+
+const SuperAdminPanel = () => {
+  const { isMainAdmin } = useAdminManagement();
+  const [activeTab, setActiveTab] = useState('emails');
+
+  if (!isMainAdmin) {
+    return (
+      <Card>
+        <CardContent className="flex flex-col items-center justify-center h-64">
+          <Shield className="h-12 w-12 text-gray-400 mb-4" />
+          <p className="text-gray-500 text-center">
+            Solo el administrador principal puede acceder a este panel
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  return (
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <Shield className="h-8 w-8 text-blue-500" />
+            <div>
+              <CardTitle className="text-2xl">Panel de Super Administrador</CardTitle>
+              <CardDescription>
+                Gestión completa del sistema y control de administradores
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
+
+      <Tabs value={activeTab} onValueChange={setActiveTab}>
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="emails" className="flex items-center gap-2">
+            <Mail className="h-4 w-4" />
+            Autorización de Emails
+          </TabsTrigger>
+          <TabsTrigger value="permissions" className="flex items-center gap-2">
+            <Users className="h-4 w-4" />
+            Gestión de Permisos
+          </TabsTrigger>
+          <TabsTrigger value="history" className="flex items-center gap-2">
+            <History className="h-4 w-4" />
+            Historial de Acciones
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="emails" className="mt-6">
+          <EmailAuthorizationManager />
+        </TabsContent>
+
+        <TabsContent value="permissions" className="mt-6">
+          <PermissionsManager />
+        </TabsContent>
+
+        <TabsContent value="history" className="mt-6">
+          <ActionsHistoryViewer />
+        </TabsContent>
+      </Tabs>
+    </div>
+  );
+};
+
+export default SuperAdminPanel;

@@ -9,6 +9,78 @@ export type Json =
 export type Database = {
   public: {
     Tables: {
+      admin_actions_log: {
+        Row: {
+          action_type: string
+          admin_id: string
+          created_at: string
+          details: Json
+          id: string
+          ip_address: unknown | null
+          target_id: string | null
+          target_table: string | null
+          user_agent: string | null
+        }
+        Insert: {
+          action_type: string
+          admin_id: string
+          created_at?: string
+          details?: Json
+          id?: string
+          ip_address?: unknown | null
+          target_id?: string | null
+          target_table?: string | null
+          user_agent?: string | null
+        }
+        Update: {
+          action_type?: string
+          admin_id?: string
+          created_at?: string
+          details?: Json
+          id?: string
+          ip_address?: unknown | null
+          target_id?: string | null
+          target_table?: string | null
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
+      admin_permissions: {
+        Row: {
+          can_delete: boolean
+          can_edit: boolean
+          can_view: boolean
+          granted_at: string
+          granted_by: string
+          id: string
+          is_active: boolean
+          section_name: string
+          user_id: string
+        }
+        Insert: {
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          granted_at?: string
+          granted_by: string
+          id?: string
+          is_active?: boolean
+          section_name: string
+          user_id: string
+        }
+        Update: {
+          can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          granted_at?: string
+          granted_by?: string
+          id?: string
+          is_active?: boolean
+          section_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       attraction_activities: {
         Row: {
           activity_name: string
@@ -55,6 +127,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      authorized_emails: {
+        Row: {
+          authorized_at: string
+          authorized_by: string
+          email: string
+          id: string
+          is_active: boolean
+          notes: string | null
+        }
+        Insert: {
+          authorized_at?: string
+          authorized_by: string
+          email: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+        }
+        Update: {
+          authorized_at?: string
+          authorized_by?: string
+          email?: string
+          id?: string
+          is_active?: boolean
+          notes?: string | null
+        }
+        Relationships: []
       }
       content_history: {
         Row: {
@@ -527,6 +626,20 @@ export type Database = {
         Args: { user_email: string }
         Returns: undefined
       }
+      assign_section_permissions: {
+        Args: {
+          target_user_id: string
+          section: string
+          can_view?: boolean
+          can_edit?: boolean
+          can_delete?: boolean
+        }
+        Returns: undefined
+      }
+      authorize_email: {
+        Args: { user_email: string; notes?: string }
+        Returns: undefined
+      }
       create_initial_admin: {
         Args: Record<PropertyKey, never>
         Returns: undefined
@@ -538,9 +651,30 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_section_permission: {
+        Args: { user_id: string; section: string; permission_type: string }
+        Returns: boolean
+      }
       is_admin: {
         Args: { _user_id: string }
         Returns: boolean
+      }
+      is_email_authorized: {
+        Args: { user_email: string }
+        Returns: boolean
+      }
+      is_main_admin: {
+        Args: { user_id: string }
+        Returns: boolean
+      }
+      log_admin_action: {
+        Args: {
+          action_type: string
+          target_table?: string
+          target_id?: string
+          details?: Json
+        }
+        Returns: undefined
       }
     }
     Enums: {

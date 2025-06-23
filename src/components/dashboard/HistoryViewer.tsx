@@ -51,9 +51,9 @@ const HistoryViewer = () => {
     <div className="space-y-6">
       <Card>
         <CardHeader>
-          <CardTitle>Mi Historial de Cambios</CardTitle>
+          <CardTitle>Historial de Cambios del Sistema</CardTitle>
           <CardDescription>
-            Revisa y revierte cambios que has realizado en el contenido y atracciones
+            Revisa y revierte cambios realizados en el contenido y atracciones por todos los administradores
           </CardDescription>
         </CardHeader>
         <CardContent>
@@ -80,8 +80,8 @@ const HistoryViewer = () => {
         <Card>
           <CardContent className="flex flex-col items-center justify-center h-64">
             <Clock className="h-12 w-12 text-gray-400 mb-4" />
-            <p className="text-gray-500">No tienes cambios registrados</p>
-            <p className="text-sm text-gray-400 mt-2">Los cambios que realices aparecerán aquí</p>
+            <p className="text-gray-500">No hay cambios registrados</p>
+            <p className="text-sm text-gray-400 mt-2">Los cambios que se realicen aparecerán aquí</p>
           </CardContent>
         </Card>
       ) : (
