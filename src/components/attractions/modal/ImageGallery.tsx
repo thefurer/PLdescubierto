@@ -58,6 +58,28 @@ export const ImageGallery = ({ images, attractionName }: ImageGalleryProps) => {
     }
   };
 
+  // Function to get circle size based on index
+  const getCircleSize = (index: number) => {
+    const baseSize = 3; // Base size in rem (w-3 h-3)
+    const decreaseRate = 0.3; // How much to decrease per index
+    const minSize = 1.5; // Minimum size
+    
+    const size = Math.max(baseSize - (index * decreaseRate), minSize);
+    return `w-${Math.round(size)} h-${Math.round(size)}`;
+  };
+
+  // Function to get circle classes with decreasing sizes
+  const getCircleClasses = (index: number) => {
+    const isActive = index === currentImageIndex;
+    const sizeClasses = getCircleSize(index);
+    
+    return `${sizeClasses} rounded-full transition-all duration-300 ${
+      isActive 
+        ? 'bg-white scale-125' 
+        : 'bg-white/50 hover:bg-white/70'
+    }`;
+  };
+
   if (images.length === 0) {
     console.log('No images to display');
     return null;
@@ -102,17 +124,19 @@ export const ImageGallery = ({ images, attractionName }: ImageGalleryProps) => {
             <ChevronRight className="h-4 w-4" />
           </Button>
           
-          {/* Image indicators */}
-          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex space-x-2 z-10">
+          {/* Image indicators with decreasing sizes */}
+          <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex items-center space-x-2 z-10">
             {images.map((_, index) => (
               <button
                 key={index}
-                className={`w-2 h-2 rounded-full transition-all duration-300 ${
-                  index === currentImageIndex ? 'bg-white scale-125' : 'bg-white/50'
-                }`}
+                className={getCircleClasses(index)}
                 onClick={() => {
                   console.log('Indicator clicked: going to image', index);
                   setCurrentImageIndex(index);
+                }}
+                style={{
+                  width: `${Math.max(12 - (index * 2), 8)}px`,
+                  height: `${Math.max(12 - (index * 2), 8)}px`
                 }}
               />
             ))}
