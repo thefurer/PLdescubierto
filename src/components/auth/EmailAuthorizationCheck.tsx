@@ -45,7 +45,7 @@ const EmailAuthorizationCheck = ({ email, onAuthorizationChecked, children }: Em
     };
 
     // Debounce la verificación
-    const timeoutId = setTimeout(checkAuthorization, 800);
+    const timeoutId = setTimeout(checkAuthorization, 500);
     return () => clearTimeout(timeoutId);
   }, [email, checkEmailAuthorization, onAuthorizationChecked]);
 

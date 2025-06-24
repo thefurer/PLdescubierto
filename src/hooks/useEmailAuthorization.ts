@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { checkEmailAuthorizationFallback } from './useEmailAuthorizationFallback';
 
 interface AuthorizedEmail {
   id: string;
@@ -101,36 +101,36 @@ export const useEmailAuthorization = () => {
     }
   };
 
-  // Verificar si un email está autorizado - versión simplificada y más confiable
+  // Verificar si un email está autorizado - versión con fallback
   const checkEmailAuthorization = async (email: string): Promise<boolean> => {
     try {
       const cleanEmail = email.toLowerCase().trim();
       console.log('Checking email authorization for:', cleanEmail);
       
-      // Consulta directa simple
-      const { data, error } = await supabase
-        .from('authorized_emails')
-        .select('id, email, is_active')
-        .eq('email', cleanEmail)
-        .eq('is_active', true)
-        .maybeSingle();
+      // Intentar usar la función RPC primero
+      try {
+        const { data, error } = await supabase.rpc('is_email_authorized', {
+          user_email: cleanEmail
+        });
 
-      if (error) {
-        console.error('Error checking email authorization:', error);
-        return false;
+        if (!error && data !== null) {
+          console.log('RPC authorization result:', { 
+            email: cleanEmail, 
+            isAuthorized: data 
+          });
+          return data === true;
+        }
+      } catch (rpcError) {
+        console.warn('RPC function failed, using fallback:', rpcError);
       }
 
-      const isAuthorized = data !== null;
-      console.log('Email authorization result:', { 
-        email: cleanEmail, 
-        isAuthorized, 
-        foundData: data 
-      });
+      // Usar fallback si RPC falla
+      return await checkEmailAuthorizationFallback(cleanEmail);
       
-      return isAuthorized;
     } catch (error) {
       console.error('Error checking email authorization:', error);
-      return false;
+      // Como último recurso, usar fallback
+      return await checkEmailAuthorizationFallback(email);
     }
   };
 
