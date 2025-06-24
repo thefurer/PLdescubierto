@@ -25,7 +25,12 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Signup attempt:', { email, isEmailAuthorized, isValid });
+    console.log('Signup attempt:', { 
+      email: email.toLowerCase().trim(), 
+      isEmailAuthorized, 
+      isPasswordValid: isValid,
+      fullName: fullName.trim()
+    });
     
     if (!isEmailAuthorized) {
       console.log('Signup blocked: email not authorized');
@@ -37,9 +42,23 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
       return;
     }
 
+    if (!fullName.trim()) {
+      console.log('Signup blocked: full name required');
+      return;
+    }
+
     setLoading(true);
     try {
-      await signUp(email, password, fullName);
+      // Usar email en minúsculas y sin espacios
+      const cleanEmail = email.toLowerCase().trim();
+      const cleanFullName = fullName.trim();
+      
+      console.log('Attempting signup with cleaned data:', { 
+        cleanEmail, 
+        cleanFullName 
+      });
+      
+      await signUp(cleanEmail, password, cleanFullName);
     } catch (error) {
       console.error('Signup error:', error);
     } finally {
@@ -48,9 +67,11 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
   };
 
   const handleEmailAuthorizationChange = (authorized: boolean) => {
-    console.log('Email authorization changed:', authorized);
+    console.log('Email authorization changed:', { email: email.toLowerCase().trim(), authorized });
     setIsEmailAuthorized(authorized);
   };
+
+  const canSubmit = !loading && isValid && isEmailAuthorized && fullName.trim().length > 0;
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -114,7 +135,7 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
       <Button
         type="submit"
         className="w-full"
-        disabled={loading || !isValid || !isEmailAuthorized}
+        disabled={!canSubmit}
       >
         {loading ? (
           <Loader2 className="mr-2 h-4 w-4 animate-spin" />

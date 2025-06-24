@@ -47,7 +47,7 @@ export const useEmailAuthorization = () => {
       setLoading(true);
       
       const { error } = await supabase.rpc('authorize_email', {
-        user_email: email,
+        user_email: email.toLowerCase().trim(),
         notes: notes || null
       });
 
@@ -101,36 +101,32 @@ export const useEmailAuthorization = () => {
     }
   };
 
-  // Verificar si un email está autorizado - función mejorada
+  // Verificar si un email está autorizado - versión simplificada y más confiable
   const checkEmailAuthorization = async (email: string): Promise<boolean> => {
     try {
-      console.log('Checking email authorization for:', email);
+      const cleanEmail = email.toLowerCase().trim();
+      console.log('Checking email authorization for:', cleanEmail);
       
-      // Primer intento: usar la función RPC
-      const { data: rpcResult, error: rpcError } = await supabase.rpc('is_email_authorized', {
-        user_email: email.toLowerCase().trim()
-      });
-
-      if (!rpcError && rpcResult !== null) {
-        console.log('RPC result:', rpcResult);
-        return rpcResult;
-      }
-
-      // Segundo intento: consulta directa como fallback
-      const { data: directResult, error: directError } = await supabase
+      // Consulta directa simple
+      const { data, error } = await supabase
         .from('authorized_emails')
-        .select('id, is_active')
-        .eq('email', email.toLowerCase().trim())
+        .select('id, email, is_active')
+        .eq('email', cleanEmail)
         .eq('is_active', true)
-        .limit(1);
+        .maybeSingle();
 
-      if (directError) {
-        console.error('Direct query error:', directError);
+      if (error) {
+        console.error('Error checking email authorization:', error);
         return false;
       }
 
-      const isAuthorized = directResult && directResult.length > 0;
-      console.log('Direct query result:', { directResult, isAuthorized });
+      const isAuthorized = data !== null;
+      console.log('Email authorization result:', { 
+        email: cleanEmail, 
+        isAuthorized, 
+        foundData: data 
+      });
+      
       return isAuthorized;
     } catch (error) {
       console.error('Error checking email authorization:', error);
