@@ -1,4 +1,5 @@
 
+import { useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { History, Activity, AlertCircle } from 'lucide-react';
@@ -13,7 +14,12 @@ import {
 } from '@/components/ui/table';
 
 const ActionsHistoryViewer = () => {
-  const { adminActions } = useAdminManagement();
+  const { adminActions, loadAdminActions } = useAdminManagement();
+
+  // Cargar historial de acciones automáticamente al montar el componente
+  useEffect(() => {
+    loadAdminActions();
+  }, [loadAdminActions]);
 
   const getActionTypeColor = (actionType: string) => {
     switch (actionType) {

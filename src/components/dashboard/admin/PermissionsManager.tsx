@@ -34,9 +34,28 @@ const PermissionsManager = () => {
   const [selectedUser, setSelectedUser] = useState<string | null>(null);
   const [permissions, setPermissions] = useState<Record<string, any>>({});
 
+  // Cargar usuarios administradores automáticamente al montar el componente
   useEffect(() => {
     loadAdminUsers();
-  }, []);
+  }, [loadAdminUsers]);
+
+  // Inicializar permisos cuando se cargan los usuarios
+  useEffect(() => {
+    const initialPermissions: Record<string, any> = {};
+    adminUsers.forEach(admin => {
+      if (admin.permissions) {
+        admin.permissions.forEach(permission => {
+          const key = `${admin.id}_${permission.section_name}`;
+          initialPermissions[key] = {
+            can_view: permission.can_view,
+            can_edit: permission.can_edit,
+            can_delete: permission.can_delete
+          };
+        });
+      }
+    });
+    setPermissions(initialPermissions);
+  }, [adminUsers]);
 
   const handlePermissionChange = async (
     userId: string, 

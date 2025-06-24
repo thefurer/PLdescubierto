@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -35,8 +35,14 @@ const EmailAuthorizationManager = () => {
     authorizedEmails, 
     loading, 
     authorizeEmail, 
-    revokeEmailAuthorization 
+    revokeEmailAuthorization,
+    loadAuthorizedEmails
   } = useAdminManagement();
+
+  // Cargar datos automáticamente al montar el componente
+  useEffect(() => {
+    loadAuthorizedEmails();
+  }, [loadAuthorizedEmails]);
 
   const handleAuthorizeEmail = async () => {
     if (!newEmail.trim()) return;
