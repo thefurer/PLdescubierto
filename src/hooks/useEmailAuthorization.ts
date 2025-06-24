@@ -28,6 +28,8 @@ export const useEmailAuthorization = () => {
         .order('authorized_at', { ascending: false });
 
       if (error) throw error;
+      
+      console.log('Loaded authorized emails:', data);
       setAuthorizedEmails(data || []);
     } catch (error) {
       console.error('Error loading authorized emails:', error);
@@ -46,16 +48,23 @@ export const useEmailAuthorization = () => {
     try {
       setLoading(true);
       
+      const cleanEmail = email.toLowerCase().trim();
+      console.log('Authorizing email:', cleanEmail);
+      
+      // Usar la función RPC para autorizar el email
       const { error } = await supabase.rpc('authorize_email', {
-        user_email: email.toLowerCase().trim(),
+        user_email: cleanEmail,
         notes: notes || null
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Error in authorize_email RPC:', error);
+        throw error;
+      }
 
       toast({
         title: 'Éxito',
-        description: `Email ${email} autorizado correctamente`,
+        description: `Email ${cleanEmail} autorizado correctamente`,
       });
 
       await loadAuthorizedEmails();
@@ -101,7 +110,7 @@ export const useEmailAuthorization = () => {
     }
   };
 
-  // Verificar si un email está autorizado - versión simplificada con logs detallados
+  // Verificar si un email está autorizado - versión mejorada
   const checkEmailAuthorization = async (email: string): Promise<boolean> => {
     try {
       const cleanEmail = email.toLowerCase().trim();
@@ -109,14 +118,23 @@ export const useEmailAuthorization = () => {
       console.log('Original email:', email);
       console.log('Cleaned email:', cleanEmail);
       
-      // Consulta directa a la tabla authorized_emails sin RPC
+      // Primero, verificar todos los emails autorizados para debug
+      const { data: allEmails, error: allError } = await supabase
+        .from('authorized_emails')
+        .select('email, is_active');
+      
+      console.log('All authorized emails in database:', allEmails);
+      console.log('All emails query error:', allError);
+      
+      // Ahora la consulta específica
       const { data, error } = await supabase
         .from('authorized_emails')
         .select('id, email, is_active')
         .eq('email', cleanEmail)
         .eq('is_active', true);
 
-      console.log('Query response:', { data, error });
+      console.log('Specific query response:', { data, error });
+      console.log('Query parameters used:', { email: cleanEmail, is_active: true });
 
       if (error) {
         console.error('Database query error:', error);
@@ -125,8 +143,28 @@ export const useEmailAuthorization = () => {
 
       const isAuthorized = data && data.length > 0;
       console.log('Authorization result:', isAuthorized);
-      console.log('=== END EMAIL AUTHORIZATION CHECK ===');
       
+      // Si no está autorizado, intentar también con la función RPC como respaldo
+      if (!isAuthorized) {
+        console.log('Trying RPC function as fallback...');
+        try {
+          const { data: rpcResult, error: rpcError } = await supabase.rpc('is_email_authorized', {
+            user_email: cleanEmail
+          });
+          
+          console.log('RPC function result:', { rpcResult, rpcError });
+          
+          if (!rpcError && rpcResult) {
+            console.log('RPC function confirms authorization');
+            console.log('=== END EMAIL AUTHORIZATION CHECK ===');
+            return true;
+          }
+        } catch (rpcErr) {
+          console.log('RPC function failed:', rpcErr);
+        }
+      }
+      
+      console.log('=== END EMAIL AUTHORIZATION CHECK ===');
       return isAuthorized;
       
     } catch (error) {

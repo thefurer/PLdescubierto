@@ -13,15 +13,22 @@ interface EmailAuthorizationCheckProps {
 const EmailAuthorizationCheck = ({ email, onAuthorizationChecked, children }: EmailAuthorizationCheckProps) => {
   const [isChecking, setIsChecking] = useState(false);
   const [isAuthorized, setIsAuthorized] = useState<boolean | null>(null);
+  const [lastCheckedEmail, setLastCheckedEmail] = useState<string>('');
   const { checkEmailAuthorization } = useEmailAuthorization();
 
   useEffect(() => {
     const checkAuthorization = async () => {
-      console.log('EmailAuthorizationCheck useEffect triggered with email:', email);
+      console.log('EmailAuthorizationCheck useEffect triggered');
+      console.log('Current email:', email);
+      console.log('Last checked email:', lastCheckedEmail);
       
-      // Resetear estados
-      setIsAuthorized(null);
-      onAuthorizationChecked(false);
+      // Resetear estados solo si el email cambió
+      if (email !== lastCheckedEmail) {
+        console.log('Email changed, resetting states');
+        setIsAuthorized(null);
+        onAuthorizationChecked(false);
+        setLastCheckedEmail(email);
+      }
 
       // Validar email básico
       if (!email || !email.includes('@') || email.length < 5) {
@@ -29,28 +36,31 @@ const EmailAuthorizationCheck = ({ email, onAuthorizationChecked, children }: Em
         return;
       }
 
-      setIsChecking(true);
-      
-      try {
+      // Solo verificar si el email cambió o no hemos verificado aún
+      if (email !== lastCheckedEmail || isAuthorized === null) {
         console.log('Starting authorization check for:', email);
-        const authorized = await checkEmailAuthorization(email);
-        console.log('Authorization check result:', authorized);
+        setIsChecking(true);
         
-        setIsAuthorized(authorized);
-        onAuthorizationChecked(authorized);
-      } catch (error) {
-        console.error('Error in authorization check:', error);
-        setIsAuthorized(false);
-        onAuthorizationChecked(false);
-      } finally {
-        setIsChecking(false);
+        try {
+          const authorized = await checkEmailAuthorization(email);
+          console.log('Authorization check completed:', { email, authorized });
+          
+          setIsAuthorized(authorized);
+          onAuthorizationChecked(authorized);
+        } catch (error) {
+          console.error('Error in authorization check:', error);
+          setIsAuthorized(false);
+          onAuthorizationChecked(false);
+        } finally {
+          setIsChecking(false);
+        }
       }
     };
 
-    // Debounce la verificación
-    const timeoutId = setTimeout(checkAuthorization, 500);
+    // Debounce la verificación solo para nuevos emails
+    const timeoutId = setTimeout(checkAuthorization, email !== lastCheckedEmail ? 500 : 0);
     return () => clearTimeout(timeoutId);
-  }, [email, checkEmailAuthorization, onAuthorizationChecked]);
+  }, [email, checkEmailAuthorization, onAuthorizationChecked, lastCheckedEmail, isAuthorized]);
 
   // Mostrar siempre el campo de email
   const renderContent = () => {
