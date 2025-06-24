@@ -1,7 +1,7 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { checkEmailAuthorizationFallback } from './useEmailAuthorizationFallback';
 
 interface AuthorizedEmail {
   id: string;
@@ -47,7 +47,7 @@ export const useEmailAuthorization = () => {
       setLoading(true);
       
       const { error } = await supabase.rpc('authorize_email', {
-        user_email: email,
+        user_email: email.toLowerCase().trim(),
         notes: notes || null
       });
 
@@ -101,40 +101,36 @@ export const useEmailAuthorization = () => {
     }
   };
 
-  // Verificar si un email está autorizado - función mejorada
+  // Verificar si un email está autorizado - versión con fallback
   const checkEmailAuthorization = async (email: string): Promise<boolean> => {
     try {
-      console.log('Checking email authorization for:', email);
+      const cleanEmail = email.toLowerCase().trim();
+      console.log('Checking email authorization for:', cleanEmail);
       
-      // Primer intento: usar la función RPC
-      const { data: rpcResult, error: rpcError } = await supabase.rpc('is_email_authorized', {
-        user_email: email.toLowerCase().trim()
-      });
+      // Intentar usar la función RPC primero
+      try {
+        const { data, error } = await supabase.rpc('is_email_authorized', {
+          user_email: cleanEmail
+        });
 
-      if (!rpcError && rpcResult !== null) {
-        console.log('RPC result:', rpcResult);
-        return rpcResult;
+        if (!error && data !== null) {
+          console.log('RPC authorization result:', { 
+            email: cleanEmail, 
+            isAuthorized: data 
+          });
+          return data === true;
+        }
+      } catch (rpcError) {
+        console.warn('RPC function failed, using fallback:', rpcError);
       }
 
-      // Segundo intento: consulta directa como fallback
-      const { data: directResult, error: directError } = await supabase
-        .from('authorized_emails')
-        .select('id, is_active')
-        .eq('email', email.toLowerCase().trim())
-        .eq('is_active', true)
-        .limit(1);
-
-      if (directError) {
-        console.error('Direct query error:', directError);
-        return false;
-      }
-
-      const isAuthorized = directResult && directResult.length > 0;
-      console.log('Direct query result:', { directResult, isAuthorized });
-      return isAuthorized;
+      // Usar fallback si RPC falla
+      return await checkEmailAuthorizationFallback(cleanEmail);
+      
     } catch (error) {
       console.error('Error checking email authorization:', error);
-      return false;
+      // Como último recurso, usar fallback
+      return await checkEmailAuthorizationFallback(email);
     }
   };
 

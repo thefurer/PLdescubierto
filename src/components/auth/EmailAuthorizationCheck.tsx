@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { AlertCircle, CheckCircle2 } from 'lucide-react';
+import { AlertCircle, CheckCircle2, Loader2 } from 'lucide-react';
 import { useEmailAuthorization } from '@/hooks/useEmailAuthorization';
 
 interface EmailAuthorizationCheckProps {
@@ -17,16 +17,22 @@ const EmailAuthorizationCheck = ({ email, onAuthorizationChecked, children }: Em
 
   useEffect(() => {
     const checkAuthorization = async () => {
-      if (!email || !email.includes('@')) {
-        setIsAuthorized(null);
-        onAuthorizationChecked(false);
+      // Resetear estados
+      setIsAuthorized(null);
+      onAuthorizationChecked(false);
+
+      // Validar email básico
+      if (!email || !email.includes('@') || email.length < 5) {
         return;
       }
 
       setIsChecking(true);
+      
       try {
+        console.log('Starting email authorization check for:', email);
         const authorized = await checkEmailAuthorization(email);
-        console.log('Email authorization result:', { email, authorized });
+        console.log('Email authorization check completed:', { email, authorized });
+        
         setIsAuthorized(authorized);
         onAuthorizationChecked(authorized);
       } catch (error) {
@@ -38,53 +44,63 @@ const EmailAuthorizationCheck = ({ email, onAuthorizationChecked, children }: Em
       }
     };
 
-    const timeoutId = setTimeout(checkAuthorization, 500); // Debounce
+    // Debounce la verificación
+    const timeoutId = setTimeout(checkAuthorization, 500);
     return () => clearTimeout(timeoutId);
   }, [email, checkEmailAuthorization, onAuthorizationChecked]);
 
-  if (isChecking) {
-    return (
-      <div>
-        {children}
-        <Alert className="mt-2 border-yellow-200 bg-yellow-50">
-          <AlertCircle className="h-4 w-4 text-yellow-600" />
-          <AlertDescription className="text-yellow-800">
-            Verificando autorización del email...
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+  // Mostrar el campo de email siempre
+  const renderContent = () => {
+    if (!email || !email.includes('@') || email.length < 5) {
+      return <>{children}</>;
+    }
 
-  if (isAuthorized === true && email && email.includes('@')) {
-    return (
-      <div>
-        {children}
-        <Alert className="mt-2 border-green-200 bg-green-50">
-          <CheckCircle2 className="h-4 w-4 text-green-600" />
-          <AlertDescription className="text-green-800">
-            ✓ Email autorizado. Puedes proceder con el registro.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+    if (isChecking) {
+      return (
+        <div>
+          {children}
+          <Alert className="mt-2 border-blue-200 bg-blue-50">
+            <Loader2 className="h-4 w-4 text-blue-600 animate-spin" />
+            <AlertDescription className="text-blue-800">
+              Verificando autorización del email...
+            </AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
 
-  if (isAuthorized === false && email && email.includes('@')) {
-    return (
-      <div>
-        {children}
-        <Alert className="mt-2 border-red-200 bg-red-50">
-          <AlertCircle className="h-4 w-4 text-red-600" />
-          <AlertDescription className="text-red-800">
-            Este email no está autorizado para registrarse. Contacta al administrador para solicitar acceso.
-          </AlertDescription>
-        </Alert>
-      </div>
-    );
-  }
+    if (isAuthorized === true) {
+      return (
+        <div>
+          {children}
+          <Alert className="mt-2 border-green-200 bg-green-50">
+            <CheckCircle2 className="h-4 w-4 text-green-600" />
+            <AlertDescription className="text-green-800 font-medium">
+              ✓ Email autorizado. Puedes proceder con el registro.
+            </AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
 
-  return <>{children}</>;
+    if (isAuthorized === false) {
+      return (
+        <div>
+          {children}
+          <Alert className="mt-2 border-red-200 bg-red-50">
+            <AlertCircle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800 font-medium">
+              Este email no está autorizado para registrarse. Contacta al administrador para solicitar acceso.
+            </AlertDescription>
+          </Alert>
+        </div>
+      );
+    }
+
+    return <>{children}</>;
+  };
+
+  return renderContent();
 };
 
 export default EmailAuthorizationCheck;
