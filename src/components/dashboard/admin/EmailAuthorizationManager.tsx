@@ -42,17 +42,19 @@ const EmailAuthorizationManager = () => {
   // Cargar datos automáticamente al montar el componente
   useEffect(() => {
     loadAuthorizedEmails();
-  }, [loadAuthorizedEmails]);
+  }, []);
 
   const handleAuthorizeEmail = async () => {
     if (!newEmail.trim()) return;
     
-    await authorizeEmail(newEmail.trim(), notes.trim() || undefined);
+    console.log('Authorizing email:', newEmail.trim());
+    await authorizeEmail(newEmail.trim().toLowerCase(), notes.trim() || undefined);
     setNewEmail('');
     setNotes('');
   };
 
   const handleRevokeAuthorization = async (emailId: string) => {
+    console.log('Revoking authorization for email ID:', emailId);
     await revokeEmailAuthorization(emailId);
   };
 

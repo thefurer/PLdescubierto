@@ -25,17 +25,31 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    console.log('Signup attempt:', { email, isEmailAuthorized, isValid });
+    
     if (!isEmailAuthorized) {
+      console.log('Signup blocked: email not authorized');
       return;
     }
 
     if (!isValid) {
+      console.log('Signup blocked: password not valid');
       return;
     }
 
     setLoading(true);
-    await signUp(email, password, fullName);
-    setLoading(false);
+    try {
+      await signUp(email, password, fullName);
+    } catch (error) {
+      console.error('Signup error:', error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleEmailAuthorizationChange = (authorized: boolean) => {
+    console.log('Email authorization changed:', authorized);
+    setIsEmailAuthorized(authorized);
   };
 
   return (
@@ -61,7 +75,7 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
         <Label htmlFor="email">Email</Label>
         <EmailAuthorizationCheck 
           email={email} 
-          onAuthorizationChecked={setIsEmailAuthorized}
+          onAuthorizationChecked={handleEmailAuthorizationChange}
         >
           <div className="relative">
             <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
