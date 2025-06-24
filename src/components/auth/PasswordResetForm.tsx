@@ -1,11 +1,11 @@
 
-import React from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { ArrowLeft } from 'lucide-react';
+import { Loader2, Mail, ArrowLeft } from 'lucide-react';
 import CaptchaWrapper from './CaptchaWrapper';
-import { useSecureForm } from '@/hooks/useSecureForm';
+import { AuthCard } from './AuthCard';
+import { AuthHeader } from './AuthHeader';
 
 interface PasswordResetFormProps {
   email: string;
@@ -28,67 +28,60 @@ export const PasswordResetForm = ({
   onSubmit,
   onBackToLogin
 }: PasswordResetFormProps) => {
-  const { errors, validateForm, sanitizeFormData, clearErrors } = useSecureForm();
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    clearErrors();
-    
-    // Only validate email for password reset
-    if (email && email.trim()) {
-      const sanitizedEmail = email.trim().toLowerCase();
-      setEmail(sanitizedEmail);
-      onSubmit(e);
-    }
-  };
-
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <div className="space-y-2">
-        <Label htmlFor="email">Email</Label>
-        <Input
-          id="email"
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Ingresa tu email"
-          required
-          disabled={loading}
-          className={errors.email ? 'border-red-500' : ''}
-          autoComplete="email"
-        />
-        {errors.email && (
-          <p className="text-sm text-red-600">{errors.email}</p>
-        )}
-        <p className="text-sm text-gray-600">
-          Te enviaremos un enlace para restablecer tu contraseña
-        </p>
-      </div>
-
-      <CaptchaWrapper
-        onVerify={setCaptchaToken}
-        captchaRef={captcha}
+    <AuthCard>
+      <AuthHeader
+        title="Restablecer Contraseña"
+        subtitle="Ingresa tu email para recibir las instrucciones"
       />
+      
+      <form onSubmit={onSubmit} className="space-y-4">
+        <div>
+          <Label htmlFor="email">Email</Label>
+          <div className="relative">
+            <Mail className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
+            <Input
+              id="email"
+              type="email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              placeholder="tu@email.com"
+              className="pl-10"
+              required
+              disabled={loading}
+            />
+          </div>
+        </div>
 
-      <Button
-        type="submit"
-        className="w-full"
-        disabled={loading || !captchaToken}
-      >
-        {loading ? 'Enviando...' : 'Enviar Enlace'}
-      </Button>
+        <CaptchaWrapper
+          onVerify={setCaptchaToken}
+          captchaRef={captcha}
+        />
 
-      <div className="text-center">
-        <button
+        <Button
+          type="submit"
+          className="w-full"
+          disabled={loading || !captchaToken}
+        >
+          {loading ? (
+            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+          ) : (
+            <Mail className="mr-2 h-4 w-4" />
+          )}
+          Enviar Instrucciones
+        </Button>
+
+        <Button
           type="button"
+          variant="ghost"
+          className="w-full"
           onClick={onBackToLogin}
-          className="inline-flex items-center text-sm text-blue-600 hover:text-blue-800 hover:underline"
           disabled={loading}
         >
-          <ArrowLeft size={16} className="mr-1" />
+          <ArrowLeft className="mr-2 h-4 w-4" />
           Volver al inicio de sesión
-        </button>
-      </div>
-    </form>
+        </Button>
+      </form>
+    </AuthCard>
   );
 };
