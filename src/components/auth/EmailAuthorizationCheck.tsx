@@ -17,26 +17,29 @@ const EmailAuthorizationCheck = ({ email, onAuthorizationChecked, children }: Em
 
   useEffect(() => {
     const checkAuthorization = async () => {
+      console.log('EmailAuthorizationCheck useEffect triggered with email:', email);
+      
       // Resetear estados
       setIsAuthorized(null);
       onAuthorizationChecked(false);
 
       // Validar email básico
       if (!email || !email.includes('@') || email.length < 5) {
+        console.log('Email validation failed:', email);
         return;
       }
 
       setIsChecking(true);
       
       try {
-        console.log('Starting email authorization check for:', email);
+        console.log('Starting authorization check for:', email);
         const authorized = await checkEmailAuthorization(email);
-        console.log('Email authorization check completed:', { email, authorized });
+        console.log('Authorization check result:', authorized);
         
         setIsAuthorized(authorized);
         onAuthorizationChecked(authorized);
       } catch (error) {
-        console.error('Error checking email authorization:', error);
+        console.error('Error in authorization check:', error);
         setIsAuthorized(false);
         onAuthorizationChecked(false);
       } finally {
@@ -49,7 +52,7 @@ const EmailAuthorizationCheck = ({ email, onAuthorizationChecked, children }: Em
     return () => clearTimeout(timeoutId);
   }, [email, checkEmailAuthorization, onAuthorizationChecked]);
 
-  // Mostrar el campo de email siempre
+  // Mostrar siempre el campo de email
   const renderContent = () => {
     if (!email || !email.includes('@') || email.length < 5) {
       return <>{children}</>;

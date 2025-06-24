@@ -27,7 +27,8 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
-    console.log('Signup attempt:', { 
+    console.log('=== SIGNUP FORM SUBMISSION ===');
+    console.log('Form data:', { 
       email: email.toLowerCase().trim(), 
       isEmailAuthorized, 
       isPasswordValid: isValid,
@@ -61,6 +62,7 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
       });
       
       await signUp(cleanEmail, password, cleanFullName);
+      console.log('Signup completed successfully');
     } catch (error) {
       console.error('Signup error:', error);
     } finally {
@@ -69,11 +71,22 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
   };
 
   const handleEmailAuthorizationChange = (authorized: boolean) => {
-    console.log('Email authorization changed:', { email: email.toLowerCase().trim(), authorized });
+    console.log('Email authorization state changed:', { 
+      email: email.toLowerCase().trim(), 
+      authorized 
+    });
     setIsEmailAuthorized(authorized);
   };
 
   const canSubmit = !loading && isValid && isEmailAuthorized && fullName.trim().length > 0;
+
+  console.log('SignupForm render state:', {
+    email,
+    isEmailAuthorized,
+    isPasswordValid: isValid,
+    canSubmit,
+    loading
+  });
 
   return (
     <AuthCard>
