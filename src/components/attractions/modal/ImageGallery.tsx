@@ -58,26 +58,20 @@ export const ImageGallery = ({ images, attractionName }: ImageGalleryProps) => {
     }
   };
 
-  // Function to get circle size based on index
-  const getCircleSize = (index: number) => {
-    const baseSize = 3; // Base size in rem (w-3 h-3)
-    const decreaseRate = 0.3; // How much to decrease per index
-    const minSize = 1.5; // Minimum size
-    
-    const size = Math.max(baseSize - (index * decreaseRate), minSize);
-    return `w-${Math.round(size)} h-${Math.round(size)}`;
-  };
-
   // Function to get circle classes with decreasing sizes
   const getCircleClasses = (index: number) => {
     const isActive = index === currentImageIndex;
-    const sizeClasses = getCircleSize(index);
     
-    return `${sizeClasses} rounded-full transition-all duration-300 ${
+    return `rounded-full transition-all duration-300 ${
       isActive 
         ? 'bg-white scale-125' 
         : 'bg-white/50 hover:bg-white/70'
     }`;
+  };
+
+  const isVideo = (url: string) => {
+    return url.includes('.mp4') || url.includes('.webm') || url.includes('.mov') || 
+           url.includes('video') || url.match(/\.(mp4|webm|mov)$/i);
   };
 
   if (images.length === 0) {
@@ -89,17 +83,34 @@ export const ImageGallery = ({ images, attractionName }: ImageGalleryProps) => {
 
   return (
     <div className="relative w-full h-64 md:h-80 overflow-hidden rounded-lg bg-gray-100">
-      <img
-        src={images[currentImageIndex]}
-        alt={`${attractionName} - Imagen ${currentImageIndex + 1}`}
-        className="w-full h-full object-cover transition-all duration-500"
-        onError={(e) => {
-          console.log('Error loading image:', images[currentImageIndex]);
-        }}
-        onLoad={() => {
-          console.log('Successfully loaded image:', images[currentImageIndex]);
-        }}
-      />
+      {isVideo(images[currentImageIndex]) ? (
+        <video
+          src={images[currentImageIndex]}
+          className="w-full h-full object-cover transition-all duration-500"
+          controls
+          muted
+          autoPlay
+          loop
+          onError={() => {
+            console.log('Error loading video:', images[currentImageIndex]);
+          }}
+          onLoadedData={() => {
+            console.log('Successfully loaded video:', images[currentImageIndex]);
+          }}
+        />
+      ) : (
+        <img
+          src={images[currentImageIndex]}
+          alt={`${attractionName} - Imagen ${currentImageIndex + 1}`}
+          className="w-full h-full object-cover transition-all duration-500"
+          onError={(e) => {
+            console.log('Error loading image:', images[currentImageIndex]);
+          }}
+          onLoad={() => {
+            console.log('Successfully loaded image:', images[currentImageIndex]);
+          }}
+        />
+      )}
       
       {/* Navigation arrows - show when there are multiple images */}
       {images.length > 1 && (
@@ -135,8 +146,8 @@ export const ImageGallery = ({ images, attractionName }: ImageGalleryProps) => {
                   setCurrentImageIndex(index);
                 }}
                 style={{
-                  width: `${Math.max(12 - (index * 2), 8)}px`,
-                  height: `${Math.max(12 - (index * 2), 8)}px`
+                  width: `${Math.max(12 - (index * 1), 6)}px`,
+                  height: `${Math.max(12 - (index * 1), 6)}px`
                 }}
               />
             ))}

@@ -22,7 +22,7 @@ const GalleryImageManager = ({
   onUploadImage
 }: GalleryImageManagerProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const MAX_IMAGES = 5;
+  const MAX_IMAGES = 10;
 
   return (
     <Card>
@@ -30,7 +30,7 @@ const GalleryImageManager = ({
         <CardTitle className="flex items-center justify-between">
           <div className="flex items-center gap-2">
             <Image className="h-5 w-5" />
-            Galería de Imágenes ({currentImages.length}/{MAX_IMAGES})
+            Galería de Imágenes y Videos ({currentImages.length}/{MAX_IMAGES})
           </div>
           {currentImages.length < MAX_IMAGES && (
             <Button
@@ -39,7 +39,7 @@ const GalleryImageManager = ({
               onClick={() => setIsDialogOpen(true)}
             >
               <Plus className="h-4 w-4 mr-2" />
-              Agregar Imagen
+              Agregar Contenido
             </Button>
           )}
         </CardTitle>

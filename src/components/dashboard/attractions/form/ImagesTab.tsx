@@ -1,5 +1,4 @@
 
-import AttractionImageManager from '../AttractionImageManager';
 import GalleryImageManager from '../GalleryImageManager';
 
 interface ImagesTabProps {
@@ -14,23 +13,13 @@ interface ImagesTabProps {
 
 const ImagesTab = ({
   attractionId,
-  currentImageUrl,
   currentGalleryImages,
   isUploading,
-  onImageUpdate,
   onGalleryUpdate,
   onUploadImage
 }: ImagesTabProps) => {
   return (
     <div className="space-y-4">
-      <AttractionImageManager
-        currentImageUrl={currentImageUrl}
-        attractionId={attractionId}
-        isUploading={isUploading}
-        onImageUpdate={onImageUpdate}
-        onUploadImage={onUploadImage}
-      />
-
       <GalleryImageManager
         attractionId={attractionId}
         currentImages={currentGalleryImages}

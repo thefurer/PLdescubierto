@@ -37,27 +37,31 @@ const ImageUploadDialog = ({
     if (currentImages.length >= maxImages) {
       toast({
         title: 'Límite alcanzado',
-        description: `Solo puedes tener máximo ${maxImages} imágenes en la galería`,
+        description: `Solo puedes tener máximo ${maxImages} archivos en la galería`,
         variant: 'destructive'
       });
       return;
     }
 
-    // Validate file type
-    if (!file.type.startsWith('image/')) {
+    // Validate file type (images and short videos)
+    const validTypes = ['image/', 'video/mp4', 'video/webm', 'video/mov'];
+    const isValidType = validTypes.some(type => file.type.startsWith(type));
+    
+    if (!isValidType) {
       toast({
         title: 'Error',
-        description: 'Por favor selecciona un archivo de imagen válido',
+        description: 'Por favor selecciona una imagen o video válido (MP4, WebM, MOV)',
         variant: 'destructive'
       });
       return;
     }
 
-    // Validate file size (max 5MB)
-    if (file.size > 5 * 1024 * 1024) {
+    // Validate file size (max 15MB for videos, 5MB for images)
+    const maxSize = file.type.startsWith('video/') ? 15 * 1024 * 1024 : 5 * 1024 * 1024;
+    if (file.size > maxSize) {
       toast({
         title: 'Error',
-        description: 'La imagen debe ser menor a 5MB',
+        description: `El archivo debe ser menor a ${file.type.startsWith('video/') ? '15MB' : '5MB'}`,
         variant: 'destructive'
       });
       return;
@@ -71,13 +75,13 @@ const ImageUploadDialog = ({
       
       toast({
         title: 'Éxito',
-        description: 'Imagen agregada a la galería',
+        description: 'Archivo agregado a la galería',
       });
     } catch (error) {
-      console.error('Error uploading image:', error);
+      console.error('Error uploading file:', error);
       toast({
         title: 'Error',
-        description: 'No se pudo subir la imagen. Inténtalo de nuevo.',
+        description: 'No se pudo subir el archivo. Inténtalo de nuevo.',
         variant: 'destructive'
       });
     }
@@ -99,7 +103,7 @@ const ImageUploadDialog = ({
     if (currentImages.length >= maxImages) {
       toast({
         title: 'Límite alcanzado',
-        description: `Solo puedes tener máximo ${maxImages} imágenes en la galería`,
+        description: `Solo puedes tener máximo ${maxImages} archivos en la galería`,
         variant: 'destructive'
       });
       return;
@@ -123,7 +127,7 @@ const ImageUploadDialog = ({
     
     toast({
       title: 'Éxito',
-      description: 'Imagen agregada a la galería',
+      description: 'Archivo agregado a la galería',
     });
   };
 
@@ -131,21 +135,24 @@ const ImageUploadDialog = ({
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Agregar Imagen a la Galería</DialogTitle>
+          <DialogTitle>Agregar Imagen o Video a la Galería</DialogTitle>
         </DialogHeader>
         <div className="space-y-4">
           <div>
             <label className="text-sm font-medium text-gray-600 mb-2 block">
-              Subir archivo local
+              Subir archivo local (Imágenes o videos cortos)
             </label>
             <Input
               type="file"
-              accept="image/*"
+              accept="image/*,video/mp4,video/webm,video/mov"
               onChange={handleFileUpload}
               disabled={isUploading}
             />
+            <p className="text-xs text-gray-500 mt-1">
+              Imágenes: máx. 5MB | Videos: máx. 15MB (MP4, WebM, MOV)
+            </p>
             {isUploading && (
-              <p className="text-sm text-blue-600 mt-2">Subiendo imagen...</p>
+              <p className="text-sm text-blue-600 mt-2">Subiendo archivo...</p>
             )}
           </div>
 
@@ -157,13 +164,13 @@ const ImageUploadDialog = ({
 
           <div>
             <label className="text-sm font-medium text-gray-600 mb-2 block">
-              URL de imagen
+              URL de imagen o video
             </label>
             <div className="flex gap-2">
               <Input
                 value={imageUrlInput}
                 onChange={(e) => setImageUrlInput(e.target.value)}
-                placeholder="https://ejemplo.com/imagen.jpg"
+                placeholder="https://ejemplo.com/archivo.jpg"
                 disabled={isUploading}
               />
               <Button
