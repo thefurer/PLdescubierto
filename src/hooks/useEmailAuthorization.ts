@@ -1,7 +1,7 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { checkEmailAuthorizationFallback } from './useEmailAuthorizationFallback';
 
 interface AuthorizedEmail {
   id: string;
@@ -101,36 +101,37 @@ export const useEmailAuthorization = () => {
     }
   };
 
-  // Verificar si un email está autorizado - versión con fallback
+  // Verificar si un email está autorizado - versión simplificada con logs detallados
   const checkEmailAuthorization = async (email: string): Promise<boolean> => {
     try {
       const cleanEmail = email.toLowerCase().trim();
-      console.log('Checking email authorization for:', cleanEmail);
+      console.log('=== EMAIL AUTHORIZATION CHECK ===');
+      console.log('Original email:', email);
+      console.log('Cleaned email:', cleanEmail);
       
-      // Intentar usar la función RPC primero
-      try {
-        const { data, error } = await supabase.rpc('is_email_authorized', {
-          user_email: cleanEmail
-        });
+      // Consulta directa a la tabla authorized_emails sin RPC
+      const { data, error } = await supabase
+        .from('authorized_emails')
+        .select('id, email, is_active')
+        .eq('email', cleanEmail)
+        .eq('is_active', true);
 
-        if (!error && data !== null) {
-          console.log('RPC authorization result:', { 
-            email: cleanEmail, 
-            isAuthorized: data 
-          });
-          return data === true;
-        }
-      } catch (rpcError) {
-        console.warn('RPC function failed, using fallback:', rpcError);
+      console.log('Query response:', { data, error });
+
+      if (error) {
+        console.error('Database query error:', error);
+        return false;
       }
 
-      // Usar fallback si RPC falla
-      return await checkEmailAuthorizationFallback(cleanEmail);
+      const isAuthorized = data && data.length > 0;
+      console.log('Authorization result:', isAuthorized);
+      console.log('=== END EMAIL AUTHORIZATION CHECK ===');
+      
+      return isAuthorized;
       
     } catch (error) {
-      console.error('Error checking email authorization:', error);
-      // Como último recurso, usar fallback
-      return await checkEmailAuthorizationFallback(email);
+      console.error('Error in checkEmailAuthorization:', error);
+      return false;
     }
   };
 
