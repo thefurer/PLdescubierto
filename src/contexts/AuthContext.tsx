@@ -1,4 +1,3 @@
-
 import { createContext, useContext, useEffect, useState, ReactNode } from 'react';
 import { User, Session, AuthError } from '@supabase/supabase-js';
 import { supabase } from '@/integrations/supabase/client';
@@ -168,11 +167,12 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
     };
   }, []);
 
-  const signUp = async (email: string, password: string, fullName?: string) => {
+  const signUp = async (email: string, password: string, fullName?: string, captchaToken?: string) => {
     try {
       console.log('Starting signup process for:', email);
+      console.log('CAPTCHA token provided:', !!captchaToken);
       
-      const { data, error } = await supabase.auth.signUp({
+      const signUpOptions: any = {
         email: email.toLowerCase().trim(),
         password,
         options: {
@@ -181,7 +181,15 @@ export const AuthProvider = ({ children }: AuthProviderProps) => {
           },
           emailRedirectTo: `${window.location.origin}/auth?verified=true`,
         },
-      });
+      };
+
+      // Add CAPTCHA token if provided
+      if (captchaToken) {
+        signUpOptions.options.captchaToken = captchaToken;
+        console.log('CAPTCHA token added to signup options');
+      }
+
+      const { data, error } = await supabase.auth.signUp(signUpOptions);
 
       if (error) {
         console.error('Signup error:', error);

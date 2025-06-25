@@ -80,7 +80,8 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
         hasCaptcha: !!captchaToken
       });
       
-      const result = await signUp(cleanEmail, password, cleanFullName);
+      // Pass the CAPTCHA token to the signUp function
+      const result = await signUp(cleanEmail, password, cleanFullName, captchaToken);
       
       if (result.error) {
         console.error('Signup failed:', result.error);
