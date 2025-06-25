@@ -24,10 +24,10 @@ const EmailAuthorizationCheck = ({
     const checkAuthorization = async () => {
       const cleanEmail = email.toLowerCase().trim();
       
-      // Solo proceder si el email es válido
+      // Validar email básico
       if (!cleanEmail || !cleanEmail.includes('@') || cleanEmail.length < 5) {
-        if (isAuthorized !== null || lastCheckedEmail !== '') {
-          console.log('Invalid email, resetting states');
+        if (isAuthorized !== null) {
+          console.log('Invalid email, resetting authorization state');
           setIsAuthorized(null);
           setLastCheckedEmail('');
           onAuthorizationChecked(false);
@@ -40,13 +40,19 @@ const EmailAuthorizationCheck = ({
         return;
       }
 
-      console.log('Email changed, checking authorization:', cleanEmail);
+      console.log('=== STARTING EMAIL AUTHORIZATION CHECK ===');
+      console.log('Email to check:', cleanEmail);
+      console.log('Previous email:', lastCheckedEmail);
+      
       setIsChecking(true);
       setLastCheckedEmail(cleanEmail);
       
       try {
         const authorized = await checkEmailAuthorization(cleanEmail);
-        console.log('Authorization result for', cleanEmail, ':', authorized);
+        console.log('Authorization check completed:', { 
+          email: cleanEmail, 
+          authorized 
+        });
         
         setIsAuthorized(authorized);
         onAuthorizationChecked(authorized);
@@ -56,13 +62,14 @@ const EmailAuthorizationCheck = ({
         onAuthorizationChecked(false);
       } finally {
         setIsChecking(false);
+        console.log('=== COMPLETED EMAIL AUTHORIZATION CHECK ===');
       }
     };
 
-    // Debounce la verificación para evitar llamadas excesivas
-    const timeoutId = setTimeout(checkAuthorization, 500);
+    // Debounce para evitar múltiples llamadas
+    const timeoutId = setTimeout(checkAuthorization, 300);
     return () => clearTimeout(timeoutId);
-  }, [email, checkEmailAuthorization, onAuthorizationChecked, lastCheckedEmail]);
+  }, [email, checkEmailAuthorization, onAuthorizationChecked, lastCheckedEmail, isAuthorized]);
 
   const renderStatusAlert = () => {
     const cleanEmail = email.toLowerCase().trim();

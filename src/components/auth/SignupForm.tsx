@@ -36,10 +36,10 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
       isEmailAuthorized, 
       isPasswordValid,
       fullName: cleanFullName,
-      hasFullName: cleanFullName.length > 0
+      hasFullName: cleanFullName.length >= 2
     });
     
-    // Validaciones
+    // Validaciones exhaustivas
     if (!isEmailAuthorized) {
       console.log('Signup blocked: email not authorized');
       return;
@@ -78,7 +78,7 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
   };
 
   const handleEmailAuthorizationChange = (authorized: boolean) => {
-    console.log('Email authorization changed:', { 
+    console.log('Email authorization status changed:', { 
       email: email.toLowerCase().trim(), 
       authorized 
     });

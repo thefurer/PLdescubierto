@@ -113,7 +113,7 @@ export const useEmailAuthorization = () => {
     }
   };
 
-  // Verificar si un email está autorizado - versión simplificada y mejorada
+  // Verificar si un email está autorizado
   const checkEmailAuthorization = async (email: string): Promise<boolean> => {
     if (!email || email.trim().length === 0) {
       console.log('Empty email provided for authorization check');
@@ -125,33 +125,29 @@ export const useEmailAuthorization = () => {
       console.log('=== EMAIL AUTHORIZATION CHECK ===');
       console.log('Checking authorization for:', cleanEmail);
       
-      // Intentar primero con la función RPC
-      try {
-        const { data: rpcResult, error: rpcError } = await supabase.rpc('is_email_authorized', {
-          user_email: cleanEmail
-        });
-        
-        console.log('RPC function result:', { rpcResult, rpcError });
-        
-        if (!rpcError && typeof rpcResult === 'boolean') {
-          console.log('RPC authorization result:', rpcResult);
-          console.log('=== END EMAIL AUTHORIZATION CHECK ===');
-          return rpcResult;
-        }
-        
-        console.log('RPC function failed or returned invalid result, trying direct query');
-      } catch (rpcErr) {
-        console.log('RPC function error:', rpcErr);
+      // Primero intentar con la función RPC mejorada
+      const { data: rpcResult, error: rpcError } = await supabase.rpc('is_email_authorized', {
+        user_email: cleanEmail
+      });
+      
+      console.log('RPC function result:', { rpcResult, rpcError });
+      
+      if (!rpcError && typeof rpcResult === 'boolean') {
+        console.log('RPC authorization successful:', rpcResult);
+        console.log('=== END EMAIL AUTHORIZATION CHECK ===');
+        return rpcResult;
       }
       
-      // Fallback a consulta directa
+      console.log('RPC function failed, trying direct query fallback');
+      
+      // Fallback: consulta directa con normalización exacta
       const { data, error, count } = await supabase
         .from('authorized_emails')
         .select('id, email, is_active', { count: 'exact' })
         .eq('email', cleanEmail)
         .eq('is_active', true);
 
-      console.log('Direct query result:', { 
+      console.log('Direct query fallback result:', { 
         data, 
         error, 
         count,
