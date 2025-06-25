@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { useAuth } from '@/contexts/AuthContext';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -8,6 +8,7 @@ import { Loader2, Mail, Lock, User } from 'lucide-react';
 import { PasswordStrengthIndicator } from './PasswordStrengthIndicator';
 import { usePasswordValidation } from '@/hooks/usePasswordValidation';
 import EmailAuthorizationCheck from './EmailAuthorizationCheck';
+import CaptchaWrapper from './CaptchaWrapper';
 import { AuthCard } from './AuthCard';
 import { AuthHeader } from './AuthHeader';
 
@@ -21,8 +22,17 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [isEmailAuthorized, setIsEmailAuthorized] = useState(false);
+  const [captchaToken, setCaptchaToken] = useState<string | null>(null);
+  const captchaRef = useRef<any>(null);
   const { signUp } = useAuth();
   const { isValid: isPasswordValid, errors: passwordErrors } = usePasswordValidation(password);
+
+  const resetCaptcha = () => {
+    if (captchaRef.current) {
+      captchaRef.current.resetCaptcha();
+      setCaptchaToken(null);
+    }
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -36,7 +46,8 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
       isEmailAuthorized, 
       isPasswordValid,
       fullName: cleanFullName,
-      hasFullName: cleanFullName.length >= 2
+      hasFullName: cleanFullName.length >= 2,
+      captchaToken: !!captchaToken
     });
     
     // Validaciones exhaustivas
@@ -55,23 +66,32 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
       return;
     }
 
+    if (!captchaToken) {
+      console.log('Signup blocked: captcha token required');
+      return;
+    }
+
     setLoading(true);
     try {
       console.log('Attempting signup with:', { 
         cleanEmail, 
         cleanFullName,
-        passwordLength: password.length
+        passwordLength: password.length,
+        hasCaptcha: !!captchaToken
       });
       
       const result = await signUp(cleanEmail, password, cleanFullName);
       
       if (result.error) {
         console.error('Signup failed:', result.error);
+        resetCaptcha();
       } else {
         console.log('Signup completed successfully:', result.user?.id);
+        resetCaptcha();
       }
     } catch (error) {
       console.error('Unexpected signup error:', error);
+      resetCaptcha();
     } finally {
       setLoading(false);
     }
@@ -85,16 +105,23 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
     setIsEmailAuthorized(authorized);
   };
 
+  const handleCaptchaVerify = (token: string) => {
+    console.log('Captcha verified:', !!token);
+    setCaptchaToken(token);
+  };
+
   const canSubmit = !loading && 
                    isPasswordValid && 
                    isEmailAuthorized && 
-                   fullName.trim().length >= 2;
+                   fullName.trim().length >= 2 &&
+                   !!captchaToken;
 
   console.log('SignupForm render state:', {
     email: email.toLowerCase().trim(),
     isEmailAuthorized,
     isPasswordValid,
     hasValidFullName: fullName.trim().length >= 2,
+    hasCaptcha: !!captchaToken,
     canSubmit,
     loading
   });
@@ -168,6 +195,14 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
             />
           </div>
           {password && <PasswordStrengthIndicator password={password} />}
+        </div>
+
+        <div className="space-y-2">
+          <Label>Verificación de Seguridad *</Label>
+          <CaptchaWrapper
+            onVerify={handleCaptchaVerify}
+            captchaRef={captchaRef}
+          />
         </div>
 
         <Button
