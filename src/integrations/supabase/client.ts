@@ -14,12 +14,37 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     autoRefreshToken: true,
     persistSession: true,
     detectSessionInUrl: true,
-    storage: window?.localStorage,
-    flowType: 'pkce'
+    storage: typeof window !== 'undefined' ? window.localStorage : undefined,
+    flowType: 'pkce',
+    debug: process.env.NODE_ENV === 'development'
   },
   global: {
     headers: {
-      'x-client-info': 'supabase-js-web'
+      'x-client-info': 'supabase-js-web',
+      'Access-Control-Allow-Origin': 'https://lovable.dev',
+      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
+      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
+    }
+  },
+  db: {
+    schema: 'public'
+  },
+  realtime: {
+    params: {
+      eventsPerSecond: 2
+    }
+  }
+});
+
+// Add error handling for auth events
+supabase.auth.onAuthStateChange((event, session) => {
+  if (event === 'TOKEN_REFRESHED') {
+    console.log('Token refreshed at:', new Date().toISOString());
+  } else if (event === 'SIGNED_OUT') {
+    console.log('User signed out at:', new Date().toISOString());
+    // Clear any cached data
+    if (typeof window !== 'undefined') {
+      localStorage.removeItem('supabase.auth.token');
     }
   }
 });

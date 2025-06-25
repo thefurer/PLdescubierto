@@ -22,68 +22,79 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
   const [loading, setLoading] = useState(false);
   const [isEmailAuthorized, setIsEmailAuthorized] = useState(false);
   const { signUp } = useAuth();
-  const { isValid } = usePasswordValidation(password);
+  const { isValid: isPasswordValid, errors: passwordErrors } = usePasswordValidation(password);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
+    const cleanEmail = email.toLowerCase().trim();
+    const cleanFullName = fullName.trim();
+    
     console.log('=== SIGNUP FORM SUBMISSION ===');
-    console.log('Form data:', { 
-      email: email.toLowerCase().trim(), 
+    console.log('Form validation:', { 
+      email: cleanEmail, 
       isEmailAuthorized, 
-      isPasswordValid: isValid,
-      fullName: fullName.trim()
+      isPasswordValid,
+      fullName: cleanFullName,
+      hasFullName: cleanFullName.length > 0
     });
     
+    // Validaciones
     if (!isEmailAuthorized) {
       console.log('Signup blocked: email not authorized');
       return;
     }
 
-    if (!isValid) {
-      console.log('Signup blocked: password not valid');
+    if (!isPasswordValid) {
+      console.log('Signup blocked: password not valid:', passwordErrors);
       return;
     }
 
-    if (!fullName.trim()) {
-      console.log('Signup blocked: full name required');
+    if (!cleanFullName || cleanFullName.length < 2) {
+      console.log('Signup blocked: full name required (min 2 chars)');
       return;
     }
 
     setLoading(true);
     try {
-      // Usar email en minúsculas y sin espacios
-      const cleanEmail = email.toLowerCase().trim();
-      const cleanFullName = fullName.trim();
-      
-      console.log('Attempting signup with cleaned data:', { 
+      console.log('Attempting signup with:', { 
         cleanEmail, 
-        cleanFullName 
+        cleanFullName,
+        passwordLength: password.length
       });
       
-      await signUp(cleanEmail, password, cleanFullName);
-      console.log('Signup completed successfully');
+      const result = await signUp(cleanEmail, password, cleanFullName);
+      
+      if (result.error) {
+        console.error('Signup failed:', result.error);
+      } else {
+        console.log('Signup completed successfully:', result.user?.id);
+      }
     } catch (error) {
-      console.error('Signup error:', error);
+      console.error('Unexpected signup error:', error);
     } finally {
       setLoading(false);
     }
   };
 
   const handleEmailAuthorizationChange = (authorized: boolean) => {
-    console.log('Email authorization state changed:', { 
+    console.log('Email authorization changed:', { 
       email: email.toLowerCase().trim(), 
       authorized 
     });
     setIsEmailAuthorized(authorized);
   };
 
-  const canSubmit = !loading && isValid && isEmailAuthorized && fullName.trim().length > 0;
+  const canSubmit = !loading && 
+                   isPasswordValid && 
+                   isEmailAuthorized && 
+                   fullName.trim().length >= 2;
 
   console.log('SignupForm render state:', {
-    email,
+    email: email.toLowerCase().trim(),
     isEmailAuthorized,
-    isPasswordValid: isValid,
+    isPasswordValid,
+    hasValidFullName: fullName.trim().length >= 2,
     canSubmit,
     loading
   });
@@ -97,7 +108,7 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
       
       <form onSubmit={handleSubmit} className="space-y-4">
         <div>
-          <Label htmlFor="fullName">Nombre Completo</Label>
+          <Label htmlFor="fullName">Nombre Completo *</Label>
           <div className="relative">
             <User className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
@@ -109,12 +120,18 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
               className="pl-10"
               required
               disabled={loading}
+              minLength={2}
             />
           </div>
+          {fullName.trim().length > 0 && fullName.trim().length < 2 && (
+            <p className="text-sm text-red-600 mt-1">
+              El nombre debe tener al menos 2 caracteres
+            </p>
+          )}
         </div>
 
         <div>
-          <Label htmlFor="email">Email</Label>
+          <Label htmlFor="email">Email *</Label>
           <EmailAuthorizationCheck 
             email={email} 
             onAuthorizationChecked={handleEmailAuthorizationChange}
@@ -136,7 +153,7 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
         </div>
 
         <div>
-          <Label htmlFor="password">Contraseña</Label>
+          <Label htmlFor="password">Contraseña *</Label>
           <div className="relative">
             <Lock className="absolute left-3 top-3 h-4 w-4 text-gray-400" />
             <Input
@@ -159,11 +176,16 @@ export const SignupForm = ({ onToggleMode }: SignupFormProps) => {
           disabled={!canSubmit}
         >
           {loading ? (
-            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+            <>
+              <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+              Creando cuenta...
+            </>
           ) : (
-            <Mail className="mr-2 h-4 w-4" />
+            <>
+              <Mail className="mr-2 h-4 w-4" />
+              Crear Cuenta
+            </>
           )}
-          Crear Cuenta
         </Button>
 
         <p className="text-center text-sm text-gray-600">
