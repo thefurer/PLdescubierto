@@ -1,4 +1,3 @@
-
 import { ArrowDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -7,7 +6,7 @@ import LanguageToggle from "./accessibility/LanguageToggle";
 import { NavigationMenu, NavigationMenuList, NavigationMenuItem, NavigationMenuLink } from "@/components/ui/navigation-menu";
 import AccessibilityToolbar from "./accessibility/AccessibilityToolbar";
 import UserMenu from "./UserMenu";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuthContext";
 import { Button } from "@/components/ui/button";
 import { User, Settings } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";

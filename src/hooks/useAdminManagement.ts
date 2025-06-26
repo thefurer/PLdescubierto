@@ -1,6 +1,6 @@
 
 import { useState, useEffect } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuthContext';
 import { adminService } from '@/services/adminService';
 import { useEmailAuthorization } from './useEmailAuthorization';
 import { useAdminUsers } from './useAdminUsers';

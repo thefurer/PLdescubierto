@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuthContext';
 import { supabase } from '@/integrations/supabase/client';
 
 export const useAuthState = () => {

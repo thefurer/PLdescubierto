@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Menu, X, User, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -9,7 +8,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/hooks/useAuthContext";
 import { useNavigate } from "react-router-dom";
 
 const Navbar = () => {

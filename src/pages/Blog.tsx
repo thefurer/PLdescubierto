@@ -1,6 +1,6 @@
 
 import { useState } from 'react';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuthContext';
 import { useTranslations } from '@/hooks/useTranslations';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';

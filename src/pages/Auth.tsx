@@ -1,7 +1,7 @@
 
 import { useState, useEffect } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/hooks/useAuthContext';
 import { AuthContainer } from '@/components/auth/AuthContainer';
 import { AuthFormRenderer } from '@/components/auth/AuthFormRenderer';
 import { useAuthForm } from '@/hooks/useAuthForm';
