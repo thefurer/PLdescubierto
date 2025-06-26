@@ -52,6 +52,24 @@ const Blog = () => {
       date: '2024-08-20',
       excerpt: 'Ven y disfruta de los sabores auténticos del mar en nuestro festival gastronómico, donde los mejores chefs locales presentarán sus especialidades.',
       category: 'eventos'
+    },
+    {
+      id: '4',
+      title: 'Conservación Marina: Logros del 2024',
+      content: '# Conservación Marina en Puerto López\n\n## Avances significativos\n\nEste año hemos logrado importantes avances en la conservación de nuestro ecosistema marino:\n\n### Protección de Tortugas Marinas\n- **150 nidos** protegidos\n- **85% de éxito** en eclosión\n- **Programa de voluntariado** activo\n\n### Limpieza de Playas\n- **12 jornadas** de limpieza comunitaria\n- **2 toneladas** de residuos recolectados\n- **500 voluntarios** participantes',
+      author: 'Fundación Vida Marina',
+      date: '2024-07-10',
+      excerpt: 'Conoce los importantes logros en conservación marina que hemos alcanzado este año gracias al esfuerzo conjunto de la comunidad.',
+      category: 'conservacion'
+    },
+    {
+      id: '5',
+      title: 'Tradiciones Ancestrales de los Pescadores',
+      content: '# Tradiciones Pesqueras de Puerto López\n\n## Un legado cultural único\n\nLas tradiciones pesqueras de Puerto López son un testimonio vivo de la rica herencia cultural de nuestros ancestros...\n\n### Técnicas Tradicionales\n- **Pesca con redes** artesanales\n- **Navegación** por las estrellas\n- **Rituales** de buena pesca\n\n### Festividades\n- Festival del Pescador (Julio)\n- Bendición de las embarcaciones (Enero)\n- Competencias de pesca tradicional',
+      author: 'Centro Cultural Puerto López',
+      date: '2024-06-25',
+      excerpt: 'Sumérgete en las tradiciones ancestrales de los pescadores de Puerto López y descubre un legado cultural que perdura generación tras generación.',
+      category: 'cultura'
     }
   ]);
   
@@ -126,7 +144,37 @@ const Blog = () => {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-green-50">
       <Navbar />
       
-      <div className="pt-20 pb-12">
+      {/* Hero Section */}
+      <div className="pt-20 pb-8 bg-gradient-to-r from-ocean-dark via-ocean to-blue-600">
+        <div className="container mx-auto px-4">
+          <div className="text-center text-white py-12">
+            <div className="inline-flex items-center justify-center w-16 h-16 bg-white/20 backdrop-blur-sm rounded-full mb-6">
+              <svg className="w-8 h-8" fill="currentColor" viewBox="0 0 20 20">
+                <path fillRule="evenodd" d="M2 5a2 2 0 012-2h8a2 2 0 012 2v10a2 2 0 002 2H4a2 2 0 01-2-2V5zm3 1h6v4H5V6zm6 6H5v2h6v-2z" clipRule="evenodd" />
+              </svg>
+            </div>
+            <h1 className="text-5xl md:text-6xl font-bold mb-4">
+              Noticias y Eventos
+            </h1>
+            <p className="text-xl md:text-2xl text-blue-100 max-w-3xl mx-auto mb-8">
+              Mantente informado sobre las últimas noticias, eventos y descubrimientos de Puerto López
+            </p>
+            <div className="flex flex-wrap justify-center gap-4 text-sm">
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                📰 {posts.length} Publicaciones
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                🏷️ 5 Categorías
+              </div>
+              <div className="bg-white/20 backdrop-blur-sm px-4 py-2 rounded-full">
+                👥 Comunidad Activa
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="py-12">
         <div className="container mx-auto px-4">
           <BlogHeader user={user} onCreatePost={handleCreatePost} />
           
@@ -138,7 +186,7 @@ const Blog = () => {
             categories={categories}
           />
 
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-8">
             {filteredPosts.map((post) => (
               <BlogPostCard
                 key={post.id}

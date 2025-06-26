@@ -13,41 +13,36 @@ const BlogHeader = ({ user, onCreatePost }: BlogHeaderProps) => {
   const navigate = useNavigate();
 
   return (
-    <div className="flex items-center justify-between mb-12">
-      <div className="flex items-center">
+    <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 mb-8">
+      <div className="flex items-center gap-4">
         <Button 
           variant="ghost" 
           onClick={() => navigate('/')}
-          className="mr-6 glass-card hover:scale-105 transition-all duration-300"
+          className="glass-card hover:scale-105 transition-all duration-300"
         >
           <ArrowLeft className="h-4 w-4 mr-2" />
-          Volver al inicio
+          <span className="hidden sm:inline">Volver al inicio</span>
+          <span className="sm:hidden">Volver</span>
         </Button>
-        <div>
-          <h1 className="text-5xl font-bold bg-gradient-to-r from-ocean-dark via-ocean to-green-primary bg-clip-text text-transparent">
-            Noticias
-          </h1>
-          <p className="text-xl text-gray-600 mt-2">Últimas noticias y eventos de Puerto López</p>
-        </div>
       </div>
       
       {user ? (
         <Button 
           onClick={onCreatePost}
-          className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-300"
+          className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 shadow-lg hover:shadow-xl transition-all duration-300 w-full sm:w-auto"
         >
           <Plus className="h-4 w-4 mr-2" />
-          Nueva noticia
+          Nueva publicación
         </Button>
       ) : (
-        <Card className="p-4 bg-yellow-50 border-yellow-200 glass-card">
-          <div className="flex items-center text-yellow-800">
-            <Lock className="h-5 w-5 mr-2" />
-            <span className="text-sm">
+        <Card className="p-3 bg-yellow-50 border-yellow-200 glass-card w-full sm:w-auto">
+          <div className="flex items-center justify-center text-yellow-800 text-sm">
+            <Lock className="h-4 w-4 mr-2" />
+            <span>
               <Button 
                 variant="link" 
                 onClick={() => navigate('/auth')}
-                className="p-0 h-auto text-yellow-800 underline"
+                className="p-0 h-auto text-yellow-800 underline text-sm"
               >
                 Inicia sesión
               </Button>
