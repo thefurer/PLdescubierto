@@ -1,7 +1,9 @@
+
 import { useState } from 'react';
-import { ArrowLeft, ChevronDown, ChevronUp, HelpCircle, MessageCircle, Mail, Search, Filter } from 'lucide-react';
+import { ArrowLeft, Search, HelpCircle, ChevronDown, ChevronUp, Phone, Mail, Clock } from 'lucide-react';
 import { Button } from '@/components/ui/button';
-import { Card, CardContent } from '@/components/ui/card';
+import { Input } from '@/components/ui/input';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { useNavigate } from 'react-router-dom';
 import { useTranslations } from '@/hooks/useTranslations';
 import Navbar from '@/components/Navbar';
@@ -11,301 +13,225 @@ import ChatBot from '@/components/ChatBot';
 const FAQ = () => {
   const navigate = useNavigate();
   const t = useTranslations();
-  const [openFAQ, setOpenFAQ] = useState<number | null>(null);
   const [searchTerm, setSearchTerm] = useState('');
-  const [selectedCategory, setSelectedCategory] = useState('all');
+  const [openItems, setOpenItems] = useState<string[]>([]);
 
-  const faqData = [
+  const faqItems = [
     {
-      category: "Viajes y Tours",
-      icon: "🚢",
-      color: "from-blue-500 to-cyan-500",
-      questions: [
-        {
-          question: "¿Cuál es la mejor época para avistar ballenas?",
-          answer: "La temporada de ballenas jorobadas es de junio a septiembre. Durante estos meses, las ballenas migran desde la Antártida para reproducirse en las cálidas aguas ecuatorianas.",
-          tags: ["ballenas", "temporada", "avistamiento"]
-        },
-        {
-          question: "¿Cuánto cuesta un tour a la Isla de la Plata?",
-          answer: "Los tours a la Isla de la Plata cuestan entre $35-45 por persona, incluye transporte en bote, guía, snorkeling y almuerzo. Los tours con avistamiento de ballenas cuestan $40-55.",
-          tags: ["precio", "isla", "tour"]
-        },
-        {
-          question: "¿Necesito reservar con anticipación?",
-          answer: "Se recomienda reservar con 1-2 días de anticipación, especialmente en temporada alta (junio-septiembre). Para grupos grandes, reserve con una semana de anticipación.",
-          tags: ["reserva", "anticipación", "grupos"]
-        },
-        {
-          question: "¿Qué incluyen los tours?",
-          answer: "La mayoría de tours incluyen: transporte, guía certificado, equipo de snorkeling, almuerzo, agua y chalecos salvavidas. Algunos incluyen visita a comunidades locales.",
-          tags: ["incluido", "servicios", "equipamiento"]
-        }
-      ]
+      id: '1',
+      question: '¿Cuál es la mejor época para visitar Puerto López?',
+      answer: 'La mejor época para visitar Puerto López es durante la temporada seca (junio a noviembre) y especialmente durante la temporada de ballenas (junio a septiembre), cuando las ballenas jorobadas migran a estas aguas para reproducirse.',
+      category: 'general'
     },
     {
-      category: "Hospedaje",
-      icon: "🏨",
-      color: "from-green-500 to-emerald-500",
-      questions: [
-        {
-          question: "¿Qué opciones de hospedaje hay en Puerto López?",
-          answer: "Hay opciones para todos los presupuestos: hostales ($15-25/noche), hoteles boutique ($40-80/noche), cabañas frente al mar ($60-120/noche) y resorts de lujo ($150-300/noche).",
-          tags: ["alojamiento", "precios", "opciones"]
-        },
-        {
-          question: "¿Hay hoteles frente al mar?",
-          answer: "Sí, hoteles recomendados frente al mar: Hotel Mandala ($80-100/noche), Hostería Mandala ($60-80/noche), y Cabañas La Terraza ($70-90/noche).",
-          tags: ["frente al mar", "hoteles", "recomendaciones"]
-        },
-        {
-          question: "¿Puedo acampar en las playas?",
-          answer: "El camping está permitido en algunas áreas del Parque Nacional Machalilla con permiso previo. En Playa Los Frailes hay áreas designadas que cuestan $5 por persona por noche.",
-          tags: ["camping", "playas", "permisos"]
-        }
-      ]
+      id: '2',
+      question: '¿Cómo llegar a Puerto López desde Guayaquil?',
+      answer: 'Desde Guayaquil puedes tomar un bus hacia Jipijapa y luego otro hacia Puerto López. El viaje total dura aproximadamente 3-4 horas. También puedes alquilar un carro o tomar un tour organizado.',
+      category: 'transporte'
     },
     {
-      category: "Costos y Precios",
-      icon: "💰",
-      color: "from-yellow-500 to-orange-500",
-      questions: [
-        {
-          question: "¿Cuánto dinero necesito para una estadía de 3 días?",
-          answer: "Presupuesto económico: $60-80/día. Presupuesto medio: $100-150/día. Presupuesto alto: $200-300/día. Incluye hospedaje, comidas, tours y transporte local.",
-          tags: ["presupuesto", "costos", "estadía"]
-        },
-        {
-          question: "¿Dónde puedo cambiar dinero?",
-          answer: "Hay cajeros automáticos en el centro del pueblo. También puede cambiar dólares en algunos hoteles y agencias de turismo. Se recomienda llevar efectivo.",
-          tags: ["dinero", "cajeros", "cambio"]
-        },
-        {
-          question: "¿Aceptan tarjetas de crédito?",
-          answer: "Los hoteles y restaurantes principales aceptan tarjetas. Para tours y compras locales, es mejor llevar efectivo. Hay cajeros del Banco Pichincha y Banco Guayaquil.",
-          tags: ["tarjetas", "pago", "efectivo"]
-        }
-      ]
+      id: '3',
+      question: '¿Cuánto cuesta el tour de avistamiento de ballenas?',
+      answer: 'Los tours de avistamiento de ballenas cuestan entre $25-40 USD por persona, dependiendo de la duración del tour y los servicios incluidos. Algunos tours incluyen desayuno y snorkeling.',
+      category: 'tours'
     },
     {
-      category: "Transporte y Acceso",
-      icon: "🚌",
-      color: "from-purple-500 to-indigo-500",
-      questions: [
-        {
-          question: "¿Cómo llego desde Quito?",
-          answer: "Bus directo (6-8 horas, $8-12), vuelo a Manta + bus (2.5 horas total, $80-150), o auto propio (5-6 horas). Los buses salen desde Terminal Quitumbe.",
-          tags: ["transporte", "quito", "opciones"]
-        },
-        {
-          question: "¿Hay transporte público en Puerto López?",
-          answer: "Sí, hay buses locales ($0.25) y taxis ($1-3 dentro del pueblo). Para ir a playas cercanas como Los Frailes, hay camionetas ($2-5) o tours organizados.",
-          tags: ["transporte local", "buses", "taxis"]
-        },
-        {
-          question: "¿Puedo alquilar bicicletas o motos?",
-          answer: "Sí, hay varios lugares que alquilan bicicletas ($5-8/día) y motos ($15-25/día). Se requiere licencia de conducir para las motos.",
-          tags: ["alquiler", "bicicletas", "motos"]
-        }
-      ]
+      id: '4',
+      question: '¿Necesito reservar los tours con anticipación?',
+      answer: 'Es recomendable reservar con 1-2 días de anticipación, especialmente durante la temporada alta (julio-septiembre). Los fines de semana y feriados se llenan más rápido.',
+      category: 'tours'
     },
     {
-      category: "Gastronomía",
-      icon: "🍤",
-      color: "from-red-500 to-pink-500",
-      questions: [
-        {
-          question: "¿Qué platos típicos debo probar?",
-          answer: "Ceviche de pescado, corvina frita, langostinos, cazuela de mariscos, encocado de camarón y la famosa 'corvina al ajillo'. Precios desde $8-15 por plato.",
-          tags: ["comida", "platos típicos", "mariscos"]
-        },
-        {
-          question: "¿Hay opciones vegetarianas?",
-          answer: "Sí, varios restaurantes ofrecen opciones vegetarianas como ensaladas, pasta, pizza y platos con quinoa. Restaurant Carmita y Café Ballena tienen buenas opciones.",
-          tags: ["vegetariano", "opciones", "restaurantes"]
-        }
-      ]
+      id: '5',
+      question: '¿Qué incluye el tour a Isla de la Plata?',
+      answer: 'El tour incluye transporte en bote, guía naturalista, entrada al parque nacional, y generalmente snorkeling. La duración es de 6-8 horas aproximadamente.',
+      category: 'tours'
+    },
+    {
+      id: '6',
+      question: '¿Hay opciones de hospedaje en Puerto López?',
+      answer: 'Sí, hay diversas opciones desde hostales económicos ($10-20/noche) hasta hoteles boutique ($50-100/noche). También hay cabañas en la playa y casas de huéspedes.',
+      category: 'hospedaje'
+    },
+    {
+      id: '7',
+      question: '¿Es seguro nadar en las playas de Puerto López?',
+      answer: 'Sí, las playas principales son seguras para nadar. Sin embargo, siempre mantente en áreas vigiladas y sigue las recomendaciones de los salvavidas locales.',
+      category: 'seguridad'
+    },
+    {
+      id: '8',
+      question: '¿Qué documentos necesito para visitar?',
+      answer: 'Para ciudadanos ecuatorianos solo necesitas tu cédula. Los extranjeros necesitan pasaporte válido. Para algunos tours al Parque Nacional Machalilla se requiere registrarse.',
+      category: 'documentos'
     }
   ];
 
-  const categories = ['all', ...faqData.map(cat => cat.category)];
+  const categories = [
+    { value: 'all', label: 'Todas', color: 'bg-blue-100 text-blue-800' },
+    { value: 'general', label: 'General', color: 'bg-green-100 text-green-800' },
+    { value: 'tours', label: 'Tours', color: 'bg-purple-100 text-purple-800' },
+    { value: 'transporte', label: 'Transporte', color: 'bg-orange-100 text-orange-800' },
+    { value: 'hospedaje', label: 'Hospedaje', color: 'bg-pink-100 text-pink-800' },
+    { value: 'seguridad', label: 'Seguridad', color: 'bg-red-100 text-red-800' },
+    { value: 'documentos', label: 'Documentos', color: 'bg-yellow-100 text-yellow-800' }
+  ];
 
-  const filteredFAQs = faqData.filter(category => {
-    if (selectedCategory !== 'all' && category.category !== selectedCategory) return false;
-    
-    if (searchTerm) {
-      const searchLower = searchTerm.toLowerCase();
-      return category.questions.some(q => 
-        q.question.toLowerCase().includes(searchLower) ||
-        q.answer.toLowerCase().includes(searchLower) ||
-        q.tags.some(tag => tag.toLowerCase().includes(searchLower))
-      );
-    }
-    
-    return true;
+  const [selectedCategory, setSelectedCategory] = useState('all');
+
+  const filteredFAQs = faqItems.filter(item => {
+    const matchesSearch = item.question.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                         item.answer.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesCategory = selectedCategory === 'all' || item.category === selectedCategory;
+    return matchesSearch && matchesCategory;
   });
 
-  const toggleFAQ = (categoryIndex: number, questionIndex: number) => {
-    const globalIndex = categoryIndex * 100 + questionIndex;
-    setOpenFAQ(openFAQ === globalIndex ? null : globalIndex);
+  const toggleItem = (id: string) => {
+    setOpenItems(prev => 
+      prev.includes(id) 
+        ? prev.filter(item => item !== id)
+        : [...prev, id]
+    );
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 via-white to-blue-50">
+    <div className="min-h-screen bg-white">
       <Navbar />
       
-      <div className="pt-20 pb-12">
-        <div className="container mx-auto px-4">
-          {/* Enhanced Header */}
-          <div className="flex items-center mb-12 animate-fade-in">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/')}
-              className="mr-6 glass-card hover:scale-105 transition-all duration-300"
-            >
-              <ArrowLeft className="h-4 w-4 mr-2" />
-              {t.backToHome}
-            </Button>
-            <div className="flex-1">
-              <div className="flex items-center mb-4">
-                <HelpCircle className="h-10 w-10 text-ocean mr-4 animate-pulse" />
-                <h1 className="text-5xl font-bold bg-gradient-to-r from-purple-600 via-blue-600 to-ocean bg-clip-text text-transparent">
-                  {t.faqTitle}
+      {/* Enhanced Hero Section */}
+      <div className="relative overflow-hidden bg-gradient-to-br from-ocean via-blue-600 to-green-600">
+        <div className="absolute inset-0 bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iNDAiIGhlaWdodD0iNDAiIHZpZXdCb3g9IjAgMCA0MCA0MCIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj48ZGVmcz48cGF0dGVybiBpZD0iZ3JpZCIgd2lkdGg9IjQwIiBoZWlnaHQ9IjQwIiBwYXR0ZXJuVW5pdHM9InVzZXJTcGFjZU9uVXNlIj48cGF0aCBkPSJNIDQwIDAgTCAwIDAgMCA0MCIgZmlsbD0ibm9uZSIgc3Ryb2tlPSJyZ2JhKDI1NSwyNTUsMjU1LDAuMDUpIiBzdHJva2Utd2lkdGg9IjEiLz48L3BhdHRlcm4+PC9kZWZzPjxyZWN0IHdpZHRoPSIxMDAlIiBoZWlnaHQ9IjEwMCUiIGZpbGw9InVybCgjZ3JpZCkiLz48L3N2Zz4=')] opacity-20"></div>
+        
+        <div className="relative pt-28 pb-16">
+          <div className="container mx-auto px-4">
+            <div className="flex items-center mb-8 animate-fade-in">
+              <Button 
+                variant="ghost" 
+                onClick={() => navigate('/')}
+                className="mr-6 bg-white/10 backdrop-blur-sm border border-white/20 text-white hover:bg-white/20 hover:scale-105 transition-all duration-300"
+              >
+                <ArrowLeft className="h-4 w-4 mr-2" />
+                Volver al Inicio
+              </Button>
+            </div>
+            
+            <div className="text-center max-w-4xl mx-auto">
+              <div className="flex items-center justify-center mb-6">
+                <HelpCircle className="h-12 w-12 text-white mr-4 animate-pulse" />
+                <h1 className="text-6xl font-bold text-white drop-shadow-lg">
+                  Preguntas Frecuentes
                 </h1>
               </div>
-              <p className="text-xl text-gray-600">{t.faqSubtitle}</p>
+              <p className="text-2xl text-white/90 drop-shadow-md mb-8">
+                Encuentra respuestas a las preguntas más comunes sobre Puerto López
+              </p>
+              <div className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
+                <Clock className="h-5 w-5 text-white mr-2" />
+                <span className="text-white font-medium">Respuestas Rápidas</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="py-12 bg-gradient-to-br from-blue-50 via-white to-green-50">
+        <div className="container mx-auto px-4">
+          {/* Search and Filters */}
+          <div className="mb-8">
+            <div className="relative max-w-2xl mx-auto mb-6">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
+              <Input
+                type="text"
+                placeholder="Buscar preguntas..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                className="pl-10 pr-4 py-3 text-lg border-2 border-ocean-light focus:border-ocean rounded-xl"
+              />
+            </div>
+            
+            <div className="flex flex-wrap justify-center gap-3">
+              {categories.map((category) => (
+                <Button
+                  key={category.value}
+                  variant="outline"
+                  size="sm"
+                  className={`rounded-full transition-all duration-300 ${
+                    selectedCategory === category.value
+                      ? 'bg-ocean text-white hover:bg-ocean-dark border-ocean'
+                      : 'text-gray-600 hover:bg-gray-100 border-gray-300'
+                  }`}
+                  onClick={() => setSelectedCategory(category.value)}
+                >
+                  {category.label}
+                </Button>
+              ))}
             </div>
           </div>
 
-          {/* Search and Filter Section */}
-          <Card className="mb-8 glass-card border-0 shadow-xl">
-            <CardContent className="p-6">
-              <div className="flex flex-col md:flex-row gap-4">
-                <div className="flex-1 relative">
-                  <Search className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <input
-                    type="text"
-                    placeholder={t.searchQuestions}
-                    className="w-full pl-12 pr-4 py-3 border-2 border-gray-200 rounded-xl focus:border-ocean focus:ring-4 focus:ring-ocean/20 transition-all duration-300"
-                    value={searchTerm}
-                    onChange={(e) => setSearchTerm(e.target.value)}
-                  />
-                </div>
-                <div className="relative">
-                  <Filter className="absolute left-4 top-1/2 transform -translate-y-1/2 text-gray-400 h-5 w-5" />
-                  <select
-                    className="pl-12 pr-8 py-3 border-2 border-gray-200 rounded-xl focus:border-ocean focus:ring-4 focus:ring-ocean/20 transition-all duration-300 min-w-[200px]"
-                    value={selectedCategory}
-                    onChange={(e) => setSelectedCategory(e.target.value)}
-                  >
-                    <option value="all">{t.allCategories}</option>
-                    {faqData.map((cat) => (
-                      <option key={cat.category} value={cat.category}>{cat.category}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* FAQ Content */}
-          <div className="space-y-8">
-            {filteredFAQs.map((category, categoryIndex) => (
-              <Card key={categoryIndex} className="glass-card border-0 shadow-xl hover:shadow-2xl transition-all duration-500 animate-scale-in">
-                <div className={`bg-gradient-to-r ${category.color} text-white rounded-t-lg p-6`}>
-                  <h2 className="text-2xl font-bold flex items-center">
-                    <span className="text-3xl mr-3">{category.icon}</span>
-                    {category.category}
-                  </h2>
-                </div>
-                <CardContent className="p-6">
-                  <div className="space-y-4">
-                    {category.questions.map((faq, questionIndex) => {
-                      const globalIndex = categoryIndex * 100 + questionIndex;
-                      const isOpen = openFAQ === globalIndex;
-                      
-                      return (
-                        <div key={questionIndex} className="border border-gray-200 rounded-xl overflow-hidden shadow-sm hover:shadow-md transition-all duration-300">
-                          <button
-                            className="w-full px-6 py-4 text-left flex justify-between items-center hover:bg-gradient-to-r hover:from-gray-50 hover:to-blue-50 transition-all duration-300 group"
-                            onClick={() => toggleFAQ(categoryIndex, questionIndex)}
-                          >
-                            <span className="font-semibold text-gray-800 text-lg group-hover:text-ocean transition-colors duration-300">
-                              {faq.question}
-                            </span>
-                            <div className={`transform transition-all duration-300 ${isOpen ? 'rotate-180' : ''}`}>
-                              {isOpen ? (
-                                <ChevronUp className="h-6 w-6 text-ocean" />
-                              ) : (
-                                <ChevronDown className="h-6 w-6 text-gray-500 group-hover:text-ocean" />
-                              )}
-                            </div>
-                          </button>
-                          {isOpen && (
-                            <div className="px-6 pb-6 text-gray-600 border-t border-gray-200 bg-gradient-to-r from-gray-50 to-blue-50 animate-fade-in">
-                              <div className="pt-4">
-                                <p className="text-lg leading-relaxed mb-4">{faq.answer}</p>
-                                <div className="flex flex-wrap gap-2">
-                                  {faq.tags.map((tag, tagIndex) => (
-                                    <span 
-                                      key={tagIndex}
-                                      className="px-3 py-1 bg-ocean/10 text-ocean rounded-full text-sm font-medium hover:bg-ocean/20 transition-colors duration-200"
-                                    >
-                                      #{tag}
-                                    </span>
-                                  ))}
-                                </div>
-                              </div>
-                            </div>
-                          )}
-                        </div>
-                      );
-                    })}
-                  </div>
-                </CardContent>
+          {/* FAQ Items */}
+          <div className="max-w-4xl mx-auto space-y-4">
+            {filteredFAQs.map((item) => (
+              <Card key={item.id} className="glass-card border-0 shadow-lg hover:shadow-xl transition-all duration-300">
+                <CardHeader 
+                  className="cursor-pointer flex flex-row items-center justify-between pb-2 space-y-0"
+                  onClick={() => toggleItem(item.id)}
+                >
+                  <CardTitle className="text-xl font-bold text-ocean-dark flex-1 text-left">
+                    {item.question}
+                  </CardTitle>
+                  {openItems.includes(item.id) ? (
+                    <ChevronUp className="h-5 w-5 text-ocean-dark" />
+                  ) : (
+                    <ChevronDown className="h-5 w-5 text-ocean-dark" />
+                  )}
+                </CardHeader>
+                {openItems.includes(item.id) && (
+                  <CardContent className="pt-2 animate-fade-in">
+                    <p className="text-gray-700 leading-relaxed text-lg">
+                      {item.answer}
+                    </p>
+                  </CardContent>
+                )}
               </Card>
             ))}
           </div>
 
-          {/* Enhanced Contact Card */}
-          <Card className="mt-12 glass-card border-0 shadow-2xl overflow-hidden">
-            <div className="bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 p-1">
-              <CardContent className="bg-white p-8 text-center">
-                <div className="mb-6">
-                  <MessageCircle className="h-16 w-16 mx-auto text-ocean mb-4 animate-bounce" />
-                  <h3 className="text-3xl font-bold text-ocean-dark mb-2">
-                    {t.notFound}
-                  </h3>
-                  <p className="text-xl text-gray-600 mb-6">
-                    {t.contactDirectly}
-                  </p>
-                </div>
-                <div className="flex flex-col sm:flex-row gap-6 justify-center">
-                  <Button 
-                    onClick={() => window.open('mailto:apincay@gmail.com', '_blank')}
-                    className="bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700 text-white font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                  >
-                    <Mail className="h-5 w-5 mr-2" />
-                    {t.sendEmail}
-                  </Button>
-                  <Button 
-                    onClick={() => window.open('https://wa.me/593991995390?text=Hola, tengo una pregunta sobre Puerto López', '_blank')}
-                    className="bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white font-semibold px-8 py-4 rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
-                  >
-                    <MessageCircle className="h-5 w-5 mr-2" />
-                    {t.chatWhatsapp}
-                  </Button>
-                </div>
-              </CardContent>
-            </div>
-          </Card>
-
-          {/* Results Info */}
-          {searchTerm && (
-            <div className="mt-6 text-center text-gray-600">
-              {t.showingResults} {filteredFAQs.reduce((total, cat) => total + cat.questions.length, 0)} {t.resultsFor} "{searchTerm}"
+          {filteredFAQs.length === 0 && (
+            <div className="text-center text-gray-500 mt-8">
+              <HelpCircle className="h-16 w-16 mx-auto mb-4 text-gray-400" />
+              <p className="text-xl">No se encontraron preguntas que coincidan con tu búsqueda</p>
             </div>
           )}
+
+          {/* Contact Section */}
+          <div className="mt-16 max-w-4xl mx-auto">
+            <Card className="glass-card border-0 shadow-xl bg-gradient-to-r from-ocean-light to-green-light text-white">
+              <CardHeader className="text-center">
+                <CardTitle className="text-3xl font-bold mb-4">
+                  ¿No encontraste tu respuesta?
+                </CardTitle>
+                <p className="text-xl text-blue-100">
+                  Contáctanos directamente y te ayudaremos con cualquier duda
+                </p>
+              </CardHeader>
+              <CardContent className="flex flex-col md:flex-row gap-6 justify-center">
+                <div className="flex items-center justify-center">
+                  <Phone className="h-6 w-6 mr-3" />
+                  <div>
+                    <p className="font-semibold">Teléfono</p>
+                    <p className="text-blue-100">+593 99 199 5390</p>
+                  </div>
+                </div>
+                <div className="flex items-center justify-center">
+                  <Mail className="h-6 w-6 mr-3" />
+                  <div>
+                    <p className="font-semibold">Email</p>
+                    <p className="text-blue-100">apincay@gmail.com</p>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
         </div>
       </div>
 
