@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -17,7 +18,7 @@ const ChatBot = () => {
     {
       id: '1',
       type: 'bot',
-      content: '¡Hola! 👋 Soy tu asistente personal de Puerto López.',
+      content: '¡Hola! 👋 Soy tu asistente personal de Puerto López. ¿En qué puedo ayudarte hoy?',
       timestamp: new Date()
     }
   ]);
@@ -30,7 +31,7 @@ const ChatBot = () => {
       {
         id: '1',
         type: 'bot',
-        content: '¡Hola! 👋 Soy tu asistente personal de Puerto López.',
+        content: '¡Hola! 👋 Soy tu asistente personal de Puerto López. ¿En qué puedo ayudarte hoy?',
         timestamp: new Date()
       }
     ]);
@@ -75,28 +76,38 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
+      console.log('Sending message to chat-support function:', sanitizedMessage);
+      
       const { data, error } = await supabase.functions.invoke('chat-support', {
         body: { message: sanitizedMessage }
       });
 
+      console.log('Response from chat-support:', { data, error });
+
       if (error) {
+        console.error('Supabase function error:', error);
         throw new Error(error.message || 'Error al procesar el mensaje');
       }
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: data.reply || 'Lo siento, no pude procesar tu mensaje. Intenta de nuevo.',
+        content: data?.reply || 'Lo siento, no pude procesar tu mensaje. Intenta de nuevo.',
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, botMessage]);
     } catch (error: any) {
-      let errorMessage = 'Lo siento, hay un problema técnico momentáneo.\n\n📧 Puedes contactarnos directamente:\n• Email: apincay@gmail.com\n• WhatsApp: +593 99 199 5390\n\n¡Estaremos encantados de ayudarte!';
+      console.error('Chat error:', error);
       
-      if (error.message) {
-        errorMessage = error.message;
-      }
+      let errorMessage = `Lo siento, hay un problema técnico momentáneo.
+
+📧 Puedes contactarnos directamente:
+• Email: apincay@gmail.com
+• WhatsApp: +593 99 199 5390
+• Web: https://www.whalexpeditionsecuador.com/
+
+¡Estaremos encantados de ayudarte!`;
       
       const botErrorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -109,7 +120,7 @@ const ChatBot = () => {
       
       toast({
         title: 'Error de conexión',
-        description: 'No se pudo enviar el mensaje. Intenta de nuevo.',
+        description: 'No se pudo enviar el mensaje. Intenta de nuevo o contáctanos directamente.',
         variant: 'destructive'
       });
     } finally {
