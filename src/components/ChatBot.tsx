@@ -74,16 +74,16 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      console.log('Sending message to chat-support function:', sanitizedMessage);
+      console.log('Enviando mensaje al chatbot:', sanitizedMessage);
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
         body: { message: sanitizedMessage }
       });
 
-      console.log('Response from chat-support:', { data, error });
+      console.log('Respuesta del chatbot:', { data, error });
 
       if (error) {
-        console.error('Supabase function error:', error);
+        console.error('Error de función Supabase:', error);
         throw new Error(error.message || 'Error al procesar el mensaje');
       }
 
@@ -97,12 +97,7 @@ const ChatBot = () => {
       setMessages(prev => [...prev, botMessage]);
       
     } catch (error: any) {
-      console.error('Chat error details:', {
-        error,
-        message: error?.message,
-        stack: error?.stack,
-        cause: error?.cause
-      });
+      console.error('Error detallado del chat:', error);
       
       const errorMessage = `Lo siento, hay un problema técnico momentáneo.
 
@@ -123,8 +118,8 @@ const ChatBot = () => {
       setMessages(prev => [...prev, botErrorMessage]);
       
       toast({
-        title: 'Error de conexión',
-        description: 'No se pudo enviar el mensaje. Intenta de nuevo o contáctanos directamente.',
+        title: 'Error temporal',
+        description: 'No se pudo enviar el mensaje. Puedes contactarnos directamente.',
         variant: 'destructive'
       });
     } finally {
