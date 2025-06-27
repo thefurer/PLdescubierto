@@ -10,22 +10,19 @@ const corsHeaders = {
 }
 
 const CONTACT_INFO = {
-  tourOperator: 'Whale Expeditions Tour - Ángel Pincay',
   email: 'apincay@gmail.com',
-  website: 'https://www.whalexpeditionsecuador.com/',
   whatsapp: '+593 99 199 5390',
-  location: 'Puerto López, Manabí, Ecuador'
+  website: 'https://www.whalexpeditionsecuador.com/'
 };
 
 serve(async (req) => {
-  console.log('=== Chat Support Function Called ===');
+  console.log('=== Chat Support Function Started ===');
   console.log('Method:', req.method);
   console.log('URL:', req.url);
-  console.log('Headers:', Object.fromEntries(req.headers.entries()));
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
-    console.log('Handling OPTIONS preflight request');
+    console.log('Handling CORS preflight request');
     return new Response('ok', { headers: corsHeaders });
   }
 
@@ -48,72 +45,38 @@ serve(async (req) => {
     console.log('Processing POST request...');
     
     // Parse request body
-    let requestBody;
-    try {
-      const bodyText = await req.text();
-      console.log('Raw request body:', bodyText);
-      
-      if (!bodyText) {
-        throw new Error('Request body is empty');
-      }
-      
-      requestBody = JSON.parse(bodyText);
-      console.log('Parsed request body:', requestBody);
-    } catch (parseError) {
-      console.error('Failed to parse request body:', parseError);
-      return new Response(
-        JSON.stringify({ 
-          error: 'Invalid request format',
-          reply: `Lo siento, hay un problema con el formato del mensaje.
-
-📧 Contáctanos directamente:
-• Email: ${CONTACT_INFO.email}
-• WhatsApp: ${CONTACT_INFO.whatsapp}
-• Web: ${CONTACT_INFO.website}
-
-¡Estaremos encantados de ayudarte!`
-        }),
-        { 
-          status: 400, 
-          headers: corsHeaders
-        }
-      );
-    }
-
-    const { message } = requestBody;
-    console.log('User message:', message);
+    const body = await req.json();
+    console.log('Request body:', body);
     
-    // Validate message
+    const { message } = body;
+    
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
-      console.error('Invalid or empty message');
+      console.log('Invalid message provided');
       return new Response(
         JSON.stringify({ 
-          error: 'Message is required',
           reply: '¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.'
         }),
         { 
-          status: 400, 
+          status: 200, 
           headers: corsHeaders
         }
       );
     }
 
-    // Sanitize message
     const sanitizedMessage = message.trim().substring(0, 1000);
-    console.log('Sanitized message length:', sanitizedMessage.length);
+    console.log('Sanitized message:', sanitizedMessage);
     
     // Check for Google API key
     const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
-    console.log('Google API Key present:', !!googleApiKey);
+    console.log('Google API Key available:', !!googleApiKey);
     
     if (!googleApiKey) {
-      console.error('Google API key not configured');
+      console.error('Google API key not found');
       return new Response(
         JSON.stringify({ 
-          error: 'API key not configured',
-          reply: `¡Hola! Gracias por contactarnos. 
+          reply: `¡Hola! Gracias por contactarnos.
 
-El servicio de chat automático no está disponible temporalmente, pero puedes contactarnos directamente:
+Nuestro asistente automático no está disponible temporalmente, pero puedes contactarnos directamente:
 
 📧 Email: ${CONTACT_INFO.email}
 📱 WhatsApp: ${CONTACT_INFO.whatsapp}
@@ -128,37 +91,32 @@ El servicio de chat automático no está disponible temporalmente, pero puedes c
       );
     }
 
-    // Create context prompt for Puerto López tourism
-    const contextPrompt = `Eres un asistente turístico especializado en Puerto López, Ecuador.
+    // Create context for Puerto López tourism
+    const prompt = `Eres un asistente turístico especializado en Puerto López, Ecuador.
 
-Puerto López es un destino costero en la provincia de Manabí, Ecuador, conocido por:
-- Observación de ballenas jorobadas (junio-septiembre, temporada alta)
-- Parque Nacional Machalilla con senderos ecológicos
-- Isla de la Plata (conocida como "Galápagos de los pobres")
-- Playa Los Frailes (una de las más hermosas de Ecuador)
-- Agua Blanca (sitio arqueológico y aguas termales)
-- Ecoturismo y biodiversidad marina
+Puerto López es un destino costero en Manabí, Ecuador, conocido por:
+- Observación de ballenas jorobadas (junio-septiembre)
+- Parque Nacional Machalilla
+- Isla de la Plata ("Galápagos de los pobres")
+- Playa Los Frailes
+- Agua Blanca (sitio arqueológico)
+- Ecoturismo marino
 
-INFORMACIÓN DE CONTACTO:
-- Tour Operador: ${CONTACT_INFO.tourOperator}
-- Email: ${CONTACT_INFO.email}
-- WhatsApp: ${CONTACT_INFO.whatsapp}
-- Sitio web: ${CONTACT_INFO.website}
+Operador: Whale Expeditions Tour - Ángel Pincay
+Email: ${CONTACT_INFO.email}
+WhatsApp: ${CONTACT_INFO.whatsapp}
+Web: ${CONTACT_INFO.website}
 
-INSTRUCCIONES:
-- Responde en español de manera amigable y profesional
-- Proporciona información práctica sobre actividades, hospedaje y transporte
-- Para reservas específicas, dirige al usuario a contactar directamente
-- Promociona el turismo sustentable y el respeto por la naturaleza
+Responde en español de manera amigable y profesional. Para reservas específicas, dirige al usuario a contactar directamente.
 
-Pregunta del usuario: ${sanitizedMessage}
+Pregunta: ${sanitizedMessage}
 
-Responde de manera concisa y útil (máximo 300 palabras):`;
+Responde de manera concisa (máximo 200 palabras):`;
 
-    console.log('Calling Gemini API...');
+    console.log('Calling Google Gemini API...');
 
-    // Call Gemini API
-    const geminiResponse = await fetch(
+    // Call Google Gemini API
+    const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`,
       {
         method: 'POST',
@@ -168,38 +126,36 @@ Responde de manera concisa y útil (máximo 300 palabras):`;
         body: JSON.stringify({
           contents: [{
             parts: [{
-              text: contextPrompt
+              text: prompt
             }]
           }],
           generationConfig: {
             temperature: 0.7,
             topK: 40,
             topP: 0.95,
-            maxOutputTokens: 600,
+            maxOutputTokens: 400,
           },
         }),
       }
     );
 
-    console.log('Gemini API response status:', geminiResponse.status);
-    console.log('Gemini API response headers:', Object.fromEntries(geminiResponse.headers.entries()));
+    console.log('Gemini API response status:', response.status);
 
-    if (!geminiResponse.ok) {
-      const errorText = await geminiResponse.text();
-      console.error(`Gemini API error: ${geminiResponse.status} - ${errorText}`);
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Gemini API error:', response.status, errorText);
       
       return new Response(
         JSON.stringify({ 
-          error: 'AI service error',
           reply: `¡Hola! Gracias por tu mensaje.
 
-Hay un problema técnico temporal con nuestro asistente automático, pero puedes contactarnos directamente:
+Tenemos un problema técnico temporal con nuestro asistente, pero puedes contactarnos directamente:
 
 📧 Email: ${CONTACT_INFO.email}
 📱 WhatsApp: ${CONTACT_INFO.whatsapp}
 🌐 Web: ${CONTACT_INFO.website}
 
-¡Estaremos encantados de ayudarte con información detallada sobre Puerto López!` 
+¡Estaremos encantados de ayudarte!` 
         }),
         { 
           status: 200, 
@@ -208,17 +164,17 @@ Hay un problema técnico temporal con nuestro asistente automático, pero puedes
       );
     }
 
-    const geminiData = await geminiResponse.json();
-    console.log('Gemini API response data:', JSON.stringify(geminiData, null, 2));
+    const data = await response.json();
+    console.log('Gemini response received');
     
-    let aiResponse = 'Lo siento, no pude procesar tu mensaje. Por favor contacta directamente con nosotros para obtener ayuda personalizada.';
+    let aiResponse = 'Lo siento, no pude procesar tu mensaje. Por favor contacta directamente con nosotros.';
     
-    if (geminiData.candidates && geminiData.candidates.length > 0 && 
-        geminiData.candidates[0].content && geminiData.candidates[0].content.parts) {
-      aiResponse = geminiData.candidates[0].content.parts[0].text;
+    if (data.candidates && data.candidates.length > 0 && 
+        data.candidates[0].content && data.candidates[0].content.parts) {
+      aiResponse = data.candidates[0].content.parts[0].text;
       console.log('AI response generated successfully');
     } else {
-      console.warn('Unexpected Gemini API response structure');
+      console.warn('Unexpected API response structure');
     }
 
     // Log interaction for analytics
@@ -239,11 +195,8 @@ Hay un problema técnico temporal con nuestro asistente automático, pero puedes
           },
           change_type: 'chat_message'
         });
-      
-      console.log('Interaction logged successfully');
     } catch (logError) {
       console.error('Failed to log interaction:', logError);
-      // Don't fail the request if logging fails
     }
 
     console.log('Sending successful response');
@@ -256,12 +209,10 @@ Hay un problema técnico temporal con nuestro asistente automático, pero puedes
     );
 
   } catch (error) {
-    console.error('General error in chat-support function:', error);
-    console.error('Error stack:', error.stack);
+    console.error('Error in chat-support function:', error);
     
     return new Response(
       JSON.stringify({ 
-        error: 'Internal server error',
         reply: `Lo siento, ocurrió un error inesperado.
 
 📧 Puedes contactarnos directamente:
@@ -272,7 +223,7 @@ Hay un problema técnico temporal con nuestro asistente automático, pero puedes
 ¡Estaremos encantados de ayudarte!` 
       }),
       { 
-        status: 500, 
+        status: 200, 
         headers: corsHeaders
       }
     );
