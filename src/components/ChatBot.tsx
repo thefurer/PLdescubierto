@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -45,10 +44,9 @@ const ChatBot = () => {
   const sendMessage = async (messageContent?: string) => {
     const messageToSend = messageContent || inputValue.trim();
     
-    // Input validation
     if (!messageToSend || isLoading) return;
     
-    // Sanitize input to prevent XSS
+    // Sanitize input
     const sanitizedMessage = messageToSend
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
       .replace(/<[^>]*>/g, '')
@@ -58,7 +56,7 @@ const ChatBot = () => {
     if (!sanitizedMessage) {
       toast({
         title: 'Mensaje inválido',
-        description: 'El mensaje no puede estar vacío o contener contenido no válido.',
+        description: 'El mensaje no puede estar vacío.',
         variant: 'destructive'
       });
       return;
@@ -97,10 +95,16 @@ const ChatBot = () => {
       };
 
       setMessages(prev => [...prev, botMessage]);
-    } catch (error: any) {
-      console.error('Chat error:', error);
       
-      let errorMessage = `Lo siento, hay un problema técnico momentáneo.
+    } catch (error: any) {
+      console.error('Chat error details:', {
+        error,
+        message: error?.message,
+        stack: error?.stack,
+        cause: error?.cause
+      });
+      
+      const errorMessage = `Lo siento, hay un problema técnico momentáneo.
 
 📧 Puedes contactarnos directamente:
 • Email: apincay@gmail.com

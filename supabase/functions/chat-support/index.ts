@@ -6,10 +6,7 @@ const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
   'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Content-Security-Policy': "default-src 'self'; script-src 'self'; object-src 'none';",
-  'X-Content-Type-Options': 'nosniff',
-  'X-Frame-Options': 'DENY',
-  'X-XSS-Protection': '1; mode=block'
+  'Content-Type': 'application/json'
 }
 
 const CONTACT_INFO = {
@@ -20,60 +17,103 @@ const CONTACT_INFO = {
   location: 'Puerto López, Manabí, Ecuador'
 };
 
-const WHATSAPP_LINK = 'https://wa.me/593991995390?text=Hola,%20me%20gustaría%20obtener%20más%20información%20sobre%20los%20tours%20en%20Puerto%20López';
-
 serve(async (req) => {
-  console.log('Chat support function called with method:', req.method)
+  console.log('Request received:', req.method, req.url)
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
+    console.log('Handling OPTIONS request')
     return new Response('ok', { headers: corsHeaders })
   }
 
-  try {
-    const { message } = await req.json()
-    console.log('Received message:', message)
-    
-    // Input validation and sanitization
-    if (!message || typeof message !== 'string' || message.length > 1000) {
-      console.error('Invalid message format or length')
-      return new Response(
-        JSON.stringify({ error: 'Invalid message format or length' }),
-        { 
-          status: 400, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
-        }
-      )
-    }
+  // Only allow POST requests
+  if (req.method !== 'POST') {
+    console.log('Method not allowed:', req.method)
+    return new Response(
+      JSON.stringify({ error: 'Method not allowed' }),
+      { 
+        status: 405, 
+        headers: corsHeaders
+      }
+    )
+  }
 
-    // Sanitize input
-    const sanitizedMessage = message.trim().substring(0, 1000)
-    console.log('Sanitized message:', sanitizedMessage)
+  try {
+    console.log('Processing POST request')
     
-    // Get Google API key from environment
-    const googleApiKey = Deno.env.get('GOOGLE_API_KEY')
-    if (!googleApiKey) {
-      console.error('Google API key not found')
+    // Parse request body
+    let requestBody;
+    try {
+      requestBody = await req.json()
+      console.log('Request body parsed:', requestBody)
+    } catch (parseError) {
+      console.error('Failed to parse request body:', parseError)
       return new Response(
         JSON.stringify({ 
-          reply: `Lo siento, el servicio de chat no está disponible en este momento. 
+          error: 'Invalid JSON in request body',
+          reply: `Lo siento, hay un problema con el formato del mensaje.
 
 📧 Puedes contactarnos directamente:
 • Email: ${CONTACT_INFO.email}
 • WhatsApp: ${CONTACT_INFO.whatsapp}
 • Web: ${CONTACT_INFO.website}
 
-¡Estaremos encantados de ayudarte con tu viaje a Puerto López!` 
+¡Estaremos encantados de ayudarte!`
         }),
         { 
-          status: 200, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          status: 400, 
+          headers: corsHeaders
         }
       )
     }
 
-    // Create context-aware prompt for Puerto López
-    const contextPrompt = `Eres un asistente turístico especializado en Puerto López, Ecuador. 
+    const { message } = requestBody
+    console.log('Message received:', message)
+    
+    // Validate message
+    if (!message || typeof message !== 'string' || message.trim().length === 0) {
+      console.error('Invalid message:', message)
+      return new Response(
+        JSON.stringify({ 
+          error: 'Message is required',
+          reply: 'Por favor, escribe tu mensaje para poder ayudarte.'
+        }),
+        { 
+          status: 400, 
+          headers: corsHeaders
+        }
+      )
+    }
+
+    // Sanitize message
+    const sanitizedMessage = message.trim().substring(0, 1000)
+    console.log('Sanitized message:', sanitizedMessage)
+    
+    // Check for Google API key
+    const googleApiKey = Deno.env.get('GOOGLE_API_KEY')
+    if (!googleApiKey) {
+      console.error('Google API key not found')
+      return new Response(
+        JSON.stringify({ 
+          reply: `Hola! Gracias por contactarnos. 
+
+El servicio de chat automático no está disponible en este momento, pero puedes contactarnos directamente:
+
+📧 Email: ${CONTACT_INFO.email}
+📱 WhatsApp: ${CONTACT_INFO.whatsapp}
+🌐 Web: ${CONTACT_INFO.website}
+
+¡Estaremos encantados de ayudarte con tu viaje a Puerto López!` 
+        }),
+        { 
+          status: 200, 
+          headers: corsHeaders
+        }
+      )
+    }
+
+    // Create context prompt
+    const contextPrompt = `Eres un asistente turístico especializado en Puerto López, Ecuador.
 
 Puerto López es un destino costero en la provincia de Manabí, conocido por:
 - Observación de ballenas jorobadas (junio-septiembre)
@@ -83,7 +123,7 @@ Puerto López es un destino costero en la provincia de Manabí, conocido por:
 - Agua Blanca (sitio arqueológico)
 - Ecoturismo y naturaleza
 
-INFORMACIÓN DE CONTACTO IMPORTANTE:
+INFORMACIÓN DE CONTACTO:
 - Tour Operador: ${CONTACT_INFO.tourOperator}
 - Email: ${CONTACT_INFO.email}
 - WhatsApp: ${CONTACT_INFO.whatsapp}
@@ -91,14 +131,13 @@ INFORMACIÓN DE CONTACTO IMPORTANTE:
 
 Responde de manera amigable, informativa y útil. Proporciona información práctica sobre actividades, hospedaje, transporte y consejos para visitar Puerto López.
 
-Si te piden información de contacto, proporciona los datos del tour operador Whale Expeditions Tour.
-
 Pregunta del usuario: ${sanitizedMessage}
 
-Responde en español de manera concisa y útil. NO uses asteriscos, palabras strong, ni formato especial:`
+Responde en español de manera concisa y útil:`
 
     console.log('Making request to Gemini API...')
 
+    // Call Gemini API
     try {
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`,
@@ -127,34 +166,28 @@ Responde en español de manera concisa y útil. NO uses asteriscos, palabras str
 
       if (!response.ok) {
         const errorText = await response.text();
-        console.error(`Google Gemini API error: ${response.status} - ${errorText}`);
+        console.error(`Gemini API error: ${response.status} - ${errorText}`);
         
-        let fallbackMessage = `Lo siento, hay un problema técnico temporal.
+        return new Response(
+          JSON.stringify({ 
+            reply: `Lo siento, hay un problema técnico temporal.
 
 📧 Puedes contactarnos directamente:
 • Email: ${CONTACT_INFO.email}
 • WhatsApp: ${CONTACT_INFO.whatsapp}
 • Web: ${CONTACT_INFO.website}
 
-¡Estaremos encantados de ayudarte con tu viaje a Puerto López!`
-
-        if (response.status === 429) {
-          fallbackMessage = 'El servicio de IA está temporalmente sobrecargado. Por favor, intenta de nuevo en unos momentos.';
-        } else if (response.status === 401 || response.status === 403) {
-          fallbackMessage = 'Error de autenticación con el servicio de IA de Google.';
-        }
-        
-        return new Response(
-          JSON.stringify({ reply: fallbackMessage }),
+¡Estaremos encantados de ayudarte con tu viaje a Puerto López!` 
+          }),
           { 
             status: 200, 
-            headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+            headers: corsHeaders
           }
         )
       }
 
       const data = await response.json();
-      console.log('Gemini API response data:', JSON.stringify(data, null, 2))
+      console.log('Gemini API response received')
       
       let aiResponse = 'Lo siento, no pude procesar tu mensaje. Intenta de nuevo.';
       
@@ -162,9 +195,9 @@ Responde en español de manera concisa y útil. NO uses asteriscos, palabras str
         aiResponse = data.candidates[0].content.parts[0].text;
       }
 
-      console.log('Final AI response:', aiResponse)
+      console.log('Sending AI response')
       
-      // Log interaction for monitoring
+      // Log interaction
       try {
         const supabaseClient = createClient(
           Deno.env.get('SUPABASE_URL') ?? '',
@@ -184,15 +217,15 @@ Responde en español de manera concisa y útil. NO uses asteriscos, palabras str
           })
       } catch (logError) {
         console.error('Failed to log interaction:', logError)
-        // Don't fail the request if logging fails
       }
 
       return new Response(
         JSON.stringify({ reply: aiResponse }),
         { 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: corsHeaders
         }
       )
+
     } catch (aiError) {
       console.error('AI service error:', aiError)
       
@@ -209,17 +242,17 @@ Responde en español de manera concisa y útil. NO uses asteriscos, palabras str
         }),
         { 
           status: 200, 
-          headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+          headers: corsHeaders
         }
       )
     }
 
   } catch (error) {
-    console.error('Chat support error:', error)
+    console.error('General error in chat-support function:', error)
     
     return new Response(
       JSON.stringify({ 
-        reply: `Lo siento, ocurrió un error.
+        reply: `Lo siento, ocurrió un error inesperado.
 
 📧 Puedes contactarnos directamente:
 • Email: ${CONTACT_INFO.email}
@@ -229,8 +262,8 @@ Responde en español de manera concisa y útil. NO uses asteriscos, palabras str
 ¡Estaremos encantados de ayudarte!` 
       }),
       { 
-        status: 200, 
-        headers: { ...corsHeaders, 'Content-Type': 'application/json' }
+        status: 500, 
+        headers: corsHeaders
       }
     )
   }
