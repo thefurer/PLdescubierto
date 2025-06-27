@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -74,30 +75,51 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      console.log('Enviando mensaje al chatbot:', sanitizedMessage);
+      console.log('=== Enviando mensaje al chatbot ===');
+      console.log('Mensaje:', sanitizedMessage);
+      console.log('Timestamp:', new Date().toISOString());
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
-        body: { message: sanitizedMessage }
+        body: { message: sanitizedMessage },
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
-      console.log('Respuesta del chatbot:', { data, error });
+      console.log('=== Respuesta del Edge Function ===');
+      console.log('Data:', data);
+      console.log('Error:', error);
 
       if (error) {
         console.error('Error de función Supabase:', error);
-        throw new Error(error.message || 'Error al procesar el mensaje');
+        throw new Error(`Edge Function error: ${error.message || 'Unknown error'}`);
+      }
+
+      if (!data) {
+        console.error('No data received from Edge Function');
+        throw new Error('No response received from server');
+      }
+
+      if (!data.reply) {
+        console.error('No reply in response data:', data);
+        throw new Error('Invalid response format from server');
       }
 
       const botMessage: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
-        content: data?.reply || 'Lo siento, no pude procesar tu mensaje. Intenta de nuevo.',
+        content: data.reply,
         timestamp: new Date()
       };
 
       setMessages(prev => [...prev, botMessage]);
+      console.log('Mensaje del bot agregado exitosamente');
       
     } catch (error: any) {
-      console.error('Error detallado del chat:', error);
+      console.error('=== Error detallado del chat ===');
+      console.error('Error:', error);
+      console.error('Error message:', error.message);
+      console.error('Error stack:', error.stack);
       
       const errorMessage = `Lo siento, hay un problema técnico momentáneo.
 
@@ -118,8 +140,8 @@ const ChatBot = () => {
       setMessages(prev => [...prev, botErrorMessage]);
       
       toast({
-        title: 'Error temporal',
-        description: 'No se pudo enviar el mensaje. Puedes contactarnos directamente.',
+        title: 'Error de conexión',
+        description: 'No fue posible conectar con el servidor. Verifica tu conexión e intenta de nuevo.',
         variant: 'destructive'
       });
     } finally {
