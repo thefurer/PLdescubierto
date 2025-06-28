@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -75,7 +74,7 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      console.log('Sending message to chatbot function:', sanitizedMessage);
+      console.log('Enviando mensaje a la función chat-support:', sanitizedMessage);
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
         body: { message: sanitizedMessage },
@@ -84,20 +83,20 @@ const ChatBot = () => {
         }
       });
 
-      console.log('Response from Edge Function:', { data, error });
+      console.log('Respuesta de la Edge Function:', { data, error });
 
       if (error) {
-        console.error('Supabase function error:', error);
+        console.error('Error de la función Supabase:', error);
         throw new Error(`Error de conexión: ${error.message || 'No se pudo conectar con el servidor'}`);
       }
 
       if (!data) {
-        console.error('No data received from function');
+        console.error('No se recibieron datos de la función');
         throw new Error('No se recibió respuesta del servidor');
       }
 
       if (!data.reply) {
-        console.error('Invalid response data - no reply field:', data);
+        console.error('Datos de respuesta inválidos - no hay campo reply:', data);
         throw new Error('Respuesta inválida del servidor');
       }
 
@@ -109,9 +108,10 @@ const ChatBot = () => {
       };
 
       setMessages(prev => [...prev, botMessage]);
+      console.log('Mensaje del bot agregado exitosamente');
       
     } catch (error: any) {
-      console.error('Chat error details:', error);
+      console.error('Detalles del error del chat:', error);
       
       let errorMessage = '';
       
@@ -149,8 +149,8 @@ const ChatBot = () => {
       setMessages(prev => [...prev, botErrorMessage]);
       
       toast({
-        title: 'Error temporal',
-        description: 'No se pudo enviar el mensaje. Puedes intentar de nuevo o contactarnos directamente.',
+        title: 'Error de conexión',
+        description: 'No se pudo conectar con el asistente. Puedes intentar de nuevo o contactarnos directamente.',
         variant: 'destructive'
       });
     } finally {

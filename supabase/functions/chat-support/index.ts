@@ -30,7 +30,7 @@ serve(async (req) => {
     });
   }
 
-  // Only allow POST requests
+  // Only allow POST requests for actual chat
   if (req.method !== 'POST') {
     console.log('Method not allowed:', req.method);
     return new Response(
@@ -45,17 +45,31 @@ serve(async (req) => {
     );
   }
 
+  console.log('Processing POST request...');
+
   try {
-    console.log('Processing POST request...');
-    
     // Parse request body
     let body;
     try {
       const bodyText = await req.text();
       console.log('Raw request body:', bodyText);
+      
+      if (!bodyText.trim()) {
+        console.log('Empty request body');
+        return new Response(
+          JSON.stringify({ 
+            reply: '¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.'
+          }),
+          { 
+            status: 200, 
+            headers: corsHeaders
+          }
+        );
+      }
+
       body = JSON.parse(bodyText);
       console.log('Parsed body:', body);
-    } catch (parseError: any) {
+    } catch (parseError) {
       console.error('Error parsing request body:', parseError);
       return new Response(
         JSON.stringify({ 
@@ -84,7 +98,7 @@ serve(async (req) => {
     }
 
     const sanitizedMessage = message.trim().substring(0, 1000);
-    console.log('Sanitized message:', sanitizedMessage);
+    console.log('Processing message:', sanitizedMessage);
     
     // Check for Google API key
     const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
@@ -160,7 +174,7 @@ Responde de manera concisa (máximo 200 palabras):`;
           }),
         }
       );
-    } catch (fetchError: any) {
+    } catch (fetchError) {
       console.error('Error calling Gemini API:', fetchError);
       return new Response(
         JSON.stringify({ 
@@ -208,7 +222,7 @@ Responde de manera concisa (máximo 200 palabras):`;
     try {
       data = await response.json();
       console.log('Gemini API response received successfully');
-    } catch (jsonError: any) {
+    } catch (jsonError) {
       console.error('Error parsing Gemini response JSON:', jsonError);
       return new Response(
         JSON.stringify({ 
@@ -269,7 +283,7 @@ Responde de manera concisa (máximo 200 palabras):`;
       }
     );
 
-  } catch (error: any) {
+  } catch (error) {
     console.error('Unexpected error in chat-support function:', error);
     console.error('Error stack:', error.stack);
     
