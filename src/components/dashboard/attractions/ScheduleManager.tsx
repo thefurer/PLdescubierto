@@ -1,204 +1,194 @@
 
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
-import { Plus, Trash2, Clock, Info } from 'lucide-react';
-import { useToast } from '@/hooks/use-toast';
+import { Clock, Plus, Trash2 } from 'lucide-react';
 
 interface Schedule {
   day: string;
   openTime: string;
   closeTime: string;
   isClosed: boolean;
-  recommendations?: string;
-  color?: string;
 }
 
 interface ScheduleManagerProps {
   attractionId: string;
-  currentSchedules: Schedule[];
+  currentSchedules?: Schedule[];
   onSave: (schedules: Schedule[]) => void;
 }
 
-const ScheduleManager = ({ attractionId, currentSchedules, onSave }: ScheduleManagerProps) => {
-  const { toast } = useToast();
-  const [schedules, setSchedules] = useState<Schedule[]>(
-    currentSchedules.length > 0 ? currentSchedules : [
-      { day: 'Lunes', openTime: '08:00', closeTime: '17:00', isClosed: false, recommendations: '', color: '#3B82F6' },
-      { day: 'Martes', openTime: '08:00', closeTime: '17:00', isClosed: false, recommendations: '', color: '#10B981' },
-      { day: 'Miércoles', openTime: '08:00', closeTime: '17:00', isClosed: false, recommendations: '', color: '#F59E0B' },
-      { day: 'Jueves', openTime: '08:00', closeTime: '17:00', isClosed: false, recommendations: '', color: '#EF4444' },
-      { day: 'Viernes', openTime: '08:00', closeTime: '17:00', isClosed: false, recommendations: '', color: '#8B5CF6' },
-      { day: 'Sábado', openTime: '08:00', closeTime: '17:00', isClosed: false, recommendations: '', color: '#F97316' },
-      { day: 'Domingo', openTime: '08:00', closeTime: '17:00', isClosed: false, recommendations: '', color: '#06B6D4' }
-    ]
-  );
+const DAYS_OF_WEEK = [
+  'Lunes',
+  'Martes',
+  'Miércoles',
+  'Jueves',
+  'Viernes',
+  'Sábado',
+  'Domingo'
+];
 
-  const colorOptions = [
-    '#3B82F6', '#10B981', '#F59E0B', '#EF4444', '#8B5CF6', 
-    '#F97316', '#06B6D4', '#84CC16', '#EC4899', '#6366F1'
-  ];
+const TIME_OPTIONS = [
+  '06:00', '06:30', '07:00', '07:30', '08:00', '08:30', '09:00', '09:30',
+  '10:00', '10:30', '11:00', '11:30', '12:00', '12:30', '13:00', '13:30',
+  '14:00', '14:30', '15:00', '15:30', '16:00', '16:30', '17:00', '17:30',
+  '18:00', '18:30', '19:00', '19:30', '20:00', '20:30', '21:00', '21:30',
+  '22:00'
+];
+
+const ScheduleManager = ({ attractionId, currentSchedules = [], onSave }: ScheduleManagerProps) => {
+  const [schedules, setSchedules] = useState<Schedule[]>(() => {
+    if (currentSchedules.length > 0) {
+      return currentSchedules;
+    }
+    
+    // Default schedules for all days
+    return DAYS_OF_WEEK.map(day => ({
+      day,
+      openTime: '08:00',
+      closeTime: '18:00',
+      isClosed: false
+    }));
+  });
+
+  const [isTemporarilyClosed, setIsTemporarilyClosed] = useState(false);
 
   const updateSchedule = (index: number, field: keyof Schedule, value: string | boolean) => {
-    const updated = [...schedules];
-    updated[index] = { ...updated[index], [field]: value };
-    setSchedules(updated);
-  };
-
-  const addCustomSchedule = () => {
-    const newSchedule: Schedule = {
-      day: `Evento ${schedules.length + 1}`,
-      openTime: '09:00',
-      closeTime: '18:00',
-      isClosed: false,
-      recommendations: '',
-      color: colorOptions[schedules.length % colorOptions.length]
+    const newSchedules = [...schedules];
+    newSchedules[index] = {
+      ...newSchedules[index],
+      [field]: value
     };
-    setSchedules([...schedules, newSchedule]);
-  };
-
-  const removeSchedule = (index: number) => {
-    if (schedules.length > 1) {
-      const updated = schedules.filter((_, i) => i !== index);
-      setSchedules(updated);
-    }
+    setSchedules(newSchedules);
   };
 
   const handleSave = () => {
-    onSave(schedules);
-    toast({
-      title: 'Horarios guardados',
-      description: 'Los horarios y recomendaciones han sido actualizados correctamente.',
-    });
+    if (isTemporarilyClosed) {
+      // If temporarily closed, mark all days as closed
+      const closedSchedules = schedules.map(schedule => ({
+        ...schedule,
+        isClosed: true
+      }));
+      onSave(closedSchedules);
+    } else {
+      onSave(schedules);
+    }
+  };
+
+  const copyToAllDays = (sourceIndex: number) => {
+    const sourceSchedule = schedules[sourceIndex];
+    const newSchedules = schedules.map(schedule => ({
+      ...schedule,
+      openTime: sourceSchedule.openTime,
+      closeTime: sourceSchedule.closeTime,
+      isClosed: sourceSchedule.isClosed
+    }));
+    setSchedules(newSchedules);
   };
 
   return (
-    <div className="space-y-6">
-      <div className="flex justify-between items-center">
-        <div>
-          <h3 className="text-lg font-semibold text-gray-900">Gestión de Horarios</h3>
-          <p className="text-sm text-gray-600">Configura los horarios y recomendaciones para cada día</p>
+    <Card className="w-full">
+      <CardHeader>
+        <CardTitle className="flex items-center gap-2">
+          <Clock className="h-5 w-5" />
+          Gestión de Horarios
+        </CardTitle>
+      </CardHeader>
+      <CardContent className="space-y-6">
+        {/* Temporarily Closed Toggle */}
+        <div className="flex items-center space-x-3 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+          <Switch
+            id="temporarily-closed"
+            checked={isTemporarilyClosed}
+            onCheckedChange={setIsTemporarilyClosed}
+          />
+          <Label htmlFor="temporarily-closed" className="text-sm font-medium">
+            Cerrado temporalmente
+          </Label>
         </div>
-        <Button onClick={addCustomSchedule} size="sm">
-          <Plus className="h-4 w-4 mr-2" />
-          Agregar Horario
-        </Button>
-      </div>
 
-      <div className="grid gap-4">
-        {schedules.map((schedule, index) => (
-          <Card key={index} className="relative">
-            <CardHeader className="pb-3">
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-3">
-                  <div 
-                    className="w-4 h-4 rounded-full"
-                    style={{ backgroundColor: schedule.color }}
-                  />
-                  <Input
-                    value={schedule.day}
-                    onChange={(e) => updateSchedule(index, 'day', e.target.value)}
-                    className="font-medium max-w-xs"
-                    placeholder="Nombre del día/evento"
-                  />
-                  <Badge variant={schedule.isClosed ? 'destructive' : 'default'}>
-                    {schedule.isClosed ? 'Cerrado' : 'Abierto'}
-                  </Badge>
-                </div>
-                <div className="flex items-center gap-2">
-                  {schedules.length > 1 && (
+        {!isTemporarilyClosed && (
+          <div className="space-y-4">
+            {schedules.map((schedule, index) => (
+              <div key={schedule.day} className="p-4 border rounded-lg space-y-3">
+                <div className="flex items-center justify-between">
+                  <h4 className="font-medium text-gray-900">{schedule.day}</h4>
+                  <div className="flex items-center gap-2">
                     <Button
+                      type="button"
                       variant="outline"
                       size="sm"
-                      onClick={() => removeSchedule(index)}
-                      className="text-red-600 hover:text-red-700"
+                      onClick={() => copyToAllDays(index)}
+                      className="text-xs"
                     >
-                      <Trash2 className="h-4 w-4" />
+                      Aplicar a todos
                     </Button>
-                  )}
-                </div>
-              </div>
-            </CardHeader>
-            
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
-                <div className="flex items-center space-x-2">
-                  <Switch
-                    checked={!schedule.isClosed}
-                    onCheckedChange={(checked) => updateSchedule(index, 'isClosed', !checked)}
-                  />
-                  <label className="text-sm font-medium">Abierto</label>
-                </div>
-                
-                {!schedule.isClosed && (
-                  <>
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-500" />
-                      <Input
-                        type="time"
-                        value={schedule.openTime}
-                        onChange={(e) => updateSchedule(index, 'openTime', e.target.value)}
-                        className="flex-1"
-                      />
-                    </div>
-                    
-                    <div className="flex items-center gap-2">
-                      <Clock className="h-4 w-4 text-gray-500" />
-                      <Input
-                        type="time"
-                        value={schedule.closeTime}
-                        onChange={(e) => updateSchedule(index, 'closeTime', e.target.value)}
-                        className="flex-1"
-                      />
-                    </div>
-                  </>
-                )}
-
-                <div className="flex items-center gap-2">
-                  <span className="text-sm text-gray-600">Color:</span>
-                  <div className="flex gap-1">
-                    {colorOptions.slice(0, 5).map((color) => (
-                      <button
-                        key={color}
-                        className={`w-6 h-6 rounded-full border-2 ${
-                          schedule.color === color ? 'border-gray-800' : 'border-gray-300'
-                        }`}
-                        style={{ backgroundColor: color }}
-                        onClick={() => updateSchedule(index, 'color', color)}
-                      />
-                    ))}
+                    <Switch
+                      checked={!schedule.isClosed}
+                      onCheckedChange={(checked) => updateSchedule(index, 'isClosed', !checked)}
+                    />
+                    <span className="text-sm text-gray-600">
+                      {schedule.isClosed ? 'Cerrado' : 'Abierto'}
+                    </span>
                   </div>
                 </div>
-              </div>
 
-              <div>
-                <div className="flex items-center gap-2 mb-2">
-                  <Info className="h-4 w-4 text-blue-500" />
-                  <label className="text-sm font-medium text-gray-700">Recomendaciones</label>
-                </div>
-                <Textarea
-                  value={schedule.recommendations || ''}
-                  onChange={(e) => updateSchedule(index, 'recommendations', e.target.value)}
-                  placeholder="Consejos específicos para este día/horario (ej: Mejor momento para fotos, menos concurrido, etc.)"
-                  rows={2}
-                  className="resize-none"
-                />
-              </div>
-            </CardContent>
-          </Card>
-        ))}
-      </div>
+                {!schedule.isClosed && (
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <Label className="text-sm text-gray-600">Hora de apertura</Label>
+                      <Select
+                        value={schedule.openTime}
+                        onValueChange={(value) => updateSchedule(index, 'openTime', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TIME_OPTIONS.map(time => (
+                            <SelectItem key={time} value={time}>
+                              {time}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
 
-      <div className="flex justify-end">
-        <Button onClick={handleSave} className="bg-green-primary hover:bg-green-600">
-          Guardar Horarios y Recomendaciones
-        </Button>
-      </div>
-    </div>
+                    <div>
+                      <Label className="text-sm text-gray-600">Hora de cierre</Label>
+                      <Select
+                        value={schedule.closeTime}
+                        onValueChange={(value) => updateSchedule(index, 'closeTime', value)}
+                      >
+                        <SelectTrigger>
+                          <SelectValue />
+                        </SelectTrigger>
+                        <SelectContent>
+                          {TIME_OPTIONS.map(time => (
+                            <SelectItem key={time} value={time}>
+                              {time}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                    </div>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        )}
+
+        <div className="flex gap-2 pt-4 border-t">
+          <Button onClick={handleSave} className="flex-1">
+            <Clock className="h-4 w-4 mr-2" />
+            Guardar Horarios
+          </Button>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 

@@ -7,7 +7,6 @@ export interface TouristAttraction {
   image_url?: string;
   gallery_images?: string[];
   activities?: string[];
-  recommendations?: string;
   additional_info?: {
     duration?: string;
     capacity?: string;
@@ -17,8 +16,6 @@ export interface TouristAttraction {
       openTime: string;
       closeTime: string;
       isClosed: boolean;
-      recommendations?: string;
-      color?: string;
     }>;
     [key: string]: any;
   };

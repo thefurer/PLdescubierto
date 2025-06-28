@@ -31,7 +31,6 @@ const AttractionEditForm = ({
     name: attraction.name,
     description: attraction.description || '',
     category: attraction.category,
-    recommendations: attraction.recommendations || '',
     image_url: attraction.image_url || '',
     gallery_images: attraction.gallery_images || [],
     activities: attraction.activities || [],

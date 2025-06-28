@@ -10,7 +10,6 @@ interface BasicInfoTabProps {
     name: string;
     description: string;
     category: 'todo' | 'playa' | 'cultura' | 'naturaleza';
-    recommendations: string;
     additional_info: any;
   };
   formErrors: Record<string, string>;
@@ -62,18 +61,6 @@ const BasicInfoTab = ({ formData, formErrors, onFormDataChange, onErrorClear }: 
           onChange={(e) => onFormDataChange({ description: e.target.value })}
           placeholder="Descripción de la atracción"
           rows={4}
-        />
-      </div>
-
-      <div>
-        <label className="text-sm font-medium text-gray-700 mb-2 block">
-          Recomendaciones
-        </label>
-        <Textarea
-          value={formData.recommendations || ''}
-          onChange={(e) => onFormDataChange({ recommendations: e.target.value })}
-          placeholder="Consejos y recomendaciones para los visitantes"
-          rows={3}
         />
       </div>
 
