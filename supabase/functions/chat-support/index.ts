@@ -30,32 +30,50 @@ serve(async (req) => {
     });
   }
 
-  // Only allow POST requests for actual chat
-  if (req.method !== 'POST') {
-    console.log('Method not allowed:', req.method);
-    return new Response(
-      JSON.stringify({ 
-        error: 'Method not allowed',
-        reply: 'Solo se permiten solicitudes POST.'
-      }),
-      { 
-        status: 405, 
-        headers: corsHeaders
-      }
-    );
-  }
-
-  console.log('Processing POST request...');
-
-  try {
-    // Parse request body
-    let body;
+  // Handle POST requests
+  if (req.method === 'POST') {
+    console.log('POST request received - processing...');
+    
     try {
-      const bodyText = await req.text();
-      console.log('Raw request body:', bodyText);
+      // Parse request body
+      let body;
+      try {
+        const bodyText = await req.text();
+        console.log('Raw request body:', bodyText);
+        
+        if (!bodyText.trim()) {
+          console.log('Empty request body received');
+          return new Response(
+            JSON.stringify({ 
+              reply: '¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.'
+            }),
+            { 
+              status: 200, 
+              headers: corsHeaders
+            }
+          );
+        }
+
+        body = JSON.parse(bodyText);
+        console.log('Parsed body successfully:', body);
+      } catch (parseError) {
+        console.error('Error parsing request body:', parseError);
+        return new Response(
+          JSON.stringify({ 
+            reply: 'Error en el formato de la solicitud. Por favor, intenta de nuevo.'
+          }),
+          { 
+            status: 400, 
+            headers: corsHeaders
+          }
+        );
+      }
       
-      if (!bodyText.trim()) {
-        console.log('Empty request body');
+      const { message } = body;
+      console.log('Extracted message:', message);
+      
+      if (!message || typeof message !== 'string' || message.trim().length === 0) {
+        console.log('Invalid or empty message provided');
         return new Response(
           JSON.stringify({ 
             reply: '¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.'
@@ -67,48 +85,18 @@ serve(async (req) => {
         );
       }
 
-      body = JSON.parse(bodyText);
-      console.log('Parsed body:', body);
-    } catch (parseError) {
-      console.error('Error parsing request body:', parseError);
-      return new Response(
-        JSON.stringify({ 
-          reply: 'Error en el formato de la solicitud. Por favor, intenta de nuevo.'
-        }),
-        { 
-          status: 400, 
-          headers: corsHeaders
-        }
-      );
-    }
-    
-    const { message } = body;
-    
-    if (!message || typeof message !== 'string' || message.trim().length === 0) {
-      console.log('Invalid message provided:', message);
-      return new Response(
-        JSON.stringify({ 
-          reply: '¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.'
-        }),
-        { 
-          status: 200, 
-          headers: corsHeaders
-        }
-      );
-    }
-
-    const sanitizedMessage = message.trim().substring(0, 1000);
-    console.log('Processing message:', sanitizedMessage);
-    
-    // Check for Google API key
-    const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
-    console.log('Google API Key available:', !!googleApiKey);
-    
-    if (!googleApiKey) {
-      console.error('Google API key not found in environment variables');
-      return new Response(
-        JSON.stringify({ 
-          reply: `¡Hola! Gracias por contactarnos.
+      const sanitizedMessage = message.trim().substring(0, 1000);
+      console.log('Processing message:', sanitizedMessage);
+      
+      // Check for Google API key
+      const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
+      console.log('Google API Key available:', !!googleApiKey);
+      
+      if (!googleApiKey) {
+        console.error('Google API key not found in environment variables');
+        return new Response(
+          JSON.stringify({ 
+            reply: `¡Hola! Gracias por contactarnos.
 
 Nuestro asistente automático no está disponible temporalmente, pero puedes contactarnos directamente:
 
@@ -117,16 +105,16 @@ Nuestro asistente automático no está disponible temporalmente, pero puedes con
 🌐 Web: ${CONTACT_INFO.website}
 
 ¡Estaremos encantados de ayudarte con tu viaje a Puerto López!` 
-        }),
-        { 
-          status: 200, 
-          headers: corsHeaders
-        }
-      );
-    }
+          }),
+          { 
+            status: 200, 
+            headers: corsHeaders
+          }
+        );
+      }
 
-    // Create context for Puerto López tourism
-    const prompt = `Eres un asistente turístico especializado en Puerto López, Ecuador.
+      // Create context for Puerto López tourism
+      const prompt = `Eres un asistente turístico especializado en Puerto López, Ecuador.
 
 Puerto López es un destino costero en Manabí, Ecuador, conocido por:
 - Observación de ballenas jorobadas (junio-septiembre)
@@ -147,38 +135,38 @@ Pregunta: ${sanitizedMessage}
 
 Responde de manera concisa (máximo 200 palabras):`;
 
-    console.log('Calling Google Gemini API...');
+      console.log('Calling Google Gemini API...');
 
-    // Call Google Gemini API
-    let response;
-    try {
-      response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`,
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: prompt
-              }]
-            }],
-            generationConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 400,
+      // Call Google Gemini API
+      let response;
+      try {
+        response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
             },
-          }),
-        }
-      );
-    } catch (fetchError) {
-      console.error('Error calling Gemini API:', fetchError);
-      return new Response(
-        JSON.stringify({ 
-          reply: `¡Hola! Tenemos un problema técnico temporal.
+            body: JSON.stringify({
+              contents: [{
+                parts: [{
+                  text: prompt
+                }]
+              }],
+              generationConfig: {
+                temperature: 0.7,
+                topK: 40,
+                topP: 0.95,
+                maxOutputTokens: 400,
+              },
+            }),
+          }
+        );
+      } catch (fetchError) {
+        console.error('Error calling Gemini API:', fetchError);
+        return new Response(
+          JSON.stringify({ 
+            reply: `¡Hola! Tenemos un problema técnico temporal.
 
 📧 Puedes contactarnos directamente:
 • Email: ${CONTACT_INFO.email}
@@ -186,23 +174,23 @@ Responde de manera concisa (máximo 200 palabras):`;
 • Web: ${CONTACT_INFO.website}
 
 ¡Estaremos encantados de ayudarte!` 
-        }),
-        { 
-          status: 200, 
-          headers: corsHeaders
-        }
-      );
-    }
+          }),
+          { 
+            status: 200, 
+            headers: corsHeaders
+          }
+        );
+      }
 
-    console.log('Gemini API response status:', response.status);
+      console.log('Gemini API response status:', response.status);
 
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Gemini API error:', response.status, errorText);
-      
-      return new Response(
-        JSON.stringify({ 
-          reply: `¡Hola! Nuestro asistente está experimentando dificultades técnicas.
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('Gemini API error:', response.status, errorText);
+        
+        return new Response(
+          JSON.stringify({ 
+            reply: `¡Hola! Nuestro asistente está experimentando dificultades técnicas.
 
 📧 Contacta directamente:
 • Email: ${CONTACT_INFO.email}
@@ -210,86 +198,86 @@ Responde de manera concisa (máximo 200 palabras):`;
 • Web: ${CONTACT_INFO.website}
 
 ¡Te ayudaremos personalmente!` 
-        }),
-        { 
-          status: 200, 
-          headers: corsHeaders
-        }
-      );
-    }
+          }),
+          { 
+            status: 200, 
+            headers: corsHeaders
+          }
+        );
+      }
 
-    let data;
-    try {
-      data = await response.json();
-      console.log('Gemini API response received successfully');
-    } catch (jsonError) {
-      console.error('Error parsing Gemini response JSON:', jsonError);
-      return new Response(
-        JSON.stringify({ 
-          reply: `¡Hola! Problema técnico al procesar la respuesta.
+      let data;
+      try {
+        data = await response.json();
+        console.log('Gemini API response received successfully');
+      } catch (jsonError) {
+        console.error('Error parsing Gemini response JSON:', jsonError);
+        return new Response(
+          JSON.stringify({ 
+            reply: `¡Hola! Problema técnico al procesar la respuesta.
 
 📧 Contacta directamente:
 • Email: ${CONTACT_INFO.email}
 • WhatsApp: ${CONTACT_INFO.whatsapp}
 • Web: ${CONTACT_INFO.website}` 
-        }),
+          }),
+          { 
+            status: 200, 
+            headers: corsHeaders
+          }
+        );
+      }
+      
+      let aiResponse = 'Lo siento, no pude procesar tu mensaje. Por favor contacta directamente con nosotros.';
+      
+      if (data.candidates && data.candidates.length > 0 && 
+          data.candidates[0].content && data.candidates[0].content.parts &&
+          data.candidates[0].content.parts.length > 0) {
+        aiResponse = data.candidates[0].content.parts[0].text;
+        console.log('AI response generated successfully');
+      } else {
+        console.warn('Unexpected API response structure:', JSON.stringify(data));
+      }
+
+      // Log interaction for analytics
+      try {
+        const supabaseClient = createClient(
+          Deno.env.get('SUPABASE_URL') ?? '',
+          Deno.env.get('SUPABASE_ANON_KEY') ?? '',
+        );
+
+        await supabaseClient
+          .from('content_history')
+          .insert({
+            section_name: 'chat_interaction',
+            new_content: {
+              message: sanitizedMessage,
+              response: aiResponse,
+              timestamp: new Date().toISOString()
+            },
+            change_type: 'chat_message'
+          });
+      } catch (logError) {
+        console.error('Failed to log interaction:', logError);
+        // Don't fail the main request if logging fails
+      }
+
+      console.log('Sending successful response with reply:', aiResponse.substring(0, 100) + '...');
+      return new Response(
+        JSON.stringify({ reply: aiResponse }),
         { 
-          status: 200, 
+          status: 200,
           headers: corsHeaders
         }
       );
-    }
-    
-    let aiResponse = 'Lo siento, no pude procesar tu mensaje. Por favor contacta directamente con nosotros.';
-    
-    if (data.candidates && data.candidates.length > 0 && 
-        data.candidates[0].content && data.candidates[0].content.parts &&
-        data.candidates[0].content.parts.length > 0) {
-      aiResponse = data.candidates[0].content.parts[0].text;
-      console.log('AI response generated successfully');
-    } else {
-      console.warn('Unexpected API response structure:', JSON.stringify(data));
-    }
 
-    // Log interaction for analytics
-    try {
-      const supabaseClient = createClient(
-        Deno.env.get('SUPABASE_URL') ?? '',
-        Deno.env.get('SUPABASE_ANON_KEY') ?? '',
-      );
-
-      await supabaseClient
-        .from('content_history')
-        .insert({
-          section_name: 'chat_interaction',
-          new_content: {
-            message: sanitizedMessage,
-            response: aiResponse,
-            timestamp: new Date().toISOString()
-          },
-          change_type: 'chat_message'
-        });
-    } catch (logError) {
-      console.error('Failed to log interaction:', logError);
-      // Don't fail the main request if logging fails
-    }
-
-    console.log('Sending successful response');
-    return new Response(
-      JSON.stringify({ reply: aiResponse }),
-      { 
-        status: 200,
-        headers: corsHeaders
-      }
-    );
-
-  } catch (error) {
-    console.error('Unexpected error in chat-support function:', error);
-    console.error('Error stack:', error.stack);
-    
-    return new Response(
-      JSON.stringify({ 
-        reply: `Lo siento, ocurrió un error inesperado. 
+    } catch (error) {
+      console.error('Unexpected error in POST handler:', error);
+      console.error('Error stack:', error.stack);
+      
+      return new Response(
+        JSON.stringify({ 
+          reply: `Lo siento, ocurrió un error inesperado. 
 
 📧 Puedes contactarnos directamente:
 • Email: ${CONTACT_INFO.email}
@@ -297,11 +285,25 @@ Responde de manera concisa (máximo 200 palabras):`;
 • Web: ${CONTACT_INFO.website}
 
 ¡Estaremos encantados de ayudarte!` 
-      }),
-      { 
-        status: 200, 
-        headers: corsHeaders
-      }
-    );
+        }),
+        { 
+          status: 200, 
+          headers: corsHeaders
+        }
+      );
+    }
   }
+
+  // Handle other methods
+  console.log('Method not allowed:', req.method);
+  return new Response(
+    JSON.stringify({ 
+      error: 'Method not allowed',
+      reply: 'Solo se permiten solicitudes POST.'
+    }),
+    { 
+      status: 405, 
+      headers: corsHeaders
+    }
+  );
 });

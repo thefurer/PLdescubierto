@@ -74,7 +74,8 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      console.log('Enviando mensaje a la función chat-support:', sanitizedMessage);
+      console.log('Enviando mensaje POST a chat-support:', sanitizedMessage);
+      console.log('Request body:', JSON.stringify({ message: sanitizedMessage }));
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
         body: { message: sanitizedMessage },
@@ -83,10 +84,11 @@ const ChatBot = () => {
         }
       });
 
-      console.log('Respuesta de la Edge Function:', { data, error });
+      console.log('Respuesta completa de la Edge Function:', { data, error });
 
       if (error) {
-        console.error('Error de la función Supabase:', error);
+        console.error('Error específico de Supabase:', error);
+        console.error('Error details:', JSON.stringify(error, null, 2));
         throw new Error(`Error de conexión: ${error.message || 'No se pudo conectar con el servidor'}`);
       }
 
@@ -94,6 +96,8 @@ const ChatBot = () => {
         console.error('No se recibieron datos de la función');
         throw new Error('No se recibió respuesta del servidor');
       }
+
+      console.log('Datos recibidos:', data);
 
       if (!data.reply) {
         console.error('Datos de respuesta inválidos - no hay campo reply:', data);
@@ -108,10 +112,13 @@ const ChatBot = () => {
       };
 
       setMessages(prev => [...prev, botMessage]);
-      console.log('Mensaje del bot agregado exitosamente');
+      console.log('Mensaje del bot agregado exitosamente:', data.reply.substring(0, 50) + '...');
       
     } catch (error: any) {
-      console.error('Detalles del error del chat:', error);
+      console.error('Error completo del chat:', error);
+      console.error('Error type:', typeof error);
+      console.error('Error message:', error?.message);
+      console.error('Error stack:', error?.stack);
       
       let errorMessage = '';
       
