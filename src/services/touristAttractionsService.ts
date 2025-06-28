@@ -22,6 +22,7 @@ export const touristAttractionsService = {
       category: attraction.category as 'todo' | 'playa' | 'cultura' | 'naturaleza',
       gallery_images: attraction.gallery_images || [],
       activities: attraction.activities || [],
+      recommendations: attraction.recommendations || '',
       additional_info: typeof attraction.additional_info === 'object' && attraction.additional_info !== null 
         ? attraction.additional_info as { duration?: string; capacity?: string; price?: string; [key: string]: any; }
         : {}
@@ -46,6 +47,7 @@ export const touristAttractionsService = {
     if (updates.name !== undefined) updateData.name = updates.name;
     if (updates.description !== undefined) updateData.description = updates.description;
     if (updates.category !== undefined) updateData.category = updates.category;
+    if (updates.recommendations !== undefined) updateData.recommendations = updates.recommendations;
     if (updates.image_url !== undefined) updateData.image_url = updates.image_url;
     if (updates.gallery_images !== undefined) updateData.gallery_images = updates.gallery_images;
     if (updates.activities !== undefined) updateData.activities = updates.activities;

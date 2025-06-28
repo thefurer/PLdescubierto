@@ -1,5 +1,5 @@
 
-import { Phone, Calendar, MapPin, CloudSun, Route } from 'lucide-react';
+import { Phone, Calendar, MapPin, CloudSun } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface CompactQuickOptionsProps {
@@ -8,11 +8,6 @@ interface CompactQuickOptionsProps {
 
 const CompactQuickOptions = ({ onOptionClick }: CompactQuickOptionsProps) => {
   const options = [
-    {
-      icon: Route,
-      label: 'Itinerario',
-      message: 'Quiero personalizar mi itinerario turístico para Puerto López'
-    },
     {
       icon: Phone,
       label: 'Contacto',

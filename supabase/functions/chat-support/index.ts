@@ -30,13 +30,13 @@ serve(async (req) => {
     });
   }
 
-  // Handle POST requests
+  // Handle POST requests explicitly
   if (req.method === 'POST') {
     console.log('POST request received - processing...');
     
     try {
       // Parse request body
-      let body;
+      let requestBody;
       try {
         const bodyText = await req.text();
         console.log('Raw request body:', bodyText);
@@ -54,8 +54,8 @@ serve(async (req) => {
           );
         }
 
-        body = JSON.parse(bodyText);
-        console.log('Parsed body successfully:', body);
+        requestBody = JSON.parse(bodyText);
+        console.log('Parsed body successfully:', requestBody);
       } catch (parseError) {
         console.error('Error parsing request body:', parseError);
         return new Response(
@@ -63,13 +63,13 @@ serve(async (req) => {
             reply: 'Error en el formato de la solicitud. Por favor, intenta de nuevo.'
           }),
           { 
-            status: 400, 
+            status: 200, 
             headers: corsHeaders
           }
         );
       }
       
-      const { message } = body;
+      const { message } = requestBody;
       console.log('Extracted message:', message);
       
       if (!message || typeof message !== 'string' || message.trim().length === 0) {

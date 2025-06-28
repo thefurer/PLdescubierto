@@ -1,5 +1,4 @@
 
-import { MapPin, Clock, Users } from 'lucide-react';
 import { TouristAttraction } from '@/types/touristAttractions';
 
 interface AttractionDescriptionProps {
@@ -7,48 +6,48 @@ interface AttractionDescriptionProps {
 }
 
 export const AttractionDescription = ({ attraction }: AttractionDescriptionProps) => {
-  const additionalInfo = attraction.additional_info || {};
-
   return (
     <div className="space-y-4">
       <div>
-        <h3 className="text-lg font-semibold mb-2">Historia y Descripción</h3>
-        <p className="text-gray-600 leading-relaxed">
-          {attraction.description || 'Sin descripción disponible.'}
+        <h3 className="text-lg font-semibold text-ocean-dark mb-3">Descripción</h3>
+        <p className="text-gray-700 leading-relaxed">
+          {attraction.description || 'Descripción no disponible.'}
         </p>
       </div>
-
-      {/* Additional Information */}
-      {Object.keys(additionalInfo).length > 0 && (
+      
+      {attraction.recommendations && (
         <div>
-          <h3 className="text-lg font-semibold mb-2">Información Adicional</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {additionalInfo.duration && (
-              <div className="flex items-center text-sm">
-                <Clock className="h-4 w-4 mr-2 text-green-primary" />
-                <span>Duración: {additionalInfo.duration}</span>
-              </div>
-            )}
-            {additionalInfo.capacity && (
-              <div className="flex items-center text-sm">
-                <Users className="h-4 w-4 mr-2 text-green-primary" />
-                <span>Capacidad: {additionalInfo.capacity}</span>
-              </div>
-            )}
-            {additionalInfo.price && (
-              <div className="flex items-center text-sm">
-                <span className="font-medium">Precio: {additionalInfo.price}</span>
-              </div>
-            )}
+          <h3 className="text-lg font-semibold text-ocean-dark mb-3">Recomendaciones</h3>
+          <div className="bg-blue-50 p-4 rounded-lg border-l-4 border-blue-400">
+            <p className="text-gray-700 leading-relaxed whitespace-pre-line">
+              {attraction.recommendations}
+            </p>
           </div>
         </div>
       )}
-
-      {/* Location */}
-      <div className="flex items-center text-sm text-gray-600">
-        <MapPin className="h-4 w-4 mr-2 text-green-primary" />
-        <span>Puerto López, Ecuador</span>
-      </div>
+      
+      {attraction.additional_info && (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 pt-4 border-t">
+          {attraction.additional_info.duration && (
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <span className="text-sm text-gray-500 block">Duración</span>
+              <span className="font-semibold text-ocean-dark">{attraction.additional_info.duration}</span>
+            </div>
+          )}
+          {attraction.additional_info.capacity && (
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <span className="text-sm text-gray-500 block">Capacidad</span>
+              <span className="font-semibold text-ocean-dark">{attraction.additional_info.capacity}</span>
+            </div>
+          )}
+          {attraction.additional_info.price && (
+            <div className="text-center p-3 bg-gray-50 rounded-lg">
+              <span className="text-sm text-gray-500 block">Precio</span>
+              <span className="font-semibold text-ocean-dark">{attraction.additional_info.price}</span>
+            </div>
+          )}
+        </div>
+      )}
     </div>
   );
 };
