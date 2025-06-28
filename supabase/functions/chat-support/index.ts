@@ -19,11 +19,15 @@ serve(async (req) => {
   console.log('=== Chat Support Function Started ===');
   console.log('Method:', req.method);
   console.log('URL:', req.url);
+  console.log('Headers:', Object.fromEntries(req.headers.entries()));
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
     console.log('Handling CORS preflight request');
-    return new Response('ok', { headers: corsHeaders });
+    return new Response('ok', { 
+      headers: corsHeaders,
+      status: 200 
+    });
   }
 
   // Only allow POST requests
@@ -45,13 +49,29 @@ serve(async (req) => {
     console.log('Processing POST request...');
     
     // Parse request body
-    const body = await req.json();
-    console.log('Request body:', body);
+    let body;
+    try {
+      const bodyText = await req.text();
+      console.log('Raw request body:', bodyText);
+      body = JSON.parse(bodyText);
+      console.log('Parsed body:', body);
+    } catch (parseError: any) {
+      console.error('Error parsing request body:', parseError);
+      return new Response(
+        JSON.stringify({ 
+          reply: 'Error en el formato de la solicitud. Por favor, intenta de nuevo.'
+        }),
+        { 
+          status: 400, 
+          headers: corsHeaders
+        }
+      );
+    }
     
     const { message } = body;
     
     if (!message || typeof message !== 'string' || message.trim().length === 0) {
-      console.log('Invalid message provided');
+      console.log('Invalid message provided:', message);
       return new Response(
         JSON.stringify({ 
           reply: '¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.'
@@ -71,7 +91,7 @@ serve(async (req) => {
     console.log('Google API Key available:', !!googleApiKey);
     
     if (!googleApiKey) {
-      console.error('Google API key not found');
+      console.error('Google API key not found in environment variables');
       return new Response(
         JSON.stringify({ 
           reply: `¡Hola! Gracias por contactarnos.
@@ -116,44 +136,40 @@ Responde de manera concisa (máximo 200 palabras):`;
     console.log('Calling Google Gemini API...');
 
     // Call Google Gemini API
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`,
-      {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }],
-          generationConfig: {
-            temperature: 0.7,
-            topK: 40,
-            topP: 0.95,
-            maxOutputTokens: 400,
+    let response;
+    try {
+      response = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
           },
-        }),
-      }
-    );
-
-    console.log('Gemini API response status:', response.status);
-
-    if (!response.ok) {
-      const errorText = await response.text();
-      console.error('Gemini API error:', response.status, errorText);
-      
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: prompt
+              }]
+            }],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 400,
+            },
+          }),
+        }
+      );
+    } catch (fetchError: any) {
+      console.error('Error calling Gemini API:', fetchError);
       return new Response(
         JSON.stringify({ 
-          reply: `¡Hola! Gracias por tu mensaje.
+          reply: `¡Hola! Tenemos un problema técnico temporal.
 
-Tenemos un problema técnico temporal con nuestro asistente, pero puedes contactarnos directamente:
-
-📧 Email: ${CONTACT_INFO.email}
-📱 WhatsApp: ${CONTACT_INFO.whatsapp}
-🌐 Web: ${CONTACT_INFO.website}
+📧 Puedes contactarnos directamente:
+• Email: ${CONTACT_INFO.email}
+• WhatsApp: ${CONTACT_INFO.whatsapp}
+• Web: ${CONTACT_INFO.website}
 
 ¡Estaremos encantados de ayudarte!` 
         }),
@@ -164,17 +180,61 @@ Tenemos un problema técnico temporal con nuestro asistente, pero puedes contact
       );
     }
 
-    const data = await response.json();
-    console.log('Gemini response received');
+    console.log('Gemini API response status:', response.status);
+
+    if (!response.ok) {
+      const errorText = await response.text();
+      console.error('Gemini API error:', response.status, errorText);
+      
+      return new Response(
+        JSON.stringify({ 
+          reply: `¡Hola! Nuestro asistente está experimentando dificultades técnicas.
+
+📧 Contacta directamente:
+• Email: ${CONTACT_INFO.email}
+• WhatsApp: ${CONTACT_INFO.whatsapp}
+• Web: ${CONTACT_INFO.website}
+
+¡Te ayudaremos personalmente!` 
+        }),
+        { 
+          status: 200, 
+          headers: corsHeaders
+        }
+      );
+    }
+
+    let data;
+    try {
+      data = await response.json();
+      console.log('Gemini API response received successfully');
+    } catch (jsonError: any) {
+      console.error('Error parsing Gemini response JSON:', jsonError);
+      return new Response(
+        JSON.stringify({ 
+          reply: `¡Hola! Problema técnico al procesar la respuesta.
+
+📧 Contacta directamente:
+• Email: ${CONTACT_INFO.email}
+• WhatsApp: ${CONTACT_INFO.whatsapp}
+• Web: ${CONTACT_INFO.website}` 
+        }),
+        { 
+          status: 200, 
+          headers: corsHeaders
+        }
+      );
+    }
     
     let aiResponse = 'Lo siento, no pude procesar tu mensaje. Por favor contacta directamente con nosotros.';
     
     if (data.candidates && data.candidates.length > 0 && 
-        data.candidates[0].content && data.candidates[0].content.parts) {
+        data.candidates[0].content && data.candidates[0].content.parts &&
+        data.candidates[0].content.parts.length > 0) {
       aiResponse = data.candidates[0].content.parts[0].text;
       console.log('AI response generated successfully');
     } else {
-      console.warn('Unexpected API response structure');
+      console.warn('Unexpected API response structure:', JSON.stringify(data));
     }
 
     // Log interaction for analytics
@@ -197,6 +257,7 @@ Tenemos un problema técnico temporal con nuestro asistente, pero puedes contact
         });
     } catch (logError) {
       console.error('Failed to log interaction:', logError);
+      // Don't fail the main request if logging fails
     }
 
     console.log('Sending successful response');
@@ -208,12 +269,13 @@ Tenemos un problema técnico temporal con nuestro asistente, pero puedes contact
       }
     );
 
-  } catch (error) {
-    console.error('Error in chat-support function:', error);
+  } catch (error: any) {
+    console.error('Unexpected error in chat-support function:', error);
+    console.error('Error stack:', error.stack);
     
     return new Response(
       JSON.stringify({ 
-        reply: `Lo siento, ocurrió un error inesperado.
+        reply: `Lo siento, ocurrió un error inesperado. 
 
 📧 Puedes contactarnos directamente:
 • Email: ${CONTACT_INFO.email}

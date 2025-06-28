@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -74,22 +75,30 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      console.log('Sending message to chatbot:', sanitizedMessage);
+      console.log('Sending message to chatbot function:', sanitizedMessage);
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
-        body: { message: sanitizedMessage }
+        body: { message: sanitizedMessage },
+        headers: {
+          'Content-Type': 'application/json'
+        }
       });
 
       console.log('Response from Edge Function:', { data, error });
 
       if (error) {
         console.error('Supabase function error:', error);
-        throw new Error(`Error: ${error.message || 'Unknown error'}`);
+        throw new Error(`Error de conexión: ${error.message || 'No se pudo conectar con el servidor'}`);
       }
 
-      if (!data || !data.reply) {
-        console.error('Invalid response data:', data);
-        throw new Error('Invalid response from server');
+      if (!data) {
+        console.error('No data received from function');
+        throw new Error('No se recibió respuesta del servidor');
+      }
+
+      if (!data.reply) {
+        console.error('Invalid response data - no reply field:', data);
+        throw new Error('Respuesta inválida del servidor');
       }
 
       const botMessage: Message = {
@@ -102,9 +111,25 @@ const ChatBot = () => {
       setMessages(prev => [...prev, botMessage]);
       
     } catch (error: any) {
-      console.error('Chat error:', error);
+      console.error('Chat error details:', error);
       
-      const errorMessage = `Lo siento, hay un problema técnico momentáneo.
+      let errorMessage = '';
+      
+      if (error.message?.includes('NetworkError') || error.message?.includes('Failed to fetch')) {
+        errorMessage = `No se pudo conectar con el servidor. Verifica tu conexión a internet.
+
+📧 Contacto directo:
+• Email: apincay@gmail.com
+• WhatsApp: +593 99 199 5390
+• Web: https://www.whalexpeditionsecuador.com/`;
+      } else if (error.message?.includes('timeout')) {
+        errorMessage = `El servidor tardó demasiado en responder. Intenta de nuevo.
+
+📧 Contacto directo:
+• Email: apincay@gmail.com
+• WhatsApp: +593 99 199 5390`;
+      } else {
+        errorMessage = `Lo siento, hay un problema técnico momentáneo.
 
 📧 Puedes contactarnos directamente:
 • Email: apincay@gmail.com
@@ -112,6 +137,7 @@ const ChatBot = () => {
 • Web: https://www.whalexpeditionsecuador.com/
 
 ¡Estaremos encantados de ayudarte!`;
+      }
       
       const botErrorMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -123,8 +149,8 @@ const ChatBot = () => {
       setMessages(prev => [...prev, botErrorMessage]);
       
       toast({
-        title: 'Error de conexión',
-        description: 'No fue posible conectar con el asistente. Puedes contactarnos directamente.',
+        title: 'Error temporal',
+        description: 'No se pudo enviar el mensaje. Puedes intentar de nuevo o contactarnos directamente.',
         variant: 'destructive'
       });
     } finally {
