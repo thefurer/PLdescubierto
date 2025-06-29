@@ -19,7 +19,6 @@ serve(async (req) => {
   console.log('=== Chat Support Function Started ===');
   console.log('Method:', req.method);
   console.log('URL:', req.url);
-  console.log('Headers:', Object.fromEntries(req.headers.entries()));
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -91,7 +90,6 @@ serve(async (req) => {
       // Check for Google API key
       const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
       console.log('Google API Key available:', !!googleApiKey);
-      console.log('Google API Key first 10 chars:', googleApiKey ? googleApiKey.substring(0, 10) + '...' : 'NOT_FOUND');
       
       if (!googleApiKey) {
         console.error('Google API key not found in environment variables');
@@ -142,7 +140,6 @@ Responde de manera concisa (máximo 200 palabras):`;
       let response;
       try {
         const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`;
-        console.log('API URL (without key):', apiUrl.replace(googleApiKey, 'HIDDEN_KEY'));
         
         response = await fetch(apiUrl, {
           method: 'POST',
@@ -165,7 +162,6 @@ Responde de manera concisa (máximo 200 palabras):`;
         });
         
         console.log('Gemini API response status:', response.status);
-        console.log('Gemini API response headers:', Object.fromEntries(response.headers.entries()));
         
       } catch (fetchError) {
         console.error('Error calling Gemini API:', fetchError);
@@ -213,7 +209,6 @@ Responde de manera concisa (máximo 200 palabras):`;
       try {
         data = await response.json();
         console.log('Gemini API response received successfully');
-        console.log('Response data structure:', JSON.stringify(data, null, 2));
       } catch (jsonError) {
         console.error('Error parsing Gemini response JSON:', jsonError);
         return new Response(
@@ -238,7 +233,7 @@ Responde de manera concisa (máximo 200 palabras):`;
           data.candidates[0].content && data.candidates[0].content.parts &&
           data.candidates[0].content.parts.length > 0) {
         aiResponse = data.candidates[0].content.parts[0].text;
-        console.log('AI response generated successfully:', aiResponse.substring(0, 100) + '...');
+        console.log('AI response generated successfully');
       } else {
         console.warn('Unexpected API response structure:', JSON.stringify(data));
       }
@@ -266,7 +261,7 @@ Responde de manera concisa (máximo 200 palabras):`;
         // Don't fail the main request if logging fails
       }
 
-      console.log('Sending successful response with reply:', aiResponse.substring(0, 100) + '...');
+      console.log('Sending successful response');
       return new Response(
         JSON.stringify({ reply: aiResponse }),
         { 
@@ -275,7 +270,7 @@ Responde de manera concisa (máximo 200 palabras):`;
         }
       );
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Unexpected error in POST handler:', error);
       console.error('Error stack:', error.stack);
       

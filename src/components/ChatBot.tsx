@@ -91,12 +91,7 @@ const ChatBot = () => {
         throw new Error(`Error de conexión: ${error.message || 'No se pudo conectar con el servidor'}`);
       }
 
-      if (!data) {
-        console.error('No se recibieron datos de la función');
-        throw new Error('No se recibió respuesta del servidor');
-      }
-
-      if (!data.reply) {
+      if (!data || !data.reply) {
         console.error('Datos de respuesta inválidos:', data);
         throw new Error('Respuesta inválida del servidor');
       }
@@ -114,23 +109,7 @@ const ChatBot = () => {
     } catch (error: any) {
       console.error('Error completo del chat:', error);
       
-      let errorMessage = '';
-      
-      if (error.message?.includes('NetworkError') || error.message?.includes('Failed to fetch')) {
-        errorMessage = `No se pudo conectar con el servidor. Verifica tu conexión a internet.
-
-📧 Contacto directo:
-• Email: apincay@gmail.com
-• WhatsApp: +593 99 199 5390
-• Web: https://www.whalexpeditionsecuador.com/`;
-      } else if (error.message?.includes('timeout')) {
-        errorMessage = `El servidor tardó demasiado en responder. Intenta de nuevo.
-
-📧 Contacto directo:
-• Email: apincay@gmail.com
-• WhatsApp: +593 99 199 5390`;
-      } else {
-        errorMessage = `Lo siento, hay un problema técnico momentáneo.
+      const errorMessage = `Lo siento, hay un problema técnico momentáneo.
 
 📧 Puedes contactarnos directamente:
 • Email: apincay@gmail.com
@@ -138,7 +117,6 @@ const ChatBot = () => {
 • Web: https://www.whalexpeditionsecuador.com/
 
 ¡Estaremos encantados de ayudarte!`;
-      }
       
       const botErrorMessage: Message = {
         id: (Date.now() + 1).toString(),
