@@ -24,29 +24,34 @@ export const AttractionDescription = ({ attraction }: AttractionDescriptionProps
       {recommendations.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold mb-3">Recomendaciones</h3>
-          <div className="space-y-2">
+          <div className="space-y-3">
             {recommendations.map((rec) => (
-              <div key={rec.id} className="flex items-start gap-2">
+              <div key={rec.id} className="flex items-start gap-3 p-3 bg-gray-50 rounded-lg">
                 <Star className="h-4 w-4 mt-0.5 text-amber-500 fill-current flex-shrink-0" />
                 <div className="flex-1">
-                  <p className="text-sm text-gray-700">{rec.text}</p>
-                  <div className="flex flex-wrap gap-1 mt-1">
+                  <p className="text-sm text-gray-700 mb-2">{rec.text}</p>
+                  <div className="flex flex-wrap gap-1">
                     {rec.color && (
                       <Badge 
                         variant="outline" 
                         className="text-xs"
                         style={{ 
                           borderColor: rec.color, 
-                          color: rec.color 
+                          color: rec.color,
+                          backgroundColor: `${rec.color}10`
                         }}
                       >
                         Categoría
                       </Badge>
                     )}
                     {rec.dates && rec.dates.length > 0 && (
-                      <Badge variant="secondary" className="text-xs">
-                        {rec.dates.join(', ')}
-                      </Badge>
+                      <>
+                        {rec.dates.map(date => (
+                          <Badge key={date} variant="secondary" className="text-xs">
+                            {date}
+                          </Badge>
+                        ))}
+                      </>
                     )}
                     {rec.schedule && (
                       <Badge variant="secondary" className="text-xs">

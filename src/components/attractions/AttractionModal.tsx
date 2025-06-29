@@ -1,7 +1,6 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 import { Star } from 'lucide-react';
 import { TouristAttraction } from '@/types/touristAttractions';
 import { ImageGallery } from './modal/ImageGallery';
@@ -68,13 +67,6 @@ export const AttractionModal = ({ attraction, isOpen, onClose }: AttractionModal
 
         {/* Tabs for organized content */}
         <AttractionTabs attraction={attraction} />
-
-        {/* Action Button */}
-        <div className="flex justify-end pt-4 border-t">
-          <Button onClick={onClose} className="bg-green-primary hover:bg-green-600">
-            Cerrar
-          </Button>
-        </div>
       </DialogContent>
     </Dialog>
   );

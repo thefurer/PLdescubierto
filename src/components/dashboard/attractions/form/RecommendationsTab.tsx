@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -5,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, X, Calendar, Palette } from 'lucide-react';
+import { Plus, X, Calendar, Palette, Edit2 } from 'lucide-react';
 import { TouristAttraction } from '@/types/touristAttractions';
 
 interface RecommendationsTabProps {
@@ -21,6 +22,7 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
     schedule: { startDate: '', endDate: '' }
   });
   const [newDate, setNewDate] = useState('');
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const addRecommendation = () => {
     if (!newRecommendation.text.trim()) return;
@@ -46,6 +48,53 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
 
   const removeRecommendation = (id: string) => {
     onRecommendationsUpdate(recommendations.filter(rec => rec.id !== id));
+  };
+
+  const startEditing = (rec: any) => {
+    setEditingId(rec.id);
+    setNewRecommendation({
+      text: rec.text,
+      color: rec.color || '#3B82F6',
+      dates: rec.dates || [],
+      schedule: rec.schedule || { startDate: '', endDate: '' }
+    });
+  };
+
+  const saveEdit = () => {
+    if (!newRecommendation.text.trim() || !editingId) return;
+
+    const updatedRecommendations = recommendations.map(rec => 
+      rec.id === editingId 
+        ? {
+            ...rec,
+            text: newRecommendation.text,
+            color: newRecommendation.color,
+            dates: newRecommendation.dates.length > 0 ? newRecommendation.dates : undefined,
+            schedule: (newRecommendation.schedule.startDate && newRecommendation.schedule.endDate) 
+              ? newRecommendation.schedule 
+              : undefined
+          }
+        : rec
+    );
+
+    onRecommendationsUpdate(updatedRecommendations);
+    setEditingId(null);
+    setNewRecommendation({
+      text: '',
+      color: '#3B82F6',
+      dates: [],
+      schedule: { startDate: '', endDate: '' }
+    });
+  };
+
+  const cancelEdit = () => {
+    setEditingId(null);
+    setNewRecommendation({
+      text: '',
+      color: '#3B82F6',
+      dates: [],
+      schedule: { startDate: '', endDate: '' }
+    });
   };
 
   const addDate = () => {
@@ -106,26 +155,38 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
                       )}
                     </div>
                   </div>
-                  <Button
-                    variant="outline"
-                    size="sm"
-                    className="text-red-600 hover:text-red-700"
-                    onClick={() => removeRecommendation(rec.id)}
-                  >
-                    <X className="h-4 w-4" />
-                  </Button>
+                  <div className="flex gap-2">
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-blue-600 hover:text-blue-700"
+                      onClick={() => startEditing(rec)}
+                    >
+                      <Edit2 className="h-4 w-4" />
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      className="text-red-600 hover:text-red-700"
+                      onClick={() => removeRecommendation(rec.id)}
+                    >
+                      <X className="h-4 w-4" />
+                    </Button>
+                  </div>
                 </div>
               </CardContent>
             </Card>
           ))}
         </div>
 
-        {/* Add New Recommendation */}
+        {/* Add/Edit Recommendation Form */}
         <Card>
           <CardContent className="p-4">
             <div className="space-y-4">
               <div>
-                <Label htmlFor="recommendation-text">Texto de la Recomendación</Label>
+                <Label htmlFor="recommendation-text">
+                  {editingId ? 'Editar Recomendación' : 'Texto de la Recomendación'}
+                </Label>
                 <Textarea
                   id="recommendation-text"
                   value={newRecommendation.text}
@@ -209,10 +270,25 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
                 </div>
               </div>
 
-              <Button onClick={addRecommendation} className="w-full">
-                <Plus className="h-4 w-4 mr-2" />
-                Agregar Recomendación
-              </Button>
+              <div className="flex gap-2">
+                {editingId ? (
+                  <>
+                    <Button onClick={saveEdit} className="flex-1">
+                      <Edit2 className="h-4 w-4 mr-2" />
+                      Guardar Cambios
+                    </Button>
+                    <Button onClick={cancelEdit} variant="outline" className="flex-1">
+                      <X className="h-4 w-4 mr-2" />
+                      Cancelar
+                    </Button>
+                  </>
+                ) : (
+                  <Button onClick={addRecommendation} className="w-full">
+                    <Plus className="h-4 w-4 mr-2" />
+                    Agregar Recomendación
+                  </Button>
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
