@@ -7,6 +7,7 @@ import BasicInfoTab from './form/BasicInfoTab';
 import ImagesTab from './form/ImagesTab';
 import ActivitiesTab from './form/ActivitiesTab';
 import SchedulesTab from './form/SchedulesTab';
+import RecommendationsTab from './form/RecommendationsTab';
 import FormActions from './form/FormActions';
 
 interface AttractionEditFormProps {
@@ -34,6 +35,7 @@ const AttractionEditForm = ({
     image_url: attraction.image_url || '',
     gallery_images: attraction.gallery_images || [],
     activities: attraction.activities || [],
+    recommendations: attraction.recommendations || [],
     additional_info: attraction.additional_info || {}
   });
 
@@ -91,6 +93,10 @@ const AttractionEditForm = ({
     setFormData(prev => ({ ...prev, activities }));
   };
 
+  const handleRecommendationsUpdate = (recommendations: TouristAttraction['recommendations']) => {
+    setFormData(prev => ({ ...prev, recommendations }));
+  };
+
   const handleSchedulesUpdate = (schedules: any[]) => {
     setFormData(prev => ({
       ...prev,
@@ -104,10 +110,11 @@ const AttractionEditForm = ({
   return (
     <div className="space-y-6">
       <Tabs defaultValue="basic" className="w-full">
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="basic">Información Básica</TabsTrigger>
           <TabsTrigger value="images">Imágenes</TabsTrigger>
           <TabsTrigger value="activities">Actividades</TabsTrigger>
+          <TabsTrigger value="recommendations">Recomendaciones</TabsTrigger>
           <TabsTrigger value="schedules">Horarios</TabsTrigger>
         </TabsList>
 
@@ -136,6 +143,13 @@ const AttractionEditForm = ({
           <ActivitiesTab
             activities={formData.activities}
             onActivitiesUpdate={handleActivitiesUpdate}
+          />
+        </TabsContent>
+
+        <TabsContent value="recommendations">
+          <RecommendationsTab
+            recommendations={formData.recommendations}
+            onRecommendationsUpdate={handleRecommendationsUpdate}
           />
         </TabsContent>
 

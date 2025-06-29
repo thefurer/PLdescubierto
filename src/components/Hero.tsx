@@ -1,3 +1,4 @@
+
 import { ArrowDown } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
@@ -39,8 +40,7 @@ const Hero = () => {
       virtualBtn: "Experiencia Virtual",
       inicio: "Inicio",
       atracciones: "Atracciones", 
-      guiaViaje: "Guía de Viaje",
-      planificar: "Planificar Itinerario"
+      guiaViaje: "Guía de Viaje"
     },
     en: {
       title: heroContent?.title || "Puerto López",
@@ -50,8 +50,7 @@ const Hero = () => {
       virtualBtn: "Virtual Experience",
       inicio: "Home",
       atracciones: "Attractions",
-      guiaViaje: "Travel Guide", 
-      planificar: "Plan Itinerary"
+      guiaViaje: "Travel Guide"
     }
   };
   const currentTexts = texts[language];
@@ -155,14 +154,6 @@ const Hero = () => {
                     className="text-white hover:text-green-400 px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 font-medium"
                   >
                     {currentTexts.guiaViaje}
-                  </NavigationMenuLink>
-                </NavigationMenuItem>
-                <NavigationMenuItem>
-                  <NavigationMenuLink 
-                    href="/itinerary-planner"
-                    className="text-white hover:text-green-400 px-4 py-2 rounded-lg bg-white/10 backdrop-blur-sm hover:bg-white/20 transition-all duration-300 font-medium"
-                  >
-                    {currentTexts.planificar}
                   </NavigationMenuLink>
                 </NavigationMenuItem>
               </NavigationMenuList>

@@ -89,6 +89,9 @@ export const useTouristAttractions = () => {
                 ...payload.new,
                 gallery_images: payload.new.gallery_images || [],
                 activities: payload.new.activities || [],
+                recommendations: typeof payload.new.recommendations === 'object' && payload.new.recommendations !== null && Array.isArray(payload.new.recommendations)
+                  ? payload.new.recommendations as TouristAttraction['recommendations']
+                  : [],
                 additional_info: typeof payload.new.additional_info === 'object' && payload.new.additional_info !== null 
                   ? payload.new.additional_info as { duration?: string; capacity?: string; price?: string; [key: string]: any; }
                   : {}

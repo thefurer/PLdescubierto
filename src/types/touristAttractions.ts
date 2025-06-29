@@ -7,6 +7,16 @@ export interface TouristAttraction {
   image_url?: string;
   gallery_images?: string[];
   activities?: string[];
+  recommendations?: Array<{
+    id: string;
+    text: string;
+    color?: string;
+    dates?: string[];
+    schedule?: {
+      startDate: string;
+      endDate: string;
+    };
+  }>;
   additional_info?: {
     duration?: string;
     capacity?: string;
