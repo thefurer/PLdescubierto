@@ -11,6 +11,8 @@ export const AttractionDescription = ({ attraction }: AttractionDescriptionProps
   const additionalInfo = attraction.additional_info || {};
   const recommendations = attraction.recommendations || [];
 
+  console.log('Rendering attraction description with recommendations:', recommendations);
+
   return (
     <div className="space-y-4">
       <div>
@@ -21,7 +23,7 @@ export const AttractionDescription = ({ attraction }: AttractionDescriptionProps
       </div>
 
       {/* Recommendations Section */}
-      {recommendations.length > 0 && (
+      {recommendations && recommendations.length > 0 && (
         <div>
           <h3 className="text-lg font-semibold mb-3">Recomendaciones</h3>
           <div className="space-y-3">

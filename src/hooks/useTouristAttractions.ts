@@ -16,6 +16,7 @@ export const useTouristAttractions = () => {
   const fetchAttractions = async () => {
     try {
       const data = await touristAttractionsService.fetchAttractions();
+      console.log('Fetched attractions with recommendations:', data.map(a => ({ name: a.name, recommendations: a.recommendations })));
       setAttractions(data);
     } catch (error: any) {
       console.error('Failed to fetch attractions:', error);
@@ -32,6 +33,7 @@ export const useTouristAttractions = () => {
   const updateAttraction = async (id: string, updates: Partial<TouristAttraction>) => {
     setSaving(true);
     try {
+      console.log('Updating attraction with recommendations:', updates.recommendations);
       await touristAttractionsService.updateAttraction(id, updates);
       
       toast({
@@ -89,7 +91,7 @@ export const useTouristAttractions = () => {
                 ...payload.new,
                 gallery_images: payload.new.gallery_images || [],
                 activities: payload.new.activities || [],
-                recommendations: typeof payload.new.recommendations === 'object' && payload.new.recommendations !== null && Array.isArray(payload.new.recommendations)
+                recommendations: Array.isArray(payload.new.recommendations)
                   ? payload.new.recommendations as TouristAttraction['recommendations']
                   : [],
                 additional_info: typeof payload.new.additional_info === 'object' && payload.new.additional_info !== null 

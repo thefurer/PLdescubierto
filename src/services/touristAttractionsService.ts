@@ -22,7 +22,7 @@ export const touristAttractionsService = {
       category: attraction.category as 'todo' | 'playa' | 'cultura' | 'naturaleza',
       gallery_images: attraction.gallery_images || [],
       activities: attraction.activities || [],
-      recommendations: typeof attraction.recommendations === 'object' && attraction.recommendations !== null && Array.isArray(attraction.recommendations)
+      recommendations: Array.isArray(attraction.recommendations) 
         ? attraction.recommendations as TouristAttraction['recommendations']
         : [],
       additional_info: typeof attraction.additional_info === 'object' && attraction.additional_info !== null 
@@ -52,7 +52,10 @@ export const touristAttractionsService = {
     if (updates.image_url !== undefined) updateData.image_url = updates.image_url;
     if (updates.gallery_images !== undefined) updateData.gallery_images = updates.gallery_images;
     if (updates.activities !== undefined) updateData.activities = updates.activities;
-    if (updates.recommendations !== undefined) updateData.recommendations = updates.recommendations;
+    if (updates.recommendations !== undefined) {
+      // Ensure recommendations is properly formatted as JSONB
+      updateData.recommendations = JSON.stringify(updates.recommendations || []);
+    }
     if (updates.additional_info !== undefined) updateData.additional_info = updates.additional_info;
     if (updates.display_order !== undefined) updateData.display_order = updates.display_order;
     if (updates.is_active !== undefined) updateData.is_active = updates.is_active;

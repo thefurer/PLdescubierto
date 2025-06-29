@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, X, Calendar, Palette, Edit2 } from 'lucide-react';
+import { Plus, X, Calendar, Palette, Edit2, Save } from 'lucide-react';
 import { TouristAttraction } from '@/types/touristAttractions';
 
 interface RecommendationsTabProps {
@@ -24,6 +24,8 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
   const [newDate, setNewDate] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
+  console.log('Current recommendations in form:', recommendations);
+
   const addRecommendation = () => {
     if (!newRecommendation.text.trim()) return;
 
@@ -37,7 +39,11 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
         : undefined
     };
 
-    onRecommendationsUpdate([...recommendations, recommendation]);
+    const updatedRecommendations = [...recommendations, recommendation];
+    console.log('Adding recommendation:', recommendation);
+    console.log('Updated recommendations:', updatedRecommendations);
+    
+    onRecommendationsUpdate(updatedRecommendations);
     setNewRecommendation({
       text: '',
       color: '#3B82F6',
@@ -47,7 +53,10 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
   };
 
   const removeRecommendation = (id: string) => {
-    onRecommendationsUpdate(recommendations.filter(rec => rec.id !== id));
+    const updatedRecommendations = recommendations.filter(rec => rec.id !== id);
+    console.log('Removing recommendation:', id);
+    console.log('Updated recommendations after removal:', updatedRecommendations);
+    onRecommendationsUpdate(updatedRecommendations);
   };
 
   const startEditing = (rec: any) => {
@@ -77,6 +86,9 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
         : rec
     );
 
+    console.log('Saving edited recommendation:', editingId);
+    console.log('Updated recommendations after edit:', updatedRecommendations);
+    
     onRecommendationsUpdate(updatedRecommendations);
     setEditingId(null);
     setNewRecommendation({
@@ -122,6 +134,11 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
     <div className="space-y-6">
       <div>
         <h3 className="text-lg font-semibold mb-4">Recomendaciones</h3>
+        
+        {/* Debug info */}
+        <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
+          <strong>Debug:</strong> {recommendations.length} recomendaciones cargadas
+        </div>
         
         {/* Existing Recommendations */}
         <div className="space-y-3 mb-6">
@@ -274,7 +291,7 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
                 {editingId ? (
                   <>
                     <Button onClick={saveEdit} className="flex-1">
-                      <Edit2 className="h-4 w-4 mr-2" />
+                      <Save className="h-4 w-4 mr-2" />
                       Guardar Cambios
                     </Button>
                     <Button onClick={cancelEdit} variant="outline" className="flex-1">
