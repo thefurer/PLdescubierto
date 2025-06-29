@@ -91,6 +91,7 @@ serve(async (req) => {
       // Check for Google API key
       const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
       console.log('Google API Key available:', !!googleApiKey);
+      console.log('Google API Key first 10 chars:', googleApiKey ? googleApiKey.substring(0, 10) + '...' : 'NOT_FOUND');
       
       if (!googleApiKey) {
         console.error('Google API key not found in environment variables');
@@ -140,28 +141,32 @@ Responde de manera concisa (máximo 200 palabras):`;
       // Call Google Gemini API
       let response;
       try {
-        response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`,
-          {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`;
+        console.log('API URL (without key):', apiUrl.replace(googleApiKey, 'HIDDEN_KEY'));
+        
+        response = await fetch(apiUrl, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            contents: [{
+              parts: [{
+                text: prompt
+              }]
+            }],
+            generationConfig: {
+              temperature: 0.7,
+              topK: 40,
+              topP: 0.95,
+              maxOutputTokens: 400,
             },
-            body: JSON.stringify({
-              contents: [{
-                parts: [{
-                  text: prompt
-                }]
-              }],
-              generationConfig: {
-                temperature: 0.7,
-                topK: 40,
-                topP: 0.95,
-                maxOutputTokens: 400,
-              },
-            }),
-          }
-        );
+          }),
+        });
+        
+        console.log('Gemini API response status:', response.status);
+        console.log('Gemini API response headers:', Object.fromEntries(response.headers.entries()));
+        
       } catch (fetchError) {
         console.error('Error calling Gemini API:', fetchError);
         return new Response(
@@ -181,8 +186,6 @@ Responde de manera concisa (máximo 200 palabras):`;
           }
         );
       }
-
-      console.log('Gemini API response status:', response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -210,6 +213,7 @@ Responde de manera concisa (máximo 200 palabras):`;
       try {
         data = await response.json();
         console.log('Gemini API response received successfully');
+        console.log('Response data structure:', JSON.stringify(data, null, 2));
       } catch (jsonError) {
         console.error('Error parsing Gemini response JSON:', jsonError);
         return new Response(
@@ -234,7 +238,7 @@ Responde de manera concisa (máximo 200 palabras):`;
           data.candidates[0].content && data.candidates[0].content.parts &&
           data.candidates[0].content.parts.length > 0) {
         aiResponse = data.candidates[0].content.parts[0].text;
-        console.log('AI response generated successfully');
+        console.log('AI response generated successfully:', aiResponse.substring(0, 100) + '...');
       } else {
         console.warn('Unexpected API response structure:', JSON.stringify(data));
       }

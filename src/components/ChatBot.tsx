@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -74,8 +75,7 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      console.log('Enviando mensaje POST a chat-support:', sanitizedMessage);
-      console.log('Request body:', JSON.stringify({ message: sanitizedMessage }));
+      console.log('Enviando mensaje a chat-support:', sanitizedMessage);
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
         body: { message: sanitizedMessage },
@@ -84,11 +84,10 @@ const ChatBot = () => {
         }
       });
 
-      console.log('Respuesta completa de la Edge Function:', { data, error });
+      console.log('Respuesta de la Edge Function:', { data, error });
 
       if (error) {
-        console.error('Error específico de Supabase:', error);
-        console.error('Error details:', JSON.stringify(error, null, 2));
+        console.error('Error de Supabase:', error);
         throw new Error(`Error de conexión: ${error.message || 'No se pudo conectar con el servidor'}`);
       }
 
@@ -97,10 +96,8 @@ const ChatBot = () => {
         throw new Error('No se recibió respuesta del servidor');
       }
 
-      console.log('Datos recibidos:', data);
-
       if (!data.reply) {
-        console.error('Datos de respuesta inválidos - no hay campo reply:', data);
+        console.error('Datos de respuesta inválidos:', data);
         throw new Error('Respuesta inválida del servidor');
       }
 
@@ -112,13 +109,10 @@ const ChatBot = () => {
       };
 
       setMessages(prev => [...prev, botMessage]);
-      console.log('Mensaje del bot agregado exitosamente:', data.reply.substring(0, 50) + '...');
+      console.log('Mensaje del bot agregado exitosamente');
       
     } catch (error: any) {
       console.error('Error completo del chat:', error);
-      console.error('Error type:', typeof error);
-      console.error('Error message:', error?.message);
-      console.error('Error stack:', error?.stack);
       
       let errorMessage = '';
       
