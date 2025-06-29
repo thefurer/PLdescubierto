@@ -53,8 +53,9 @@ export const touristAttractionsService = {
     if (updates.gallery_images !== undefined) updateData.gallery_images = updates.gallery_images;
     if (updates.activities !== undefined) updateData.activities = updates.activities;
     if (updates.recommendations !== undefined) {
-      // Ensure recommendations is properly formatted as JSONB
-      updateData.recommendations = JSON.stringify(updates.recommendations || []);
+      // Since recommendations is now jsonb, we can pass the array directly
+      updateData.recommendations = updates.recommendations || [];
+      console.log('Setting recommendations as jsonb:', updateData.recommendations);
     }
     if (updates.additional_info !== undefined) updateData.additional_info = updates.additional_info;
     if (updates.display_order !== undefined) updateData.display_order = updates.display_order;

@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -44,6 +43,8 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
     console.log('Updated recommendations:', updatedRecommendations);
     
     onRecommendationsUpdate(updatedRecommendations);
+    
+    // Reset form
     setNewRecommendation({
       text: '',
       color: '#3B82F6',
@@ -90,6 +91,8 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
     console.log('Updated recommendations after edit:', updatedRecommendations);
     
     onRecommendationsUpdate(updatedRecommendations);
+    
+    // Reset form
     setEditingId(null);
     setNewRecommendation({
       text: '',
@@ -138,6 +141,9 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
         {/* Debug info */}
         <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
           <strong>Debug:</strong> {recommendations.length} recomendaciones cargadas
+          {recommendations.length > 0 && (
+            <pre className="mt-1">{JSON.stringify(recommendations, null, 2)}</pre>
+          )}
         </div>
         
         {/* Existing Recommendations */}

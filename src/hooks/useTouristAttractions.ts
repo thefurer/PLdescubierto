@@ -34,20 +34,24 @@ export const useTouristAttractions = () => {
     setSaving(true);
     try {
       console.log('Updating attraction with recommendations:', updates.recommendations);
-      await touristAttractionsService.updateAttraction(id, updates);
+      const updatedAttraction = await touristAttractionsService.updateAttraction(id, updates);
       
       toast({
         title: 'Éxito',
         description: 'Atracción actualizada correctamente',
       });
 
-      // Immediately update local state for real-time reflection
+      // Update local state immediately with the returned data from the database
       setAttractions(prev => prev.map(attraction => 
-        attraction.id === id ? { ...attraction, ...updates, updated_at: new Date().toISOString() } : attraction
+        attraction.id === id ? {
+          ...attraction,
+          ...updatedAttraction,
+          recommendations: Array.isArray(updatedAttraction.recommendations) 
+            ? updatedAttraction.recommendations as TouristAttraction['recommendations']
+            : []
+        } : attraction
       ));
       
-      // Then refresh from database to ensure consistency
-      await fetchAttractions();
     } catch (error: any) {
       console.error('Failed to update attraction:', error);
       

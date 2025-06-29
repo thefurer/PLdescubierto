@@ -561,7 +561,7 @@ export type Database = {
           image_url: string | null
           is_active: boolean | null
           name: string
-          recommendations: string | null
+          recommendations: Json | null
           updated_at: string
           updated_by: string | null
         }
@@ -577,7 +577,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           name: string
-          recommendations?: string | null
+          recommendations?: Json | null
           updated_at?: string
           updated_by?: string | null
         }
@@ -593,7 +593,7 @@ export type Database = {
           image_url?: string | null
           is_active?: boolean | null
           name?: string
-          recommendations?: string | null
+          recommendations?: Json | null
           updated_at?: string
           updated_by?: string | null
         }
