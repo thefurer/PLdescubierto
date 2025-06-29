@@ -19,6 +19,7 @@ serve(async (req) => {
   console.log('=== Chat Support Function Started ===');
   console.log('Method:', req.method);
   console.log('URL:', req.url);
+  console.log('Headers:', Object.fromEntries(req.headers.entries()));
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -139,30 +140,28 @@ Responde de manera concisa (máximo 200 palabras):`;
       // Call Google Gemini API
       let response;
       try {
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`;
-        
-        response = await fetch(apiUrl, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({
-            contents: [{
-              parts: [{
-                text: prompt
-              }]
-            }],
-            generationConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 400,
+        response = await fetch(
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${googleApiKey}`,
+          {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
             },
-          }),
-        });
-        
-        console.log('Gemini API response status:', response.status);
-        
+            body: JSON.stringify({
+              contents: [{
+                parts: [{
+                  text: prompt
+                }]
+              }],
+              generationConfig: {
+                temperature: 0.7,
+                topK: 40,
+                topP: 0.95,
+                maxOutputTokens: 400,
+              },
+            }),
+          }
+        );
       } catch (fetchError) {
         console.error('Error calling Gemini API:', fetchError);
         return new Response(
@@ -182,6 +181,8 @@ Responde de manera concisa (máximo 200 palabras):`;
           }
         );
       }
+
+      console.log('Gemini API response status:', response.status);
 
       if (!response.ok) {
         const errorText = await response.text();
@@ -261,7 +262,7 @@ Responde de manera concisa (máximo 200 palabras):`;
         // Don't fail the main request if logging fails
       }
 
-      console.log('Sending successful response');
+      console.log('Sending successful response with reply:', aiResponse.substring(0, 100) + '...');
       return new Response(
         JSON.stringify({ reply: aiResponse }),
         { 
@@ -270,7 +271,7 @@ Responde de manera concisa (máximo 200 palabras):`;
         }
       );
 
-    } catch (error: any) {
+    } catch (error) {
       console.error('Unexpected error in POST handler:', error);
       console.error('Error stack:', error.stack);
       
