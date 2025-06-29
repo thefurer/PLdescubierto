@@ -4,7 +4,10 @@ import { Button } from "@/components/ui/button";
 import { useContentManager } from "@/hooks/useContentManager";
 
 const Hero = () => {
-  const { heroContent } = useContentManager();
+  const { content } = useContentManager();
+  
+  // Extract hero content from the content array
+  const heroContent = content.find(item => item.section_name === 'hero')?.content;
 
   const scrollToAttractions = () => {
     const attractionsSection = document.getElementById('attractions');
