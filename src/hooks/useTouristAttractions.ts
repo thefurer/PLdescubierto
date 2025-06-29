@@ -45,10 +45,22 @@ export const useTouristAttractions = () => {
       setAttractions(prev => prev.map(attraction => 
         attraction.id === id ? {
           ...attraction,
-          ...updatedAttraction,
+          name: updatedAttraction.name,
+          description: updatedAttraction.description,
+          category: updatedAttraction.category as 'todo' | 'playa' | 'cultura' | 'naturaleza',
+          image_url: updatedAttraction.image_url,
+          gallery_images: updatedAttraction.gallery_images || [],
+          activities: updatedAttraction.activities || [],
           recommendations: Array.isArray(updatedAttraction.recommendations) 
             ? updatedAttraction.recommendations as TouristAttraction['recommendations']
-            : []
+            : [],
+          additional_info: typeof updatedAttraction.additional_info === 'object' && updatedAttraction.additional_info !== null 
+            ? updatedAttraction.additional_info as { duration?: string; capacity?: string; price?: string; [key: string]: any; }
+            : {},
+          display_order: updatedAttraction.display_order,
+          is_active: updatedAttraction.is_active,
+          updated_at: updatedAttraction.updated_at,
+          updated_by: updatedAttraction.updated_by
         } : attraction
       ));
       
@@ -92,7 +104,10 @@ export const useTouristAttractions = () => {
             setAttractions(prev => prev.map(attraction => 
               attraction.id === payload.new.id ? {
                 ...attraction,
-                ...payload.new,
+                name: payload.new.name,
+                description: payload.new.description,
+                category: payload.new.category as 'todo' | 'playa' | 'cultura' | 'naturaleza',
+                image_url: payload.new.image_url,
                 gallery_images: payload.new.gallery_images || [],
                 activities: payload.new.activities || [],
                 recommendations: Array.isArray(payload.new.recommendations)
@@ -100,7 +115,11 @@ export const useTouristAttractions = () => {
                   : [],
                 additional_info: typeof payload.new.additional_info === 'object' && payload.new.additional_info !== null 
                   ? payload.new.additional_info as { duration?: string; capacity?: string; price?: string; [key: string]: any; }
-                  : {}
+                  : {},
+                display_order: payload.new.display_order,
+                is_active: payload.new.is_active,
+                updated_at: payload.new.updated_at,
+                updated_by: payload.new.updated_by
               } : attraction
             ));
           }
