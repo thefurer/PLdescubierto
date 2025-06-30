@@ -5,6 +5,7 @@ import { useTouristAttractions } from "@/hooks/useTouristAttractions";
 import { AttractionsHeader } from "./attractions/AttractionsHeader";
 import { CategoryFilters } from "./attractions/CategoryFilters";
 import { AttractionsGrid } from "./attractions/AttractionsGrid";
+import { AttractionsCarousel } from "./attractions/AttractionsCarousel";
 import { ShowMoreButton } from "./attractions/ShowMoreButton";
 
 type AttractionsProps = {
@@ -15,12 +16,13 @@ const Attractions = ({ className }: AttractionsProps) => {
   const { attractions, loading } = useTouristAttractions();
   const [activeCategory, setActiveCategory] = useState<string>("todo");
   const [showAllAttractions, setShowAllAttractions] = useState(false);
+  const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
 
   const filteredAttractions = activeCategory === "todo" 
     ? attractions 
     : attractions.filter(attr => attr.category === activeCategory);
 
-  // Show first 8 attractions (2 rows) or all if expanded
+  // Show first 8 attractions (2 rows) or all if expanded for grid view
   const displayedAttractions = showAllAttractions 
     ? filteredAttractions 
     : filteredAttractions.slice(0, 8);
@@ -30,6 +32,8 @@ const Attractions = ({ className }: AttractionsProps) => {
   const handleCategoryChange = (category: string) => {
     setActiveCategory(category);
     setShowAllAttractions(false);
+    // Switch to carousel for "todo" category, grid for specific categories
+    setViewMode(category === "todo" ? 'carousel' : 'grid');
   };
 
   const handleToggleShowAll = () => {
@@ -42,7 +46,7 @@ const Attractions = ({ className }: AttractionsProps) => {
         <div className="container mx-auto px-4">
           <div className="text-center">
             <div className="glass-card p-8 rounded-2xl inline-block">
-              <p className="text-lg text-ocean">Cargando atracciones...</p>
+              <p className="text-lg text-ocean font-medium">Cargando atracciones...</p>
             </div>
           </div>
         </div>
@@ -63,16 +67,22 @@ const Attractions = ({ className }: AttractionsProps) => {
           onCategoryChange={handleCategoryChange}
         />
 
-        <AttractionsGrid attractions={displayedAttractions} />
-
-        <ShowMoreButton
-          hasMoreAttractions={hasMoreAttractions}
-          showAllAttractions={showAllAttractions}
-          onToggleShowAll={handleToggleShowAll}
-          displayedCount={displayedAttractions.length}
-          totalCount={filteredAttractions.length}
-          activeCategory={activeCategory}
-        />
+        {/* Render carousel for "todo" category, grid for specific categories */}
+        {viewMode === 'carousel' && activeCategory === "todo" ? (
+          <AttractionsCarousel attractions={filteredAttractions} />
+        ) : (
+          <>
+            <AttractionsGrid attractions={displayedAttractions} />
+            <ShowMoreButton
+              hasMoreAttractions={hasMoreAttractions}
+              showAllAttractions={showAllAttractions}
+              onToggleShowAll={handleToggleShowAll}
+              displayedCount={displayedAttractions.length}
+              totalCount={filteredAttractions.length}
+              activeCategory={activeCategory}
+            />
+          </>
+        )}
       </div>
     </section>
   );
