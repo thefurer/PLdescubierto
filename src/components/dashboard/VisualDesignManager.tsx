@@ -68,12 +68,12 @@ const VisualDesignManager = () => {
 
       data?.forEach(config => {
         if (config.config_type === 'color_palette') {
-          setColorPalette(config.config_data as ColorPalette);
+          setColorPalette(config.config_data as unknown as ColorPalette);
         } else if (config.config_type === 'navbar_settings') {
           const navbarData = config.config_data as { items?: NavbarItem[] };
           setNavbarItems(navbarData.items || []);
         } else if (config.config_type === 'logo_settings') {
-          setLogoSettings(config.config_data as LogoSettings);
+          setLogoSettings(config.config_data as unknown as LogoSettings);
         }
       });
     } catch (error) {
