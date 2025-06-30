@@ -41,13 +41,6 @@ export const CarouselCard = ({ attraction, index, currentIndex, onClick }: Carou
           
           {/* Enhanced overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10 opacity-70 group-hover:opacity-85 smooth-transition"></div>
-          
-          {/* Transparent text at top */}
-          <div className="absolute top-6 left-1/2 transform -translate-x-1/2 text-center">
-            <span className="text-white/60 text-xs font-medium tracking-wide">
-              Haz click para explorar
-            </span>
-          </div>
 
           {/* Attraction name positioned at bottom center - hidden on hover */}
           <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 text-center group-hover:opacity-0 smooth-transition">
@@ -55,15 +48,6 @@ export const CarouselCard = ({ attraction, index, currentIndex, onClick }: Carou
               {attraction.name}
             </h3>
           </div>
-
-          {/* Animated call-to-action text for centered card */}
-          {isCentered && (
-            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-pulse group-hover:opacity-0 smooth-transition">
-              <div className="bg-green-500/80 backdrop-blur-sm px-6 py-3 rounded-full border-2 border-white/30 shadow-lg">
-                <span className="text-white text-sm font-bold">✨ ¡Haz clic para explorar! ✨</span>
-              </div>
-            </div>
-          )}
 
           {/* Enhanced sliding information overlay */}
           <div className="absolute inset-x-0 bottom-0 transform translate-y-full group-hover:translate-y-0 smooth-transition duration-500 ease-out">
