@@ -1,5 +1,5 @@
 
-import { MapPin, Star } from "lucide-react";
+import { MapPin } from "lucide-react";
 import { TouristAttraction } from "@/types/touristAttractions";
 
 interface CarouselCardProps {
@@ -42,18 +42,21 @@ export const CarouselCard = ({ attraction, index, currentIndex, onClick }: Carou
           {/* Enhanced overlay gradient */}
           <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10 opacity-70 group-hover:opacity-85 smooth-transition"></div>
           
-          {/* Rating badge - improved design */}
-          <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-md rounded-2xl px-4 py-2 flex items-center shadow-lg transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
-            <Star size={16} className="text-amber-500 mr-1.5" fill="currentColor" />
-            <span className="text-sm font-bold text-gray-800">5.0</span>
-          </div>
-          
-          {/* Attraction name badge - replacing category */}
-          <div className="absolute top-6 left-6 bg-gradient-to-r from-green-500 to-green-600 backdrop-blur-md rounded-2xl px-4 py-2 shadow-lg transform translate-y-0 group-hover:-translate-y-1 smooth-transition max-w-[200px]">
-            <span className="text-white text-sm font-bold truncate block">
+          {/* Attraction name positioned at bottom center */}
+          <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 text-center">
+            <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg px-4">
               {attraction.name}
-            </span>
+            </h3>
           </div>
+
+          {/* Animated call-to-action text for centered card */}
+          {isCentered && (
+            <div className="absolute bottom-8 left-1/2 transform -translate-x-1/2 animate-pulse">
+              <div className="bg-green-500/80 backdrop-blur-sm px-6 py-3 rounded-full border-2 border-white/30 shadow-lg">
+                <span className="text-white text-sm font-bold">✨ ¡Haz clic para explorar! ✨</span>
+              </div>
+            </div>
+          )}
 
           {/* Enhanced sliding information overlay */}
           <div className="absolute inset-x-0 bottom-0 transform translate-y-full group-hover:translate-y-0 smooth-transition duration-500 ease-out">
@@ -65,16 +68,11 @@ export const CarouselCard = ({ attraction, index, currentIndex, onClick }: Carou
                 {attraction.description}
               </p>
               
-              <div className="flex items-center justify-between">
+              <div className="flex items-center justify-center">
                 <div className="flex items-center text-green-300">
                   <MapPin size={16} className="mr-2" />
-                  <span className="text-sm font-medium">Descubrir más</span>
+                  <span className="text-sm font-medium">Descubrir más detalles</span>
                 </div>
-                {isCentered && (
-                  <div className="text-sm text-green-300 font-bold bg-green-500/30 backdrop-blur-sm px-4 py-2 rounded-full border border-green-400/30">
-                    ¡Clic aquí!
-                  </div>
-                )}
               </div>
             </div>
           </div>
