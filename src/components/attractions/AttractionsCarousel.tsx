@@ -22,14 +22,15 @@ const defaultImages = {
 };
 
 export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) => {
-  const [currentIndex, setCurrentIndex] = useState(2); // Start with third item centered
+  const [currentIndex, setCurrentIndex] = useState(Math.floor(attractions.length / 2)); // Start from middle
   const [selectedAttraction, setSelectedAttraction] = useState<TouristAttraction | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
+  const autoScrollRef = useRef<NodeJS.Timeout | null>(null);
 
   const scrollToIndex = (index: number) => {
     if (carouselRef.current) {
-      const cardWidth = 300; // Width of each card
+      const cardWidth = 280; // Width of each card
       const gap = 24; // Gap between cards
       const scrollPosition = index * (cardWidth + gap) - (carouselRef.current.clientWidth / 2) + (cardWidth / 2);
       carouselRef.current.scrollTo({
@@ -39,34 +40,65 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
     }
   };
 
+  // Auto-scroll functionality
+  const startAutoScroll = () => {
+    autoScrollRef.current = setInterval(() => {
+      setCurrentIndex(prev => {
+        const nextIndex = prev < attractions.length - 1 ? prev + 1 : 0;
+        scrollToIndex(nextIndex);
+        return nextIndex;
+      });
+    }, 3000); // Change every 3 seconds
+  };
+
+  const stopAutoScroll = () => {
+    if (autoScrollRef.current) {
+      clearInterval(autoScrollRef.current);
+      autoScrollRef.current = null;
+    }
+  };
+
   const handlePrevious = () => {
+    stopAutoScroll();
     const newIndex = currentIndex > 0 ? currentIndex - 1 : attractions.length - 1;
     setCurrentIndex(newIndex);
     scrollToIndex(newIndex);
+    setTimeout(startAutoScroll, 5000); // Resume auto-scroll after 5 seconds
   };
 
   const handleNext = () => {
+    stopAutoScroll();
     const newIndex = currentIndex < attractions.length - 1 ? currentIndex + 1 : 0;
     setCurrentIndex(newIndex);
     scrollToIndex(newIndex);
+    setTimeout(startAutoScroll, 5000); // Resume auto-scroll after 5 seconds
   };
 
   const handleCardClick = (attraction: TouristAttraction, index: number) => {
+    stopAutoScroll();
     if (index === currentIndex) {
       setSelectedAttraction(attraction);
       setModalOpen(true);
     } else {
       setCurrentIndex(index);
       scrollToIndex(index);
+      setTimeout(startAutoScroll, 5000); // Resume auto-scroll after 5 seconds
     }
   };
 
   useEffect(() => {
     scrollToIndex(currentIndex);
+    startAutoScroll();
+    
+    return () => stopAutoScroll();
   }, []);
 
   return (
-    <div className="relative py-12">
+    <div 
+      className="relative py-12"
+      onMouseEnter={stopAutoScroll}
+      onMouseLeave={startAutoScroll}
+    >
       {/* Navigation Buttons */}
       <button
         onClick={handlePrevious}
@@ -106,8 +138,8 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
               }`}
               onClick={() => handleCardClick(attraction, index)}
             >
-              <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl smooth-transition h-96">
-                <div className="relative h-64 overflow-hidden">
+              <div className="relative bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl smooth-transition h-80">
+                <div className="relative h-full overflow-hidden rounded-3xl">
                   <img 
                     src={displayImage} 
                     alt={attraction.name}
@@ -118,23 +150,23 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
                   <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-80 smooth-transition"></div>
                   
                   {/* Rating */}
-                  <div className="absolute top-3 right-3 glass-card rounded-full px-3 py-1 flex items-center transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
+                  <div className="absolute top-4 right-4 glass-card rounded-full px-3 py-1.5 flex items-center transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
                     <Star size={16} className="text-amber-500 mr-1" fill="currentColor" />
                     <span className="text-sm font-semibold text-white">5.0</span>
                   </div>
                   
                   {/* Category Badge */}
-                  <div className="absolute top-3 left-3 bg-green-primary/90 backdrop-blur-sm rounded-full px-3 py-1 text-white text-xs font-medium capitalize transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
+                  <div className="absolute top-4 left-4 bg-green-primary/90 backdrop-blur-sm rounded-full px-3 py-1.5 text-white text-xs font-medium capitalize transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
                     {categoryLabels[attraction.category as keyof typeof categoryLabels]}
                   </div>
 
                   {/* Sliding information overlay */}
                   <div className="absolute inset-x-0 bottom-0 transform translate-y-full group-hover:translate-y-0 smooth-transition duration-500 ease-out">
-                    <div className="bg-gradient-to-t from-black/90 via-black/70 to-transparent p-4 pt-8">
+                    <div className="bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6 pt-12 rounded-b-3xl">
                       <h3 className="text-lg font-bold text-white mb-2 line-clamp-2">
                         {attraction.name}
                       </h3>
-                      <p className="text-gray-200 text-sm mb-3 line-clamp-2 leading-relaxed">
+                      <p className="text-gray-200 text-sm mb-4 line-clamp-3 leading-relaxed">
                         {attraction.description}
                       </p>
                       
@@ -144,18 +176,12 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
                           <span className="text-xs font-medium">Descubrir más</span>
                         </div>
                         {isCentered && (
-                          <div className="text-xs text-green-300 font-semibold bg-green-500/20 px-2 py-1 rounded-full">
+                          <div className="text-xs text-green-300 font-semibold bg-green-500/20 px-3 py-1 rounded-full">
                             ¡Clic aquí!
                           </div>
                         )}
                       </div>
                     </div>
-                  </div>
-                </div>
-                
-                <div className="p-4">
-                  <div className="flex items-center justify-center text-ocean/60 text-sm">
-                    <span>Hover para detalles</span>
                   </div>
                 </div>
               </div>
@@ -170,8 +196,10 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
           <button
             key={index}
             onClick={() => {
+              stopAutoScroll();
               setCurrentIndex(index);
               scrollToIndex(index);
+              setTimeout(startAutoScroll, 5000);
             }}
             className={`w-3 h-3 rounded-full smooth-transition ${
               index === currentIndex 
@@ -188,7 +216,10 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
         <AttractionModal 
           attraction={selectedAttraction} 
           isOpen={modalOpen} 
-          onClose={() => setModalOpen(false)} 
+          onClose={() => {
+            setModalOpen(false);
+            setTimeout(startAutoScroll, 1000);
+          }} 
         />
       )}
     </div>

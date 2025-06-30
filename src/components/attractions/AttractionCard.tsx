@@ -40,11 +40,11 @@ export const AttractionCard = ({
   return (
     <>
       <div 
-        className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl smooth-transition transform hover:-translate-y-2 cursor-pointer" 
+        className="group relative bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl smooth-transition transform hover:-translate-y-2 cursor-pointer" 
         style={{ animationDelay: `${index * 100}ms` }} 
         onClick={handleCardClick}
       >
-        <div className="relative h-64 overflow-hidden">
+        <div className="relative h-80 overflow-hidden">
           <img 
             src={displayImage} 
             alt={attraction.name} 
@@ -85,14 +85,6 @@ export const AttractionCard = ({
                 </div>
               </div>
             </div>
-          </div>
-        </div>
-
-        {/* Static content section - reduced height since info moves to overlay */}
-        <div className="p-4">
-          <div className="flex items-center text-ocean/60 text-sm">
-            <MapPin size={14} className="mr-1 text-green-primary" />
-            <span>Haz hover para más información</span>
           </div>
         </div>
       </div>
