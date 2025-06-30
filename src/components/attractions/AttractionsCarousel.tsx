@@ -15,24 +15,31 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
     currentIndex,
     selectedAttraction,
     modalOpen,
+    isPaused,
     carouselRef,
     handlePrevious,
     handleNext,
     handleCardClick,
     handleIndicatorClick,
     handleModalClose,
-    startAutoScroll,
-    stopAutoScroll
+    handleMouseEnter,
+    handleMouseLeave,
+    togglePause
   } = useCarouselLogic(attractions);
 
   return (
     <div 
       className="relative py-12"
-      onMouseEnter={stopAutoScroll}
-      onMouseLeave={startAutoScroll}
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
     >
       {/* Navigation Buttons */}
-      <CarouselControls onPrevious={handlePrevious} onNext={handleNext} />
+      <CarouselControls 
+        onPrevious={handlePrevious} 
+        onNext={handleNext}
+        onTogglePause={togglePause}
+        isPaused={isPaused}
+      />
 
       {/* Carousel Container */}
       <div
