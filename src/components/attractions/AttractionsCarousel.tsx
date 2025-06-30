@@ -99,53 +99,63 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
           return (
             <div
               key={attraction.id}
-              className={`flex-shrink-0 cursor-pointer smooth-transition ${
+              className={`group flex-shrink-0 cursor-pointer smooth-transition ${
                 isCentered 
                   ? 'w-80 scale-110 z-10' 
                   : 'w-72 scale-95 opacity-60 blur-[1px]'
               }`}
               onClick={() => handleCardClick(attraction, index)}
             >
-              <div className="bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl smooth-transition h-96">
-                <div className="relative h-56 overflow-hidden">
+              <div className="relative bg-white rounded-2xl overflow-hidden shadow-xl hover:shadow-2xl smooth-transition h-96">
+                <div className="relative h-64 overflow-hidden">
                   <img 
                     src={displayImage} 
                     alt={attraction.name}
-                    className="w-full h-full object-cover group-hover:scale-110 smooth-transition"
+                    className="w-full h-full object-cover group-hover:scale-110 smooth-transition duration-700"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent"></div>
+                  
+                  {/* Overlay gradient */}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-80 smooth-transition"></div>
                   
                   {/* Rating */}
-                  <div className="absolute top-3 right-3 glass-card rounded-full px-3 py-1 flex items-center">
+                  <div className="absolute top-3 right-3 glass-card rounded-full px-3 py-1 flex items-center transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
                     <Star size={16} className="text-amber-500 mr-1" fill="currentColor" />
                     <span className="text-sm font-semibold text-white">5.0</span>
                   </div>
                   
                   {/* Category Badge */}
-                  <div className="absolute bottom-3 left-3 bg-green-primary/90 backdrop-blur-sm rounded-full px-3 py-1 text-white text-xs font-medium capitalize">
+                  <div className="absolute top-3 left-3 bg-green-primary/90 backdrop-blur-sm rounded-full px-3 py-1 text-white text-xs font-medium capitalize transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
                     {categoryLabels[attraction.category as keyof typeof categoryLabels]}
+                  </div>
+
+                  {/* Sliding information overlay */}
+                  <div className="absolute inset-x-0 bottom-0 transform translate-y-full group-hover:translate-y-0 smooth-transition duration-500 ease-out">
+                    <div className="bg-gradient-to-t from-black/90 via-black/70 to-transparent p-4 pt-8">
+                      <h3 className="text-lg font-bold text-white mb-2 line-clamp-2">
+                        {attraction.name}
+                      </h3>
+                      <p className="text-gray-200 text-sm mb-3 line-clamp-2 leading-relaxed">
+                        {attraction.description}
+                      </p>
+                      
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center text-green-300">
+                          <MapPin size={14} className="mr-1" />
+                          <span className="text-xs font-medium">Descubrir más</span>
+                        </div>
+                        {isCentered && (
+                          <div className="text-xs text-green-300 font-semibold bg-green-500/20 px-2 py-1 rounded-full">
+                            ¡Clic aquí!
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </div>
                 
-                <div className="p-6">
-                  <h3 className="text-lg font-bold text-ocean-dark mb-3 group-hover:text-green-primary smooth-transition line-clamp-2">
-                    {attraction.name}
-                  </h3>
-                  <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
-                    {attraction.description}
-                  </p>
-                  
-                  {/* Location removed as requested */}
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center text-ocean">
-                      <MapPin size={16} className="mr-2 text-green-primary" />
-                      <span className="text-sm font-medium">Descubrir más</span>
-                    </div>
-                    {isCentered && (
-                      <div className="text-xs text-green-primary font-semibold">
-                        ¡Haz clic para explorar!
-                      </div>
-                    )}
+                <div className="p-4">
+                  <div className="flex items-center justify-center text-ocean/60 text-sm">
+                    <span>Hover para detalles</span>
                   </div>
                 </div>
               </div>

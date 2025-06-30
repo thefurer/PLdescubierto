@@ -11,7 +11,7 @@ interface AttractionCardProps {
 
 const categoryLabels = {
   todo: "Todo",
-  playa: "Playa",
+  playa: "Playa", 
   cultura: "Cultura",
   naturaleza: "Naturaleza"
 };
@@ -40,35 +40,59 @@ export const AttractionCard = ({
   return (
     <>
       <div 
-        className="group bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl smooth-transition transform hover:-translate-y-2 cursor-pointer" 
+        className="group relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-2xl smooth-transition transform hover:-translate-y-2 cursor-pointer" 
         style={{ animationDelay: `${index * 100}ms` }} 
         onClick={handleCardClick}
       >
-        <div className="relative h-48 overflow-hidden">
+        <div className="relative h-64 overflow-hidden">
           <img 
             src={displayImage} 
             alt={attraction.name} 
-            className="w-full h-full object-cover group-hover:scale-110 smooth-transition" 
+            className="w-full h-full object-cover group-hover:scale-110 smooth-transition duration-700" 
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent group-hover:from-black/30"></div>
-          <div className="absolute top-3 right-3 glass-card rounded-full px-3 py-1 flex items-center">
-            <Star size={16} className="text-amber-500 mr-1" fill="currentColor" />
-            <span className="text-sm font-semibold text-white">5</span>
+          
+          {/* Overlay gradient that becomes more visible on hover */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-80 smooth-transition"></div>
+          
+          {/* Rating badge */}
+          <div className="absolute top-4 right-4 glass-card rounded-full px-3 py-1.5 flex items-center transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
+            <Star size={14} className="text-amber-400 mr-1" fill="currentColor" />
+            <span className="text-sm font-semibold text-white">5.0</span>
           </div>
-          <div className="absolute bottom-3 left-3 bg-green-primary/90 backdrop-blur-sm rounded-full px-3 py-1 text-white text-xs font-medium capitalize">
+          
+          {/* Category badge */}
+          <div className="absolute top-4 left-4 bg-green-primary/90 backdrop-blur-sm rounded-full px-3 py-1.5 text-white text-xs font-medium capitalize transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
             {categoryLabels[attraction.category as keyof typeof categoryLabels]}
           </div>
+
+          {/* Sliding information overlay - slides up from bottom on hover */}
+          <div className="absolute inset-x-0 bottom-0 transform translate-y-full group-hover:translate-y-0 smooth-transition duration-500 ease-out">
+            <div className="bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6 pt-12">
+              <h3 className="text-xl font-bold text-white mb-3 line-clamp-2">
+                {attraction.name}
+              </h3>
+              <p className="text-gray-200 text-sm mb-4 line-clamp-3 leading-relaxed">
+                {attraction.description}
+              </p>
+              
+              <div className="flex items-center justify-between">
+                <div className="flex items-center text-green-300">
+                  <MapPin size={16} className="mr-2" />
+                  <span className="text-sm font-medium">Explorar detalles</span>
+                </div>
+                <div className="text-xs text-green-300 font-semibold bg-green-500/20 px-3 py-1 rounded-full">
+                  ¡Descubrir!
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div className="p-6">
-          <h3 className="text-lg font-bold text-ocean-dark mb-3 group-hover:text-green-primary smooth-transition">
-            {attraction.name}
-          </h3>
-          <p className="text-gray-600 text-sm mb-4 line-clamp-3 leading-relaxed">
-            {attraction.description}
-          </p>
-          <div className="flex items-center text-ocean">
-            <MapPin size={16} className="mr-2 text-green-primary" />
-            <span className="text-sm font-medium">Explorar detalles</span>
+
+        {/* Static content section - reduced height since info moves to overlay */}
+        <div className="p-4">
+          <div className="flex items-center text-ocean/60 text-sm">
+            <MapPin size={14} className="mr-1 text-green-primary" />
+            <span>Haz hover para más información</span>
           </div>
         </div>
       </div>
