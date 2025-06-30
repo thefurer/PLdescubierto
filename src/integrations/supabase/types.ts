@@ -548,6 +548,36 @@ export type Database = {
         }
         Relationships: []
       }
+      site_visual_config: {
+        Row: {
+          config_data: Json
+          config_type: string
+          created_at: string
+          id: string
+          is_active: boolean
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          config_data?: Json
+          config_type: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          config_data?: Json
+          config_type?: string
+          created_at?: string
+          id?: string
+          is_active?: boolean
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       tourist_attractions: {
         Row: {
           activities: string[] | null

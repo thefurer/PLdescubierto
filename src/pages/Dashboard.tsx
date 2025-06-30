@@ -14,7 +14,8 @@ import {
   MapPin,
   Home,
   Shield,
-  Menu
+  Menu,
+  Palette
 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -23,6 +24,7 @@ import HistoryViewer from '@/components/dashboard/HistoryViewer';
 import UserProfile from '@/components/dashboard/UserProfile';
 import AttractionsManager from '@/components/dashboard/AttractionsManager';
 import AdminManager from '@/components/dashboard/AdminManager';
+import VisualDesignManager from '@/components/dashboard/VisualDesignManager';
 
 const Dashboard = () => {
   const { user, signOut } = useAuth();
@@ -40,6 +42,7 @@ const Dashboard = () => {
     { id: 'hero', label: 'Editar Portada', icon: Home },
     { id: 'footer', label: 'Editar Pie de Página', icon: FileText },
     { id: 'attractions', label: 'Editar Atracciones', icon: MapPin },
+    { id: 'visual-design', label: 'Diseño Visual y Ajustes', icon: Palette },
     { id: 'admin', label: 'Gestión de Admins', icon: Shield },
     { id: 'history', label: 'Historial de Cambios', icon: History },
     { id: 'profile', label: 'Mi Perfil', icon: User }
@@ -75,6 +78,8 @@ const Dashboard = () => {
         return <ContentEditor filterSection="footer" />;
       case 'attractions':
         return <AttractionsManager />;
+      case 'visual-design':
+        return <VisualDesignManager />;
       case 'admin':
         return <AdminManager />;
       case 'history':

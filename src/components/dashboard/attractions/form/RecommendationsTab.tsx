@@ -5,7 +5,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Plus, X, Calendar, Palette, Edit2, Save } from 'lucide-react';
+import { Plus, X, Calendar, Edit2, Save } from 'lucide-react';
 import { TouristAttraction } from '@/types/touristAttractions';
 
 interface RecommendationsTabProps {
@@ -23,8 +23,6 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
   const [newDate, setNewDate] = useState('');
   const [editingId, setEditingId] = useState<string | null>(null);
 
-  console.log('Current recommendations in form:', recommendations);
-
   const addRecommendation = () => {
     if (!newRecommendation.text.trim()) return;
 
@@ -39,9 +37,6 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
     };
 
     const updatedRecommendations = [...recommendations, recommendation];
-    console.log('Adding recommendation:', recommendation);
-    console.log('Updated recommendations:', updatedRecommendations);
-    
     onRecommendationsUpdate(updatedRecommendations);
     
     // Reset form
@@ -55,8 +50,6 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
 
   const removeRecommendation = (id: string) => {
     const updatedRecommendations = recommendations.filter(rec => rec.id !== id);
-    console.log('Removing recommendation:', id);
-    console.log('Updated recommendations after removal:', updatedRecommendations);
     onRecommendationsUpdate(updatedRecommendations);
   };
 
@@ -86,9 +79,6 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
           }
         : rec
     );
-
-    console.log('Saving edited recommendation:', editingId);
-    console.log('Updated recommendations after edit:', updatedRecommendations);
     
     onRecommendationsUpdate(updatedRecommendations);
     
@@ -138,44 +128,33 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
       <div>
         <h3 className="text-lg font-semibold mb-4">Recomendaciones</h3>
         
-        {/* Debug info */}
-        <div className="mb-4 p-2 bg-gray-100 rounded text-xs">
-          <strong>Debug:</strong> {recommendations.length} recomendaciones cargadas
-          {recommendations.length > 0 && (
-            <pre className="mt-1">{JSON.stringify(recommendations, null, 2)}</pre>
-          )}
-        </div>
-        
         {/* Existing Recommendations */}
         <div className="space-y-3 mb-6">
           {recommendations.map((rec) => (
             <Card key={rec.id}>
               <CardContent className="p-4">
                 <div className="flex justify-between items-start">
-                  <div className="flex-1">
-                    <p className="text-sm mb-2">{rec.text}</p>
-                    <div className="flex flex-wrap gap-1">
-                      {rec.color && (
-                        <Badge 
-                          variant="outline" 
-                          className="text-xs"
-                          style={{ borderColor: rec.color, color: rec.color }}
-                        >
-                          <Palette className="h-3 w-3 mr-1" />
-                          Color
-                        </Badge>
-                      )}
-                      {rec.dates && rec.dates.map(date => (
-                        <Badge key={date} variant="secondary" className="text-xs">
-                          {date}
-                        </Badge>
-                      ))}
-                      {rec.schedule && (
-                        <Badge variant="secondary" className="text-xs">
-                          <Calendar className="h-3 w-3 mr-1" />
-                          {new Date(rec.schedule.startDate).toLocaleDateString()} - {new Date(rec.schedule.endDate).toLocaleDateString()}
-                        </Badge>
-                      )}
+                  <div className="flex-1 flex items-start">
+                    {/* Bullet point with recommendation color */}
+                    <div 
+                      className="w-3 h-3 rounded-full mr-3 mt-1 flex-shrink-0"
+                      style={{ backgroundColor: rec.color || '#3B82F6' }}
+                    ></div>
+                    <div className="flex-1">
+                      <p className="text-sm mb-2">{rec.text}</p>
+                      <div className="flex flex-wrap gap-1">
+                        {rec.dates && rec.dates.map(date => (
+                          <Badge key={date} variant="secondary" className="text-xs">
+                            {date}
+                          </Badge>
+                        ))}
+                        {rec.schedule && (
+                          <Badge variant="secondary" className="text-xs">
+                            <Calendar className="h-3 w-3 mr-1" />
+                            {new Date(rec.schedule.startDate).toLocaleDateString()} - {new Date(rec.schedule.endDate).toLocaleDateString()}
+                          </Badge>
+                        )}
+                      </div>
                     </div>
                   </div>
                   <div className="flex gap-2">
@@ -220,7 +199,7 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
               </div>
 
               <div>
-                <Label>Color de Categoría</Label>
+                <Label>Color</Label>
                 <div className="flex gap-2 mt-2">
                   {colors.map(color => (
                     <button
