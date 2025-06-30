@@ -70,7 +70,8 @@ const VisualDesignManager = () => {
         if (config.config_type === 'color_palette') {
           setColorPalette(config.config_data as ColorPalette);
         } else if (config.config_type === 'navbar_settings') {
-          setNavbarItems(config.config_data.items || []);
+          const navbarData = config.config_data as { items?: NavbarItem[] };
+          setNavbarItems(navbarData.items || []);
         } else if (config.config_type === 'logo_settings') {
           setLogoSettings(config.config_data as LogoSettings);
         }
@@ -90,12 +91,11 @@ const VisualDesignManager = () => {
         .from('site_visual_config')
         .upsert({
           config_type: 'color_palette',
-          config_data: colorPalette,
+          config_data: colorPalette as any,
           is_active: true,
           updated_by: user?.id
         }, {
-          onConflict: 'config_type',
-          ignoreDuplicates: false
+          onConflict: 'config_type,is_active'
         });
 
       if (error) throw error;
@@ -115,12 +115,11 @@ const VisualDesignManager = () => {
         .from('site_visual_config')
         .upsert({
           config_type: 'navbar_settings',
-          config_data: { items: navbarItems },
+          config_data: { items: navbarItems } as any,
           is_active: true,
           updated_by: user?.id
         }, {
-          onConflict: 'config_type',
-          ignoreDuplicates: false
+          onConflict: 'config_type,is_active'
         });
 
       if (error) throw error;
@@ -140,12 +139,11 @@ const VisualDesignManager = () => {
         .from('site_visual_config')
         .upsert({
           config_type: 'logo_settings',
-          config_data: logoSettings,
+          config_data: logoSettings as any,
           is_active: true,
           updated_by: user?.id
         }, {
-          onConflict: 'config_type',
-          ignoreDuplicates: false
+          onConflict: 'config_type,is_active'
         });
 
       if (error) throw error;
