@@ -9,13 +9,6 @@ interface CarouselCardProps {
   onClick: (attraction: TouristAttraction, index: number) => void;
 }
 
-const categoryLabels = {
-  todo: "Todo",
-  playa: "Playa",
-  cultura: "Cultura",
-  naturaleza: "Naturaleza"
-};
-
 const defaultImages = {
   playa: "https://images.unsplash.com/photo-1500375592092-40eb2168fd21?auto=format&fit=crop&q=80",
   cultura: "https://images.unsplash.com/photo-1466442929976-97f336a657be?auto=format&fit=crop&q=80",
@@ -38,7 +31,7 @@ export const CarouselCard = ({ attraction, index, currentIndex, onClick }: Carou
       }`}
       onClick={() => onClick(attraction, index)}
     >
-      <div className="relative bg-white rounded-3xl overflow-hidden shadow-xl hover:shadow-2xl smooth-transition h-80">
+      <div className="relative bg-white rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl smooth-transition h-[420px] border border-white/20">
         <div className="relative h-full overflow-hidden rounded-3xl">
           <img 
             src={displayImage} 
@@ -46,37 +39,39 @@ export const CarouselCard = ({ attraction, index, currentIndex, onClick }: Carou
             className="w-full h-full object-cover group-hover:scale-110 smooth-transition duration-700"
           />
           
-          {/* Overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-black/20 to-transparent opacity-60 group-hover:opacity-80 smooth-transition"></div>
+          {/* Enhanced overlay gradient */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10 opacity-70 group-hover:opacity-85 smooth-transition"></div>
           
-          {/* Rating */}
-          <div className="absolute top-4 right-4 glass-card rounded-full px-3 py-1.5 flex items-center transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
-            <Star size={16} className="text-amber-500 mr-1" fill="currentColor" />
-            <span className="text-sm font-semibold text-white">5.0</span>
+          {/* Rating badge - improved design */}
+          <div className="absolute top-6 right-6 bg-white/95 backdrop-blur-md rounded-2xl px-4 py-2 flex items-center shadow-lg transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
+            <Star size={16} className="text-amber-500 mr-1.5" fill="currentColor" />
+            <span className="text-sm font-bold text-gray-800">5.0</span>
           </div>
           
-          {/* Category Badge */}
-          <div className="absolute top-4 left-4 bg-green-primary/90 backdrop-blur-sm rounded-full px-3 py-1.5 text-white text-xs font-medium capitalize transform translate-y-0 group-hover:-translate-y-1 smooth-transition">
-            {categoryLabels[attraction.category as keyof typeof categoryLabels]}
+          {/* Attraction name badge - replacing category */}
+          <div className="absolute top-6 left-6 bg-gradient-to-r from-green-500 to-green-600 backdrop-blur-md rounded-2xl px-4 py-2 shadow-lg transform translate-y-0 group-hover:-translate-y-1 smooth-transition max-w-[200px]">
+            <span className="text-white text-sm font-bold truncate block">
+              {attraction.name}
+            </span>
           </div>
 
-          {/* Sliding information overlay */}
+          {/* Enhanced sliding information overlay */}
           <div className="absolute inset-x-0 bottom-0 transform translate-y-full group-hover:translate-y-0 smooth-transition duration-500 ease-out">
-            <div className="bg-gradient-to-t from-black/90 via-black/70 to-transparent p-6 pt-12 rounded-b-3xl">
-              <h3 className="text-lg font-bold text-white mb-2 line-clamp-2">
+            <div className="bg-gradient-to-t from-black/95 via-black/80 to-transparent p-8 pt-16 rounded-b-3xl">
+              <h3 className="text-xl font-bold text-white mb-4 line-clamp-2 leading-tight">
                 {attraction.name}
               </h3>
-              <p className="text-gray-200 text-sm mb-4 line-clamp-3 leading-relaxed">
+              <p className="text-gray-200 text-sm mb-6 line-clamp-4 leading-relaxed">
                 {attraction.description}
               </p>
               
               <div className="flex items-center justify-between">
                 <div className="flex items-center text-green-300">
-                  <MapPin size={14} className="mr-1" />
-                  <span className="text-xs font-medium">Descubrir más</span>
+                  <MapPin size={16} className="mr-2" />
+                  <span className="text-sm font-medium">Descubrir más</span>
                 </div>
                 {isCentered && (
-                  <div className="text-xs text-green-300 font-semibold bg-green-500/20 px-3 py-1 rounded-full">
+                  <div className="text-sm text-green-300 font-bold bg-green-500/30 backdrop-blur-sm px-4 py-2 rounded-full border border-green-400/30">
                     ¡Clic aquí!
                   </div>
                 )}
