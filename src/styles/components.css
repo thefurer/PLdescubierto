@@ -131,40 +131,18 @@
 
   /* Enhanced Button Styles */
   .btn-primary {
-    @apply bg-ocean hover:bg-ocean-dark text-white font-semibold px-6 py-3 rounded-xl smooth-transition shadow-lg hover:shadow-xl focus:ring-2 focus:ring-ocean-light focus:ring-opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean;
+    @apply bg-ocean hover:bg-ocean-dark text-white font-semibold px-6 py-3 rounded-full smooth-transition shadow-lg hover:shadow-xl focus:ring-2 focus:ring-ocean-light focus:ring-opacity-50;
   }
 
   .btn-secondary {
-    @apply bg-green-primary hover:bg-green-dark text-white font-semibold px-6 py-3 rounded-xl smooth-transition shadow-lg hover:shadow-xl focus:ring-2 focus:ring-green-light focus:ring-opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-green-primary;
+    @apply bg-green-primary hover:bg-green-dark text-white font-semibold px-6 py-3 rounded-full smooth-transition shadow-lg hover:shadow-xl focus:ring-2 focus:ring-green-light focus:ring-opacity-50;
   }
 
   .btn-outline {
-    @apply border-2 border-ocean text-ocean hover:bg-ocean hover:text-white font-semibold px-6 py-3 rounded-xl smooth-transition focus:ring-2 focus:ring-ocean-light focus:ring-opacity-50 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-ocean;
+    @apply border-2 border-ocean text-ocean hover:bg-ocean hover:text-white font-semibold px-6 py-3 rounded-full smooth-transition focus:ring-2 focus:ring-ocean-light focus:ring-opacity-50;
   }
 
   .btn-ghost {
-    @apply bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 font-semibold px-6 py-3 rounded-xl smooth-transition focus:ring-2 focus:ring-white/20 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-white;
-  }
-
-  /* Mejoras para imágenes */
-  .image-hover {
-    @apply smooth-transition hover:scale-105 hover:brightness-110 hover:shadow-xl;
-  }
-
-  .image-card {
-    @apply rounded-xl shadow-md overflow-hidden;
-  }
-
-  /* Secciones alternadas */
-  .section-light {
-    @apply bg-white;
-  }
-
-  .section-dark {
-    @apply bg-gray-50;
-  }
-
-  .section-container {
-    @apply max-w-7xl mx-auto px-4 space-y-16;
+    @apply bg-white/20 backdrop-blur-sm text-white border border-white/30 hover:bg-white/30 font-semibold px-6 py-3 rounded-full smooth-transition focus:ring-2 focus:ring-white/20;
   }
 }

@@ -6,28 +6,6 @@
   100% { background-position: 0% 50%; }
 }
 
-@keyframes slide-in-up {
-  0% { 
-    opacity: 0;
-    transform: translateY(20px);
-  }
-  100% { 
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes fade-in-scale {
-  0% {
-    opacity: 0;
-    transform: scale(0.95);
-  }
-  100% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
 .gradient-bg {
   background: linear-gradient(-45deg, 
     hsl(var(--ocean-blue)), 
@@ -37,48 +15,4 @@
   );
   background-size: 400% 400%;
   animation: gradient-shift 15s ease infinite;
-}
-
-/* Animaciones de entrada suaves */
-.animate-fade-in-scale {
-  animation: fade-in-scale 0.5s ease-out;
-}
-
-.animate-slide-in-up {
-  animation: slide-in-up 0.4s ease-out;
-}
-
-/* Animaciones con retrasos para títulos */
-.animate-title-delay-1 {
-  animation: slide-in-up 0.4s ease-out;
-  animation-delay: 0.1s;
-  animation-fill-mode: both;
-}
-
-.animate-title-delay-2 {
-  animation: slide-in-up 0.4s ease-out;
-  animation-delay: 0.2s;
-  animation-fill-mode: both;
-}
-
-/* Hover effects mejorados para imágenes */
-.image-hover-effect {
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.image-hover-effect:hover {
-  transform: scale(1.05);
-  filter: brightness(1.1);
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-}
-
-/* Efectos de focus mejorados para accesibilidad */
-.focus-ring {
-  transition: all 0.2s ease-in-out;
-}
-
-.focus-ring:focus-visible {
-  outline: 2px solid hsl(var(--ocean-blue));
-  outline-offset: 2px;
-  box-shadow: 0 0 0 4px hsl(var(--ocean-blue) / 0.2);
 }
