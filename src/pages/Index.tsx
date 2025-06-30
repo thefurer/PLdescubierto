@@ -9,12 +9,30 @@ import ChatBot from "@/components/ChatBot";
 const Index = () => {
   return (
     <div className="min-h-screen overflow-x-hidden">
-      {/* No Navbar in the main page */}
-      <Hero />
-      <Attractions />
-      <VirtualTour />
-      <TestimonialsSection />
+      {/* Hero Section */}
+      <section className="section-light">
+        <Hero />
+      </section>
+      
+      {/* Attractions Section */}
+      <section className="section-dark">
+        <Attractions />
+      </section>
+      
+      {/* Virtual Tour Section */}
+      <section className="section-light">
+        <VirtualTour />
+      </section>
+      
+      {/* Testimonials Section */}
+      <section className="section-dark">
+        <TestimonialsSection />
+      </section>
+      
+      {/* Footer */}
       <Footer />
+      
+      {/* Chat Bot */}
       <ChatBot />
     </div>
   );

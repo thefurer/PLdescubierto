@@ -8,6 +8,54 @@
     @apply border-border;
   }
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans;
+  }
+  
+  /* Jerarquía de títulos mejorada */
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight leading-tight;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl font-semibold tracking-tight leading-tight;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl font-semibold tracking-tight leading-snug;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl font-medium tracking-tight leading-snug;
+  }
+  
+  h5 {
+    @apply text-lg md:text-xl font-medium tracking-tight leading-snug;
+  }
+  
+  h6 {
+    @apply text-base md:text-lg font-medium tracking-tight leading-snug;
+  }
+  
+  /* Párrafos mejorados */
+  p {
+    @apply leading-relaxed text-gray-700;
+  }
+  
+  /* Accesibilidad mejorada */
+  button:focus-visible,
+  a:focus-visible,
+  input:focus-visible,
+  select:focus-visible,
+  textarea:focus-visible {
+    @apply outline-2 outline-offset-2 outline-ocean ring-2 ring-ocean/20;
+  }
+  
+  /* Animaciones de entrada */
+  .section-enter {
+    animation: slide-in-up 0.6s ease-out;
+  }
+  
+  .title-enter {
+    animation: slide-in-down 0.8s ease-out;
   }
 }
