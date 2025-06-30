@@ -22,7 +22,15 @@ const defaultImages = {
 };
 
 export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) => {
-  const [currentIndex, setCurrentIndex] = useState(Math.floor(attractions.length / 2)); // Start from middle
+  // Find the index of "Isla de la Plata" or default to middle
+  const findIslaIndex = () => {
+    const islaIndex = attractions.findIndex(attraction => 
+      attraction.name.toLowerCase().includes('isla de la plata')
+    );
+    return islaIndex !== -1 ? islaIndex : Math.floor(attractions.length / 2);
+  };
+
+  const [currentIndex, setCurrentIndex] = useState(findIslaIndex());
   const [selectedAttraction, setSelectedAttraction] = useState<TouristAttraction | null>(null);
   const [modalOpen, setModalOpen] = useState(false);
   const carouselRef = useRef<HTMLDivElement>(null);
@@ -40,7 +48,7 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
     }
   };
 
-  // Auto-scroll functionality
+  // Auto-scroll functionality with slower speed
   const startAutoScroll = () => {
     autoScrollRef.current = setInterval(() => {
       setCurrentIndex(prev => {
@@ -48,7 +56,7 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
         scrollToIndex(nextIndex);
         return nextIndex;
       });
-    }, 3000); // Change every 3 seconds
+    }, 5000); // Changed from 3000ms to 5000ms (5 seconds)
   };
 
   const stopAutoScroll = () => {
@@ -63,7 +71,7 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
     const newIndex = currentIndex > 0 ? currentIndex - 1 : attractions.length - 1;
     setCurrentIndex(newIndex);
     scrollToIndex(newIndex);
-    setTimeout(startAutoScroll, 5000); // Resume auto-scroll after 5 seconds
+    setTimeout(startAutoScroll, 7000); // Resume auto-scroll after 7 seconds
   };
 
   const handleNext = () => {
@@ -71,7 +79,7 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
     const newIndex = currentIndex < attractions.length - 1 ? currentIndex + 1 : 0;
     setCurrentIndex(newIndex);
     scrollToIndex(newIndex);
-    setTimeout(startAutoScroll, 5000); // Resume auto-scroll after 5 seconds
+    setTimeout(startAutoScroll, 7000); // Resume auto-scroll after 7 seconds
   };
 
   const handleCardClick = (attraction: TouristAttraction, index: number) => {
@@ -82,7 +90,7 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
     } else {
       setCurrentIndex(index);
       scrollToIndex(index);
-      setTimeout(startAutoScroll, 5000); // Resume auto-scroll after 5 seconds
+      setTimeout(startAutoScroll, 7000); // Resume auto-scroll after 7 seconds
     }
   };
 
@@ -199,7 +207,7 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
               stopAutoScroll();
               setCurrentIndex(index);
               scrollToIndex(index);
-              setTimeout(startAutoScroll, 5000);
+              setTimeout(startAutoScroll, 7000);
             }}
             className={`w-3 h-3 rounded-full smooth-transition ${
               index === currentIndex 
