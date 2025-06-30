@@ -7,7 +7,69 @@
   * {
     @apply border-border;
   }
+  
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-poppins;
+    font-feature-settings: 'kern' 1, 'liga' 1;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Jerarquía tipográfica mejorada */
+  h1 {
+    @apply text-4xl md:text-5xl lg:text-6xl font-bold leading-tight tracking-tight;
+  }
+  
+  h2 {
+    @apply text-3xl md:text-4xl lg:text-5xl font-semibold leading-tight tracking-tight;
+  }
+  
+  h3 {
+    @apply text-2xl md:text-3xl font-semibold leading-snug;
+  }
+  
+  h4 {
+    @apply text-xl md:text-2xl font-medium leading-snug;
+  }
+  
+  h5 {
+    @apply text-lg md:text-xl font-medium leading-normal;
+  }
+  
+  h6 {
+    @apply text-base md:text-lg font-medium leading-normal;
+  }
+
+  p {
+    @apply leading-relaxed text-base;
+  }
+
+  /* Animaciones de entrada para títulos */
+  .animate-title {
+    @apply animate-slide-in-up;
+    animation-fill-mode: both;
+  }
+
+  .animate-title-delay-1 {
+    @apply animate-slide-in-up;
+    animation-delay: 0.1s;
+    animation-fill-mode: both;
+  }
+
+  .animate-title-delay-2 {
+    @apply animate-slide-in-up;
+    animation-delay: 0.2s;
+    animation-fill-mode: both;
+  }
+
+  /* Mejores estilos de foco para accesibilidad */
+  :focus-visible {
+    @apply outline-2 outline-offset-2 outline-ocean ring-2 ring-ocean/20;
+  }
+
+  /* Scroll suave */
+  html {
+    scroll-behavior: smooth;
   }
 }

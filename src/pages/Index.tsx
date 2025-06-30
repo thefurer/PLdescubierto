@@ -9,12 +9,36 @@ import ChatBot from "@/components/ChatBot";
 const Index = () => {
   return (
     <div className="min-h-screen overflow-x-hidden">
-      {/* No Navbar in the main page */}
-      <Hero />
-      <Attractions />
-      <VirtualTour />
-      <TestimonialsSection />
+      {/* Hero Section */}
+      <section className="section-light">
+        <Hero />
+      </section>
+      
+      {/* Attractions Section */}
+      <section className="section-dark py-20">
+        <div className="section-container">
+          <Attractions />
+        </div>
+      </section>
+      
+      {/* Virtual Tour Section */}
+      <section className="section-light py-20">
+        <div className="section-container">
+          <VirtualTour />
+        </div>
+      </section>
+      
+      {/* Testimonials Section */}
+      <section className="section-dark py-20">
+        <div className="section-container">
+          <TestimonialsSection />
+        </div>
+      </section>
+      
+      {/* Footer */}
       <Footer />
+      
+      {/* ChatBot - mantener funcionalidad existente */}
       <ChatBot />
     </div>
   );
