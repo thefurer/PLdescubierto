@@ -18,7 +18,7 @@ interface ColorPalette {
 
 interface ColorPaletteManagerProps {
   colorPalette: ColorPalette;
-  setColorPalette: (palette: ColorPalette) => void;
+  setColorPalette: React.Dispatch<React.SetStateAction<ColorPalette>>;
   loading: boolean;
   setLoading: (loading: boolean) => void;
 }

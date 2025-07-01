@@ -17,7 +17,7 @@ interface LogoSettings {
 
 interface LogoManagerProps {
   logoSettings: LogoSettings;
-  setLogoSettings: (settings: LogoSettings) => void;
+  setLogoSettings: React.Dispatch<React.SetStateAction<LogoSettings>>;
   loading: boolean;
   setLoading: (loading: boolean) => void;
 }
