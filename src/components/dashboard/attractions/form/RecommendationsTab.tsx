@@ -1,12 +1,7 @@
 import { useState } from 'react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Textarea } from '@/components/ui/textarea';
-import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent } from '@/components/ui/card';
-import { Plus, X, Calendar, Edit2, Save } from 'lucide-react';
 import { TouristAttraction } from '@/types/touristAttractions';
+import RecommendationCard from './recommendations/RecommendationCard';
+import RecommendationForm from './recommendations/RecommendationForm';
 
 interface RecommendationsTabProps {
   recommendations: TouristAttraction['recommendations'];
@@ -39,13 +34,7 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
     const updatedRecommendations = [...recommendations, recommendation];
     onRecommendationsUpdate(updatedRecommendations);
     
-    // Reset form
-    setNewRecommendation({
-      text: '',
-      color: '#3B82F6',
-      dates: [],
-      schedule: { startDate: '', endDate: '' }
-    });
+    resetForm();
   };
 
   const removeRecommendation = (id: string) => {
@@ -81,8 +70,10 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
     );
     
     onRecommendationsUpdate(updatedRecommendations);
-    
-    // Reset form
+    resetForm();
+  };
+
+  const resetForm = () => {
     setEditingId(null);
     setNewRecommendation({
       text: '',
@@ -92,14 +83,8 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
     });
   };
 
-  const cancelEdit = () => {
-    setEditingId(null);
-    setNewRecommendation({
-      text: '',
-      color: '#3B82F6',
-      dates: [],
-      schedule: { startDate: '', endDate: '' }
-    });
+  const handleFormDataChange = (updates: any) => {
+    setNewRecommendation(prev => ({ ...prev, ...updates }));
   };
 
   const addDate = () => {
@@ -118,10 +103,13 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
     }));
   };
 
-  const colors = [
-    '#3B82F6', '#EF4444', '#10B981', '#F59E0B', 
-    '#8B5CF6', '#F97316', '#06B6D4', '#84CC16'
-  ];
+  const handleSubmit = () => {
+    if (editingId) {
+      saveEdit();
+    } else {
+      addRecommendation();
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -131,169 +119,27 @@ const RecommendationsTab = ({ recommendations = [], onRecommendationsUpdate }: R
         {/* Existing Recommendations */}
         <div className="space-y-3 mb-6">
           {recommendations.map((rec) => (
-            <Card key={rec.id}>
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start">
-                  <div className="flex-1 flex items-start">
-                    {/* Bullet point with recommendation color */}
-                    <div 
-                      className="w-3 h-3 rounded-full mr-3 mt-1 flex-shrink-0"
-                      style={{ backgroundColor: rec.color || '#3B82F6' }}
-                    ></div>
-                    <div className="flex-1">
-                      <p className="text-sm mb-2">{rec.text}</p>
-                      <div className="flex flex-wrap gap-1">
-                        {rec.dates && rec.dates.map(date => (
-                          <Badge key={date} variant="secondary" className="text-xs">
-                            {date}
-                          </Badge>
-                        ))}
-                        {rec.schedule && (
-                          <Badge variant="secondary" className="text-xs">
-                            <Calendar className="h-3 w-3 mr-1" />
-                            {new Date(rec.schedule.startDate).toLocaleDateString()} - {new Date(rec.schedule.endDate).toLocaleDateString()}
-                          </Badge>
-                        )}
-                      </div>
-                    </div>
-                  </div>
-                  <div className="flex gap-2">
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-blue-600 hover:text-blue-700"
-                      onClick={() => startEditing(rec)}
-                    >
-                      <Edit2 className="h-4 w-4" />
-                    </Button>
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      className="text-red-600 hover:text-red-700"
-                      onClick={() => removeRecommendation(rec.id)}
-                    >
-                      <X className="h-4 w-4" />
-                    </Button>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+            <RecommendationCard
+              key={rec.id}
+              recommendation={rec}
+              onEdit={startEditing}
+              onRemove={removeRecommendation}
+            />
           ))}
         </div>
 
         {/* Add/Edit Recommendation Form */}
-        <Card>
-          <CardContent className="p-4">
-            <div className="space-y-4">
-              <div>
-                <Label htmlFor="recommendation-text">
-                  {editingId ? 'Editar Recomendación' : 'Texto de la Recomendación'}
-                </Label>
-                <Textarea
-                  id="recommendation-text"
-                  value={newRecommendation.text}
-                  onChange={(e) => setNewRecommendation(prev => ({ ...prev, text: e.target.value }))}
-                  placeholder="Escribe la recomendación..."
-                  rows={3}
-                />
-              </div>
-
-              <div>
-                <Label>Color</Label>
-                <div className="flex gap-2 mt-2">
-                  {colors.map(color => (
-                    <button
-                      key={color}
-                      type="button"
-                      className={`w-6 h-6 rounded-full border-2 ${
-                        newRecommendation.color === color ? 'border-gray-800' : 'border-gray-300'
-                      }`}
-                      style={{ backgroundColor: color }}
-                      onClick={() => setNewRecommendation(prev => ({ ...prev, color }))}
-                    />
-                  ))}
-                </div>
-              </div>
-
-              <div>
-                <Label>Fechas Específicas</Label>
-                <div className="flex gap-2 mt-2">
-                  <Input
-                    value={newDate}
-                    onChange={(e) => setNewDate(e.target.value)}
-                    placeholder="Ej: Enero-Marzo, Temporada alta..."
-                  />
-                  <Button type="button" onClick={addDate} size="sm">
-                    <Plus className="h-4 w-4" />
-                  </Button>
-                </div>
-                {newRecommendation.dates.length > 0 && (
-                  <div className="flex flex-wrap gap-1 mt-2">
-                    {newRecommendation.dates.map(date => (
-                      <Badge key={date} variant="secondary" className="text-xs">
-                        {date}
-                        <button
-                          type="button"
-                          onClick={() => removeDate(date)}
-                          className="ml-1 text-red-600 hover:text-red-700"
-                        >
-                          <X className="h-3 w-3" />
-                        </button>
-                      </Badge>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <Label htmlFor="start-date">Fecha de Inicio</Label>
-                  <Input
-                    id="start-date"
-                    type="date"
-                    value={newRecommendation.schedule.startDate}
-                    onChange={(e) => setNewRecommendation(prev => ({
-                      ...prev,
-                      schedule: { ...prev.schedule, startDate: e.target.value }
-                    }))}
-                  />
-                </div>
-                <div>
-                  <Label htmlFor="end-date">Fecha de Fin</Label>
-                  <Input
-                    id="end-date"
-                    type="date"
-                    value={newRecommendation.schedule.endDate}
-                    onChange={(e) => setNewRecommendation(prev => ({
-                      ...prev,
-                      schedule: { ...prev.schedule, endDate: e.target.value }
-                    }))}
-                  />
-                </div>
-              </div>
-
-              <div className="flex gap-2">
-                {editingId ? (
-                  <>
-                    <Button onClick={saveEdit} className="flex-1">
-                      <Save className="h-4 w-4 mr-2" />
-                      Guardar Cambios
-                    </Button>
-                    <Button onClick={cancelEdit} variant="outline" className="flex-1">
-                      <X className="h-4 w-4 mr-2" />
-                      Cancelar
-                    </Button>
-                  </>
-                ) : (
-                  <Button onClick={addRecommendation} className="w-full">
-                    <Plus className="h-4 w-4 mr-2" />
-                    Agregar Recomendación
-                  </Button>
-                )}
-              </div>
-            </div>
-          </CardContent>
-        </Card>
+        <RecommendationForm
+          formData={newRecommendation}
+          newDate={newDate}
+          editingId={editingId}
+          onFormDataChange={handleFormDataChange}
+          onNewDateChange={setNewDate}
+          onAddDate={addDate}
+          onRemoveDate={removeDate}
+          onSubmit={handleSubmit}
+          onCancel={resetForm}
+        />
       </div>
     </div>
   );
