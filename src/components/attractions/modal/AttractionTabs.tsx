@@ -5,6 +5,7 @@ import { TouristAttraction } from '@/types/touristAttractions';
 import { AttractionDescription } from './AttractionDescription';
 import { AttractionActivities } from './AttractionActivities';
 import { AttractionSchedules } from './AttractionSchedules';
+import { AttractionRecommendations } from './AttractionRecommendations';
 
 interface AttractionTabsProps {
   attraction: TouristAttraction;
@@ -13,7 +14,7 @@ interface AttractionTabsProps {
 export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
   return (
     <Tabs defaultValue="description" className="w-full">
-      <TabsList className="grid w-full grid-cols-3">
+      <TabsList className="grid w-full grid-cols-4">
         <TabsTrigger value="description" className="flex items-center gap-2">
           <History className="h-4 w-4" />
           Descripción
@@ -25,6 +26,10 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
         <TabsTrigger value="schedules" className="flex items-center gap-2">
           <Calendar className="h-4 w-4" />
           Horarios
+        </TabsTrigger>
+        <TabsTrigger value="recommendations" className="flex items-center gap-2">
+          <History className="h-4 w-4" />
+          Recomendaciones
         </TabsTrigger>
       </TabsList>
 
@@ -38,6 +43,10 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
 
       <TabsContent value="schedules" className="space-y-4 mt-4">
         <AttractionSchedules attraction={attraction} />
+      </TabsContent>
+
+      <TabsContent value="recommendations" className="space-y-4 mt-4">
+        <AttractionRecommendations attraction={attraction} />
       </TabsContent>
     </Tabs>
   );

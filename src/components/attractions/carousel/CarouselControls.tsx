@@ -29,16 +29,16 @@ export const CarouselControls = ({ onPrevious, onNext, onTogglePause, isPaused }
         <ChevronRight size={24} className="text-white" />
       </button>
 
-      {/* Pause/Play Button */}
+      {/* Pause/Play Button - More visible */}
       <button
         onClick={onTogglePause}
-        className="absolute right-4 top-4 z-10 glass-card p-2 rounded-full hover:bg-white/20 smooth-transition"
+        className="absolute right-4 top-4 z-10 bg-black/70 hover:bg-black/90 p-3 rounded-full smooth-transition border-2 border-white/30"
         aria-label={isPaused ? "Reanudar carrusel" : "Pausar carrusel"}
       >
         {isPaused ? (
-          <Play size={16} className="text-white" />
+          <Play size={20} className="text-white fill-white" />
         ) : (
-          <Pause size={16} className="text-white" />
+          <Pause size={20} className="text-white fill-white" />
         )}
       </button>
     </>
