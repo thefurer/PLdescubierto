@@ -19,13 +19,10 @@ export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABL
     debug: process.env.NODE_ENV === 'development'
   },
   global: {
-    headers: {
-      'x-client-info': 'supabase-js-web',
-      'Access-Control-Allow-Origin': 'https://lovable.dev',
-      'Access-Control-Allow-Methods': 'GET, POST, PUT, DELETE, OPTIONS',
-      'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type'
-    }
-  },
+  headers: {
+    'x-client-info': 'supabase-js-web'
+  }
+},
   db: {
     schema: 'public'
   },
