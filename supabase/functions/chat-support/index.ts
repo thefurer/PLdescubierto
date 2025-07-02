@@ -40,30 +40,18 @@ serve(async (req) => {
         const bodyText = await req.text();
         console.log('Raw request body:', bodyText);
         
-        if (typeof message !== 'string') {
-  console.warn('Mensaje recibido no es una cadena:', message);
-  return new Response(JSON.stringify({
-    error: 'Mensaje inválido',
-    reply: 'Formato de mensaje no válido. Por favor, intenta de nuevo.'
-  }), {
-    status: 400,
-    headers: corsHeaders
-  });
-}
-
-const sanitizedMessage = message.trim().substring(0, 1000);
-console.log('Mensaje recibido después de limpiar:', sanitizedMessage);
-
-if (sanitizedMessage.length === 0) {
-  console.log('Mensaje vacío después de limpiar');
-  return new Response(JSON.stringify({
-    reply: '¡Hola! 👋 Por favor, formula una pregunta y estaré encantado de ayudarte.'
-  }), {
-    status: 200,
-    headers: corsHeaders
-  });
-}
-
+        if (!bodyText.trim()) {
+          console.log('Empty request body received');
+          return new Response(
+            JSON.stringify({ 
+              reply: '¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.'
+            }),
+            { 
+              status: 200, 
+              headers: corsHeaders
+            }
+          );
+        }
 
         body = JSON.parse(bodyText);
         console.log('Parsed body successfully:', body);
