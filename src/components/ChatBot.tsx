@@ -77,18 +77,18 @@ const ChatBot = () => {
     try {
       // Create proper JSON payload
       const payload = JSON.stringify({ message: sanitizedMessage });
-console.log("📤 Payload JSON:", payload);
+        console.log("📤 Payload JSON:", payload);
 
-const { data, error } = await fetch(
-  "https://lncxwrrcsuhphxxsvjod.supabase.co/functions/v1/chat-support",
-  {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json"
-    },
-    body: payload
-  }
-).then(res => res.json());
+        const { data, error } = await fetch(
+          "https://lncxwrrcsuhphxxsvjod.supabase.co/functions/v1/chat-support",
+          {
+            method: "POST",
+            headers: {
+              "Content-Type": "application/json"
+            },
+            body: payload
+          }
+        ).then(res => res.json());
 
 
       console.log('📥 Respuesta recibida:', { data, error });
