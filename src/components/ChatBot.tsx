@@ -1,6 +1,4 @@
-
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import ChatButton from './chat/ChatButton';
 import ChatWindow from './chat/ChatWindow';
@@ -12,15 +10,20 @@ interface Message {
   timestamp: Date;
 }
 
+interface ChatResponse {
+  reply: string;
+}
+
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       type: 'bot',
-      content: '¡Hola! 👋 Soy tu asistente personal de Puerto López. ¿En qué puedo ayudarte hoy?',
-      timestamp: new Date()
-    }
+      content:
+        '¡Hola! 👋 Soy tu asistente personal de Puerto López. ¿En qué puedo ayudarte hoy?',
+      timestamp: new Date(),
+    },
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
@@ -31,9 +34,10 @@ const ChatBot = () => {
       {
         id: '1',
         type: 'bot',
-        content: '¡Hola! 👋 Soy tu asistente personal de Puerto López. ¿En qué puedo ayudarte hoy?',
-        timestamp: new Date()
-      }
+        content:
+          '¡Hola! 👋 Soy tu asistente personal de Puerto López. ¿En qué puedo ayudarte hoy?',
+        timestamp: new Date(),
+      },
     ]);
     setInputValue('');
     toast({
@@ -43,135 +47,111 @@ const ChatBot = () => {
   };
 
   const sendMessage = async (messageContent?: string) => {
-    const messageToSend = messageContent || inputValue.trim();
-    
-    if (!messageToSend || isLoading) return;
-    
-    // Sanitize input
-    const sanitizedMessage = messageToSend
+    const raw = messageContent ?? inputValue.trim();
+    if (!raw || isLoading) return;
+
+    // 1) Sanitizar entrada
+    const sanitized = raw
       .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
       .replace(/<[^>]*>/g, '')
       .substring(0, 1000)
       .trim();
-    
-    if (!sanitizedMessage) {
+    if (!sanitized) {
       toast({
         title: 'Mensaje inválido',
         description: 'El mensaje no puede estar vacío.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
       return;
     }
 
-    const userMessage: Message = {
+    // Añadir mensaje de usuario
+    const userMsg: Message = {
       id: Date.now().toString(),
       type: 'user',
-      content: sanitizedMessage,
-      timestamp: new Date()
+      content: sanitized,
+      timestamp: new Date(),
     };
-
-    setMessages(prev => [...prev, userMessage]);
+    setMessages((prev) => [...prev, userMsg]);
     if (!messageContent) setInputValue('');
     setIsLoading(true);
 
     try {
-      // Create proper JSON payload
-      const payload = JSON.stringify({ message: sanitizedMessage });
-        console.log("📤 Payload JSON:", payload);
+      // 2) Construir y loggear payload
+      const payload = { message: sanitized };
+      console.log('📤 Payload JSON:', JSON.stringify(payload));
 
-        const { data, error } = await fetch(
-          "https://lncxwrrcsuhphxxsvjod.supabase.co/functions/v1/chat-support",
-          {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: payload
-          }
-        ).then(res => res.json());
+      // 3) Llamada directa al Edge Function
+      const res = await fetch(
+        'https://lncxwrrcsuhphxxsvjod.supabase.co/functions/v1/chat-support',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            // 'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY || ''
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
+      console.log('🌐 Status HTTP:', res.status);
 
-      console.log('📥 Respuesta recibida:', { data, error });
-
-      if (error) {
-        console.error('Error de Supabase:', error);
-        throw new Error(`Error de conexión: ${error.message}`);
+      // 4) Leer y parsear respuesta
+      let data: ChatResponse;
+      try {
+        data = await res.json();
+      } catch (parseErr) {
+        console.error('❌ JSON inválido en respuesta:', parseErr);
+        throw new Error('Respuesta malformada del servidor');
       }
+      console.log('📥 JSON recibido:', data);
 
-      // Validate response structure
-      if (!data || typeof data.reply !== 'string' || !data.reply.trim()) {
-        console.error('Respuesta inválida o vacía:', data);
+      // 5) Validar respuesta
+      if (!res.ok) {
+        console.error('❌ Error HTTP desde función:', data);
+        throw new Error('Error interno del chat');
+      }
+      if (typeof data.reply !== 'string' || !data.reply.trim()) {
+        console.error('❌ Reply vacío o inválido:', data);
         throw new Error('El asistente no pudo generar una respuesta válida');
       }
 
-      const botMessage: Message = {
+      // 6) Añadir mensaje del bot
+      const botMsg: Message = {
         id: (Date.now() + 1).toString(),
         type: 'bot',
         content: data.reply,
-        timestamp: new Date()
+        timestamp: new Date(),
       };
+      setMessages((prev) => [...prev, botMsg]);
+    } catch (err: any) {
+      console.error('❌ Error enviando mensaje:', err);
 
-      setMessages(prev => [...prev, botMessage]);
-      
-    } catch (error: any) {
-      console.error('Error en el chat:', error);
-      
-      let errorMessage = '';
-      
-      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
-        errorMessage = `Problema de conexión con el servidor. Verificando tu conexión...
+      const fallback = `Lo siento, no pude conectarme con el asistente.  
+📧 apincay@gmail.com  
+📱 +593 99 199 5390`;
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: (Date.now() + 1).toString(),
+          type: 'bot',
+          content: fallback,
+          timestamp: new Date(),
+        },
+      ]);
 
-📧 Mientras tanto, puedes contactarnos directamente:
-• Email: apincay@gmail.com
-• WhatsApp: +593 99 199 5390
-• Web: https://www.whalexpeditionsecuador.com/`;
-      } else if (error.message?.includes('timeout') || error.message?.includes('aborted')) {
-        errorMessage = `El servidor está tardando en responder. Por favor, intenta de nuevo.
-
-📧 Contacto directo:
-• Email: apincay@gmail.com
-• WhatsApp: +593 99 199 5390`;
-      } else if (error.message?.includes('FunctionsError')) {
-        errorMessage = `Nuestro asistente está experimentando dificultades técnicas.
-
-📧 Puedes contactarnos directamente:
-• Email: apincay@gmail.com
-• WhatsApp: +593 99 199 5390
-• Web: https://www.whalexpeditionsecuador.com/
-
-¡Te ayudaremos personalmente!`;
-      } else {
-        errorMessage = `Hay un problema técnico temporal con el asistente.
-
-📧 Puedes contactarnos directamente:
-• Email: apincay@gmail.com
-• WhatsApp: +593 99 199 5390
-• Web: https://www.whalexpeditionsecuador.com/
-
-¡Estaremos encantados de ayudarte!`;
-      }
-      
-      const botErrorMessage: Message = {
-        id: (Date.now() + 1).toString(),
-        type: 'bot',
-        content: errorMessage,
-        timestamp: new Date()
-      };
-
-      setMessages(prev => [...prev, botErrorMessage]);
-      
       toast({
         title: 'Error de conexión',
         description: 'No se pudo conectar con el asistente. Puedes contactarnos directamente.',
-        variant: 'destructive'
+        variant: 'destructive',
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleQuickOption = (message: string) => {
-    sendMessage(message);
+  const handleQuickOption = (msg: string) => {
+    sendMessage(msg);
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -184,7 +164,6 @@ const ChatBot = () => {
   return (
     <>
       <ChatButton isOpen={isOpen} onClick={() => setIsOpen(!isOpen)} />
-      
       {isOpen && (
         <ChatWindow
           messages={messages}
