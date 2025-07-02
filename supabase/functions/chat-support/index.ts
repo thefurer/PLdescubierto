@@ -19,7 +19,6 @@ serve(async (req) => {
   console.log('=== Chat Support Function Started ===');
   console.log('Method:', req.method);
   console.log('URL:', req.url);
-  console.log('Headers:', JSON.stringify([...req.headers.entries()]));
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
