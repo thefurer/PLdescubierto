@@ -80,11 +80,9 @@ const ChatBot = () => {
       console.log('📤 Payload enviado:', payload);
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
-        body: payload, // Supabase automatically handles JSON.stringify
-        headers: {
-          'Content-Type': 'application/json'
-        }
-      });
+        body: JSON.stringify({ message: sanitizedMessage }), // 👈 importante
+  headers: { 'Content-Type': 'application/json' }
+});
 
       console.log('📥 Respuesta recibida:', { data, error });
 
