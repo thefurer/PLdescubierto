@@ -42,84 +42,125 @@ const ChatBot = () => {
     });
   };
 
- const sendMessage = async (messageContent?: string) => {
-  const messageToSend = messageContent ?? inputValue.trim();
-  if (!messageToSend || isLoading) return;
+  const sendMessage = async (messageContent?: string) => {
+    const messageToSend = messageContent || inputValue.trim();
+    
+    if (!messageToSend || isLoading) return;
+    
+    // Sanitize input
+    const sanitizedMessage = messageToSend
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<[^>]*>/g, '')
+      .substring(0, 1000)
+      .trim();
+    
+    if (!sanitizedMessage) {
+      toast({
+        title: 'Mensaje inválido',
+        description: 'El mensaje no puede estar vacío.',
+        variant: 'destructive'
+      });
+      return;
+    }
 
-  // Sanitizar y validar
-  const sanitizedMessage = messageToSend
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<[^>]*>/g, '')
-    .substring(0, 1000)
-    .trim();
-  if (!sanitizedMessage) {
-    toast({
-      title: 'Mensaje inválido',
-      description: 'El mensaje no puede estar vacío.',
-      variant: 'destructive'
-    });
-    return;
-  }
-
-  // Añadir mensaje de usuario a la conversación
-  const userMessage: Message = {
-    id: Date.now().toString(),
-    type: 'user',
-    content: sanitizedMessage,
-    timestamp: new Date()
-  };
-  setMessages(prev => [...prev, userMessage]);
-  if (!messageContent) setInputValue('');
-  setIsLoading(true);
-
-  try {
-    console.log('📤 Payload enviado:', sanitizedMessage);
-
-    // INVOKE con JSON.stringify
-    const { data, error } = await supabase.functions.invoke<{ reply: string }>(
-      'chat-support',
-      {
-        body: JSON.stringify({ message: sanitizedMessage }),
-        headers: { 'Content-Type': 'application/json' }
-      }
-    );
-
-    console.log('📥 Respuesta recibida:', data, error);
-    if (error) throw error;
-    if (!data?.reply) throw new Error('Respuesta inválida del servidor');
-
-    // Añadir respuesta del bot
-    const botMessage: Message = {
-      id: (Date.now() + 1).toString(),
-      type: 'bot',
-      content: data.reply,
+    const userMessage: Message = {
+      id: Date.now().toString(),
+      type: 'user',
+      content: sanitizedMessage,
       timestamp: new Date()
     };
-    setMessages(prev => [...prev, botMessage]);
 
-  } catch (err: any) {
-    console.error('Error en el chat:', err);
+    setMessages(prev => [...prev, userMessage]);
+    if (!messageContent) setInputValue('');
+    setIsLoading(true);
 
-    // Mensaje de error genérico
-    const fallback = `¡Ups! Algo salió mal.  
-Puedes contactarnos:  
-• Email: apincay@gmail.com  
+    try {
+      console.log('Enviando mensaje a chat-support:', sanitizedMessage);
+      
+      const { data, error } = await supabase.functions.invoke('chat-support', {
+        body: JSON.stringify({ message: sanitizedMessage }),
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+
+      console.log('Respuesta de la función:', { data, error });
+
+      if (error) {
+        console.error('Error de Supabase:', error);
+        throw new Error(`Error de conexión: ${error.message}`);
+      }
+
+      if (!data || !data.reply) {
+        console.error('Respuesta inválida:', data);
+        throw new Error('Respuesta inválida del servidor');
+      }
+
+      const botMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        content: data.reply,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, botMessage]);
+      
+    } catch (error: any) {
+      console.error('Error en el chat:', error);
+      
+      let errorMessage = '';
+      
+      if (error.message?.includes('Failed to fetch') || error.message?.includes('NetworkError')) {
+        errorMessage = `Problema de conexión con el servidor. Verificando tu conexión...
+
+📧 Mientras tanto, puedes contactarnos directamente:
+• Email: apincay@gmail.com
+• WhatsApp: +593 99 199 5390
+• Web: https://www.whalexpeditionsecuador.com/`;
+      } else if (error.message?.includes('timeout') || error.message?.includes('aborted')) {
+        errorMessage = `El servidor está tardando en responder. Por favor, intenta de nuevo.
+
+📧 Contacto directo:
+• Email: apincay@gmail.com
 • WhatsApp: +593 99 199 5390`;
-    setMessages(prev => [
-      ...prev,
-      { id: (Date.now() + 1).toString(), type: 'bot', content: fallback, timestamp: new Date() }
-    ]);
+      } else if (error.message?.includes('FunctionsError')) {
+        errorMessage = `Nuestro asistente está experimentando dificultades técnicas.
 
-    toast({
-      title: 'Error de conexión',
-      description: 'No se pudo conectar con el asistente.',
-      variant: 'destructive'
-    });
-  } finally {
-    setIsLoading(false);
-  }
-};
+📧 Puedes contactarnos directamente:
+• Email: apincay@gmail.com
+• WhatsApp: +593 99 199 5390
+• Web: https://www.whalexpeditionsecuador.com/
 
+¡Te ayudaremos personalmente!`;
+      } else {
+        errorMessage = `Hay un problema técnico temporal con el asistente.
+
+📧 Puedes contactarnos directamente:
+• Email: apincay@gmail.com
+• WhatsApp: +593 99 199 5390
+• Web: https://www.whalexpeditionsecuador.com/
+
+¡Estaremos encantados de ayudarte!`;
+      }
+      
+      const botErrorMessage: Message = {
+        id: (Date.now() + 1).toString(),
+        type: 'bot',
+        content: errorMessage,
+        timestamp: new Date()
+      };
+
+      setMessages(prev => [...prev, botErrorMessage]);
+      
+      toast({
+        title: 'Error de conexión',
+        description: 'No se pudo conectar con el asistente. Puedes contactarnos directamente.',
+        variant: 'destructive'
+      });
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleQuickOption = (message: string) => {
     sendMessage(message);
