@@ -77,12 +77,18 @@ const ChatBot = () => {
     try {
       console.log('Enviando mensaje a chat-support:', sanitizedMessage);
       
+      // Try with timeout
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 30000); // 30 second timeout
+      
       const { data, error } = await supabase.functions.invoke('chat-support', {
         body: { message: sanitizedMessage },
         headers: {
           'Content-Type': 'application/json'
         }
       });
+
+      clearTimeout(timeoutId);
 
       console.log('Respuesta de la función:', { data, error });
 
@@ -110,19 +116,19 @@ const ChatBot = () => {
       
       let errorMessage = '';
       
-      if (error.message?.includes('NetworkError') || error.message?.includes('Failed to fetch')) {
+      if (error.name === 'AbortError' || error.message?.includes('timeout')) {
+        errorMessage = `El servidor tardó demasiado en responder. Por favor, intenta de nuevo en unos momentos.
+
+📧 Contacto directo:
+• Email: apincay@gmail.com
+• WhatsApp: +593 99 199 5390`;
+      } else if (error.message?.includes('NetworkError') || error.message?.includes('Failed to fetch') || error.message?.includes('fetch')) {
         errorMessage = `Problema de conexión a internet. Por favor, verifica tu conexión e intenta de nuevo.
 
 📧 También puedes contactarnos directamente:
 • Email: apincay@gmail.com
 • WhatsApp: +593 99 199 5390
 • Web: https://www.whalexpeditionsecuador.com/`;
-      } else if (error.message?.includes('timeout')) {
-        errorMessage = `El servidor tardó demasiado en responder. Por favor, intenta de nuevo en unos momentos.
-
-📧 Contacto directo:
-• Email: apincay@gmail.com
-• WhatsApp: +593 99 199 5390`;
       } else {
         errorMessage = `Hay un problema técnico temporal con el asistente.
 
