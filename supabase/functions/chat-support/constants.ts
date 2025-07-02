@@ -2,12 +2,15 @@
 export const CORS_HEADERS = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Content-Type': 'application/json'
 };
 
 export const CONTACT_INFO = {
   tourOperator: 'Whale Expeditions Tour - Ángel Pincay',
   email: 'apincay@gmail.com',
   whatsapp: '+593 99 199 5390',
+  website: 'https://www.whalexpeditionsecuador.com/',
   location: 'Puerto López, Manabí, Ecuador'
 };
 
