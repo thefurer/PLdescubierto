@@ -15,17 +15,23 @@ const CONTACT = {
 };
 
 serve(async (req) => {
+  // Manejo de CORS preflight
   if (req.method === 'OPTIONS') {
     return new Response(null, { status: 204, headers: corsHeaders });
   }
 
+  // Solo aceptamos POST
   if (req.method !== 'POST') {
     return new Response(
-      JSON.stringify({ error: 'Método no permitido', reply: 'Solo se permiten solicitudes POST.' }),
+      JSON.stringify({
+        error: 'Método no permitido',
+        reply: 'Solo se permiten solicitudes POST.'
+      }),
       { status: 405, headers: corsHeaders }
     );
   }
 
+  // Leer rawText
   let rawText = '';
   try {
     rawText = await req.text();
@@ -33,17 +39,24 @@ serve(async (req) => {
   } catch (err) {
     console.error('❌ Error al leer el body:', err);
     return new Response(
-      JSON.stringify({ reply: 'No se pudo leer tu mensaje. Intenta de nuevo más tarde.' }),
+      JSON.stringify({
+        reply: 'No se pudo leer tu mensaje. Intenta de nuevo más tarde.'
+      }),
       { status: 400, headers: corsHeaders }
     );
   }
 
+  // Fallback si body vacío
   if (!rawText.trim()) {
-    return new Response(JSON.stringify({
-      reply: '¡Hola! 👋 Por favor, escribe tu pregunta sobre Puerto López y estaré encantado de ayudarte.'
-    }), { status: 200, headers: corsHeaders });
+    return new Response(
+      JSON.stringify({
+        reply: '¡Hola! 👋 Por favor, escribe tu pregunta sobre Puerto López y estaré encantado de ayudarte.'
+      }),
+      { status: 200, headers: corsHeaders }
+    );
   }
 
+  // Parsear JSON
   let body: any;
   try {
     body = JSON.parse(rawText);
@@ -58,26 +71,34 @@ serve(async (req) => {
   }
 
   const { message } = body;
-  if (typeof message !== 'string' || message.trim().length === 0) {
+  if (typeof message !== 'string' || !message.trim()) {
     console.warn('⚠️ Campo "message" inválido:', message);
-    return new Response(JSON.stringify({
-      reply: 'Por favor, formula una pregunta para poder ayudarte.'
-    }), { status: 200, headers: corsHeaders });
+    return new Response(
+      JSON.stringify({
+        reply: 'Por favor, formula una pregunta para poder ayudarte.'
+      }),
+      { status: 200, headers: corsHeaders }
+    );
   }
 
   const sanitizedMessage = message.trim().substring(0, 1000);
   console.log('📨 Mensaje recibido:', sanitizedMessage);
 
+  // Validar API key
   const apiKey = Deno.env.get('GOOGLE_API_KEY');
   if (!apiKey) {
-    return new Response(JSON.stringify({
-      reply: `Nuestro asistente está fuera de línea.  
+    return new Response(
+      JSON.stringify({
+        reply: `Nuestro asistente está fuera de línea.  
 📧 ${CONTACT.email}  
 📱 ${CONTACT.whatsapp}  
 🌐 ${CONTACT.website}`
-    }), { status: 200, headers: corsHeaders });
+      }),
+      { status: 200, headers: corsHeaders }
+    );
   }
 
+  // Preparar prompt
   const prompt = `Eres un asistente turístico especializado en Puerto López, Ecuador.
 
 Puerto López es un destino costero en Manabí, Ecuador, conocido por:
@@ -99,9 +120,10 @@ Pregunta: ${sanitizedMessage}
 
 Responde de manera concisa (máximo 200 palabras):`;
 
-  let response;
+  // Llamada a Gemini
+  let gRes: Response;
   try {
-    response = await fetch(
+    gRes = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
       {
         method: 'POST',
@@ -119,32 +141,57 @@ Responde de manera concisa (máximo 200 palabras):`;
     );
   } catch (err) {
     console.error('❌ Error al llamar a Gemini:', err);
-    return new Response(JSON.stringify({
-      reply: `Tuvimos un problema de conexión con la IA.  
+    return new Response(
+      JSON.stringify({
+        reply: `Tuvimos un problema de conexión con la IA.  
 📧 ${CONTACT.email}  
 📱 ${CONTACT.whatsapp}`
-    }), { status: 200, headers: corsHeaders });
+      }),
+      { status: 200, headers: corsHeaders }
+    );
   }
 
-  let result;
+  // Verificar status HTTP
+  if (!gRes.ok) {
+    const errText = await gRes.text();
+    console.error('❌ Gemini respondió con error HTTP:', gRes.status, errText);
+    return new Response(
+      JSON.stringify({
+        reply: `Nuestro asistente no pudo procesar tu consulta por un problema técnico.  
+📧 ${CONTACT.email}  
+📱 ${CONTACT.whatsapp}`
+      }),
+      { status: 200, headers: corsHeaders }
+    );
+  }
+
+  // Parsear JSON de Gemini
+  let result: any;
   try {
-    result = await response.json();
-    console.log('🔍 Respuesta completa de Gemini:', JSON.stringify(result));
+    result = await gRes.json();
+    console.log('🔍 JSON recibido desde Gemini:', JSON.stringify(result, null, 2));
   } catch (err) {
-    console.error('❌ Error parseando la respuesta de Gemini:', err);
-    return new Response(JSON.stringify({
-      reply: 'No pudimos procesar la respuesta de la IA. Escríbenos directamente si necesitas ayuda.'
-    }), { status: 200, headers: corsHeaders });
+    console.error('❌ Error parseando respuesta JSON:', err);
+    return new Response(
+      JSON.stringify({
+        reply: 'Ocurrió un error procesando la respuesta del asistente.'
+      }),
+      { status: 200, headers: corsHeaders }
+    );
   }
 
+  // Extraer texto
   let aiReply = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
   if (!aiReply) {
-    console.warn('⚠️ Respuesta vacía de Gemini. Usando fallback...');
-    aiReply = `Puerto López es un destino turístico en la costa de Manabí, Ecuador. Entre junio y septiembre puedes observar ballenas jorobadas. También puedes visitar Isla de la Plata, Playa Los Frailes y Agua Blanca.  
+    console.warn('⚠️ Respuesta inesperada o vacía desde Gemini. Usando fallback.');
+    aiReply = `Puerto López es un paraíso costero ideal para avistar ballenas jorobadas de junio a septiembre. También puedes explorar Playa Los Frailes, Isla de la Plata y Agua Blanca.  
 📧 ${CONTACT.email}  
 📱 ${CONTACT.whatsapp}`;
   }
 
+  console.log('✅ Respuesta final enviada:', aiReply);
+
+  // Guardar historial
   try {
     const client = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -163,8 +210,9 @@ Responde de manera concisa (máximo 200 palabras):`;
     console.error('❌ No se pudo guardar el historial:', logErr);
   }
 
-  return new Response(JSON.stringify({ reply: aiReply }), {
-    status: 200,
-    headers: corsHeaders
-  });
+  // Enviar respuesta al frontend
+  return new Response(
+    JSON.stringify({ reply: aiReply }),
+    { status: 200, headers: corsHeaders }
+  );
 });
