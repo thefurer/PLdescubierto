@@ -75,25 +75,28 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      console.log('Enviando mensaje a chat-support:', sanitizedMessage);
+      // Create proper JSON payload
+      const payload = { message: sanitizedMessage };
+      console.log('📤 Payload enviado:', payload);
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
-        body: JSON.stringify({ message: sanitizedMessage }),
+        body: payload, // Supabase automatically handles JSON.stringify
         headers: {
           'Content-Type': 'application/json'
         }
       });
 
-      console.log('Respuesta de la función:', { data, error });
+      console.log('📥 Respuesta recibida:', { data, error });
 
       if (error) {
         console.error('Error de Supabase:', error);
         throw new Error(`Error de conexión: ${error.message}`);
       }
 
-      if (!data || !data.reply) {
-        console.error('Respuesta inválida:', data);
-        throw new Error('Respuesta inválida del servidor');
+      // Validate response structure
+      if (!data || typeof data.reply !== 'string' || !data.reply.trim()) {
+        console.error('Respuesta inválida o vacía:', data);
+        throw new Error('El asistente no pudo generar una respuesta válida');
       }
 
       const botMessage: Message = {
