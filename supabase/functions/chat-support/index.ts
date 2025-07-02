@@ -39,10 +39,12 @@ serve(async (req) => {
       try {
         const bodyText = await req.text();
         console.log('Raw request body:', bodyText);
+        console.log('Body text length:', bodyText.length);
+        console.log('Body text trimmed length:', bodyText.trim().length);
         
-        // Check if bodyText is empty first
-        if (!bodyText.trim()) {
-          console.log('Empty request body received');
+        // Check if bodyText is completely empty
+        if (bodyText.trim().length === 0) {
+          console.log('VALIDATION: Empty request body - returning welcome message');
           return createSuccessResponse('¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.');
         }
 
@@ -50,25 +52,37 @@ serve(async (req) => {
         body = JSON.parse(bodyText);
         console.log('Parsed body successfully:', body);
         
-        // Extract and validate message property
+        // Extract message property
         message = body?.message;
         console.log('Extracted message:', message);
+        console.log('Message type:', typeof message);
         
         // Validate message property specifically
-        if (!message || typeof message !== 'string' || message.trim().length === 0) {
-          console.log('Invalid or empty message property:', message);
+        if (!message) {
+          console.log('VALIDATION: Message property is missing/null/undefined - returning welcome message');
           return createSuccessResponse('¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.');
         }
+        
+        if (typeof message !== 'string') {
+          console.log('VALIDATION: Message is not a string - returning welcome message');
+          return createSuccessResponse('¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.');
+        }
+        
+        if (message.trim().length === 0) {
+          console.log('VALIDATION: Message is empty string after trimming - returning welcome message');
+          return createSuccessResponse('¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.');
+        }
+
+        console.log('VALIDATION: Message is valid - proceeding with AI processing');
 
       } catch (parseError) {
         console.error('Error parsing request body:', parseError);
         return createErrorResponse(parseError, 400);
       }
       
-      console.log('Processing message:', message);
-      
       const sanitizedMessage = message.trim().substring(0, 1000);
-      console.log('Mensaje recibido:', sanitizedMessage);
+      console.log('Mensaje recibido para procesamiento:', sanitizedMessage);
+      console.log('Sanitized message length:', sanitizedMessage.length);
       
       // Check for Google API key
       const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
@@ -94,25 +108,66 @@ Nuestro asistente automático no está disponible temporalmente, pero puedes con
       
       // Determine message type and handle accordingly
       const messageLower = sanitizedMessage.toLowerCase();
+      console.log('Message categorization - processing:', messageLower.substring(0, 50) + '...');
       
-      if (messageLower.includes('itinerario') || messageLower.includes('planificar') || messageLower.includes('personalizar')) {
-        aiResponse = await handleItineraryRequest(sanitizedMessage, geminiClient);
-      } else if (messageLower.includes('contacto') || messageLower.includes('teléfono') || messageLower.includes('whatsapp')) {
-        aiResponse = await handleContactRequest(sanitizedMessage, geminiClient);
-      } else if (messageLower.includes('época') || messageLower.includes('temporada') || messageLower.includes('cuándo')) {
-        aiResponse = await handleSeasonsRequest(sanitizedMessage, geminiClient);
-      } else if (messageLower.includes('actividades') || messageLower.includes('qué hacer') || messageLower.includes('tours')) {
-        aiResponse = await handleActivitiesRequest(sanitizedMessage, geminiClient);
-      } else if (messageLower.includes('clima') || messageLower.includes('tiempo') || messageLower.includes('lluvia')) {
-        aiResponse = await handleWeatherRequest(sanitizedMessage, geminiClient);
-      } else {
-        aiResponse = await handleGeneralRequest(sanitizedMessage, geminiClient);
+      try {
+        if (messageLower.includes('itinerario') || messageLower.includes('planificar') || messageLower.includes('personalizar')) {
+          console.log('Categorized as: ITINERARY request');
+          aiResponse = await handleItineraryRequest(sanitizedMessage, geminiClient);
+        } else if (messageLower.includes('contacto') || messageLower.includes('teléfono') || messageLower.includes('whatsapp')) {
+          console.log('Categorized as: CONTACT request');
+          aiResponse = await handleContactRequest(sanitizedMessage, geminiClient);
+        } else if (messageLower.includes('época') || messageLower.includes('temporada') || messageLower.includes('cuándo')) {
+          console.log('Categorized as: SEASONS request');
+          aiResponse = await handleSeasonsRequest(sanitizedMessage, geminiClient);
+        } else if (messageLower.includes('actividades') || messageLower.includes('qué hacer') || messageLower.includes('tours')) {
+          console.log('Categorized as: ACTIVITIES request');
+          aiResponse = await handleActivitiesRequest(sanitizedMessage, geminiClient);
+        } else if (messageLower.includes('clima') || messageLower.includes('tiempo') || messageLower.includes('lluvia')) {
+          console.log('Categorized as: WEATHER request');
+          aiResponse = await handleWeatherRequest(sanitizedMessage, geminiClient);
+        } else {
+          console.log('Categorized as: GENERAL request');
+          aiResponse = await handleGeneralRequest(sanitizedMessage, geminiClient);
+        }
+
+        console.log('AI Response received, length:', aiResponse?.length || 0);
+        
+        // Second layer fallback for empty or invalid AI responses
+        if (!aiResponse || typeof aiResponse !== 'string' || aiResponse.trim().length === 0) {
+          console.log('AI Response is empty or invalid - using dynamic fallback');
+          aiResponse = `Gracias por tu pregunta sobre Puerto López. 
+
+Te puedo ayudar con información sobre:
+• Observación de ballenas (temporada junio-septiembre)
+• Tours a Isla de la Plata
+• Actividades en el Parque Nacional Machalilla
+• Mejores épocas para visitar
+• Recomendaciones de hospedaje y tours
+
+Para asistencia personalizada inmediata:
+📧 Email: ${CONTACT_INFO.email}
+📱 WhatsApp: ${CONTACT_INFO.whatsapp}
+
+¿Te gustaría que te ayude con algún tema específico?`;
+        }
+
+      } catch (aiError) {
+        console.error('Error in AI processing:', aiError);
+        aiResponse = `Disculpa, hubo un problema al procesar tu consulta sobre Puerto López.
+
+Mientras tanto, puedes contactarnos directamente:
+📧 Email: ${CONTACT_INFO.email}
+📱 WhatsApp: ${CONTACT_INFO.whatsapp}
+🌐 Web: https://www.whalexpeditionsecuador.com/
+
+¡Estaremos encantados de ayudarte personalmente con información sobre tours, ballenas, actividades y todo lo que necesites para tu visita!`;
       }
 
       // Log interaction for analytics
       await logInteraction(sanitizedMessage, aiResponse);
 
-      console.log('Sending successful response');
+      console.log('Sending successful response with AI content');
       return createSuccessResponse(aiResponse);
 
     } catch (error) {
