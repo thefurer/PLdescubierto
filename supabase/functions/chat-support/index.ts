@@ -36,10 +36,13 @@ serve(async (req) => {
     try {
       // Parse request body with better error handling
       let body;
+      let message;
+      
       try {
         const bodyText = await req.text();
         console.log('Raw request body:', bodyText);
         
+        // Check if bodyText is empty first
         if (!bodyText.trim()) {
           console.log('Empty request body received');
           return new Response(
@@ -53,8 +56,28 @@ serve(async (req) => {
           );
         }
 
+        // Try to parse JSON
         body = JSON.parse(bodyText);
         console.log('Parsed body successfully:', body);
+        
+        // Extract and validate message property
+        message = body?.message;
+        console.log('Extracted message:', message);
+        
+        // Validate message property specifically
+        if (!message || typeof message !== 'string' || message.trim().length === 0) {
+          console.log('Invalid or empty message property:', message);
+          return new Response(
+            JSON.stringify({ 
+              reply: '¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.'
+            }),
+            { 
+              status: 200, 
+              headers: corsHeaders
+            }
+          );
+        }
+
       } catch (parseError) {
         console.error('Error parsing request body:', parseError);
         return new Response(
@@ -69,23 +92,10 @@ serve(async (req) => {
         );
       }
       
-      const { message } = body;
       console.log('Processing message:', message);
       
-      if (!message || typeof message !== 'string' || message.trim().length === 0) {
-        console.log('Invalid or empty message provided');
-        return new Response(
-          JSON.stringify({ 
-            reply: '¡Hola! 👋 Por favor, escribe tu pregunta y estaré encantado de ayudarte con información sobre Puerto López, Ecuador.'
-          }),
-          { 
-            status: 200, 
-            headers: corsHeaders
-          }
-        );
-      }
-
       const sanitizedMessage = message.trim().substring(0, 1000);
+      console.log('Mensaje recibido:', sanitizedMessage);
       
       // Check for Google API key
       const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
