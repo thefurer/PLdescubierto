@@ -19,7 +19,6 @@ serve(async (req) => {
   console.log('=== Chat Support Function Started ===');
   console.log('Method:', req.method);
   console.log('URL:', req.url);
-  console.log('Headers:', Object.fromEntries(req.headers.entries()));
   
   // Handle CORS preflight requests
   if (req.method === 'OPTIONS') {
@@ -35,7 +34,7 @@ serve(async (req) => {
     console.log('POST request received - processing...');
     
     try {
-      // Parse request body
+      // Parse request body with better error handling
       let body;
       try {
         const bodyText = await req.text();
@@ -60,6 +59,7 @@ serve(async (req) => {
         console.error('Error parsing request body:', parseError);
         return new Response(
           JSON.stringify({ 
+            error: 'Formato de solicitud inválido',
             reply: 'Error en el formato de la solicitud. Por favor, intenta de nuevo.'
           }),
           { 
@@ -70,7 +70,7 @@ serve(async (req) => {
       }
       
       const { message } = body;
-      console.log('Extracted message:', message);
+      console.log('Processing message:', message);
       
       if (!message || typeof message !== 'string' || message.trim().length === 0) {
         console.log('Invalid or empty message provided');
@@ -86,14 +86,13 @@ serve(async (req) => {
       }
 
       const sanitizedMessage = message.trim().substring(0, 1000);
-      console.log('Processing message:', sanitizedMessage);
       
       // Check for Google API key
       const googleApiKey = Deno.env.get('GOOGLE_API_KEY');
       console.log('Google API Key available:', !!googleApiKey);
       
       if (!googleApiKey) {
-        console.error('Google API key not found in environment variables');
+        console.error('Google API key not found');
         return new Response(
           JSON.stringify({ 
             reply: `¡Hola! Gracias por contactarnos.
@@ -137,7 +136,7 @@ Responde de manera concisa (máximo 200 palabras):`;
 
       console.log('Calling Google Gemini API...');
 
-      // Call Google Gemini API
+      // Call Google Gemini API with better error handling
       let response;
       try {
         response = await fetch(
@@ -163,10 +162,11 @@ Responde de manera concisa (máximo 200 palabras):`;
           }
         );
       } catch (fetchError) {
-        console.error('Error calling Gemini API:', fetchError);
+        console.error('Network error calling Gemini API:', fetchError);
         return new Response(
           JSON.stringify({ 
-            reply: `¡Hola! Tenemos un problema técnico temporal.
+            error: 'Error de red',
+            reply: `¡Hola! Hay un problema de conexión temporal.
 
 📧 Puedes contactarnos directamente:
 • Email: ${CONTACT_INFO.email}
@@ -190,6 +190,7 @@ Responde de manera concisa (máximo 200 palabras):`;
         
         return new Response(
           JSON.stringify({ 
+            error: 'Error del servicio de IA',
             reply: `¡Hola! Nuestro asistente está experimentando dificultades técnicas.
 
 📧 Contacta directamente:
@@ -209,11 +210,12 @@ Responde de manera concisa (máximo 200 palabras):`;
       let data;
       try {
         data = await response.json();
-        console.log('Gemini API response received successfully');
+        console.log('Gemini API response parsed successfully');
       } catch (jsonError) {
         console.error('Error parsing Gemini response JSON:', jsonError);
         return new Response(
           JSON.stringify({ 
+            error: 'Error procesando respuesta',
             reply: `¡Hola! Problema técnico al procesar la respuesta.
 
 📧 Contacta directamente:
@@ -262,7 +264,7 @@ Responde de manera concisa (máximo 200 palabras):`;
         // Don't fail the main request if logging fails
       }
 
-      console.log('Sending successful response with reply:', aiResponse.substring(0, 100) + '...');
+      console.log('Sending successful response');
       return new Response(
         JSON.stringify({ reply: aiResponse }),
         { 
@@ -273,10 +275,10 @@ Responde de manera concisa (máximo 200 palabras):`;
 
     } catch (error) {
       console.error('Unexpected error in POST handler:', error);
-      console.error('Error stack:', error.stack);
       
       return new Response(
         JSON.stringify({ 
+          error: 'Error interno del servidor',
           reply: `Lo siento, ocurrió un error inesperado. 
 
 📧 Puedes contactarnos directamente:
@@ -298,7 +300,7 @@ Responde de manera concisa (máximo 200 palabras):`;
   console.log('Method not allowed:', req.method);
   return new Response(
     JSON.stringify({ 
-      error: 'Method not allowed',
+      error: 'Método no permitido',
       reply: 'Solo se permiten solicitudes POST.'
     }),
     { 

@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -74,8 +75,7 @@ const ChatBot = () => {
     setIsLoading(true);
 
     try {
-      console.log('Enviando mensaje POST a chat-support:', sanitizedMessage);
-      console.log('Request body:', JSON.stringify({ message: sanitizedMessage }));
+      console.log('Enviando mensaje a chat-support:', sanitizedMessage);
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
         body: { message: sanitizedMessage },
@@ -84,23 +84,15 @@ const ChatBot = () => {
         }
       });
 
-      console.log('Respuesta completa de la Edge Function:', { data, error });
+      console.log('Respuesta de la función:', { data, error });
 
       if (error) {
-        console.error('Error específico de Supabase:', error);
-        console.error('Error details:', JSON.stringify(error, null, 2));
-        throw new Error(`Error de conexión: ${error.message || 'No se pudo conectar con el servidor'}`);
+        console.error('Error de Supabase:', error);
+        throw new Error(`Error de conexión: ${error.message}`);
       }
 
-      if (!data) {
-        console.error('No se recibieron datos de la función');
-        throw new Error('No se recibió respuesta del servidor');
-      }
-
-      console.log('Datos recibidos:', data);
-
-      if (!data.reply) {
-        console.error('Datos de respuesta inválidos - no hay campo reply:', data);
+      if (!data || !data.reply) {
+        console.error('Respuesta inválida:', data);
         throw new Error('Respuesta inválida del servidor');
       }
 
@@ -112,33 +104,29 @@ const ChatBot = () => {
       };
 
       setMessages(prev => [...prev, botMessage]);
-      console.log('Mensaje del bot agregado exitosamente:', data.reply.substring(0, 50) + '...');
       
     } catch (error: any) {
-      console.error('Error completo del chat:', error);
-      console.error('Error type:', typeof error);
-      console.error('Error message:', error?.message);
-      console.error('Error stack:', error?.stack);
+      console.error('Error en el chat:', error);
       
       let errorMessage = '';
       
       if (error.message?.includes('NetworkError') || error.message?.includes('Failed to fetch')) {
-        errorMessage = `No se pudo conectar con el servidor. Verifica tu conexión a internet.
+        errorMessage = `Problema de conexión a internet. Por favor, verifica tu conexión e intenta de nuevo.
 
-📧 Contacto directo:
+📧 También puedes contactarnos directamente:
 • Email: apincay@gmail.com
 • WhatsApp: +593 99 199 5390
 • Web: https://www.whalexpeditionsecuador.com/`;
       } else if (error.message?.includes('timeout')) {
-        errorMessage = `El servidor tardó demasiado en responder. Intenta de nuevo.
+        errorMessage = `El servidor tardó demasiado en responder. Por favor, intenta de nuevo en unos momentos.
 
 📧 Contacto directo:
 • Email: apincay@gmail.com
 • WhatsApp: +593 99 199 5390`;
       } else {
-        errorMessage = `Lo siento, hay un problema técnico momentáneo.
+        errorMessage = `Hay un problema técnico temporal con el asistente.
 
-📧 Puedes contactarnos directamente:
+📧 Puedes contactarnos directamente mientras lo solucionamos:
 • Email: apincay@gmail.com
 • WhatsApp: +593 99 199 5390
 • Web: https://www.whalexpeditionsecuador.com/
