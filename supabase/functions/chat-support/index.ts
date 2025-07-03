@@ -4,8 +4,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Content-Type': 'application/json'
+  'Access-Control-Allow-Methods': 'POST, OPTIONS'
 };
 
 const CONTACT = {
@@ -86,7 +85,9 @@ serve(async (req) => {
 
   // Validar API key
   const apiKey = Deno.env.get('GOOGLE_API_KEY');
+  console.log('🔑 API Key presente:', !!apiKey);
   if (!apiKey) {
+    console.error('❌ GOOGLE_API_KEY no está configurada');
     return new Response(
       JSON.stringify({
         reply: `Nuestro asistente está fuera de línea.  

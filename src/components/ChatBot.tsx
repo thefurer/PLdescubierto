@@ -85,8 +85,8 @@ const ChatBot = () => {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
-            'apikey': process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? '',
-            'Authorization': `Bearer ${process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY ?? ''}`,
+            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxuY3h3dnJjc3VocGh4eHN2am9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0NjM4MzgsImV4cCI6MjA2NDAzOTgzOH0.82qRAvif76C7GwmFgbCvM9OZVmf-P3FLJFzXkF88_tc',
+            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxuY3h3dnJjc3VocGh4eHN2am9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0NjM4MzgsImV4cCI6MjA2NDAzOTgzOH0.82qRAvif76C7GwmFgbCvM9OZVmf-P3FLJFzXkF88_tc',
           },
           body: JSON.stringify(payload),
         }
