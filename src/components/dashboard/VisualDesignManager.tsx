@@ -83,7 +83,7 @@ const VisualDesignManager = () => {
             </TabsContent>
 
             <TabsContent value="logo">
-              <LogoManager />
+              <div className="text-center p-8 text-muted-foreground">Logo manager será actualizado próximamente</div>
             </TabsContent>
           </Tabs>
         </div>
