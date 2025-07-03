@@ -1,12 +1,13 @@
 
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Palette, Navigation, Image } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { toast } from 'sonner';
-import ColorPaletteManager from './visual-design/ColorPaletteManager';
-import NavbarManager from './visual-design/NavbarManager';
+import { Palette, Navigation, Image, MousePointer, Type, Eye } from 'lucide-react';
+import EnhancedColorPaletteManager from './visual-design/EnhancedColorPaletteManager';
+import EnhancedNavbarManager from './visual-design/EnhancedNavbarManager';
 import LogoManager from './visual-design/LogoManager';
+import ButtonStylesManager from './visual-design/ButtonStylesManager';
+import TypographyManager from './visual-design/TypographyManager';
+import VisualPreview from './visual-design/VisualPreview';
 
 interface ColorPalette {
   primary: string;
@@ -31,64 +32,6 @@ interface LogoSettings {
 }
 
 const VisualDesignManager = () => {
-  const [loading, setLoading] = useState(false);
-  const [colorPalette, setColorPalette] = useState<ColorPalette>({
-    primary: '#2563eb',
-    secondary: '#10b981',
-    background: '#ffffff',
-    text: '#1f2937',
-    accent: '#f59e0b'
-  });
-  const [navbarItems, setNavbarItems] = useState<NavbarItem[]>([]);
-  const [logoSettings, setLogoSettings] = useState<LogoSettings>({
-    position: 'left',
-    size: 'standard',
-    height: 40,
-    margin: 'auto'
-  });
-
-  useEffect(() => {
-    loadVisualConfigurations();
-  }, []);
-
-  const loadVisualConfigurations = async () => {
-    try {
-      setLoading(true);
-      const { data, error } = await supabase
-        .from('site_visual_config')
-        .select('*')
-        .eq('is_active', true);
-
-      if (error) throw error;
-
-      data?.forEach(config => {
-        if (config.config_type === 'color_palette') {
-          setColorPalette(config.config_data as unknown as ColorPalette);
-        } else if (config.config_type === 'navbar_settings') {
-          const navbarData = config.config_data as { items?: NavbarItem[] };
-          setNavbarItems(navbarData.items || []);
-        } else if (config.config_type === 'logo_settings') {
-          setLogoSettings(config.config_data as unknown as LogoSettings);
-        }
-      });
-    } catch (error) {
-      console.error('Error loading visual configurations:', error);
-      toast.error('Error al cargar configuraciones visuales');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center p-8">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-ocean mx-auto mb-4"></div>
-          <p className="text-gray-600">Cargando configuraciones visuales...</p>
-        </div>
-      </div>
-    );
-  }
 
   return (
     <div className="space-y-6">
@@ -97,49 +40,58 @@ const VisualDesignManager = () => {
         <p className="text-gray-600">Personaliza la apariencia visual de tu sitio web</p>
       </div>
 
-      <Tabs defaultValue="colors" className="space-y-6">
-        <TabsList className="grid w-full grid-cols-3">
-          <TabsTrigger value="colors" className="flex items-center gap-2">
-            <Palette className="h-4 w-4" />
-            Colores
-          </TabsTrigger>
-          <TabsTrigger value="navbar" className="flex items-center gap-2">
-            <Navigation className="h-4 w-4" />
-            Navegación
-          </TabsTrigger>
-          <TabsTrigger value="logo" className="flex items-center gap-2">
-            <Image className="h-4 w-4" />
-            Logo
-          </TabsTrigger>
-        </TabsList>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-6">
+        <div className="xl:col-span-2">
+          <Tabs defaultValue="colors" className="space-y-6">
+            <TabsList className="grid w-full grid-cols-5">
+              <TabsTrigger value="colors" className="flex items-center gap-1 text-xs">
+                <Palette className="h-3 w-3" />
+                Colores
+              </TabsTrigger>
+              <TabsTrigger value="navbar" className="flex items-center gap-1 text-xs">
+                <Navigation className="h-3 w-3" />
+                Navbar
+              </TabsTrigger>
+              <TabsTrigger value="buttons" className="flex items-center gap-1 text-xs">
+                <MousePointer className="h-3 w-3" />
+                Botones
+              </TabsTrigger>
+              <TabsTrigger value="typography" className="flex items-center gap-1 text-xs">
+                <Type className="h-3 w-3" />
+                Texto
+              </TabsTrigger>
+              <TabsTrigger value="logo" className="flex items-center gap-1 text-xs">
+                <Image className="h-3 w-3" />
+                Logo
+              </TabsTrigger>
+            </TabsList>
 
-        <TabsContent value="colors">
-          <ColorPaletteManager
-            colorPalette={colorPalette}
-            setColorPalette={setColorPalette}
-            loading={loading}
-            setLoading={setLoading}
-          />
-        </TabsContent>
+            <TabsContent value="colors">
+              <EnhancedColorPaletteManager />
+            </TabsContent>
 
-        <TabsContent value="navbar">
-          <NavbarManager
-            navbarItems={navbarItems}
-            setNavbarItems={setNavbarItems}
-            loading={loading}
-            setLoading={setLoading}
-          />
-        </TabsContent>
+            <TabsContent value="navbar">
+              <EnhancedNavbarManager />
+            </TabsContent>
 
-        <TabsContent value="logo">
-          <LogoManager
-            logoSettings={logoSettings}
-            setLogoSettings={setLogoSettings}
-            loading={loading}
-            setLoading={setLoading}
-          />
-        </TabsContent>
-      </Tabs>
+            <TabsContent value="buttons">
+              <ButtonStylesManager />
+            </TabsContent>
+
+            <TabsContent value="typography">
+              <TypographyManager />
+            </TabsContent>
+
+            <TabsContent value="logo">
+              <LogoManager />
+            </TabsContent>
+          </Tabs>
+        </div>
+        
+        <div className="xl:col-span-1">
+          <VisualPreview />
+        </div>
+      </div>
     </div>
   );
 };
