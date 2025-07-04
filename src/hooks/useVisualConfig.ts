@@ -29,6 +29,7 @@ export interface VisualConfig {
     size: 'small' | 'standard' | 'large';
     height: number;
     margin: string;
+    logoUrl?: string;
   };
   buttonStyles: {
     primaryStyle: 'rounded' | 'square' | 'pill';
@@ -190,27 +191,29 @@ export const useVisualConfig = () => {
       setLoading(true);
       const updatedConfig = { ...config, ...newConfig };
       
-      // Save different config types separately
-      const configTypes = [
-        { type: 'color_palette', data: updatedConfig.colorPalette },
-        { type: 'navbar_settings', data: updatedConfig.navbarSettings },
-        { type: 'logo_settings', data: updatedConfig.logoSettings },
-        { type: 'button_styles', data: updatedConfig.buttonStyles },
-        { type: 'typography', data: updatedConfig.typography },
-      ];
+      // Save only the changed config types
+      const configTypeMap = {
+        colorPalette: 'color_palette',
+        navbarSettings: 'navbar_settings', 
+        logoSettings: 'logo_settings',
+        buttonStyles: 'button_styles',
+        typography: 'typography'
+      };
 
-      for (const configType of configTypes) {
-        const { error } = await supabase
-          .from('site_visual_config')
-          .upsert({
-            config_type: configType.type,
-            config_data: configType.data,
-            is_active: true,
-          }, {
-            onConflict: 'config_type,is_active'
-          });
+      for (const [key, configType] of Object.entries(configTypeMap)) {
+        if (newConfig[key as keyof VisualConfig]) {
+          const { error } = await supabase
+            .from('site_visual_config')
+            .upsert({
+              config_type: configType,
+              config_data: updatedConfig[key as keyof VisualConfig],
+              is_active: true,
+            }, {
+              onConflict: 'config_type,is_active'
+            });
 
-        if (error) throw error;
+          if (error) throw error;
+        }
       }
 
       setConfig(updatedConfig);

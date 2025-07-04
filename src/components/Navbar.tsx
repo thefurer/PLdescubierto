@@ -64,18 +64,30 @@ const Navbar = () => {
             config.logoSettings.position === 'center' ? 'justify-center flex-1' :
             config.logoSettings.position === 'right' ? 'justify-end flex-1' : 'justify-start'
           }`}>
-            <h1 
-              className="font-bold transition-colors"
-              style={{ 
-                color: scrolled ? config.navbarSettings.textColor : "white",
-                fontSize: `${Math.max(config.logoSettings.height * 0.6, 16)}px`,
-                height: `${config.logoSettings.height}px`,
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            >
-              Puerto López
-            </h1>
+            {config.logoSettings.logoUrl ? (
+              <img 
+                src={config.logoSettings.logoUrl} 
+                alt="Puerto López Logo" 
+                className="object-contain transition-all"
+                style={{ 
+                  height: `${config.logoSettings.height}px`,
+                  filter: scrolled ? 'none' : 'brightness(0) invert(1)'
+                }}
+              />
+            ) : (
+              <h1 
+                className="font-bold transition-colors"
+                style={{ 
+                  color: scrolled ? config.navbarSettings.textColor : "white",
+                  fontSize: `${Math.max(config.logoSettings.height * 0.6, 16)}px`,
+                  height: `${config.logoSettings.height}px`,
+                  display: 'flex',
+                  alignItems: 'center'
+                }}
+              >
+                Puerto López
+              </h1>
+            )}
           </div>
 
           {/* Desktop Navigation */}
