@@ -10,12 +10,14 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuthContext";
 import { useNavigate } from "react-router-dom";
+import { useVisualConfig } from "@/hooks/useVisualConfig";
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const { config } = useVisualConfig();
 
   useEffect(() => {
     const handleScroll = () => {
@@ -38,43 +40,62 @@ const Navbar = () => {
     setIsOpen(false);
   };
 
-  const navItems = [
-    { label: "Inicio", id: "hero" },
-    { label: "Atracciones", id: "attractions" },
-    { label: "Galería", id: "gallery" },
-    { label: "Actividades", id: "activities" },
-    { label: "Testimonios", id: "testimonials" },
-    { label: "Contacto", id: "contact" },
-  ];
+  // Use navbar items from visual config or fallback to default
+  const navItems = config.navbarSettings.items.filter(item => item.visible).sort((a, b) => a.order - b.order).map(item => ({
+    label: item.name,
+    id: item.url.replace('/', '') || item.name.toLowerCase()
+  }));
 
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        scrolled
-          ? "bg-white/95 backdrop-blur-md shadow-lg"
-          : "bg-transparent"
-      }`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${config.navbarSettings.position === 'fixed' ? 'fixed' : 'static'}`}
+      style={{
+        backgroundColor: scrolled 
+          ? `${config.navbarSettings.backgroundColor}f2` // Add transparency
+          : 'transparent',
+        backdropFilter: scrolled ? 'blur(12px)' : 'none',
+        boxShadow: scrolled ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none'
+      }}
     >
       <div className="container mx-auto px-4">
         <div className="flex items-center justify-between h-20">
           {/* Logo */}
-          <div className="flex items-center">
-            <h1 className={`text-2xl font-bold transition-colors ${
-              scrolled ? "text-ocean-dark" : "text-white"
-            }`}>
+          <div className={`flex items-center ${
+            config.logoSettings.position === 'center' ? 'justify-center flex-1' :
+            config.logoSettings.position === 'right' ? 'justify-end flex-1' : 'justify-start'
+          }`}>
+            <h1 
+              className="font-bold transition-colors"
+              style={{ 
+                color: scrolled ? config.navbarSettings.textColor : "white",
+                fontSize: `${Math.max(config.logoSettings.height * 0.6, 16)}px`,
+                height: `${config.logoSettings.height}px`,
+                display: 'flex',
+                alignItems: 'center'
+              }}
+            >
               Puerto López
             </h1>
           </div>
 
           {/* Desktop Navigation */}
-          <div className="hidden lg:flex items-center space-x-8">
+          <div className={`hidden lg:flex items-center space-x-8 ${
+            config.logoSettings.position === 'center' ? 'absolute right-4' : ''
+          }`}>
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
-                className={`font-medium transition-colors hover:text-green-primary ${
-                  scrolled ? "text-ocean" : "text-white"
-                }`}
+                className="font-medium transition-colors"
+                style={{ 
+                  color: scrolled ? config.navbarSettings.textColor : "white"
+                }}
+                onMouseEnter={(e) => {
+                  e.currentTarget.style.color = config.colorPalette.primary;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.color = scrolled ? config.navbarSettings.textColor : "white";
+                }}
               >
                 {item.label}
               </button>
@@ -82,7 +103,9 @@ const Navbar = () => {
           </div>
 
           {/* User Menu / Auth Buttons */}
-          <div className="flex items-center space-x-4">
+          <div className={`flex items-center space-x-4 ${
+            config.logoSettings.position === 'center' ? 'absolute right-4' : ''
+          }`}>
             {user ? (
               <>
                 {/* Dashboard Button - Show only when authenticated */}
