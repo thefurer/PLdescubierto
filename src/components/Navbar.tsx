@@ -113,11 +113,22 @@ const Navbar = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => navigate('/dashboard')}
-                  className={`hidden md:flex ${
-                    scrolled 
-                      ? "border-ocean text-ocean hover:bg-ocean hover:text-white" 
-                      : "border-white text-white hover:bg-white hover:text-ocean"
-                  }`}
+                  className="hidden md:flex"
+                  style={{
+                    borderColor: scrolled ? config.buttonStyles.secondaryColor : "white",
+                    color: scrolled ? config.buttonStyles.secondaryColor : "white",
+                    backgroundColor: 'transparent',
+                    borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
+                                 config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px'
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = config.buttonStyles.secondaryColor;
+                    e.currentTarget.style.color = "white";
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                    e.currentTarget.style.color = scrolled ? config.buttonStyles.secondaryColor : "white";
+                  }}
                 >
                   <Settings className="h-4 w-4 mr-2" />
                   Dashboard
@@ -128,11 +139,14 @@ const Navbar = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      className={`${
-                        scrolled 
-                          ? "border-ocean text-ocean hover:bg-ocean hover:text-white" 
-                          : "border-white text-white hover:bg-white hover:text-ocean"
-                      }`}
+                      className="flex"
+                      style={{
+                        borderColor: scrolled ? config.buttonStyles.secondaryColor : "white",
+                        color: scrolled ? config.buttonStyles.secondaryColor : "white",
+                        backgroundColor: 'transparent',
+                        borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
+                                     config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px'
+                      }}
                     >
                       <User className="h-4 w-4 mr-2" />
                       {user.user_metadata?.full_name || user.email}
@@ -158,11 +172,26 @@ const Navbar = () => {
             ) : (
               <Button
                 onClick={() => navigate('/auth')}
-                className={`${
-                  scrolled 
-                    ? "bg-green-primary hover:bg-green-600 text-white" 
-                    : "bg-white text-ocean hover:bg-green-primary hover:text-white"
-                }`}
+                style={{
+                  backgroundColor: scrolled ? config.buttonStyles.primaryColor : "white",
+                  color: scrolled ? "white" : config.buttonStyles.primaryColor,
+                  borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
+                               config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px',
+                  border: 'none'
+                }}
+                onMouseEnter={(e) => {
+                  if (config.buttonStyles.hoverEffect === 'scale') {
+                    e.currentTarget.style.transform = 'scale(1.05)';
+                  } else if (config.buttonStyles.hoverEffect === 'glow') {
+                    e.currentTarget.style.boxShadow = `0 0 20px ${config.buttonStyles.primaryColor}40`;
+                  }
+                  e.currentTarget.style.backgroundColor = config.buttonStyles.secondaryColor;
+                }}
+                onMouseLeave={(e) => {
+                  e.currentTarget.style.transform = 'scale(1)';
+                  e.currentTarget.style.boxShadow = 'none';
+                  e.currentTarget.style.backgroundColor = scrolled ? config.buttonStyles.primaryColor : "white";
+                }}
               >
                 Iniciar Sesión
               </Button>
@@ -171,11 +200,16 @@ const Navbar = () => {
             {/* Mobile menu button */}
             <button
               onClick={() => setIsOpen(!isOpen)}
-              className={`lg:hidden p-2 rounded-md transition-colors ${
-                scrolled 
-                  ? "text-ocean hover:bg-ocean/10" 
-                  : "text-white hover:bg-white/10"
-              }`}
+              className="lg:hidden p-2 rounded-md transition-colors"
+              style={{
+                color: scrolled ? config.navbarSettings.textColor : "white"
+              }}
+              onMouseEnter={(e) => {
+                e.currentTarget.style.backgroundColor = scrolled ? `${config.navbarSettings.textColor}10` : "rgba(255,255,255,0.1)";
+              }}
+              onMouseLeave={(e) => {
+                e.currentTarget.style.backgroundColor = 'transparent';
+              }}
             >
               {isOpen ? <X size={24} /> : <Menu size={24} />}
             </button>
@@ -185,12 +219,26 @@ const Navbar = () => {
         {/* Mobile Navigation */}
         {isOpen && (
           <div className="lg:hidden">
-            <div className="px-2 pt-2 pb-3 space-y-1 bg-white rounded-lg shadow-lg mt-2">
+            <div 
+              className="px-2 pt-2 pb-3 space-y-1 rounded-lg shadow-lg mt-2"
+              style={{ backgroundColor: config.navbarSettings.backgroundColor }}
+            >
               {navItems.map((item) => (
                 <button
                   key={item.id}
                   onClick={() => scrollToSection(item.id)}
-                  className="block px-3 py-2 text-ocean hover:text-green-primary hover:bg-green-50 rounded-md font-medium w-full text-left"
+                  className="block px-3 py-2 rounded-md font-medium w-full text-left transition-colors"
+                  style={{ 
+                    color: config.navbarSettings.textColor,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.color = config.colorPalette.primary;
+                    e.currentTarget.style.backgroundColor = `${config.colorPalette.primary}10`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.color = config.navbarSettings.textColor;
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   {item.label}
                 </button>
@@ -201,7 +249,16 @@ const Navbar = () => {
                     navigate('/auth');
                     setIsOpen(false);
                   }}
-                  className="block px-3 py-2 text-green-primary hover:bg-green-50 rounded-md font-medium w-full text-left"
+                  className="block px-3 py-2 rounded-md font-medium w-full text-left transition-colors"
+                  style={{ 
+                    color: config.buttonStyles.primaryColor,
+                  }}
+                  onMouseEnter={(e) => {
+                    e.currentTarget.style.backgroundColor = `${config.buttonStyles.primaryColor}10`;
+                  }}
+                  onMouseLeave={(e) => {
+                    e.currentTarget.style.backgroundColor = 'transparent';
+                  }}
                 >
                   Iniciar Sesión
                 </button>
