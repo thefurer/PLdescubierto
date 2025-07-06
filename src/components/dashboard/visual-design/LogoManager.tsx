@@ -1,5 +1,5 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -14,14 +14,14 @@ const LogoManager = () => {
   const { config, saveConfig, loading } = useVisualConfig();
   const [localLogoSettings, setLocalLogoSettings] = useState(config.logoSettings);
   const [uploading, setUploading] = useState(false);
-  const [logoUrl, setLogoUrl] = useState<string | null>(null);
+
+  // Sync local settings with config when it changes
+  useEffect(() => {
+    setLocalLogoSettings(config.logoSettings);
+  }, [config.logoSettings]);
 
   const handleSave = async () => {
-    const settingsToSave = { ...localLogoSettings };
-    if (logoUrl) {
-      settingsToSave.logoUrl = logoUrl;
-    }
-    await saveConfig({ logoSettings: settingsToSave });
+    await saveConfig({ logoSettings: localLogoSettings });
   };
 
   const handleLogoUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
@@ -60,8 +60,14 @@ const LogoManager = () => {
         .from('site-images')
         .getPublicUrl(filePath);
 
-      setLogoUrl(publicUrl);
-      toast.success('Logo subido exitosamente');
+      // Update local settings with new logo URL
+      const updatedSettings = { ...localLogoSettings, logoUrl: publicUrl };
+      setLocalLogoSettings(updatedSettings);
+      
+      // Save immediately to persist the change
+      await saveConfig({ logoSettings: updatedSettings });
+      
+      toast.success('Logo subido y guardado exitosamente');
     } catch (error) {
       console.error('Error uploading logo:', error);
       toast.error('Error al subir el logo');
@@ -70,8 +76,26 @@ const LogoManager = () => {
     }
   };
 
-  const handleRemoveLogo = () => {
-    setLogoUrl(null);
+  const handleRemoveLogo = async () => {
+    try {
+      // Remove logo from current settings
+      const updatedSettings = { ...localLogoSettings };
+      delete updatedSettings.logoUrl;
+      
+      setLocalLogoSettings(updatedSettings);
+      
+      // Save immediately to persist the change
+      await saveConfig({ logoSettings: updatedSettings });
+      
+      toast.success('Logo eliminado exitosamente');
+    } catch (error) {
+      console.error('Error removing logo:', error);
+      toast.error('Error al eliminar el logo');
+    }
+  };
+
+  const handleSettingChange = (key: string, value: any) => {
+    setLocalLogoSettings(prev => ({ ...prev, [key]: value }));
   };
 
   return (
@@ -90,11 +114,11 @@ const LogoManager = () => {
         <div>
           <Label className="text-sm font-medium mb-3 block">Subir Logo</Label>
           <div className="border-2 border-dashed border-gray-300 rounded-lg p-6 hover:border-gray-400 transition-colors">
-            {logoUrl ? (
+            {localLogoSettings.logoUrl ? (
               <div className="flex flex-col items-center space-y-4">
                 <div className="relative">
                   <img 
-                    src={logoUrl} 
+                    src={localLogoSettings.logoUrl} 
                     alt="Logo preview" 
                     className="max-h-20 object-contain"
                   />
@@ -103,11 +127,19 @@ const LogoManager = () => {
                     size="sm"
                     className="absolute -top-2 -right-2 h-6 w-6 rounded-full p-0"
                     onClick={handleRemoveLogo}
+                    disabled={loading}
                   >
                     <X className="h-3 w-3" />
                   </Button>
                 </div>
                 <p className="text-sm text-gray-600">Logo subido exitosamente</p>
+                <Label htmlFor="logo-upload" className="cursor-pointer">
+                  <Button variant="outline" disabled={uploading} asChild>
+                    <span>
+                      {uploading ? 'Subiendo...' : 'Cambiar Logo'}
+                    </span>
+                  </Button>
+                </Label>
               </div>
             ) : (
               <div className="text-center">
@@ -134,6 +166,14 @@ const LogoManager = () => {
                 </p>
               </div>
             )}
+            <Input
+              id="logo-upload"
+              type="file"
+              className="sr-only"
+              accept="image/*"
+              onChange={handleLogoUpload}
+              disabled={uploading}
+            />
           </div>
         </div>
 
@@ -143,7 +183,7 @@ const LogoManager = () => {
             <Select
               value={localLogoSettings.position}
               onValueChange={(value: 'left' | 'center' | 'right') => 
-                setLocalLogoSettings(prev => ({ ...prev, position: value }))
+                handleSettingChange('position', value)
               }
             >
               <SelectTrigger>
@@ -163,7 +203,7 @@ const LogoManager = () => {
               id="logo-height"
               type="number"
               value={localLogoSettings.height}
-              onChange={(e) => setLocalLogoSettings(prev => ({ ...prev, height: parseInt(e.target.value) || 40 }))}
+              onChange={(e) => handleSettingChange('height', parseInt(e.target.value) || 40)}
               min="20"
               max="80"
             />
@@ -177,9 +217,9 @@ const LogoManager = () => {
               localLogoSettings.position === 'left' ? 'justify-start' :
               localLogoSettings.position === 'center' ? 'justify-center' : 'justify-end'
             }`}>
-              {logoUrl ? (
+              {localLogoSettings.logoUrl ? (
                 <img 
-                  src={logoUrl} 
+                  src={localLogoSettings.logoUrl} 
                   alt="Logo preview" 
                   style={{ height: `${localLogoSettings.height}px` }}
                   className="object-contain"
