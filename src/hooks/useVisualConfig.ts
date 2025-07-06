@@ -93,6 +93,26 @@ export const useVisualConfig = () => {
   const [loading, setLoading] = useState(true);
   const [previewMode, setPreviewMode] = useState(false);
 
+  // Create content history entry
+  const createHistoryEntry = async (sectionName: string, oldContent: any, newContent: any, changeType: string) => {
+    try {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      await supabase
+        .from('content_history')
+        .insert({
+          section_name: sectionName,
+          old_content: oldContent,
+          new_content: newContent,
+          change_type: changeType,
+          changed_by: user.id
+        });
+    } catch (error) {
+      console.error('Error creating history entry:', error);
+    }
+  };
+
   // Load configuration from database
   const loadConfig = async () => {
     try {
@@ -123,8 +143,24 @@ export const useVisualConfig = () => {
 
       setConfig(mergedConfig);
       applyConfigToCSS(mergedConfig);
+      
+      // Store in localStorage for persistence across sessions
+      localStorage.setItem('visual_config', JSON.stringify(mergedConfig));
     } catch (error) {
       console.error('Error loading visual config:', error);
+      
+      // Try to load from localStorage as fallback
+      const savedConfig = localStorage.getItem('visual_config');
+      if (savedConfig) {
+        try {
+          const parsedConfig = JSON.parse(savedConfig);
+          setConfig(parsedConfig);
+          applyConfigToCSS(parsedConfig);
+        } catch (e) {
+          console.error('Error parsing saved config:', e);
+        }
+      }
+      
       toast.error('Error al cargar la configuración visual');
     } finally {
       setLoading(false);
@@ -194,6 +230,7 @@ export const useVisualConfig = () => {
   const saveConfig = async (newConfig: Partial<VisualConfig>) => {
     try {
       setLoading(true);
+      const oldConfig = { ...config };
       const updatedConfig = { ...config, ...newConfig };
       
       // Save each config type separately
@@ -218,12 +255,23 @@ export const useVisualConfig = () => {
             });
 
           if (error) throw error;
+
+          // Create history entry for each changed section
+          await createHistoryEntry(
+            `visual_config_${configType}`,
+            oldConfig[key as keyof VisualConfig],
+            updatedConfig[key as keyof VisualConfig],
+            'update'
+          );
         }
       }
 
       setConfig(updatedConfig);
       applyConfigToCSS(updatedConfig);
       setPreviewMode(false);
+      
+      // Update localStorage
+      localStorage.setItem('visual_config', JSON.stringify(updatedConfig));
       
       toast.success('Configuración guardada exitosamente');
     } catch (error) {
@@ -270,6 +318,19 @@ export const useVisualConfig = () => {
       supabase.removeChannel(channel);
     };
   }, []);
+
+  // Apply saved config on component mount
+  useEffect(() => {
+    const savedConfig = localStorage.getItem('visual_config');
+    if (savedConfig && !loading) {
+      try {
+        const parsedConfig = JSON.parse(savedConfig);
+        applyConfigToCSS(parsedConfig);
+      } catch (e) {
+        console.error('Error applying saved config:', e);
+      }
+    }
+  }, [loading]);
 
   return {
     config,

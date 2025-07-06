@@ -1,166 +1,162 @@
 
-import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { useContentHistory } from '@/hooks/useContentHistory';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, RotateCcw, Clock, User } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
+import { ScrollArea } from '@/components/ui/scroll-area';
+import { Separator } from '@/components/ui/separator';
+import { History, RotateCcw, User, Calendar, FileText, Palette, Navigation, Image, MousePointer, Type } from 'lucide-react';
+import { useContentHistory } from '@/hooks/useContentHistory';
+import { formatDistanceToNow } from 'date-fns';
+import { es } from 'date-fns/locale';
 
 const HistoryViewer = () => {
-  const [selectedSection, setSelectedSection] = useState<string>('all');
-  const { history, loading, revertToVersion } = useContentHistory(selectedSection === 'all' ? undefined : selectedSection);
+  const { history, loading, revertToVersion } = useContentHistory();
+
+  const getSectionIcon = (sectionName: string) => {
+    if (sectionName.includes('color_palette')) return <Palette className="h-4 w-4 text-blue-500" />;
+    if (sectionName.includes('navbar_settings')) return <Navigation className="h-4 w-4 text-green-500" />;
+    if (sectionName.includes('logo_settings')) return <Image className="h-4 w-4 text-pink-500" />;
+    if (sectionName.includes('button_styles')) return <MousePointer className="h-4 w-4 text-purple-500" />;
+    if (sectionName.includes('typography')) return <Type className="h-4 w-4 text-orange-500" />;
+    return <FileText className="h-4 w-4 text-gray-500" />;
+  };
 
   const getChangeTypeColor = (changeType: string) => {
     switch (changeType) {
-      case 'create': return 'bg-green-100 text-green-800';
-      case 'update': return 'bg-blue-100 text-blue-800';
-      case 'delete': return 'bg-red-100 text-red-800';
-      default: return 'bg-gray-100 text-gray-800';
+      case 'create':
+        return 'bg-green-100 text-green-800 border-green-200';
+      case 'update':
+        return 'bg-blue-100 text-blue-800 border-blue-200';
+      case 'delete':
+        return 'bg-red-100 text-red-800 border-red-200';
+      default:
+        return 'bg-gray-100 text-gray-800 border-gray-200';
     }
   };
 
   const getChangeTypeText = (changeType: string) => {
     switch (changeType) {
-      case 'create': return 'Creado';
-      case 'update': return 'Actualizado';
-      case 'delete': return 'Eliminado';
-      default: return changeType;
+      case 'create':
+        return 'Creado';
+      case 'update':
+        return 'Actualizado';
+      case 'delete':
+        return 'Eliminado';
+      default:
+        return changeType;
     }
-  };
-
-  const getSectionDisplayName = (sectionName: string) => {
-    const sectionNames: Record<string, string> = {
-      'hero': 'Hero',
-      'footer': 'Footer',
-      'gallery': 'Galería',
-      'tourist_attractions': 'Atracciones Turísticas'
-    };
-    return sectionNames[sectionName] || sectionName.replace('_', ' ');
   };
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin" />
-      </div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <History className="h-5 w-5" />
+            Historial de Cambios
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="flex items-center justify-center h-32">
+            <div className="animate-pulse text-gray-500">Cargando historial...</div>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <Card>
-        <CardHeader>
-          <CardTitle>Historial de Cambios del Sistema</CardTitle>
-          <CardDescription>
-            Revisa y revierte cambios realizados en el contenido y atracciones por todos los administradores
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="flex gap-4 items-center">
-            <div className="flex-1">
-              <Select value={selectedSection} onValueChange={setSelectedSection}>
-                <SelectTrigger>
-                  <SelectValue placeholder="Filtrar por sección (todas)" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">Todas las secciones</SelectItem>
-                  <SelectItem value="hero">Hero</SelectItem>
-                  <SelectItem value="footer">Footer</SelectItem>
-                  <SelectItem value="gallery">Galería</SelectItem>
-                  <SelectItem value="tourist_attractions">Atracciones Turísticas</SelectItem>
-                </SelectContent>
-              </Select>
+    <Card className="h-[600px]">
+      <CardHeader className="bg-gradient-to-r from-slate-50 to-slate-100 border-b">
+        <CardTitle className="flex items-center gap-2">
+          <History className="h-5 w-5 text-blue-600" />
+          Historial de Cambios
+        </CardTitle>
+        <CardDescription>
+          Registro completo de todas las modificaciones realizadas en el sitio
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="p-0">
+        <ScrollArea className="h-[500px]">
+          {history.length === 0 ? (
+            <div className="flex flex-col items-center justify-center h-full text-center p-8">
+              <History className="h-12 w-12 text-gray-300 mb-4" />
+              <h3 className="text-lg font-medium text-gray-600 mb-2">No hay historial disponible</h3>
+              <p className="text-sm text-gray-500">Los cambios que realices aparecerán aquí</p>
             </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {history.length === 0 ? (
-        <Card>
-          <CardContent className="flex flex-col items-center justify-center h-64">
-            <Clock className="h-12 w-12 text-gray-400 mb-4" />
-            <p className="text-gray-500">No hay cambios registrados</p>
-            <p className="text-sm text-gray-400 mt-2">Los cambios que se realicen aparecerán aquí</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {history.map((item) => (
-            <Card key={item.id}>
-              <CardHeader className="pb-3">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <CardTitle className="text-lg">
-                      {getSectionDisplayName(item.section_name)}
-                    </CardTitle>
-                    <div className="flex items-center gap-2 mt-1 flex-wrap">
-                      <Badge className={getChangeTypeColor(item.change_type)}>
-                        {getChangeTypeText(item.change_type)}
-                      </Badge>
-                      {item.changed_by_name && (
-                        <div className="flex items-center gap-1 text-sm text-gray-600">
-                          <User className="h-3 w-3" />
-                          <span>{item.changed_by_name}</span>
+          ) : (
+            <div className="space-y-0">
+              {history.map((item, index) => (
+                <div key={item.id}>
+                  <div className="p-4 hover:bg-slate-50 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="flex items-start gap-3 flex-1">
+                        <div className="mt-1">
+                          {getSectionIcon(item.section_name)}
                         </div>
+                        <div className="flex-1 min-w-0">
+                          <div className="flex items-center gap-2 mb-2">
+                            <h4 className="font-semibold text-gray-900 truncate">
+                              {(item as any).section_display_name || item.section_name}
+                            </h4>
+                            <Badge 
+                              variant="outline" 
+                              className={`text-xs px-2 py-0.5 ${getChangeTypeColor(item.change_type)}`}
+                            >
+                              {getChangeTypeText(item.change_type)}
+                            </Badge>
+                          </div>
+                          
+                          <div className="flex items-center gap-4 text-sm text-gray-600 mb-2">
+                            <div className="flex items-center gap-1">
+                              <User className="h-3 w-3" />
+                              <span>{item.changed_by_name}</span>
+                            </div>
+                            <div className="flex items-center gap-1">
+                              <Calendar className="h-3 w-3" />
+                              <span>
+                                {formatDistanceToNow(new Date(item.changed_at), { 
+                                  addSuffix: true, 
+                                  locale: es 
+                                })}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Show preview of changes for visual config */}
+                          {item.section_name.startsWith('visual_config_') && item.new_content && (
+                            <div className="text-xs text-gray-500 bg-gray-50 rounded p-2 mt-2">
+                              <strong>Cambios realizados:</strong>
+                              <pre className="mt-1 whitespace-pre-wrap font-mono text-xs max-h-20 overflow-y-auto">
+                                {JSON.stringify(item.new_content, null, 2)}
+                              </pre>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                      
+                      {item.old_content && (
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => revertToVersion(item)}
+                          className="ml-2 h-8 px-3 text-xs"
+                          title="Revertir a esta versión"
+                        >
+                          <RotateCcw className="h-3 w-3 mr-1" />
+                          Revertir
+                        </Button>
                       )}
-                      <span className="text-sm text-gray-500">
-                        {new Date(item.changed_at).toLocaleString('es-ES', {
-                          year: 'numeric',
-                          month: 'short',
-                          day: 'numeric',
-                          hour: '2-digit',
-                          minute: '2-digit'
-                        })}
-                      </span>
                     </div>
                   </div>
-                  {item.old_content && item.section_name !== 'tourist_attractions' && (
-                    <Button
-                      variant="outline"
-                      size="sm"
-                      onClick={() => revertToVersion(item)}
-                    >
-                      <RotateCcw className="h-4 w-4 mr-2" />
-                      Revertir
-                    </Button>
-                  )}
+                  {index < history.length - 1 && <Separator />}
                 </div>
-              </CardHeader>
-              <CardContent>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                  {item.old_content && (
-                    <div>
-                      <h4 className="font-semibold text-sm text-red-600 mb-2">Contenido Anterior</h4>
-                      <pre className="text-xs bg-red-50 p-3 rounded border overflow-auto max-h-32">
-                        {typeof item.old_content === 'string' 
-                          ? item.old_content 
-                          : JSON.stringify(item.old_content, null, 2)}
-                      </pre>
-                    </div>
-                  )}
-                  {item.new_content && (
-                    <div>
-                      <h4 className="font-semibold text-sm text-green-600 mb-2">Contenido Nuevo</h4>
-                      <pre className="text-xs bg-green-50 p-3 rounded border overflow-auto max-h-32">
-                        {typeof item.new_content === 'string' 
-                          ? item.new_content 
-                          : JSON.stringify(item.new_content, null, 2)}
-                      </pre>
-                    </div>
-                  )}
-                </div>
-                {item.section_name === 'tourist_attractions' && (
-                  <div className="mt-3 p-2 bg-blue-50 rounded text-sm text-blue-700">
-                    💡 Los cambios en atracciones turísticas solo pueden ser revertidos editando directamente la atracción en la sección de gestión.
-                  </div>
-                )}
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      )}
-    </div>
+              ))}
+            </div>
+          )}
+        </ScrollArea>
+      </CardContent>
+    </Card>
   );
 };
 
