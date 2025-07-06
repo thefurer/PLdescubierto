@@ -116,9 +116,20 @@ export const useVisualConfig = () => {
 
   // Real-time updates
   useEffect(() => {
-    loadConfig();
-    const unsubscribe = subscribeToConfigChanges(loadConfig);
-    return unsubscribe;
+    let unsubscribe: (() => void) | undefined;
+    
+    const setupSubscription = async () => {
+      await loadConfig();
+      unsubscribe = subscribeToConfigChanges(loadConfig);
+    };
+    
+    setupSubscription();
+    
+    return () => {
+      if (unsubscribe) {
+        unsubscribe();
+      }
+    };
   }, []);
 
   // Apply saved config on component mount
