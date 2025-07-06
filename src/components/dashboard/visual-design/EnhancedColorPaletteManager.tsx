@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -106,7 +107,7 @@ const EnhancedColorPaletteManager = () => {
         <div className="flex justify-between items-center">
           <Button
             onClick={handleSave}
-            variant="primary"
+            variant="default"
             disabled={loading}
           >
             {loading ? 'Guardando...' : 'Guardar Colores'}
