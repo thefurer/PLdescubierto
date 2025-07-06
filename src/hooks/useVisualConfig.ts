@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -106,16 +107,17 @@ export const useVisualConfig = () => {
       const mergedConfig = { ...defaultConfig };
       
       data?.forEach(configItem => {
+        const configData = configItem.config_data as any;
         if (configItem.config_type === 'color_palette') {
-          mergedConfig.colorPalette = { ...mergedConfig.colorPalette, ...(configItem.config_data as any) };
+          mergedConfig.colorPalette = { ...mergedConfig.colorPalette, ...configData };
         } else if (configItem.config_type === 'navbar_settings') {
-          mergedConfig.navbarSettings = { ...mergedConfig.navbarSettings, ...(configItem.config_data as any) };
+          mergedConfig.navbarSettings = { ...mergedConfig.navbarSettings, ...configData };
         } else if (configItem.config_type === 'logo_settings') {
-          mergedConfig.logoSettings = { ...mergedConfig.logoSettings, ...(configItem.config_data as any) };
+          mergedConfig.logoSettings = { ...mergedConfig.logoSettings, ...configData };
         } else if (configItem.config_type === 'button_styles') {
-          mergedConfig.buttonStyles = { ...mergedConfig.buttonStyles, ...(configItem.config_data as any) };
+          mergedConfig.buttonStyles = { ...mergedConfig.buttonStyles, ...configData };
         } else if (configItem.config_type === 'typography') {
-          mergedConfig.typography = { ...mergedConfig.typography, ...(configItem.config_data as any) };
+          mergedConfig.typography = { ...mergedConfig.typography, ...configData };
         }
       });
 
@@ -183,6 +185,9 @@ export const useVisualConfig = () => {
     root.style.setProperty('--heading-color', hexToHsl(visualConfig.typography.headingColor));
     root.style.setProperty('--body-color', hexToHsl(visualConfig.typography.bodyColor));
     root.style.setProperty('--link-color', hexToHsl(visualConfig.typography.linkColor));
+
+    // Force a re-render by triggering a storage event
+    window.dispatchEvent(new Event('visual-config-updated'));
   };
 
   // Save configuration to database
@@ -191,7 +196,7 @@ export const useVisualConfig = () => {
       setLoading(true);
       const updatedConfig = { ...config, ...newConfig };
       
-      // Save only the changed config types
+      // Save each config type separately
       const configTypeMap = {
         colorPalette: 'color_palette',
         navbarSettings: 'navbar_settings', 
@@ -218,6 +223,7 @@ export const useVisualConfig = () => {
 
       setConfig(updatedConfig);
       applyConfigToCSS(updatedConfig);
+      setPreviewMode(false);
       
       toast.success('Configuración guardada exitosamente');
     } catch (error) {

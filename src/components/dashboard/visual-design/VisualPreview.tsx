@@ -1,13 +1,25 @@
+
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Monitor, Smartphone, Tablet } from 'lucide-react';
-import { useState } from 'react';
+import { Monitor, Smartphone, Tablet, RefreshCw } from 'lucide-react';
+import { useState, useEffect } from 'react';
 import { useVisualConfig } from '@/hooks/useVisualConfig';
 
 const VisualPreview = () => {
   const { config } = useVisualConfig();
   const [devicePreview, setDevicePreview] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
+  const [key, setKey] = useState(0);
+
+  // Force re-render when config changes
+  useEffect(() => {
+    const handleConfigUpdate = () => {
+      setKey(prev => prev + 1);
+    };
+    
+    window.addEventListener('visual-config-updated', handleConfigUpdate);
+    return () => window.removeEventListener('visual-config-updated', handleConfigUpdate);
+  }, []);
 
   const getDeviceStyles = () => {
     switch (devicePreview) {
@@ -22,8 +34,19 @@ const VisualPreview = () => {
 
   const DeviceIcon = devicePreview === 'desktop' ? Monitor : devicePreview === 'tablet' ? Tablet : Smartphone;
 
+  const getLogoAlignment = () => {
+    switch (config.logoSettings.position) {
+      case 'center':
+        return 'justify-center';
+      case 'right':
+        return 'justify-end';
+      default:
+        return 'justify-start';
+    }
+  };
+
   return (
-    <Card>
+    <Card key={key}>
       <CardHeader>
         <div className="flex items-center justify-between">
           <div>
@@ -33,6 +56,14 @@ const VisualPreview = () => {
             </CardDescription>
           </div>
           <div className="flex gap-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => setKey(prev => prev + 1)}
+              title="Actualizar vista previa"
+            >
+              <RefreshCw className="h-4 w-4" />
+            </Button>
             <Button
               variant={devicePreview === 'desktop' ? 'default' : 'outline'}
               size="sm"
@@ -62,39 +93,55 @@ const VisualPreview = () => {
           <div className={`${getDeviceStyles()} border-2 border-muted rounded-lg overflow-hidden bg-background shadow-lg`}>
             {/* Navbar Preview */}
             <div 
-              className="h-16 flex items-center justify-between px-4 border-b"
+              className={`h-16 flex items-center px-4 border-b ${getLogoAlignment()}`}
               style={{ 
                 backgroundColor: config.navbarSettings.backgroundColor,
                 color: config.navbarSettings.textColor 
               }}
             >
-              <div className="flex items-center">
-                <div 
-                  className="font-bold text-lg"
-                  style={{ 
-                    color: config.navbarSettings.textColor,
-                    height: `${config.logoSettings.height}px`,
-                    display: 'flex',
-                    alignItems: 'center'
-                  }}
-                >
-                  Puerto López
-                </div>
-              </div>
-              <div className="hidden md:flex items-center space-x-4">
-                {config.navbarSettings.items
-                  .filter(item => item.visible)
-                  .sort((a, b) => a.order - b.order)
-                  .slice(0, 4)
-                  .map((item) => (
-                    <span 
-                      key={item.name} 
-                      className="text-sm"
-                      style={{ color: config.navbarSettings.textColor }}
+              <div className="flex items-center justify-between w-full">
+                <div className={`flex items-center ${getLogoAlignment()}`}>
+                  {config.logoSettings.logoUrl ? (
+                    <img 
+                      src={config.logoSettings.logoUrl} 
+                      alt="Logo preview" 
+                      className="object-contain"
+                      style={{ height: `${config.logoSettings.height}px` }}
+                    />
+                  ) : (
+                    <div 
+                      className="font-bold flex items-center"
+                      style={{ 
+                        color: config.navbarSettings.textColor,
+                        height: `${config.logoSettings.height}px`,
+                        fontSize: `${Math.max(config.logoSettings.height * 0.6, 16)}px`,
+                        fontFamily: config.typography.fontFamily
+                      }}
                     >
-                      {item.name}
-                    </span>
-                  ))}
+                      Puerto López
+                    </div>
+                  )}
+                </div>
+                {devicePreview === 'desktop' && (
+                  <div className="hidden md:flex items-center space-x-4">
+                    {config.navbarSettings.items
+                      .filter(item => item.visible)
+                      .sort((a, b) => a.order - b.order)
+                      .slice(0, 4)
+                      .map((item) => (
+                        <span 
+                          key={item.name} 
+                          className="text-sm"
+                          style={{ 
+                            color: config.navbarSettings.textColor,
+                            fontFamily: config.typography.fontFamily
+                          }}
+                        >
+                          {item.name}
+                        </span>
+                      ))}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -104,39 +151,47 @@ const VisualPreview = () => {
               <div className="text-center space-y-3">
                 <h1 
                   className="text-2xl font-bold"
-                  style={{ color: config.typography.headingColor }}
+                  style={{ 
+                    color: config.typography.headingColor,
+                    fontFamily: config.typography.fontFamily
+                  }}
                 >
                   Bienvenido a Puerto López
                 </h1>
                 <p 
                   className="text-sm"
-                  style={{ color: config.typography.bodyColor }}
+                  style={{ 
+                    color: config.typography.bodyColor,
+                    fontFamily: config.typography.fontFamily
+                  }}
                 >
                   Descubre la belleza natural del Pacífico ecuatoriano
                 </p>
                 <div className="flex gap-2 justify-center">
-                  <Button
-                    size="sm"
+                  <button
+                    className="px-4 py-2 text-sm text-white font-medium transition-all"
                     style={{ 
                       backgroundColor: config.buttonStyles.primaryColor,
                       borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
-                                   config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px'
+                                   config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px',
+                      fontFamily: config.typography.fontFamily
                     }}
                   >
                     Explorar
-                  </Button>
-                  <Button
-                    variant="outline"
-                    size="sm"
+                  </button>
+                  <button
+                    className="px-4 py-2 text-sm font-medium transition-all bg-transparent"
                     style={{ 
                       borderColor: config.buttonStyles.secondaryColor,
                       color: config.buttonStyles.secondaryColor,
+                      border: `2px solid ${config.buttonStyles.secondaryColor}`,
                       borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
-                                   config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px'
+                                   config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px',
+                      fontFamily: config.typography.fontFamily
                     }}
                   >
                     Más Info
-                  </Button>
+                  </button>
                 </div>
               </div>
 
@@ -145,20 +200,29 @@ const VisualPreview = () => {
                 <div className="border rounded p-3 bg-card">
                   <h3 
                     className="font-semibold mb-2 text-sm"
-                    style={{ color: config.typography.headingColor }}
+                    style={{ 
+                      color: config.typography.headingColor,
+                      fontFamily: config.typography.fontFamily
+                    }}
                   >
                     Avistamiento de Ballenas
                   </h3>
                   <p 
                     className="text-xs mb-2"
-                    style={{ color: config.typography.bodyColor }}
+                    style={{ 
+                      color: config.typography.bodyColor,
+                      fontFamily: config.typography.fontFamily
+                    }}
                   >
                     Experiencia única observando ballenas jorobadas.
                   </p>
                   <a 
                     href="#" 
                     className="text-xs underline"
-                    style={{ color: config.typography.linkColor }}
+                    style={{ 
+                      color: config.typography.linkColor,
+                      fontFamily: config.typography.fontFamily
+                    }}
                   >
                     Leer más
                   </a>
@@ -166,20 +230,29 @@ const VisualPreview = () => {
                 <div className="border rounded p-3 bg-card">
                   <h3 
                     className="font-semibold mb-2 text-sm"
-                    style={{ color: config.typography.headingColor }}
+                    style={{ 
+                      color: config.typography.headingColor,
+                      fontFamily: config.typography.fontFamily
+                    }}
                   >
                     Playa Los Frailes
                   </h3>
                   <p 
                     className="text-xs mb-2"
-                    style={{ color: config.typography.bodyColor }}
+                    style={{ 
+                      color: config.typography.bodyColor,
+                      fontFamily: config.typography.fontFamily
+                    }}
                   >
                     Una de las playas más hermosas del Ecuador.
                   </p>
                   <a 
                     href="#" 
                     className="text-xs underline"
-                    style={{ color: config.typography.linkColor }}
+                    style={{ 
+                      color: config.typography.linkColor,
+                      fontFamily: config.typography.fontFamily
+                    }}
                   >
                     Leer más
                   </a>
@@ -188,7 +261,9 @@ const VisualPreview = () => {
 
               {/* Color Palette Display */}
               <div className="border rounded p-3 bg-card">
-                <h4 className="text-xs font-medium mb-2">Paleta de Colores Actual</h4>
+                <h4 className="text-xs font-medium mb-2" style={{ fontFamily: config.typography.fontFamily }}>
+                  Paleta de Colores Actual
+                </h4>
                 <div className="flex gap-1">
                   {Object.entries(config.colorPalette).map(([key, color]) => (
                     <div

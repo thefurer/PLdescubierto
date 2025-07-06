@@ -1,3 +1,4 @@
+
 import { useState, useEffect } from "react";
 import { Menu, X, User, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,6 +28,17 @@ const Navbar = () => {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // Listen to visual config updates
+  useEffect(() => {
+    const handleConfigUpdate = () => {
+      // Force component re-render when config updates
+      setIsOpen(prev => prev);
+    };
+    
+    window.addEventListener('visual-config-updated', handleConfigUpdate);
+    return () => window.removeEventListener('visual-config-updated', handleConfigUpdate);
+  }, []);
+
   const handleSignOut = async () => {
     await signOut();
     navigate('/');
@@ -46,24 +58,39 @@ const Navbar = () => {
     id: item.url.replace('/', '') || item.name.toLowerCase()
   }));
 
+  const getLogoPositionClass = () => {
+    switch (config.logoSettings.position) {
+      case 'center':
+        return 'absolute left-1/2 transform -translate-x-1/2';
+      case 'right':
+        return 'ml-auto';
+      default:
+        return '';
+    }
+  };
+
+  const getNavPositionClass = () => {
+    if (config.logoSettings.position === 'center') {
+      return 'absolute right-4';
+    }
+    return '';
+  };
+
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${config.navbarSettings.position === 'fixed' ? 'fixed' : 'static'}`}
+      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300`}
       style={{
         backgroundColor: scrolled 
-          ? `${config.navbarSettings.backgroundColor}f2` // Add transparency
+          ? `${config.navbarSettings.backgroundColor}f2`
           : 'transparent',
         backdropFilter: scrolled ? 'blur(12px)' : 'none',
         boxShadow: scrolled ? '0 4px 6px -1px rgba(0, 0, 0, 0.1)' : 'none'
       }}
     >
       <div className="container mx-auto px-4">
-        <div className="flex items-center justify-between h-20">
+        <div className="flex items-center justify-between h-20 relative">
           {/* Logo */}
-          <div className={`flex items-center ${
-            config.logoSettings.position === 'center' ? 'justify-center flex-1' :
-            config.logoSettings.position === 'right' ? 'justify-end flex-1' : 'justify-start'
-          }`}>
+          <div className={`flex items-center ${getLogoPositionClass()}`}>
             {config.logoSettings.logoUrl ? (
               <img 
                 src={config.logoSettings.logoUrl} 
@@ -82,7 +109,8 @@ const Navbar = () => {
                   fontSize: `${Math.max(config.logoSettings.height * 0.6, 16)}px`,
                   height: `${config.logoSettings.height}px`,
                   display: 'flex',
-                  alignItems: 'center'
+                  alignItems: 'center',
+                  fontFamily: config.typography.fontFamily
                 }}
               >
                 Puerto López
@@ -91,16 +119,15 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <div className={`hidden lg:flex items-center space-x-8 ${
-            config.logoSettings.position === 'center' ? 'absolute right-4' : ''
-          }`}>
+          <div className={`hidden lg:flex items-center space-x-8 ${getNavPositionClass()}`}>
             {navItems.map((item) => (
               <button
                 key={item.id}
                 onClick={() => scrollToSection(item.id)}
                 className="font-medium transition-colors"
                 style={{ 
-                  color: scrolled ? config.navbarSettings.textColor : "white"
+                  color: scrolled ? config.navbarSettings.textColor : "white",
+                  fontFamily: config.typography.fontFamily
                 }}
                 onMouseEnter={(e) => {
                   e.currentTarget.style.color = config.colorPalette.primary;
@@ -115,9 +142,7 @@ const Navbar = () => {
           </div>
 
           {/* User Menu / Auth Buttons */}
-          <div className={`flex items-center space-x-4 ${
-            config.logoSettings.position === 'center' ? 'absolute right-4' : ''
-          }`}>
+          <div className={`flex items-center space-x-4 ${getNavPositionClass()}`}>
             {user ? (
               <>
                 {/* Dashboard Button - Show only when authenticated */}
@@ -131,15 +156,25 @@ const Navbar = () => {
                     color: scrolled ? config.buttonStyles.secondaryColor : "white",
                     backgroundColor: 'transparent',
                     borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
-                                 config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px'
+                                 config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px',
+                    fontFamily: config.typography.fontFamily
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = config.buttonStyles.secondaryColor;
                     e.currentTarget.style.color = "white";
+                    if (config.buttonStyles.hoverEffect === 'scale') {
+                      e.currentTarget.style.transform = 'scale(1.05)';
+                    } else if (config.buttonStyles.hoverEffect === 'glow') {
+                      e.currentTarget.style.boxShadow = `0 0 20px ${config.buttonStyles.secondaryColor}40`;
+                    } else if (config.buttonStyles.hoverEffect === 'shadow') {
+                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+                    }
                   }}
                   onMouseLeave={(e) => {
                     e.currentTarget.style.backgroundColor = 'transparent';
                     e.currentTarget.style.color = scrolled ? config.buttonStyles.secondaryColor : "white";
+                    e.currentTarget.style.transform = 'scale(1)';
+                    e.currentTarget.style.boxShadow = 'none';
                   }}
                 >
                   <Settings className="h-4 w-4 mr-2" />
@@ -157,7 +192,8 @@ const Navbar = () => {
                         color: scrolled ? config.buttonStyles.secondaryColor : "white",
                         backgroundColor: 'transparent',
                         borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
-                                     config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px'
+                                     config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px',
+                        fontFamily: config.typography.fontFamily
                       }}
                     >
                       <User className="h-4 w-4 mr-2" />
@@ -189,13 +225,16 @@ const Navbar = () => {
                   color: scrolled ? "white" : config.buttonStyles.primaryColor,
                   borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
                                config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px',
-                  border: 'none'
+                  border: 'none',
+                  fontFamily: config.typography.fontFamily
                 }}
                 onMouseEnter={(e) => {
                   if (config.buttonStyles.hoverEffect === 'scale') {
                     e.currentTarget.style.transform = 'scale(1.05)';
                   } else if (config.buttonStyles.hoverEffect === 'glow') {
                     e.currentTarget.style.boxShadow = `0 0 20px ${config.buttonStyles.primaryColor}40`;
+                  } else if (config.buttonStyles.hoverEffect === 'shadow') {
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
                   }
                   e.currentTarget.style.backgroundColor = config.buttonStyles.secondaryColor;
                 }}
@@ -242,6 +281,7 @@ const Navbar = () => {
                   className="block px-3 py-2 rounded-md font-medium w-full text-left transition-colors"
                   style={{ 
                     color: config.navbarSettings.textColor,
+                    fontFamily: config.typography.fontFamily
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.color = config.colorPalette.primary;
@@ -264,6 +304,7 @@ const Navbar = () => {
                   className="block px-3 py-2 rounded-md font-medium w-full text-left transition-colors"
                   style={{ 
                     color: config.buttonStyles.primaryColor,
+                    fontFamily: config.typography.fontFamily
                   }}
                   onMouseEnter={(e) => {
                     e.currentTarget.style.backgroundColor = `${config.buttonStyles.primaryColor}10`;
