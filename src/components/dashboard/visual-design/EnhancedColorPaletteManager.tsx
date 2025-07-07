@@ -56,6 +56,31 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, color, onChange, descr
   );
 };
 
+const ColorPreviewCard: React.FC<{ title: string; color: string; description: string; usage: string }> = ({ 
+  title, color, description, usage 
+}) => {
+  return (
+    <div className="bg-white border rounded-lg p-4 space-y-3">
+      <div className="flex items-center justify-between">
+        <h4 className="font-medium text-gray-900">{title}</h4>
+        <Badge variant="outline" className="text-xs">
+          {usage}
+        </Badge>
+      </div>
+      <div className="flex items-center space-x-3">
+        <div 
+          className="w-12 h-8 rounded border border-gray-200" 
+          style={{ backgroundColor: color }}
+        />
+        <div className="flex-1">
+          <p className="font-mono text-sm text-gray-700">{color}</p>
+          <p className="text-xs text-gray-500">{description}</p>
+        </div>
+      </div>
+    </div>
+  );
+};
+
 const colorCategories = {
   main: {
     title: 'Colores Principales',
@@ -129,83 +154,176 @@ const EnhancedColorPaletteManager = () => {
   };
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <Palette className="h-5 w-5" />
-          Paleta de Colores Completa
-        </CardTitle>
-        <CardDescription>
-          Personaliza todos los colores de tu sitio web con vista previa en tiempo real
-        </CardDescription>
-      </CardHeader>
-      <CardContent className="space-y-6">
-        {Object.entries(colorCategories).map(([categoryKey, category]) => (
-          <div key={categoryKey} className="space-y-4">
-            <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
-              {category.title}
-            </h3>
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {category.colors.map(({ key, label, description, usage }) => (
-                <ColorPicker
-                  key={key}
-                  label={label}
-                  color={localColorPalette[key as keyof typeof localColorPalette]}
-                  onChange={(color) => handleColorChange(key as keyof VisualConfig['colorPalette'], color)}
-                  description={description}
-                  usage={usage}
-                />
-              ))}
+    <div className="space-y-6">
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Palette className="h-5 w-5" />
+            Paleta de Colores Completa
+          </CardTitle>
+          <CardDescription>
+            Personaliza todos los colores de tu sitio web con vista previa en tiempo real
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-6">
+          {Object.entries(colorCategories).map(([categoryKey, category]) => (
+            <div key={categoryKey} className="space-y-4">
+              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                {category.title}
+              </h3>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                {category.colors.map(({ key, label, description, usage }) => (
+                  <ColorPicker
+                    key={key}
+                    label={label}
+                    color={localColorPalette[key as keyof typeof localColorPalette]}
+                    onChange={(color) => handleColorChange(key as keyof VisualConfig['colorPalette'], color)}
+                    description={description}
+                    usage={usage}
+                  />
+                ))}
+              </div>
+            </div>
+          ))}
+
+          <div className="flex justify-between items-center pt-6 border-t">
+            <div className="flex items-center gap-2">
+              {previewMode && (
+                <Badge variant="secondary" className="flex items-center gap-1">
+                  <Eye className="h-3 w-3" />
+                  Vista Previa Activa
+                </Badge>
+              )}
+            </div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={togglePreview}
+              >
+                {showPreview ? (
+                  <>
+                    <EyeOff className="w-4 h-4 mr-2" />
+                    Ocultar Vista Previa
+                  </>
+                ) : (
+                  <>
+                    <Eye className="w-4 h-4 mr-2" />
+                    Mostrar Vista Previa
+                  </>
+                )}
+              </Button>
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={handleResetPreview}
+              >
+                <RefreshCw className="w-4 h-4 mr-2" />
+                Restablecer
+              </Button>
+              <Button
+                onClick={handleSave}
+                variant="default"
+                disabled={loading}
+              >
+                {loading ? 'Guardando...' : 'Guardar Colores'}
+              </Button>
             </div>
           </div>
-        ))}
+        </CardContent>
+      </Card>
 
-        <div className="flex justify-between items-center pt-6 border-t">
-          <div className="flex items-center gap-2">
-            {previewMode && (
-              <Badge variant="secondary" className="flex items-center gap-1">
-                <Eye className="h-3 w-3" />
-                Vista Previa Activa
-              </Badge>
-            )}
+      {/* Vista Previa de Colores */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Eye className="h-5 w-5" />
+            Vista Previa de Colores
+          </CardTitle>
+          <CardDescription>
+            Visualiza cómo se aplicarán los colores en diferentes elementos de tu sitio web
+          </CardDescription>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            {/* Colores Principales */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Colores Principales</h4>
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <ColorPreviewCard
+                  title="Primario"
+                  color={localColorPalette.primary}
+                  description="Color principal de la marca"
+                  usage="Botones, enlaces"
+                />
+                <ColorPreviewCard
+                  title="Secundario"
+                  color={localColorPalette.secondary}
+                  description="Color secundario de apoyo"
+                  usage="Botones alt"
+                />
+                <ColorPreviewCard
+                  title="Acento"
+                  color={localColorPalette.accent}
+                  description="Para destacar elementos importantes"
+                  usage="Badges, alertas"
+                />
+              </div>
+            </div>
+
+            {/* Colores de Estructura */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Estructura y Navegación</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <ColorPreviewCard
+                  title="Fondo Principal"
+                  color={localColorPalette.background}
+                  description="Color de fondo de la página"
+                  usage="Body"
+                />
+                <ColorPreviewCard
+                  title="Navbar"
+                  color={localColorPalette.navbar}
+                  description="Fondo de la barra de navegación"
+                  usage="Header"
+                />
+              </div>
+            </div>
+
+            {/* Estados y Retroalimentación */}
+            <div>
+              <h4 className="font-medium text-gray-900 mb-3">Estados y Retroalimentación</h4>
+              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                <ColorPreviewCard
+                  title="Éxito"
+                  color={localColorPalette.success}
+                  description="Mensajes de éxito"
+                  usage="Confirmaciones"
+                />
+                <ColorPreviewCard
+                  title="Advertencia"
+                  color={localColorPalette.warning}
+                  description="Mensajes de advertencia"
+                  usage="Alertas"
+                />
+                <ColorPreviewCard
+                  title="Error"
+                  color={localColorPalette.destructive}
+                  description="Mensajes de error"
+                  usage="Errores"
+                />
+                <ColorPreviewCard
+                  title="Información"
+                  color={localColorPalette.info}
+                  description="Mensajes informativos"
+                  usage="Tips, ayuda"
+                />
+              </div>
+            </div>
           </div>
-          <div className="flex items-center space-x-2">
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={togglePreview}
-            >
-              {showPreview ? (
-                <>
-                  <EyeOff className="w-4 h-4 mr-2" />
-                  Ocultar Vista Previa
-                </>
-              ) : (
-                <>
-                  <Eye className="w-4 h-4 mr-2" />
-                  Mostrar Vista Previa
-                </>
-              )}
-            </Button>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={handleResetPreview}
-            >
-              <RefreshCw className="w-4 h-4 mr-2" />
-              Restablecer
-            </Button>
-            <Button
-              onClick={handleSave}
-              variant="default"
-              disabled={loading}
-            >
-              {loading ? 'Guardando...' : 'Guardar Colores'}
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+        </CardContent>
+      </Card>
+    </div>
   );
 };
 
