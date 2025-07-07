@@ -4,7 +4,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Palette, RefreshCw, Eye, EyeOff, Info } from 'lucide-react';
+import { Palette, RefreshCw, Eye, EyeOff, Info, Monitor } from 'lucide-react';
 import { useVisualConfig } from '@/hooks/useVisualConfig';
 import { VisualConfig } from '@/types/visualConfig';
 
@@ -56,28 +56,192 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, color, onChange, descr
   );
 };
 
-const ColorPreviewCard: React.FC<{ title: string; color: string; description: string; usage: string }> = ({ 
-  title, color, description, usage 
-}) => {
+const ColorPreviewSection = ({ colorPalette }: { colorPalette: VisualConfig['colorPalette'] }) => {
   return (
-    <div className="bg-white border rounded-lg p-4 space-y-3">
-      <div className="flex items-center justify-between">
-        <h4 className="font-medium text-gray-900">{title}</h4>
-        <Badge variant="outline" className="text-xs">
-          {usage}
-        </Badge>
-      </div>
-      <div className="flex items-center space-x-3">
-        <div 
-          className="w-12 h-8 rounded border border-gray-200" 
-          style={{ backgroundColor: color }}
-        />
-        <div className="flex-1">
-          <p className="font-mono text-sm text-gray-700">{color}</p>
-          <p className="text-xs text-gray-500">{description}</p>
+    <Card className="mb-6 border-2 border-blue-200 bg-blue-50/30">
+      <CardHeader className="pb-3">
+        <CardTitle className="flex items-center gap-2 text-lg">
+          <Monitor className="h-5 w-5 text-blue-600" />
+          Vista Previa de Colores en Tiempo Real
+        </CardTitle>
+        <CardDescription>
+          Observa cómo se aplicarán los colores en tu sitio web
+        </CardDescription>
+      </CardHeader>
+      <CardContent className="space-y-4">
+        {/* Navbar Preview */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Barra de Navegación</Label>
+          <div 
+            className="h-12 rounded-lg flex items-center px-4 shadow-sm border"
+            style={{ 
+              backgroundColor: colorPalette.navbar,
+              borderColor: colorPalette.border
+            }}
+          >
+            <div className="font-bold" style={{ color: colorPalette.text }}>
+              Puerto López
+            </div>
+            <div className="ml-auto flex space-x-4">
+              {['Inicio', 'Atracciones', 'Contacto'].map((item) => (
+                <span 
+                  key={item}
+                  className="text-sm font-medium cursor-pointer hover:opacity-80"
+                  style={{ color: colorPalette.link }}
+                >
+                  {item}
+                </span>
+              ))}
+            </div>
+          </div>
         </div>
-      </div>
-    </div>
+
+        {/* Content Preview */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Contenido Principal</Label>
+          <div 
+            className="p-4 rounded-lg shadow-sm border"
+            style={{ 
+              backgroundColor: colorPalette.background,
+              borderColor: colorPalette.border
+            }}
+          >
+            <h3 
+              className="text-lg font-bold mb-2"
+              style={{ color: colorPalette.text }}
+            >
+              Título Principal
+            </h3>
+            <p 
+              className="text-sm mb-3"
+              style={{ color: colorPalette.muted }}
+            >
+              Este es un ejemplo de texto secundario que muestra cómo se ve el color muted.
+            </p>
+            <div className="flex gap-2 mb-3">
+              <div 
+                className="px-3 py-1 rounded text-xs font-medium"
+                style={{ 
+                  backgroundColor: colorPalette.primary,
+                  color: 'white'
+                }}
+              >
+                Botón Primario
+              </div>
+              <div 
+                className="px-3 py-1 rounded text-xs font-medium border"
+                style={{ 
+                  backgroundColor: 'transparent',
+                  color: colorPalette.secondary,
+                  borderColor: colorPalette.secondary
+                }}
+              >
+                Botón Secundario
+              </div>
+            </div>
+            <a 
+              href="#" 
+              className="text-sm underline hover:opacity-80"
+              style={{ color: colorPalette.link }}
+            >
+              Ejemplo de enlace
+            </a>
+          </div>
+        </div>
+
+        {/* Card Preview */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Tarjetas de Contenido</Label>
+          <div 
+            className="p-4 rounded-lg shadow-sm border"
+            style={{ 
+              backgroundColor: colorPalette.card,
+              borderColor: colorPalette.border
+            }}
+          >
+            <h4 
+              className="font-semibold mb-2"
+              style={{ color: colorPalette.text }}
+            >
+              Tarjeta de Atracción
+            </h4>
+            <p 
+              className="text-sm mb-2"
+              style={{ color: colorPalette.muted }}
+            >
+              Descripción de la atracción turística con información relevante.
+            </p>
+            <div className="flex justify-between items-center">
+              <div 
+                className="px-2 py-1 rounded text-xs"
+                style={{ 
+                  backgroundColor: colorPalette.accent,
+                  color: 'white'
+                }}
+              >
+                Destacado
+              </div>
+              <span 
+                className="text-sm font-medium"
+                style={{ color: colorPalette.primary }}
+              >
+                Ver más →
+              </span>
+            </div>
+          </div>
+        </div>
+
+        {/* Status Colors Preview */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Estados y Retroalimentación</Label>
+          <div className="grid grid-cols-2 gap-2">
+            <div 
+              className="p-2 rounded text-xs font-medium text-center"
+              style={{ backgroundColor: colorPalette.success, color: 'white' }}
+            >
+              Éxito
+            </div>
+            <div 
+              className="p-2 rounded text-xs font-medium text-center"
+              style={{ backgroundColor: colorPalette.warning, color: 'white' }}
+            >
+              Advertencia
+            </div>
+            <div 
+              className="p-2 rounded text-xs font-medium text-center"
+              style={{ backgroundColor: colorPalette.destructive, color: 'white' }}
+            >
+              Error
+            </div>
+            <div 
+              className="p-2 rounded text-xs font-medium text-center"
+              style={{ backgroundColor: colorPalette.info, color: 'white' }}
+            >
+              Información
+            </div>
+          </div>
+        </div>
+
+        {/* Color Palette Grid */}
+        <div className="space-y-2">
+          <Label className="text-sm font-medium text-gray-700">Paleta Completa</Label>
+          <div className="grid grid-cols-5 gap-2">
+            {Object.entries(colorPalette).map(([key, color]) => (
+              <div key={key} className="text-center">
+                <div
+                  className="w-full h-8 rounded-md border shadow-sm"
+                  style={{ backgroundColor: color }}
+                  title={`${key}: ${color}`}
+                />
+                <span className="text-xs text-gray-600 capitalize mt-1 block">
+                  {key.replace(/([A-Z])/g, ' $1').trim()}
+                </span>
+              </div>
+            ))}
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
 
@@ -165,26 +329,32 @@ const EnhancedColorPaletteManager = () => {
             Personaliza todos los colores de tu sitio web con vista previa en tiempo real
           </CardDescription>
         </CardHeader>
-        <CardContent className="space-y-6">
-          {Object.entries(colorCategories).map(([categoryKey, category]) => (
-            <div key={categoryKey} className="space-y-4">
-              <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
-                {category.title}
-              </h3>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {category.colors.map(({ key, label, description, usage }) => (
-                  <ColorPicker
-                    key={key}
-                    label={label}
-                    color={localColorPalette[key as keyof typeof localColorPalette]}
-                    onChange={(color) => handleColorChange(key as keyof VisualConfig['colorPalette'], color)}
-                    description={description}
-                    usage={usage}
-                  />
-                ))}
+        <CardContent>
+          {/* Vista Previa Prominente */}
+          <ColorPreviewSection colorPalette={localColorPalette} />
+          
+          {/* Controles de Colores */}
+          <div className="space-y-6">
+            {Object.entries(colorCategories).map(([categoryKey, category]) => (
+              <div key={categoryKey} className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+                  {category.title}
+                </h3>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {category.colors.map(({ key, label, description, usage }) => (
+                    <ColorPicker
+                      key={key}
+                      label={label}
+                      color={localColorPalette[key as keyof typeof localColorPalette]}
+                      onChange={(color) => handleColorChange(key as keyof VisualConfig['colorPalette'], color)}
+                      description={description}
+                      usage={usage}
+                    />
+                  ))}
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
 
           <div className="flex justify-between items-center pt-6 border-t">
             <div className="flex items-center gap-2">
@@ -228,97 +398,6 @@ const EnhancedColorPaletteManager = () => {
               >
                 {loading ? 'Guardando...' : 'Guardar Colores'}
               </Button>
-            </div>
-          </div>
-        </CardContent>
-      </Card>
-
-      {/* Vista Previa de Colores */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <Eye className="h-5 w-5" />
-            Vista Previa de Colores
-          </CardTitle>
-          <CardDescription>
-            Visualiza cómo se aplicarán los colores en diferentes elementos de tu sitio web
-          </CardDescription>
-        </CardHeader>
-        <CardContent>
-          <div className="space-y-4">
-            {/* Colores Principales */}
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3">Colores Principales</h4>
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <ColorPreviewCard
-                  title="Primario"
-                  color={localColorPalette.primary}
-                  description="Color principal de la marca"
-                  usage="Botones, enlaces"
-                />
-                <ColorPreviewCard
-                  title="Secundario"
-                  color={localColorPalette.secondary}
-                  description="Color secundario de apoyo"
-                  usage="Botones alt"
-                />
-                <ColorPreviewCard
-                  title="Acento"
-                  color={localColorPalette.accent}
-                  description="Para destacar elementos importantes"
-                  usage="Badges, alertas"
-                />
-              </div>
-            </div>
-
-            {/* Colores de Estructura */}
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3">Estructura y Navegación</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <ColorPreviewCard
-                  title="Fondo Principal"
-                  color={localColorPalette.background}
-                  description="Color de fondo de la página"
-                  usage="Body"
-                />
-                <ColorPreviewCard
-                  title="Navbar"
-                  color={localColorPalette.navbar}
-                  description="Fondo de la barra de navegación"
-                  usage="Header"
-                />
-              </div>
-            </div>
-
-            {/* Estados y Retroalimentación */}
-            <div>
-              <h4 className="font-medium text-gray-900 mb-3">Estados y Retroalimentación</h4>
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <ColorPreviewCard
-                  title="Éxito"
-                  color={localColorPalette.success}
-                  description="Mensajes de éxito"
-                  usage="Confirmaciones"
-                />
-                <ColorPreviewCard
-                  title="Advertencia"
-                  color={localColorPalette.warning}
-                  description="Mensajes de advertencia"
-                  usage="Alertas"
-                />
-                <ColorPreviewCard
-                  title="Error"
-                  color={localColorPalette.destructive}
-                  description="Mensajes de error"
-                  usage="Errores"
-                />
-                <ColorPreviewCard
-                  title="Información"
-                  color={localColorPalette.info}
-                  description="Mensajes informativos"
-                  usage="Tips, ayuda"
-                />
-              </div>
             </div>
           </div>
         </CardContent>
