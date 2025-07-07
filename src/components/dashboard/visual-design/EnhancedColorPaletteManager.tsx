@@ -17,6 +17,9 @@ interface ColorPickerProps {
 }
 
 const ColorPicker: React.FC<ColorPickerProps> = ({ label, color, onChange, description, usage }) => {
+  // Ensure we have a valid color value
+  const safeColor = color || '#000000';
+  
   return (
     <div className="space-y-2">
       <div className="flex items-center space-x-2">
@@ -30,19 +33,32 @@ const ColorPicker: React.FC<ColorPickerProps> = ({ label, color, onChange, descr
         )}
       </div>
       <div className="flex items-center space-x-3">
-        <input
-          type="color"
-          id={label}
-          value={color}
-          onChange={(e) => onChange(e.target.value)}
-          className="w-12 h-8 rounded-md border-gray-200 shadow-sm cursor-pointer"
-        />
+        <div className="relative">
+          <input
+            type="color"
+            id={label}
+            value={safeColor}
+            onChange={(e) => onChange(e.target.value)}
+            className="w-12 h-8 rounded-md border-2 border-gray-200 shadow-sm cursor-pointer"
+          />
+          <div 
+            className="absolute inset-0 rounded-md border-2 border-gray-200 pointer-events-none"
+            style={{ backgroundColor: safeColor }}
+          />
+        </div>
         <div className="flex-1">
           <input
             type="text"
-            value={color}
-            onChange={(e) => onChange(e.target.value)}
+            value={safeColor}
+            onChange={(e) => {
+              const value = e.target.value;
+              // Validate hex color format
+              if (/^#[0-9A-Fa-f]{6}$/.test(value) || value === '') {
+                onChange(value || '#000000');
+              }
+            }}
             className="w-full px-3 py-1 text-sm border rounded-md font-mono"
+            placeholder="#000000"
           />
         </div>
       </div>
@@ -93,6 +109,36 @@ const colorCategories = {
   }
 };
 
+const ColorPreviewSection = ({ config }: { config: VisualConfig }) => {
+  return (
+    <div className="space-y-4">
+      <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
+        Vista Previa de Colores
+      </h3>
+      
+      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        {Object.entries(config.colorPalette).map(([key, color]) => {
+          const safeColor = color || '#000000';
+          return (
+            <div key={key} className="text-center">
+              <div 
+                className="w-full h-16 rounded-lg border-2 border-gray-200 shadow-sm mb-2"
+                style={{ backgroundColor: safeColor }}
+              />
+              <div className="text-xs font-medium text-gray-700 capitalize">
+                {key.replace(/([A-Z])/g, ' $1').trim()}
+              </div>
+              <div className="text-xs text-gray-500 font-mono">
+                {safeColor}
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  );
+};
+
 const EnhancedColorPaletteManager = () => {
   const { config, saveConfig, previewConfig, resetPreview, loading, previewMode } = useVisualConfig();
   const [localColorPalette, setLocalColorPalette] = useState(config.colorPalette);
@@ -103,7 +149,8 @@ const EnhancedColorPaletteManager = () => {
   }, [config.colorPalette]);
 
   const handleColorChange = (key: keyof VisualConfig['colorPalette'], newColor: string) => {
-    const updatedPalette = { ...localColorPalette, [key]: newColor };
+    const safeColor = newColor || '#000000';
+    const updatedPalette = { ...localColorPalette, [key]: safeColor };
     setLocalColorPalette(updatedPalette);
     if (showPreview) {
       previewConfig({ colorPalette: updatedPalette });
@@ -140,6 +187,9 @@ const EnhancedColorPaletteManager = () => {
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Vista previa de colores */}
+        <ColorPreviewSection config={{ ...config, colorPalette: localColorPalette }} />
+        
         {Object.entries(colorCategories).map(([categoryKey, category]) => (
           <div key={categoryKey} className="space-y-4">
             <h3 className="text-lg font-semibold text-gray-800 border-b pb-2">
@@ -150,7 +200,7 @@ const EnhancedColorPaletteManager = () => {
                 <ColorPicker
                   key={key}
                   label={label}
-                  color={localColorPalette[key as keyof typeof localColorPalette]}
+                  color={localColorPalette[key as keyof typeof localColorPalette] || '#000000'}
                   onChange={(color) => handleColorChange(key as keyof VisualConfig['colorPalette'], color)}
                   description={description}
                   usage={usage}
