@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { MapPin, Car } from 'lucide-react';
@@ -9,6 +8,9 @@ import TravelPointEditor from '../travel-guide/TravelPointEditor';
 import TransportOptionEditor from '../travel-guide/TransportOptionEditor';
 import NewTravelPointForm from '../travel-guide/NewTravelPointForm';
 import NewTransportForm from '../travel-guide/NewTransportForm';
+import TravelGuidePointsPreview from '../content-previews/TravelGuidePointsPreview';
+import TransportOptionsPreview from '../content-previews/TransportOptionsPreview';
+import TravelTipsPreview from '../content-previews/TravelTipsPreview';
 
 interface TravelPoint {
   id: string;
@@ -43,6 +45,7 @@ const EditableTravelGuide = () => {
   const [editingPoint, setEditingPoint] = useState<string | null>(null);
   const [editingTransport, setEditingTransport] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [showPreview, setShowPreview] = useState(false);
 
   useEffect(() => {
     loadTravelGuideData();
@@ -203,8 +206,34 @@ const EditableTravelGuide = () => {
     );
   }
 
+  if (showPreview) {
+    return (
+      <div className="space-y-6">
+        <div className="flex justify-between items-center">
+          <h2 className="text-2xl font-bold">Vista Previa - Guía de Viaje</h2>
+          <Button onClick={() => setShowPreview(false)} variant="outline">
+            Volver a Editar
+          </Button>
+        </div>
+        
+        <div className="bg-white">
+          <TravelGuidePointsPreview points={travelPoints} />
+          <TransportOptionsPreview options={transportOptions} />
+          <TravelTipsPreview />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="space-y-6">
+      <div className="flex justify-between items-center">
+        <h2 className="text-2xl font-bold">Editar Guía de Viaje</h2>
+        <Button onClick={() => setShowPreview(true)} variant="outline">
+          Ver Vista Previa
+        </Button>
+      </div>
+
       {/* Puntos de Interés */}
       <Card>
         <CardHeader>
