@@ -76,7 +76,7 @@ const EditableTravelGuide = () => {
         .from('site_content')
         .upsert({
           section_name: 'travel_guide_points',
-          content: { points: travelPoints },
+          content: { points: travelPoints } as any,
           updated_by: user.id
         }, {
           onConflict: 'section_name'
@@ -100,7 +100,7 @@ const EditableTravelGuide = () => {
         .from('site_content')
         .upsert({
           section_name: 'travel_guide_transport',
-          content: { options: transportOptions },
+          content: { options: transportOptions } as any,
           updated_by: user.id
         }, {
           onConflict: 'section_name'
