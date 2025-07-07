@@ -5,7 +5,7 @@ import VisualDesignManager from '../VisualDesignManager';
 import AdminManager from '../AdminManager';
 import HistoryViewer from '../HistoryViewer';
 import UserProfile from '../UserProfile';
-import EditableTravelGuide from '../travel-guide/EditableTravelGuide';
+import EditableTravelGuide from './EditableTravelGuide';
 
 interface DashboardContentProps {
   activeTab: string;
@@ -16,7 +16,7 @@ const DashboardContent = ({ activeTab }: DashboardContentProps) => {
     switch (activeTab) {
       case 'hero':
       case 'footer':
-        return <ContentEditor activeTab={activeTab} />;
+        return <ContentEditor />;
       case 'attractions':
         return <AttractionsManager />;
       case 'travel-guide':
@@ -30,7 +30,7 @@ const DashboardContent = ({ activeTab }: DashboardContentProps) => {
       case 'profile':
         return <UserProfile />;
       default:
-        return <ContentEditor activeTab={activeTab} />;
+        return <ContentEditor />;
     }
   };
 
