@@ -6,8 +6,19 @@ import { applyConfigToCSS } from '@/utils/cssUtils';
 import { loadConfigFromDatabase, saveConfigToDatabase, subscribeToConfigChanges } from '@/services/visualConfigService';
 
 export const useVisualConfig = () => {
-  const [config, setConfig] = useState<VisualConfig>(defaultConfig);
-  const [loading, setLoading] = useState(true);
+  const [config, setConfig] = useState<VisualConfig>(() => {
+    // Try to load from localStorage first
+    const savedConfig = localStorage.getItem('visual_config');
+    if (savedConfig) {
+      try {
+        return JSON.parse(savedConfig);
+      } catch (e) {
+        console.error('Error parsing saved config:', e);
+      }
+    }
+    return defaultConfig;
+  });
+  const [loading, setLoading] = useState(false);
   const [previewMode, setPreviewMode] = useState(false);
 
   // Load configuration from database
@@ -40,19 +51,6 @@ export const useVisualConfig = () => {
       localStorage.setItem('visual_config', JSON.stringify(mergedConfig));
     } catch (error) {
       console.error('Error loading visual config:', error);
-      
-      // Try to load from localStorage as fallback
-      const savedConfig = localStorage.getItem('visual_config');
-      if (savedConfig) {
-        try {
-          const parsedConfig = JSON.parse(savedConfig);
-          setConfig(parsedConfig);
-          applyConfigToCSS(parsedConfig);
-        } catch (e) {
-          console.error('Error parsing saved config:', e);
-        }
-      }
-      
       toast.error('Error al cargar la configuración visual');
     } finally {
       setLoading(false);
@@ -132,18 +130,10 @@ export const useVisualConfig = () => {
     };
   }, []);
 
-  // Apply saved config on component mount
+  // Apply config on mount and when config changes
   useEffect(() => {
-    const savedConfig = localStorage.getItem('visual_config');
-    if (savedConfig && !loading) {
-      try {
-        const parsedConfig = JSON.parse(savedConfig);
-        applyConfigToCSS(parsedConfig);
-      } catch (e) {
-        console.error('Error applying saved config:', e);
-      }
-    }
-  }, [loading]);
+    applyConfigToCSS(config);
+  }, [config]);
 
   return {
     config,
