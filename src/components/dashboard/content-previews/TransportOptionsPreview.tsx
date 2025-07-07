@@ -1,7 +1,6 @@
 
-import { Car, Plane, Bus, Clock, dynamicIconImports } from 'lucide-react';
+import { Car, Plane, Bus, Clock } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { lazy, Suspense } from 'react';
 
 interface TransportOption {
   id: string;
