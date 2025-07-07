@@ -9,6 +9,13 @@ export interface VisualConfig {
     navbar: string;
     button: string;
     link: string;
+    card: string;
+    border: string;
+    muted: string;
+    destructive: string;
+    warning: string;
+    success: string;
+    info: string;
   };
   navbarSettings: {
     items: Array<{
@@ -52,13 +59,21 @@ export const defaultConfig: VisualConfig = {
     navbar: '#ffffff',
     button: '#2563eb',
     link: '#2563eb',
+    card: '#f8fafc',
+    border: '#e5e7eb',
+    muted: '#6b7280',
+    destructive: '#ef4444',
+    warning: '#f59e0b',
+    success: '#10b981',
+    info: '#3b82f6',
   },
   navbarSettings: {
     items: [
-      { name: 'Inicio', url: '/', visible: true, order: 1 },
-      { name: 'Atracciones', url: '/attractions', visible: true, order: 2 },
-      { name: 'Galería', url: '/gallery', visible: true, order: 3 },
-      { name: 'Contacto', url: '/contact', visible: true, order: 4 },
+      { name: 'Inicio', url: '#hero', visible: true, order: 1 },
+      { name: 'Atracciones', url: '#attractions', visible: true, order: 2 },
+      { name: 'Actividades', url: '#activities', visible: true, order: 3 },
+      { name: 'Galería', url: '#gallery', visible: true, order: 4 },
+      { name: 'Contacto', url: '#contact', visible: true, order: 5 },
     ],
     backgroundColor: '#ffffff',
     textColor: '#1f2937',

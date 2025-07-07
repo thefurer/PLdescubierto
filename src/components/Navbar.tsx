@@ -45,18 +45,30 @@ const Navbar = () => {
   };
 
   const scrollToSection = (sectionId: string) => {
-    const element = document.getElementById(sectionId);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth" });
+    // Handle different URL formats
+    if (sectionId.startsWith('#')) {
+      const elementId = sectionId.substring(1);
+      const element = document.getElementById(elementId);
+      if (element) {
+        element.scrollIntoView({ behavior: "smooth" });
+      }
+    } else {
+      // For external links, navigate directly
+      if (sectionId.startsWith('/') || sectionId.startsWith('http')) {
+        window.location.href = sectionId;
+      }
     }
     setIsOpen(false);
   };
 
-  // Use navbar items from visual config or fallback to default
-  const navItems = config.navbarSettings.items.filter(item => item.visible).sort((a, b) => a.order - b.order).map(item => ({
-    label: item.name,
-    id: item.url.replace('/', '') || item.name.toLowerCase()
-  }));
+  // Use navbar items from visual config
+  const navItems = config.navbarSettings.items
+    .filter(item => item.visible)
+    .sort((a, b) => a.order - b.order)
+    .map(item => ({
+      label: item.name,
+      url: item.url
+    }));
 
   const getLogoPositionClass = () => {
     switch (config.logoSettings.position) {
@@ -76,9 +88,77 @@ const Navbar = () => {
     return '';
   };
 
+  const getButtonStyle = (isPrimary = true) => {
+    let borderRadius = '8px'; // default rounded
+    
+    if (config.buttonStyles.primaryStyle === 'pill') {
+      borderRadius = '9999px';
+    } else if (config.buttonStyles.primaryStyle === 'square') {
+      borderRadius = '4px';
+    }
+
+    const baseStyle = {
+      borderRadius,
+      transition: 'all 0.2s ease-in-out',
+      fontFamily: config.typography.fontFamily,
+    };
+
+    if (isPrimary) {
+      return {
+        ...baseStyle,
+        backgroundColor: scrolled ? config.buttonStyles.primaryColor : "white",
+        color: scrolled ? "white" : config.buttonStyles.primaryColor,
+        border: 'none',
+      };
+    } else {
+      return {
+        ...baseStyle,
+        borderColor: scrolled ? config.buttonStyles.secondaryColor : "white",
+        color: scrolled ? config.buttonStyles.secondaryColor : "white",
+        backgroundColor: 'transparent',
+        border: `2px solid ${scrolled ? config.buttonStyles.secondaryColor : "white"}`,
+      };
+    }
+  };
+
+  const applyHoverEffect = (element: HTMLElement, isEntering: boolean, isPrimary = true) => {
+    if (!isEntering) {
+      element.style.transform = 'scale(1)';
+      element.style.boxShadow = 'none';
+      if (isPrimary) {
+        element.style.backgroundColor = scrolled ? config.buttonStyles.primaryColor : "white";
+      } else {
+        element.style.backgroundColor = 'transparent';
+      }
+      return;
+    }
+
+    const hoverColor = isPrimary ? config.buttonStyles.secondaryColor : config.buttonStyles.primaryColor;
+    
+    if (isPrimary) {
+      element.style.backgroundColor = hoverColor;
+      element.style.color = "white";
+    } else {
+      element.style.backgroundColor = hoverColor;
+      element.style.color = "white";
+    }
+
+    switch (config.buttonStyles.hoverEffect) {
+      case 'scale':
+        element.style.transform = 'scale(1.05)';
+        break;
+      case 'shadow':
+        element.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        break;
+      case 'glow':
+        element.style.boxShadow = `0 0 20px ${hoverColor}40`;
+        break;
+    }
+  };
+
   return (
     <nav
-      className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300`}
+      className={`${config.navbarSettings.position} top-0 left-0 right-0 z-50 transition-all duration-300`}
       style={{
         backgroundColor: scrolled 
           ? `${config.navbarSettings.backgroundColor}f2`
@@ -103,7 +183,8 @@ const Navbar = () => {
               />
             ) : (
               <h1 
-                className="font-bold transition-colors"
+                className="font-bold transition-colors cursor-pointer"
+                onClick={() => scrollToSection('#hero')}
                 style={{ 
                   color: scrolled ? config.navbarSettings.textColor : "white",
                   fontSize: `${Math.max(config.logoSettings.height * 0.6, 16)}px`,
@@ -122,8 +203,8 @@ const Navbar = () => {
           <div className={`hidden lg:flex items-center space-x-8 ${getNavPositionClass()}`}>
             {navItems.map((item) => (
               <button
-                key={item.id}
-                onClick={() => scrollToSection(item.id)}
+                key={item.url}
+                onClick={() => scrollToSection(item.url)}
                 className="font-medium transition-colors"
                 style={{ 
                   color: scrolled ? config.navbarSettings.textColor : "white",
@@ -150,32 +231,10 @@ const Navbar = () => {
                   variant="outline"
                   size="sm"
                   onClick={() => navigate('/dashboard')}
-                  className="hidden md:flex"
-                  style={{
-                    borderColor: scrolled ? config.buttonStyles.secondaryColor : "white",
-                    color: scrolled ? config.buttonStyles.secondaryColor : "white",
-                    backgroundColor: 'transparent',
-                    borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
-                                 config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px',
-                    fontFamily: config.typography.fontFamily
-                  }}
-                  onMouseEnter={(e) => {
-                    e.currentTarget.style.backgroundColor = config.buttonStyles.secondaryColor;
-                    e.currentTarget.style.color = "white";
-                    if (config.buttonStyles.hoverEffect === 'scale') {
-                      e.currentTarget.style.transform = 'scale(1.05)';
-                    } else if (config.buttonStyles.hoverEffect === 'glow') {
-                      e.currentTarget.style.boxShadow = `0 0 20px ${config.buttonStyles.secondaryColor}40`;
-                    } else if (config.buttonStyles.hoverEffect === 'shadow') {
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.backgroundColor = 'transparent';
-                    e.currentTarget.style.color = scrolled ? config.buttonStyles.secondaryColor : "white";
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
+                  className="hidden md:flex border-0"
+                  style={getButtonStyle(false)}
+                  onMouseEnter={(e) => applyHoverEffect(e.currentTarget, true, false)}
+                  onMouseLeave={(e) => applyHoverEffect(e.currentTarget, false, false)}
                 >
                   <Settings className="h-4 w-4 mr-2" />
                   Dashboard
@@ -186,15 +245,8 @@ const Navbar = () => {
                     <Button
                       variant="outline"
                       size="sm"
-                      className="flex"
-                      style={{
-                        borderColor: scrolled ? config.buttonStyles.secondaryColor : "white",
-                        color: scrolled ? config.buttonStyles.secondaryColor : "white",
-                        backgroundColor: 'transparent',
-                        borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
-                                     config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px',
-                        fontFamily: config.typography.fontFamily
-                      }}
+                      className="flex border-0"
+                      style={getButtonStyle(false)}
                     >
                       <User className="h-4 w-4 mr-2" />
                       {user.user_metadata?.full_name || user.email}
@@ -218,34 +270,15 @@ const Navbar = () => {
                 </DropdownMenu>
               </>
             ) : (
-              <Button
+              <button
                 onClick={() => navigate('/auth')}
-                style={{
-                  backgroundColor: scrolled ? config.buttonStyles.primaryColor : "white",
-                  color: scrolled ? "white" : config.buttonStyles.primaryColor,
-                  borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
-                               config.buttonStyles.primaryStyle === 'square' ? '4px' : '8px',
-                  border: 'none',
-                  fontFamily: config.typography.fontFamily
-                }}
-                onMouseEnter={(e) => {
-                  if (config.buttonStyles.hoverEffect === 'scale') {
-                    e.currentTarget.style.transform = 'scale(1.05)';
-                  } else if (config.buttonStyles.hoverEffect === 'glow') {
-                    e.currentTarget.style.boxShadow = `0 0 20px ${config.buttonStyles.primaryColor}40`;
-                  } else if (config.buttonStyles.hoverEffect === 'shadow') {
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-                  }
-                  e.currentTarget.style.backgroundColor = config.buttonStyles.secondaryColor;
-                }}
-                onMouseLeave={(e) => {
-                  e.currentTarget.style.transform = 'scale(1)';
-                  e.currentTarget.style.boxShadow = 'none';
-                  e.currentTarget.style.backgroundColor = scrolled ? config.buttonStyles.primaryColor : "white";
-                }}
+                style={getButtonStyle(true)}
+                onMouseEnter={(e) => applyHoverEffect(e.currentTarget, true, true)}
+                onMouseLeave={(e) => applyHoverEffect(e.currentTarget, false, true)}
+                className="px-4 py-2 font-medium"
               >
                 Iniciar Sesión
-              </Button>
+              </button>
             )}
 
             {/* Mobile menu button */}
@@ -276,8 +309,8 @@ const Navbar = () => {
             >
               {navItems.map((item) => (
                 <button
-                  key={item.id}
-                  onClick={() => scrollToSection(item.id)}
+                  key={item.url}
+                  onClick={() => scrollToSection(item.url)}
                   className="block px-3 py-2 rounded-md font-medium w-full text-left transition-colors"
                   style={{ 
                     color: config.navbarSettings.textColor,

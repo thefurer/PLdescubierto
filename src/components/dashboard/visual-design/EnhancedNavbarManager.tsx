@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Plus, X, ArrowUp, ArrowDown, Eye, EyeOff, Navigation, Palette } from 'lucide-react';
+import { Plus, X, ArrowUp, ArrowDown, Eye, EyeOff, Navigation, Palette, Save, RefreshCw } from 'lucide-react';
 import { useVisualConfig } from '@/hooks/useVisualConfig';
+import { toast } from 'sonner';
 
 const EnhancedNavbarManager = () => {
   const { config, saveConfig, previewConfig, resetPreview, previewMode, loading } = useVisualConfig();
@@ -25,11 +27,20 @@ const EnhancedNavbarManager = () => {
   };
 
   const addNavbarItem = () => {
-    if (!newNavItem.name.trim() || !newNavItem.url.trim()) return;
+    if (!newNavItem.name.trim() || !newNavItem.url.trim()) {
+      toast.error('Por favor completa todos los campos');
+      return;
+    }
+
+    // Validate URL format - ensure it starts with # for sections
+    let formattedUrl = newNavItem.url.trim();
+    if (!formattedUrl.startsWith('#') && !formattedUrl.startsWith('/') && !formattedUrl.startsWith('http')) {
+      formattedUrl = `#${formattedUrl}`;
+    }
 
     const newItem = {
-      name: newNavItem.name,
-      url: newNavItem.url,
+      name: newNavItem.name.trim(),
+      url: formattedUrl,
       visible: true,
       order: localNavbar.items.length + 1
     };
@@ -37,11 +48,14 @@ const EnhancedNavbarManager = () => {
     const updatedItems = [...localNavbar.items, newItem];
     handleNavbarChange({ items: updatedItems });
     setNewNavItem({ name: '', url: '' });
+    toast.success('Elemento agregado correctamente');
   };
 
   const removeNavbarItem = (index: number) => {
     const updatedItems = localNavbar.items.filter((_, i) => i !== index);
-    handleNavbarChange({ items: updatedItems });
+    // Reorder items
+    const reorderedItems = updatedItems.map((item, i) => ({ ...item, order: i + 1 }));
+    handleNavbarChange({ items: reorderedItems });
   };
 
   const toggleNavbarItemVisibility = (index: number) => {
@@ -58,6 +72,7 @@ const EnhancedNavbarManager = () => {
     if (targetIndex >= 0 && targetIndex < newItems.length) {
       [newItems[index], newItems[targetIndex]] = [newItems[targetIndex], newItems[index]];
       
+      // Update order values
       newItems.forEach((item, i) => {
         item.order = i + 1;
       });
@@ -66,14 +81,34 @@ const EnhancedNavbarManager = () => {
     }
   };
 
+  const updateNavbarItem = (index: number, field: 'name' | 'url', value: string) => {
+    const updatedItems = localNavbar.items.map((item, i) => {
+      if (i === index) {
+        let finalValue = value;
+        if (field === 'url' && value && !value.startsWith('#') && !value.startsWith('/') && !value.startsWith('http')) {
+          finalValue = `#${value}`;
+        }
+        return { ...item, [field]: finalValue };
+      }
+      return item;
+    });
+    handleNavbarChange({ items: updatedItems });
+  };
+
   const handleSave = async () => {
-    await saveConfig({ navbarSettings: localNavbar });
-    resetPreview();
+    try {
+      await saveConfig({ navbarSettings: localNavbar });
+      toast.success('Configuración del navbar guardada correctamente');
+      resetPreview();
+    } catch (error) {
+      toast.error('Error al guardar la configuración');
+    }
   };
 
   const handleReset = () => {
     setLocalNavbar(config.navbarSettings);
     resetPreview();
+    toast.info('Configuración restablecida');
   };
 
   return (
@@ -132,6 +167,7 @@ const EnhancedNavbarManager = () => {
                     value={localNavbar.backgroundColor}
                     onChange={(e) => handleNavbarChange({ backgroundColor: e.target.value })}
                     className="flex-1 font-mono text-sm"
+                    placeholder="#ffffff"
                   />
                 </div>
               </div>
@@ -157,6 +193,7 @@ const EnhancedNavbarManager = () => {
                     value={localNavbar.textColor}
                     onChange={(e) => handleNavbarChange({ textColor: e.target.value })}
                     className="flex-1 font-mono text-sm"
+                    placeholder="#1f2937"
                   />
                 </div>
               </div>
@@ -202,15 +239,18 @@ const EnhancedNavbarManager = () => {
                 />
               </div>
               <div>
-                <Label htmlFor="nav-url">URL</Label>
+                <Label htmlFor="nav-url">URL o Sección</Label>
                 <Input
                   id="nav-url"
                   value={newNavItem.url}
                   onChange={(e) => setNewNavItem(prev => ({ ...prev, url: e.target.value }))}
-                  placeholder="Ej: /servicios"
+                  placeholder="Ej: #servicios o /servicios"
                 />
               </div>
             </div>
+            <p className="text-xs text-muted-foreground mt-2">
+              Para secciones de la página usa # (ej: #hero), para páginas externas usa / o http://
+            </p>
             <Button onClick={addNavbarItem} className="mt-3" size="sm">
               <Plus className="h-4 w-4 mr-2" />
               Agregar Elemento
@@ -227,11 +267,19 @@ const EnhancedNavbarManager = () => {
                     {item.order}
                   </Badge>
                   
-                  <div className="flex-1">
-                    <span className={`font-medium ${!item.visible ? 'text-muted-foreground' : ''}`}>
-                      {item.name}
-                    </span>
-                    <span className="text-sm text-muted-foreground ml-2">({item.url})</span>
+                  <div className="flex-1 grid grid-cols-1 md:grid-cols-2 gap-2">
+                    <Input
+                      value={item.name}
+                      onChange={(e) => updateNavbarItem(index, 'name', e.target.value)}
+                      placeholder="Nombre"
+                      className="text-sm"
+                    />
+                    <Input
+                      value={item.url}
+                      onChange={(e) => updateNavbarItem(index, 'url', e.target.value)}
+                      placeholder="URL"
+                      className="text-sm font-mono"
+                    />
                   </div>
 
                   <div className="flex gap-1">
@@ -240,6 +288,7 @@ const EnhancedNavbarManager = () => {
                       size="sm"
                       onClick={() => moveNavbarItem(index, 'up')}
                       disabled={index === 0}
+                      title="Mover arriba"
                     >
                       <ArrowUp className="h-4 w-4" />
                     </Button>
@@ -248,6 +297,7 @@ const EnhancedNavbarManager = () => {
                       size="sm"
                       onClick={() => moveNavbarItem(index, 'down')}
                       disabled={index === localNavbar.items.length - 1}
+                      title="Mover abajo"
                     >
                       <ArrowDown className="h-4 w-4" />
                     </Button>
@@ -255,6 +305,7 @@ const EnhancedNavbarManager = () => {
                       variant="outline"
                       size="sm"
                       onClick={() => toggleNavbarItemVisibility(index)}
+                      title={item.visible ? 'Ocultar' : 'Mostrar'}
                     >
                       {item.visible ? <Eye className="h-4 w-4" /> : <EyeOff className="h-4 w-4" />}
                     </Button>
@@ -263,6 +314,7 @@ const EnhancedNavbarManager = () => {
                       size="sm"
                       onClick={() => removeNavbarItem(index)}
                       className="text-red-600 hover:text-red-700"
+                      title="Eliminar"
                     >
                       <X className="h-4 w-4" />
                     </Button>
@@ -288,13 +340,15 @@ const EnhancedNavbarManager = () => {
                 onClick={handleReset}
                 disabled={loading}
               >
+                <RefreshCw className="h-4 w-4 mr-2" />
                 Restablecer
               </Button>
               <Button
                 onClick={handleSave}
                 disabled={loading}
               >
-                Guardar Configuración
+                <Save className="h-4 w-4 mr-2" />
+                {loading ? 'Guardando...' : 'Guardar Configuración'}
               </Button>
             </div>
           </div>

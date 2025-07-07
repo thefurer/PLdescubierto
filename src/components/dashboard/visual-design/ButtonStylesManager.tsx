@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -6,8 +7,9 @@ import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
 import { Switch } from '@/components/ui/switch';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { MousePointer, Square, Circle, Pill, Sparkles, Eye } from 'lucide-react';
+import { MousePointer, Square, Circle, Pill, Sparkles, Eye, Save, RefreshCw } from 'lucide-react';
 import { useVisualConfig } from '@/hooks/useVisualConfig';
+import { toast } from 'sonner';
 
 const ButtonStylesManager = () => {
   const { config, saveConfig, previewConfig, resetPreview, previewMode, loading } = useVisualConfig();
@@ -24,20 +26,39 @@ const ButtonStylesManager = () => {
   };
 
   const handleSave = async () => {
-    await saveConfig({ buttonStyles: localButtonStyles });
-    resetPreview();
+    try {
+      await saveConfig({ buttonStyles: localButtonStyles });
+      toast.success('Estilos de botones guardados correctamente');
+      resetPreview();
+    } catch (error) {
+      toast.error('Error al guardar los estilos');
+    }
   };
 
   const handleReset = () => {
     setLocalButtonStyles(config.buttonStyles);
     resetPreview();
+    toast.info('Estilos restablecidos');
   };
 
   const getButtonPreviewStyle = (isPrimary = true) => {
+    // Ensure proper border radius application
+    let borderRadius = '8px'; // default rounded
+    
+    if (localButtonStyles.primaryStyle === 'pill') {
+      borderRadius = '9999px';
+    } else if (localButtonStyles.primaryStyle === 'square') {
+      borderRadius = '4px';
+    }
+
     const baseStyle = {
-      borderRadius: localButtonStyles.primaryStyle === 'pill' ? '9999px' : 
-                    localButtonStyles.primaryStyle === 'square' ? '4px' : '8px',
+      borderRadius,
       transition: 'all 0.2s ease-in-out',
+      padding: '8px 16px',
+      fontWeight: '500',
+      cursor: 'pointer',
+      border: 'none',
+      outline: 'none',
     };
 
     if (isPrimary) {
@@ -45,7 +66,6 @@ const ButtonStylesManager = () => {
         ...baseStyle,
         backgroundColor: localButtonStyles.primaryColor,
         color: 'white',
-        border: 'none',
       };
     } else {
       return {
@@ -54,6 +74,27 @@ const ButtonStylesManager = () => {
         color: localButtonStyles.secondaryColor,
         border: `2px solid ${localButtonStyles.secondaryColor}`,
       };
+    }
+  };
+
+  const applyHoverEffect = (element: HTMLElement, isEntering: boolean) => {
+    if (!isEntering) {
+      element.style.transform = 'scale(1)';
+      element.style.boxShadow = 'none';
+      return;
+    }
+
+    switch (localButtonStyles.hoverEffect) {
+      case 'scale':
+        element.style.transform = 'scale(1.05)';
+        break;
+      case 'shadow':
+        element.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        break;
+      case 'glow':
+        const color = element.style.backgroundColor || localButtonStyles.primaryColor;
+        element.style.boxShadow = `0 0 20px ${color}40`;
+        break;
     }
   };
 
@@ -112,6 +153,10 @@ const ButtonStylesManager = () => {
               <span className="text-xs">Píldora</span>
             </Button>
           </div>
+          <p className="text-xs text-muted-foreground mt-2">
+            Actual: <strong>{localButtonStyles.primaryStyle === 'pill' ? 'Píldora' : 
+                             localButtonStyles.primaryStyle === 'square' ? 'Cuadrado' : 'Redondeado'}</strong>
+          </p>
         </div>
 
         {/* Colores de botones */}
@@ -138,6 +183,7 @@ const ButtonStylesManager = () => {
                 value={localButtonStyles.primaryColor}
                 onChange={(e) => handleButtonStyleChange({ primaryColor: e.target.value })}
                 className="flex-1 font-mono text-sm"
+                placeholder="#2563eb"
               />
             </div>
           </div>
@@ -163,6 +209,7 @@ const ButtonStylesManager = () => {
                 value={localButtonStyles.secondaryColor}
                 onChange={(e) => handleButtonStyleChange({ secondaryColor: e.target.value })}
                 className="flex-1 font-mono text-sm"
+                placeholder="#10b981"
               />
             </div>
           </div>
@@ -186,6 +233,10 @@ const ButtonStylesManager = () => {
               <SelectItem value="glow">Brillo</SelectItem>
             </SelectContent>
           </Select>
+          <p className="text-xs text-muted-foreground mt-1">
+            Actual: <strong>{localButtonStyles.hoverEffect === 'scale' ? 'Escalar' : 
+                             localButtonStyles.hoverEffect === 'shadow' ? 'Sombra' : 'Brillo'}</strong>
+          </p>
         </div>
 
         {/* Vista previa de botones */}
@@ -199,46 +250,26 @@ const ButtonStylesManager = () => {
               <div className="flex flex-wrap gap-3">
                 <button 
                   style={getButtonPreviewStyle(true)}
-                  className="px-6 py-2 font-medium hover:opacity-90"
-                  onMouseEnter={(e) => {
-                    if (localButtonStyles.hoverEffect === 'scale') {
-                      e.currentTarget.style.transform = 'scale(1.05)';
-                    } else if (localButtonStyles.hoverEffect === 'shadow') {
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-                    } else if (localButtonStyles.hoverEffect === 'glow') {
-                      e.currentTarget.style.boxShadow = `0 0 20px ${localButtonStyles.primaryColor}40`;
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
+                  onMouseEnter={(e) => applyHoverEffect(e.currentTarget, true)}
+                  onMouseLeave={(e) => applyHoverEffect(e.currentTarget, false)}
                 >
                   Botón Primario
                 </button>
                 <button 
                   style={getButtonPreviewStyle(false)}
-                  className="px-6 py-2 font-medium hover:opacity-90"
-                  onMouseEnter={(e) => {
-                    if (localButtonStyles.hoverEffect === 'scale') {
-                      e.currentTarget.style.transform = 'scale(1.05)';
-                    } else if (localButtonStyles.hoverEffect === 'shadow') {
-                      e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
-                    } else if (localButtonStyles.hoverEffect === 'glow') {
-                      e.currentTarget.style.boxShadow = `0 0 20px ${localButtonStyles.secondaryColor}40`;
-                    }
-                  }}
-                  onMouseLeave={(e) => {
-                    e.currentTarget.style.transform = 'scale(1)';
-                    e.currentTarget.style.boxShadow = 'none';
-                  }}
+                  onMouseEnter={(e) => applyHoverEffect(e.currentTarget, true)}
+                  onMouseLeave={(e) => applyHoverEffect(e.currentTarget, false)}
                 >
                   Botón Secundario
                 </button>
               </div>
               
-              <div className="text-xs text-muted-foreground">
-                Pasa el mouse sobre los botones para ver el efecto hover
+              <div className="text-xs text-muted-foreground space-y-1">
+                <p>• Pasa el mouse sobre los botones para ver el efecto hover</p>
+                <p>• Forma actual: <strong>{localButtonStyles.primaryStyle === 'pill' ? 'Píldora (bordes completamente redondeados)' : 
+                                          localButtonStyles.primaryStyle === 'square' ? 'Cuadrado (bordes rectos)' : 'Redondeado (bordes suavemente curvos)'}</strong></p>
+                <p>• Efecto hover: <strong>{localButtonStyles.hoverEffect === 'scale' ? 'Escalar' : 
+                                           localButtonStyles.hoverEffect === 'shadow' ? 'Sombra' : 'Brillo'}</strong></p>
               </div>
             </div>
           </div>
@@ -260,6 +291,7 @@ const ButtonStylesManager = () => {
               onClick={handleReset}
               disabled={loading}
             >
+              <RefreshCw className="h-4 w-4 mr-2" />
               Restablecer
             </Button>
             <Button
@@ -267,8 +299,8 @@ const ButtonStylesManager = () => {
               disabled={loading}
               className="flex items-center gap-2"
             >
-              <Sparkles className="h-4 w-4" />
-              Guardar Estilos
+              <Save className="h-4 w-4" />
+              {loading ? 'Guardando...' : 'Guardar Estilos'}
             </Button>
           </div>
         </div>

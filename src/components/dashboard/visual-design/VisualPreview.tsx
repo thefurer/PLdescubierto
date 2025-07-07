@@ -43,6 +43,62 @@ const VisualPreview = () => {
     }
   };
 
+  const getButtonStyle = (isPrimary = true) => {
+    let borderRadius = '8px'; // default rounded
+    
+    if (config.buttonStyles.primaryStyle === 'pill') {
+      borderRadius = '9999px';
+    } else if (config.buttonStyles.primaryStyle === 'square') {
+      borderRadius = '4px';
+    }
+
+    const baseStyle = {
+      borderRadius,
+      transition: 'all 0.2s ease-in-out',
+      padding: '12px 24px',
+      fontWeight: '600',
+      cursor: 'pointer',
+      border: 'none',
+      outline: 'none',
+      fontFamily: config.typography.fontFamily,
+    };
+
+    if (isPrimary) {
+      return {
+        ...baseStyle,
+        backgroundColor: config.buttonStyles.primaryColor,
+        color: 'white',
+      };
+    } else {
+      return {
+        ...baseStyle,
+        backgroundColor: 'transparent',
+        color: config.buttonStyles.secondaryColor,
+        border: `2px solid ${config.buttonStyles.secondaryColor}`,
+      };
+    }
+  };
+
+  const applyHoverEffect = (element: HTMLElement, isEntering: boolean) => {
+    if (!isEntering) {
+      element.style.transform = 'scale(1)';
+      element.style.boxShadow = 'none';
+      return;
+    }
+
+    switch (config.buttonStyles.hoverEffect) {
+      case 'scale':
+        element.style.transform = 'scale(1.05)';
+        break;
+      case 'shadow':
+        element.style.boxShadow = '0 4px 12px rgba(0,0,0,0.15)';
+        break;
+      case 'glow':
+        element.style.boxShadow = `0 0 20px ${config.buttonStyles.primaryColor}40`;
+        break;
+    }
+  };
+
   const DeviceIcon = devicePreview === 'desktop' ? Monitor : devicePreview === 'tablet' ? Tablet : Smartphone;
 
   return (
@@ -189,26 +245,16 @@ const VisualPreview = () => {
                 </p>
                 <div className="flex gap-3 justify-center">
                   <button
-                    className="px-6 py-3 text-white font-semibold transition-all duration-200 hover:opacity-90 transform hover:scale-105"
-                    style={{ 
-                      backgroundColor: config.buttonStyles.primaryColor,
-                      borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
-                                   config.buttonStyles.primaryStyle === 'square' ? '4px' : '12px',
-                      fontFamily: config.typography.fontFamily
-                    }}
+                    style={getButtonStyle(true)}
+                    onMouseEnter={(e) => applyHoverEffect(e.currentTarget, true)}
+                    onMouseLeave={(e) => applyHoverEffect(e.currentTarget, false)}
                   >
                     Explorar
                   </button>
                   <button
-                    className="px-6 py-3 font-semibold transition-all duration-200 bg-transparent hover:opacity-80"
-                    style={{ 
-                      borderColor: config.buttonStyles.secondaryColor,
-                      color: config.buttonStyles.secondaryColor,
-                      border: `2px solid ${config.buttonStyles.secondaryColor}`,
-                      borderRadius: config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 
-                                   config.buttonStyles.primaryStyle === 'square' ? '4px' : '12px',
-                      fontFamily: config.typography.fontFamily
-                    }}
+                    style={getButtonStyle(false)}
+                    onMouseEnter={(e) => applyHoverEffect(e.currentTarget, true)}
+                    onMouseLeave={(e) => applyHoverEffect(e.currentTarget, false)}
                   >
                     Más Info
                   </button>
@@ -217,7 +263,13 @@ const VisualPreview = () => {
 
               {/* Content Cards */}
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="border-2 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
+                <div 
+                  className="rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+                  style={{ 
+                    backgroundColor: config.colorPalette.card,
+                    border: `1px solid ${config.colorPalette.border}`
+                  }}
+                >
                   <h3 
                     className="font-bold mb-3 text-lg"
                     style={{ 
@@ -247,7 +299,13 @@ const VisualPreview = () => {
                     Leer más →
                   </a>
                 </div>
-                <div className="border-2 rounded-xl p-4 bg-white shadow-sm hover:shadow-md transition-shadow">
+                <div 
+                  className="rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow"
+                  style={{ 
+                    backgroundColor: config.colorPalette.card,
+                    border: `1px solid ${config.colorPalette.border}`
+                  }}
+                >
                   <h3 
                     className="font-bold mb-3 text-lg"
                     style={{ 
@@ -279,24 +337,66 @@ const VisualPreview = () => {
                 </div>
               </div>
 
-              {/* Color Palette Display */}
-              <div className="border-2 rounded-xl p-4 bg-white shadow-sm">
+              {/* Color Palette Display & Button Style Demo */}
+              <div 
+                className="rounded-xl p-4 shadow-sm space-y-4"
+                style={{ backgroundColor: config.colorPalette.card }}
+              >
                 <h4 className="text-sm font-bold mb-3" style={{ fontFamily: config.typography.fontFamily }}>
-                  Paleta de Colores Actual
+                  Vista de Elementos Personalizados
                 </h4>
-                <div className="flex gap-2 flex-wrap">
-                  {Object.entries(config.colorPalette).map(([key, color]) => (
-                    <div key={key} className="flex flex-col items-center gap-1">
-                      <div
-                        className="w-8 h-8 rounded-full border-2 border-gray-300 shadow-sm"
-                        style={{ backgroundColor: color }}
-                        title={`${key}: ${color}`}
-                      />
-                      <span className="text-xs font-medium capitalize" style={{ color: config.typography.bodyColor }}>
-                        {key.replace(/([A-Z])/g, ' $1').trim()}
-                      </span>
-                    </div>
-                  ))}
+                
+                {/* Button Styles Demo */}
+                <div className="space-y-2">
+                  <p className="text-xs font-medium" style={{ color: config.colorPalette.muted }}>
+                    Estilos de Botones ({config.buttonStyles.primaryStyle === 'pill' ? 'Píldora' : 
+                                      config.buttonStyles.primaryStyle === 'square' ? 'Cuadrado' : 'Redondeado'}):
+                  </p>
+                  <div className="flex gap-2 flex-wrap">
+                    <button
+                      style={getButtonStyle(true)}
+                      onMouseEnter={(e) => applyHoverEffect(e.currentTarget, true)}
+                      onMouseLeave={(e) => applyHoverEffect(e.currentTarget, false)}
+                      className="text-xs px-3 py-1"
+                    >
+                      Primario
+                    </button>
+                    <button
+                      style={getButtonStyle(false)}
+                      onMouseEnter={(e) => applyHoverEffect(e.currentTarget, true)}
+                      onMouseLeave={(e) => applyHoverEffect(e.currentTarget, false)}
+                      className="text-xs px-3 py-1"
+                    >
+                      Secundario
+                    </button>
+                  </div>
+                </div>
+
+                {/* Color Palette Display */}
+                <div>
+                  <p className="text-xs font-medium mb-2" style={{ color: config.colorPalette.muted }}>
+                    Paleta de Colores Actual:
+                  </p>
+                  <div className="grid grid-cols-4 gap-2">
+                    {Object.entries(config.colorPalette).slice(0, 8).map(([key, color]) => (
+                      <div key={key} className="flex flex-col items-center gap-1">
+                        <div
+                          className="w-6 h-6 rounded-full border shadow-sm"
+                          style={{ 
+                            backgroundColor: color,
+                            borderColor: config.colorPalette.border
+                          }}
+                          title={`${key}: ${color}`}
+                        />
+                        <span 
+                          className="text-xs font-medium capitalize"
+                          style={{ color: config.typography.bodyColor }}
+                        >
+                          {key.replace(/([A-Z])/g, ' $1').trim()}
+                        </span>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               </div>
             </div>
