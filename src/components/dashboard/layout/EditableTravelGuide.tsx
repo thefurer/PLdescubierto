@@ -112,55 +112,110 @@ const EditableTravelGuide = () => {
     }
   };
 
-  const saveTravelPoints = async () => {
+  const saveTravelPoints = async (updatedPoints?: TravelPoint[]) => {
     if (!user) return;
+
+    const pointsToSave = updatedPoints || travelPoints;
+    console.log('Saving travel points:', pointsToSave);
 
     try {
       setLoading(true);
-      await supabase
+      const { error } = await supabase
         .from('site_content')
         .upsert({
           section_name: 'travel_guide_points',
-          content: { points: travelPoints } as any,
+          content: { points: pointsToSave } as any,
           updated_by: user.id
         }, {
           onConflict: 'section_name'
         });
 
+      if (error) {
+        console.error('Error saving travel points:', error);
+        toast.error('Error al guardar los puntos de interés');
+        return false;
+      }
+
       toast.success('Puntos de interés guardados correctamente');
+      return true;
     } catch (error) {
       console.error('Error saving travel points:', error);
       toast.error('Error al guardar los puntos de interés');
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
-  const saveTransportOptions = async () => {
+  const saveTransportOptions = async (updatedOptions?: TransportOption[]) => {
     if (!user) return;
+
+    const optionsToSave = updatedOptions || transportOptions;
 
     try {
       setLoading(true);
-      await supabase
+      const { error } = await supabase
         .from('site_content')
         .upsert({
           section_name: 'travel_guide_transport',
-          content: { options: transportOptions } as any,
+          content: { options: optionsToSave } as any,
           updated_by: user.id
         }, {
           onConflict: 'section_name'
         });
 
+      if (error) {
+        console.error('Error saving transport options:', error);
+        toast.error('Error al guardar las opciones de transporte');
+        return false;
+      }
+
       toast.success('Opciones de transporte guardadas correctamente');
+      return true;
     } catch (error) {
       console.error('Error saving transport options:', error);
       toast.error('Error al guardar las opciones de transporte');
+      return false;
     } finally {
       setLoading(false);
     }
   };
 
-  const addTravelPoint = (newPointData: Partial<TravelPoint>) => {
+  const saveTravelTips = async (updatedTips?: TravelTip[]) => {
+    if (!user) return;
+
+    const tipsToSave = updatedTips || travelTips;
+
+    try {
+      setLoading(true);
+      const { error } = await supabase
+        .from('site_content')
+        .upsert({
+          section_name: 'travel_guide_tips',
+          content: { tips: tipsToSave } as any,
+          updated_by: user.id
+        }, {
+          onConflict: 'section_name'
+        });
+
+      if (error) {
+        console.error('Error saving travel tips:', error);
+        toast.error('Error al guardar los consejos de viaje');
+        return false;
+      }
+
+      toast.success('Consejos de viaje guardados correctamente');
+      return true;
+    } catch (error) {
+      console.error('Error saving travel tips:', error);
+      toast.error('Error al guardar los consejos de viaje');
+      return false;
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addTravelPoint = async (newPointData: Partial<TravelPoint>) => {
     if (!newPointData.name || !newPointData.description) return;
 
     const point: TravelPoint = {
@@ -178,24 +233,27 @@ const EditableTravelGuide = () => {
       coordinates: newPointData.coordinates
     };
 
-    setTravelPoints([...travelPoints, point]);
-    saveTravelPoints();
+    const updatedPoints = [...travelPoints, point];
+    setTravelPoints(updatedPoints);
+    await saveTravelPoints(updatedPoints);
   };
 
-  const updateTravelPoint = (id: string, updates: Partial<TravelPoint>) => {
-    setTravelPoints(travelPoints.map(point => 
+  const updateTravelPoint = async (id: string, updates: Partial<TravelPoint>) => {
+    const updatedPoints = travelPoints.map(point => 
       point.id === id ? { ...point, ...updates } : point
-    ));
+    );
+    setTravelPoints(updatedPoints);
     setEditingPoint(null);
-    saveTravelPoints();
+    await saveTravelPoints(updatedPoints);
   };
 
-  const deleteTravelPoint = (id: string) => {
-    setTravelPoints(travelPoints.filter(point => point.id !== id));
-    saveTravelPoints();
+  const deleteTravelPoint = async (id: string) => {
+    const updatedPoints = travelPoints.filter(point => point.id !== id);
+    setTravelPoints(updatedPoints);
+    await saveTravelPoints(updatedPoints);
   };
 
-  const addTransportOption = (newTransportData: Partial<TransportOption>) => {
+  const addTransportOption = async (newTransportData: Partial<TransportOption>) => {
     if (!newTransportData.name || !newTransportData.description) return;
 
     const transport: TransportOption = {
@@ -209,48 +267,27 @@ const EditableTravelGuide = () => {
       details: newTransportData.details || ''
     };
 
-    setTransportOptions([...transportOptions, transport]);
-    saveTransportOptions();
+    const updatedOptions = [...transportOptions, transport];
+    setTransportOptions(updatedOptions);
+    await saveTransportOptions(updatedOptions);
   };
 
-  const updateTransportOption = (id: string, updates: Partial<TransportOption>) => {
-    setTransportOptions(transportOptions.map(option => 
+  const updateTransportOption = async (id: string, updates: Partial<TransportOption>) => {
+    const updatedOptions = transportOptions.map(option => 
       option.id === id ? { ...option, ...updates } : option
-    ));
+    );
+    setTransportOptions(updatedOptions);
     setEditingTransport(null);
-    saveTransportOptions();
+    await saveTransportOptions(updatedOptions);
   };
 
-  const deleteTransportOption = (id: string) => {
-    setTransportOptions(transportOptions.filter(option => option.id !== id));
-    saveTransportOptions();
+  const deleteTransportOption = async (id: string) => {
+    const updatedOptions = transportOptions.filter(option => option.id !== id);
+    setTransportOptions(updatedOptions);
+    await saveTransportOptions(updatedOptions);
   };
 
-  const saveTravelTips = async () => {
-    if (!user) return;
-
-    try {
-      setLoading(true);
-      await supabase
-        .from('site_content')
-        .upsert({
-          section_name: 'travel_guide_tips',
-          content: { tips: travelTips } as any,
-          updated_by: user.id
-        }, {
-          onConflict: 'section_name'
-        });
-
-      toast.success('Consejos de viaje guardados correctamente');
-    } catch (error) {
-      console.error('Error saving travel tips:', error);
-      toast.error('Error al guardar los consejos de viaje');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const addTravelTip = (newTipData: Partial<TravelTip>) => {
+  const addTravelTip = async (newTipData: Partial<TravelTip>) => {
     if (!newTipData.title) return;
 
     const tip: TravelTip = {
@@ -262,21 +299,24 @@ const EditableTravelGuide = () => {
       seasonal: newTipData.seasonal || []
     };
 
-    setTravelTips([...travelTips, tip]);
-    saveTravelTips();
+    const updatedTips = [...travelTips, tip];
+    setTravelTips(updatedTips);
+    await saveTravelTips(updatedTips);
   };
 
-  const updateTravelTip = (id: string, updates: Partial<TravelTip>) => {
-    setTravelTips(travelTips.map(tip => 
+  const updateTravelTip = async (id: string, updates: Partial<TravelTip>) => {
+    const updatedTips = travelTips.map(tip => 
       tip.id === id ? { ...tip, ...updates } : tip
-    ));
+    );
+    setTravelTips(updatedTips);
     setEditingTip(null);
-    saveTravelTips();
+    await saveTravelTips(updatedTips);
   };
 
-  const deleteTravelTip = (id: string) => {
-    setTravelTips(travelTips.filter(tip => tip.id !== id));
-    saveTravelTips();
+  const deleteTravelTip = async (id: string) => {
+    const updatedTips = travelTips.filter(tip => tip.id !== id);
+    setTravelTips(updatedTips);
+    await saveTravelTips(updatedTips);
   };
 
   if (!user) {
@@ -325,7 +365,7 @@ const EditableTravelGuide = () => {
             Puntos de Interés
           </CardTitle>
           <CardDescription>
-            Edita los puntos de interés de la guía de viaje
+            Edita los puntos de interés de la guía de viaje. Los cambios se guardan automáticamente.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -356,7 +396,7 @@ const EditableTravelGuide = () => {
             Opciones de Transporte
           </CardTitle>
           <CardDescription>
-            Edita las opciones de transporte disponibles
+            Edita las opciones de transporte disponibles. Los cambios se guardan automáticamente.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
@@ -387,7 +427,7 @@ const EditableTravelGuide = () => {
             Consejos de Viaje
           </CardTitle>
           <CardDescription>
-            Edita los consejos de viaje y recomendaciones
+            Edita los consejos de viaje y recomendaciones. Los cambios se guardan automáticamente.
           </CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">

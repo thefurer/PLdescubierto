@@ -77,7 +77,21 @@ const TravelPointEditor = ({ point, isEditing, onEdit, onSave, onCancel, onDelet
   };
 
   const handleSave = () => {
+    console.log('Saving travel point with data:', editedPoint);
     onSave(editedPoint);
+  };
+
+  const handleCoordinatesChange = (field: 'lat' | 'lng', value: string) => {
+    const numValue = parseFloat(value);
+    if (!isNaN(numValue)) {
+      setEditedPoint({
+        ...editedPoint,
+        coordinates: {
+          ...editedPoint.coordinates,
+          [field]: numValue
+        } as { lat: number; lng: number }
+      });
+    }
   };
 
   if (isEditing) {
@@ -171,6 +185,29 @@ const TravelPointEditor = ({ point, isEditing, onEdit, onSave, onCancel, onDelet
               placeholder="URL de la imagen"
             />
           </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-sm font-medium mb-1">Latitud</label>
+              <Input
+                type="number"
+                step="any"
+                value={editedPoint.coordinates?.lat || ''}
+                onChange={(e) => handleCoordinatesChange('lat', e.target.value)}
+                placeholder="-1.5667"
+              />
+            </div>
+            <div>
+              <label className="block text-sm font-medium mb-1">Longitud</label>
+              <Input
+                type="number"
+                step="any"
+                value={editedPoint.coordinates?.lng || ''}
+                onChange={(e) => handleCoordinatesChange('lng', e.target.value)}
+                placeholder="-80.7833"
+              />
+            </div>
+          </div>
           
           <div>
             <label className="block text-sm font-medium mb-2">Qué verás (Highlights)</label>
@@ -248,6 +285,11 @@ const TravelPointEditor = ({ point, isEditing, onEdit, onSave, onCancel, onDelet
           <div className="text-sm">
             <strong>Mejor época:</strong> {point.bestTime}
           </div>
+          {point.coordinates && (
+            <div className="text-sm">
+              <strong>Coordenadas:</strong> {point.coordinates.lat}, {point.coordinates.lng}
+            </div>
+          )}
           {point.highlights && point.highlights.length > 0 && (
             <div className="mt-2">
               <strong className="text-sm">Qué verás:</strong>
