@@ -1,25 +1,27 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Star, Clock, DollarSign, Camera, Waves } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
+import { supabase } from '@/integrations/supabase/client';
 
 interface TravelPoint {
   id: string;
   name: string;
-  category: string;
   description: string;
-  highlights: string[];
-  duration: string;
-  cost: string;
-  bestTime: string;
-  difficulty: string;
+  category: 'tours' | 'playas' | 'cultura' | 'aventura';
   rating: number;
+  difficulty: 'Fácil' | 'Moderado' | 'Difícil' | 'Muy Fácil';
+  duration: string;
+  price: string;
+  bestTime: string;
+  highlights: string[];
   image: string;
-  coordinates: string;
+  coordinates?: { lat: number; lng: number };
 }
 
-const travelPoints: TravelPoint[] = [
+// Default travel points that will be used if no data exists in database
+const defaultTravelPoints: TravelPoint[] = [
   {
     id: '1',
     name: 'Avistamiento de Ballenas',
@@ -27,12 +29,12 @@ const travelPoints: TravelPoint[] = [
     description: 'Experiencia única para observar ballenas jorobadas durante su migración anual.',
     highlights: ['Ballenas jorobadas', 'Delfines', 'Aves marinas', 'Fotografía'],
     duration: '3-4 horas',
-    cost: '$25-40',
+    price: '$25-40',
     bestTime: 'Junio - Septiembre',
     difficulty: 'Fácil',
     rating: 4.9,
     image: 'https://images.unsplash.com/photo-1544551763-46a013bb70d5?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    coordinates: '-1.5667, -80.7833'
+    coordinates: { lat: -1.5667, lng: -80.7833 }
   },
   {
     id: '2',
@@ -41,12 +43,12 @@ const travelPoints: TravelPoint[] = [
     description: 'Conocida como las "Galápagos Pobres", perfecta para snorkeling y observación de vida marina.',
     highlights: ['Snorkeling', 'Piqueros de patas azules', 'Fragatas', 'Tortugas marinas'],
     duration: '6-8 horas',
-    cost: '$35-50',
+    price: '$35-50',
     bestTime: 'Todo el año',
     difficulty: 'Moderado',
     rating: 4.8,
     image: 'https://images.unsplash.com/photo-1559827260-dc66d52bef19?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    coordinates: '-1.2833, -81.0833'
+    coordinates: { lat: -1.2833, lng: -81.0833 }
   },
   {
     id: '3',
@@ -55,12 +57,12 @@ const travelPoints: TravelPoint[] = [
     description: 'Una de las playas más hermosas del Ecuador, con arena dorada y aguas cristalinas.',
     highlights: ['Arena dorada', 'Aguas cristalinas', 'Senderos naturales', 'Miradores'],
     duration: '2-3 horas',
-    cost: '$5 entrada',
+    price: '$5 entrada',
     bestTime: 'Todo el año',
     difficulty: 'Fácil',
     rating: 4.9,
     image: 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    coordinates: '-1.5667, -80.6833'
+    coordinates: { lat: -1.5667, lng: -80.6833 }
   },
   {
     id: '4',
@@ -69,12 +71,12 @@ const travelPoints: TravelPoint[] = [
     description: 'Sitio arqueológico con aguas termales sulfurosas y museo de la cultura Manteña.',
     highlights: ['Museo arqueológico', 'Aguas termales', 'Cultura Manteña', 'Senderos'],
     duration: '3-4 horas',
-    cost: '$10-15',
+    price: '$10-15',
     bestTime: 'Todo el año',
     difficulty: 'Fácil',
     rating: 4.6,
     image: 'https://images.unsplash.com/photo-1469474968028-56623f02e42e?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    coordinates: '-1.5167, -80.7167'
+    coordinates: { lat: -1.5167, lng: -80.7167 }
   },
   {
     id: '5',
@@ -83,12 +85,12 @@ const travelPoints: TravelPoint[] = [
     description: 'Playa principal del pueblo pesquero, perfecta para disfrutar de la puesta de sol.',
     highlights: ['Atardeceres', 'Restaurantes frente al mar', 'Pesca artesanal', 'Mercado de mariscos'],
     duration: '1-2 horas',
-    cost: 'Gratis',
+    price: 'Gratis',
     bestTime: 'Todo el año',
     difficulty: 'Muy Fácil',
     rating: 4.7,
     image: 'https://images.unsplash.com/photo-1505142468610-359e7d316be0?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    coordinates: '-1.5667, -80.7833'
+    coordinates: { lat: -1.5667, lng: -80.7833 }
   },
   {
     id: '6',
@@ -97,17 +99,45 @@ const travelPoints: TravelPoint[] = [
     description: 'Caminata costera que conecta varias playas vírgenes con vista panorámica al océano.',
     highlights: ['Playas vírgenes', 'Acantilados', 'Flora nativa', 'Vistas panorámicas'],
     duration: '2-3 horas',
-    cost: '$5 entrada',
+    price: '$5 entrada',
     bestTime: 'Mañana temprano',
     difficulty: 'Moderado',
     rating: 4.5,
     image: 'https://images.unsplash.com/photo-1472396961693-142e6e269027?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=80',
-    coordinates: '-1.5500, -80.6900'
+    coordinates: { lat: -1.5500, lng: -80.6900 }
   }
 ];
 
 const TravelGuidePoints = () => {
   const [selectedCategory, setSelectedCategory] = useState('all');
+  const [travelPoints, setTravelPoints] = useState<TravelPoint[]>(defaultTravelPoints);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    loadTravelPoints();
+  }, []);
+
+  const loadTravelPoints = async () => {
+    try {
+      const { data } = await supabase
+        .from('site_content')
+        .select('*')
+        .eq('section_name', 'travel_guide_points')
+        .single();
+
+      if (data?.content && typeof data.content === 'object' && data.content !== null) {
+        const content = data.content as any;
+        if (content.points && Array.isArray(content.points)) {
+          setTravelPoints(content.points);
+        }
+      }
+    } catch (error) {
+      console.error('Error loading travel points:', error);
+      // Keep default points if loading fails
+    } finally {
+      setLoading(false);
+    }
+  };
 
   const categories = [
     { value: 'all', label: 'Todos', color: 'bg-blue-500' },
@@ -121,8 +151,10 @@ const TravelGuidePoints = () => {
     selectedCategory === 'all' || point.category === selectedCategory
   );
 
-  const handleGetDirections = (coordinates: string, name: string) => {
-    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${coordinates}&destination_place_id=${encodeURIComponent(name)}`;
+  const handleGetDirections = (coordinates: { lat: number; lng: number } | undefined, name: string) => {
+    if (!coordinates) return;
+    const coordString = `${coordinates.lat},${coordinates.lng}`;
+    const googleMapsUrl = `https://www.google.com/maps/dir/?api=1&destination=${coordString}&destination_place_id=${encodeURIComponent(name)}`;
     window.open(googleMapsUrl, '_blank');
   };
 
@@ -196,16 +228,16 @@ const TravelGuidePoints = () => {
               </CardHeader>
               
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div className="flex items-center">
-                    <Clock className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>{point.duration}</span>
-                  </div>
-                  <div className="flex items-center">
-                    <DollarSign className="h-4 w-4 mr-2 text-gray-500" />
-                    <span>{point.cost}</span>
-                  </div>
-                </div>
+                 <div className="grid grid-cols-2 gap-4 text-sm">
+                   <div className="flex items-center">
+                     <Clock className="h-4 w-4 mr-2 text-gray-500" />
+                     <span>{point.duration}</span>
+                   </div>
+                   <div className="flex items-center">
+                     <DollarSign className="h-4 w-4 mr-2 text-gray-500" />
+                     <span>{point.price}</span>
+                   </div>
+                 </div>
                 
                 <div className="bg-blue-50 p-3 rounded-lg">
                   <p className="text-sm font-medium text-blue-800 mb-2">Mejor época:</p>
@@ -229,13 +261,14 @@ const TravelGuidePoints = () => {
                   </div>
                 </div>
                 
-                <Button
-                  onClick={() => handleGetDirections(point.coordinates, point.name)}
-                  className="w-full bg-gradient-to-r from-ocean to-blue-600 hover:from-ocean-dark hover:to-blue-700 text-white font-semibold py-2 rounded-lg transition-all duration-300 transform hover:scale-105"
-                >
-                  <Waves className="h-4 w-4 mr-2" />
-                  Ver en Mapa
-                </Button>
+                 <Button
+                   onClick={() => handleGetDirections(point.coordinates, point.name)}
+                   className="w-full bg-gradient-to-r from-ocean to-blue-600 hover:from-ocean-dark hover:to-blue-700 text-white font-semibold py-2 rounded-lg transition-all duration-300 transform hover:scale-105"
+                   disabled={!point.coordinates}
+                 >
+                   <Waves className="h-4 w-4 mr-2" />
+                   Ver en Mapa
+                 </Button>
               </CardContent>
             </Card>
           ))}
