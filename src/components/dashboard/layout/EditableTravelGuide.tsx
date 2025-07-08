@@ -2,7 +2,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { MapPin, Car } from 'lucide-react';
+import { MapPin, Car, Compass } from 'lucide-react';
 import { useAuth } from '@/hooks/useAuthContext';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
@@ -10,6 +10,8 @@ import TravelPointEditor from '../travel-guide/TravelPointEditor';
 import TransportOptionEditor from '../travel-guide/TransportOptionEditor';
 import NewTravelPointForm from '../travel-guide/NewTravelPointForm';
 import NewTransportForm from '../travel-guide/NewTransportForm';
+import TravelTipsEditor from '../travel-guide/TravelTipsEditor';
+import NewTravelTipForm from '../travel-guide/NewTravelTipForm';
 import TravelGuidePointsPreview from '../content-previews/TravelGuidePointsPreview';
 import TransportOptionsPreview from '../content-previews/TransportOptionsPreview';
 import TravelTipsPreview from '../content-previews/TravelTipsPreview';
@@ -40,12 +42,26 @@ interface TransportOption {
   details: string;
 }
 
+interface TravelTip {
+  id: string;
+  category: 'epoca' | 'items';
+  title: string;
+  description?: string;
+  items?: string[];
+  seasonal?: {
+    period: string;
+    description: string;
+  }[];
+}
+
 const EditableTravelGuide = () => {
   const { user } = useAuth();
   const [travelPoints, setTravelPoints] = useState<TravelPoint[]>([]);
   const [transportOptions, setTransportOptions] = useState<TransportOption[]>([]);
+  const [travelTips, setTravelTips] = useState<TravelTip[]>([]);
   const [editingPoint, setEditingPoint] = useState<string | null>(null);
   const [editingTransport, setEditingTransport] = useState<string | null>(null);
+  const [editingTip, setEditingTip] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
 
@@ -67,6 +83,12 @@ const EditableTravelGuide = () => {
         .eq('section_name', 'travel_guide_transport')
         .single();
 
+      const { data: tipsData } = await supabase
+        .from('site_content')
+        .select('*')
+        .eq('section_name', 'travel_guide_tips')
+        .single();
+
       if (pointsData?.content && typeof pointsData.content === 'object' && pointsData.content !== null) {
         const content = pointsData.content as any;
         if (content.points && Array.isArray(content.points)) {
@@ -77,6 +99,12 @@ const EditableTravelGuide = () => {
         const content = transportData.content as any;
         if (content.options && Array.isArray(content.options)) {
           setTransportOptions(content.options);
+        }
+      }
+      if (tipsData?.content && typeof tipsData.content === 'object' && tipsData.content !== null) {
+        const content = tipsData.content as any;
+        if (content.tips && Array.isArray(content.tips)) {
+          setTravelTips(content.tips);
         }
       }
     } catch (error) {
@@ -198,6 +226,59 @@ const EditableTravelGuide = () => {
     saveTransportOptions();
   };
 
+  const saveTravelTips = async () => {
+    if (!user) return;
+
+    try {
+      setLoading(true);
+      await supabase
+        .from('site_content')
+        .upsert({
+          section_name: 'travel_guide_tips',
+          content: { tips: travelTips } as any,
+          updated_by: user.id
+        }, {
+          onConflict: 'section_name'
+        });
+
+      toast.success('Consejos de viaje guardados correctamente');
+    } catch (error) {
+      console.error('Error saving travel tips:', error);
+      toast.error('Error al guardar los consejos de viaje');
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const addTravelTip = (newTipData: Partial<TravelTip>) => {
+    if (!newTipData.title) return;
+
+    const tip: TravelTip = {
+      id: Date.now().toString(),
+      category: newTipData.category || 'epoca',
+      title: newTipData.title,
+      description: newTipData.description || '',
+      items: newTipData.items || [],
+      seasonal: newTipData.seasonal || []
+    };
+
+    setTravelTips([...travelTips, tip]);
+    saveTravelTips();
+  };
+
+  const updateTravelTip = (id: string, updates: Partial<TravelTip>) => {
+    setTravelTips(travelTips.map(tip => 
+      tip.id === id ? { ...tip, ...updates } : tip
+    ));
+    setEditingTip(null);
+    saveTravelTips();
+  };
+
+  const deleteTravelTip = (id: string) => {
+    setTravelTips(travelTips.filter(tip => tip.id !== id));
+    saveTravelTips();
+  };
+
   if (!user) {
     return (
       <Card>
@@ -221,7 +302,7 @@ const EditableTravelGuide = () => {
         <div className="bg-white">
           <TravelGuidePointsPreview points={travelPoints} />
           <TransportOptionsPreview options={transportOptions} />
-          <TravelTipsPreview />
+          <TravelTipsPreview tips={travelTips} />
         </div>
       </div>
     );
@@ -293,6 +374,37 @@ const EditableTravelGuide = () => {
 
           <NewTransportForm
             onAdd={addTransportOption}
+            loading={loading}
+          />
+        </CardContent>
+      </Card>
+
+      {/* Consejos de Viaje */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <Compass className="h-5 w-5" />
+            Consejos de Viaje
+          </CardTitle>
+          <CardDescription>
+            Edita los consejos de viaje y recomendaciones
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          {travelTips.map((tip) => (
+            <TravelTipsEditor
+              key={tip.id}
+              tip={tip}
+              isEditing={editingTip === tip.id}
+              onEdit={() => setEditingTip(tip.id)}
+              onSave={(updates) => updateTravelTip(tip.id, updates)}
+              onCancel={() => setEditingTip(null)}
+              onDelete={() => deleteTravelTip(tip.id)}
+            />
+          ))}
+
+          <NewTravelTipForm
+            onAdd={addTravelTip}
             loading={loading}
           />
         </CardContent>
