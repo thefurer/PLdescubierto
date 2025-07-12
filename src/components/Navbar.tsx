@@ -10,7 +10,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useAuth } from "@/hooks/useAuthContext";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useVisualConfig } from "@/hooks/useVisualConfig";
 
 const Navbar = () => {
@@ -18,6 +18,7 @@ const Navbar = () => {
   const [scrolled, setScrolled] = useState(false);
   const { user, signOut } = useAuth();
   const navigate = useNavigate();
+  const location = useLocation();
   const { config } = useVisualConfig();
 
   useEffect(() => {
@@ -45,18 +46,37 @@ const Navbar = () => {
   };
 
   const scrollToSection = (sectionId: string) => {
-    // Handle different URL formats
-    if (sectionId.startsWith('#')) {
-      const elementId = sectionId.substring(1);
-      const element = document.getElementById(elementId);
-      if (element) {
-        element.scrollIntoView({ behavior: "smooth" });
+    // Check if we're on the home page
+    if (location.pathname === '/') {
+      // We're on the home page, scroll to section
+      if (sectionId.startsWith('#')) {
+        const elementId = sectionId.substring(1);
+        const element = document.getElementById(elementId);
+        if (element) {
+          element.scrollIntoView({ behavior: "smooth" });
+        }
       }
     } else {
-      // For external links, navigate directly
-      if (sectionId.startsWith('/') || sectionId.startsWith('http')) {
-        window.location.href = sectionId;
+      // We're on a different page, navigate to home page with hash
+      navigate(`/${sectionId}`);
+    }
+    setIsOpen(false);
+  };
+
+  const handleNavigation = (url: string) => {
+    if (url === '#contacto') {
+      // Open chatbot instead of scrolling
+      const chatButton = document.querySelector('[aria-label="Abrir chat de soporte"]') as HTMLButtonElement;
+      if (chatButton) {
+        chatButton.click();
       }
+    } else if (url.startsWith('#')) {
+      scrollToSection(url);
+    } else if (url.startsWith('/')) {
+      navigate(url);
+    } else {
+      // External links
+      window.location.href = url;
     }
     setIsOpen(false);
   };
@@ -175,16 +195,17 @@ const Navbar = () => {
               <img 
                 src={config.logoSettings.logoUrl} 
                 alt="Puerto López Logo" 
-                className="object-contain transition-all"
+                className="object-contain transition-all cursor-pointer"
                 style={{ 
                   height: `${config.logoSettings.height}px`,
                   filter: scrolled ? 'none' : 'brightness(0) invert(1)'
                 }}
+                onClick={() => navigate('/')}
               />
             ) : (
               <h1 
                 className="font-bold transition-colors cursor-pointer"
-                onClick={() => scrollToSection('#hero')}
+                onClick={() => navigate('/')}
                 style={{ 
                   color: scrolled ? config.navbarSettings.textColor : "white",
                   fontSize: `${Math.max(config.logoSettings.height * 0.6, 16)}px`,
@@ -204,7 +225,7 @@ const Navbar = () => {
             {navItems.map((item) => (
               <button
                 key={item.url}
-                onClick={() => scrollToSection(item.url)}
+                onClick={() => handleNavigation(item.url)}
                 className="font-medium transition-colors"
                 style={{ 
                   color: scrolled ? config.navbarSettings.textColor : "white",
@@ -310,7 +331,7 @@ const Navbar = () => {
               {navItems.map((item) => (
                 <button
                   key={item.url}
-                  onClick={() => scrollToSection(item.url)}
+                  onClick={() => handleNavigation(item.url)}
                   className="block px-3 py-2 rounded-md font-medium w-full text-left transition-colors"
                   style={{ 
                     color: config.navbarSettings.textColor,
