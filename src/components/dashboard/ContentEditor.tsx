@@ -1,7 +1,7 @@
 
 import { useState } from 'react';
 import { useContentManager } from '@/hooks/useContentManager';
-import { Globe, Palette, Zap, Eye } from 'lucide-react';
+import { Globe, Palette, Eye } from 'lucide-react';
 import HeroPreview from '@/components/dashboard/content-previews/HeroPreview';
 import FooterPreview from '@/components/dashboard/content-previews/FooterPreview';
 import ContentEditorHeader from '@/components/dashboard/content-editor/ContentEditorHeader';
@@ -11,20 +11,16 @@ import FooterEditForm from '@/components/dashboard/content-editor/FooterEditForm
 import EmptyState from '@/components/dashboard/content-editor/EmptyState';
 import LoadingState from '@/components/dashboard/content-editor/LoadingState';
 
-interface ContentEditorProps {
-  filterSection?: string;
-}
-
-const ContentEditor = ({ filterSection }: ContentEditorProps) => {
+const ContentEditor = () => {
   const { content, loading, saving, updateContent, fetchContent } = useContentManager();
   const [editingSection, setEditingSection] = useState<string | null>(null);
   const [formData, setFormData] = useState<any>({});
   const [previewMode, setPreviewMode] = useState<string | null>(null);
 
-  // Filter content based on filterSection prop
-  const filteredContent = filterSection 
-    ? content.filter(item => item.section_name === filterSection)
-    : content;
+  // Filter content to show only hero and footer sections
+  const filteredContent = content.filter(item => 
+    item.section_name === 'hero' || item.section_name === 'footer'
+  );
 
   const handleEdit = (sectionName: string, sectionContent: any) => {
     setEditingSection(sectionName);
@@ -62,7 +58,7 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
     switch (sectionName) {
       case 'hero': return <Globe className="h-6 w-6 text-blue-500" />;
       case 'footer': return <Palette className="h-6 w-6 text-green-500" />;
-      default: return <Zap className="h-6 w-6 text-purple-500" />;
+      default: return <Globe className="h-6 w-6 text-purple-500" />;
     }
   };
 
@@ -155,9 +151,9 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
   if (filteredContent.length === 0) {
     return (
       <EmptyState 
-        filterSection={filterSection}
-        getSectionTitle={getSectionTitle}
-        getSectionColor={getSectionColor}
+        filterSection="hero/footer"
+        getSectionTitle={() => "Contenido de Portada y Pie de Página"}
+        getSectionColor={() => "from-blue-50 to-green-50 border-blue-200"}
         fetchContent={fetchContent}
       />
     );
@@ -166,11 +162,11 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
   return (
     <div className="space-y-8">
       <ContentEditorHeader 
-        filterSection={filterSection}
+        filterSection="hero/footer"
         contentCount={filteredContent.length}
-        getSectionTitle={getSectionTitle}
-        getSectionDescription={getSectionDescription}
-        getSectionColor={getSectionColor}
+        getSectionTitle={() => "Editar Portada"}
+        getSectionDescription={() => "Gestiona el contenido de la portada y pie de página"}
+        getSectionColor={() => "from-blue-50 to-green-50 border-blue-200"}
       />
 
       <div className="grid gap-8">
