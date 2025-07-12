@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { Menu, X, User, LogOut, Settings } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -46,9 +45,12 @@ const Navbar = () => {
   };
 
   const scrollToSection = (sectionId: string) => {
-    // Check if we're on the home page
-    if (location.pathname === '/') {
-      // We're on the home page, scroll to section
+    // Always navigate to home page first, then scroll to section
+    if (location.pathname !== '/') {
+      // Navigate to home page with hash
+      navigate(`/${sectionId}`);
+    } else {
+      // We're already on the home page, scroll to section
       if (sectionId.startsWith('#')) {
         const elementId = sectionId.substring(1);
         const element = document.getElementById(elementId);
@@ -56,9 +58,6 @@ const Navbar = () => {
           element.scrollIntoView({ behavior: "smooth" });
         }
       }
-    } else {
-      // We're on a different page, navigate to home page with hash
-      navigate(`/${sectionId}`);
     }
     setIsOpen(false);
   };
@@ -70,6 +69,12 @@ const Navbar = () => {
       if (chatButton) {
         chatButton.click();
       }
+    } else if (url === '#inicio') {
+      // Navigate to home page
+      navigate('/');
+    } else if (url === '#atracciones' || url === '#galeria') {
+      // Navigate to home page and scroll to section
+      scrollToSection(url);
     } else if (url.startsWith('#')) {
       scrollToSection(url);
     } else if (url.startsWith('/')) {
