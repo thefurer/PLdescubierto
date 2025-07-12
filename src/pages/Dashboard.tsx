@@ -4,9 +4,11 @@ import {
   FileText, 
   History, 
   User,
+  MapPin,
   Home,
   Shield,
-  Palette
+  Palette,
+  Map
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import DashboardHeader from '@/components/dashboard/layout/DashboardHeader';
@@ -22,6 +24,8 @@ const Dashboard = () => {
   const navigationItems = [
     { id: 'hero', label: 'Sección de Portada', icon: Home },
     { id: 'footer', label: 'Pie de Página', icon: FileText },
+    { id: 'attractions', label: 'Gestión de Atracciones', icon: MapPin },
+    { id: 'travel-guide', label: 'Guía de Viaje', icon: Map },
     { id: 'visual-design', label: 'Diseño Visual y Ajustes', icon: Palette },
     { id: 'admin', label: 'Gestión de Admins', icon: Shield },
     { id: 'history', label: 'Historial de Cambios', icon: History },
