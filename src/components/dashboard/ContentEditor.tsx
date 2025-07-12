@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { useContentManager } from '@/hooks/useContentManager';
 import { Globe, Palette, Zap, Eye } from 'lucide-react';
@@ -21,10 +20,14 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
   const [formData, setFormData] = useState<any>({});
   const [previewMode, setPreviewMode] = useState<string | null>(null);
 
-  // Filter content based on filterSection prop
-  const filteredContent = filterSection 
-    ? content.filter(item => item.section_name === filterSection)
-    : content;
+  // Filter content to show only hero and footer sections
+  const allowedSections = ['hero', 'footer'];
+  const filteredContent = content.filter(item => {
+    if (filterSection) {
+      return item.section_name === filterSection;
+    }
+    return allowedSections.includes(item.section_name);
+  });
 
   const handleEdit = (sectionName: string, sectionContent: any) => {
     setEditingSection(sectionName);

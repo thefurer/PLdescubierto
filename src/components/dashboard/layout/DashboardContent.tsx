@@ -1,11 +1,9 @@
 
 import ContentEditor from '../ContentEditor';
-import AttractionsManager from '../AttractionsManager';
 import VisualDesignManager from '../VisualDesignManager';
 import AdminManager from '../AdminManager';
 import HistoryViewer from '../HistoryViewer';
 import UserProfile from '../UserProfile';
-import EditableTravelGuide from './EditableTravelGuide';
 
 interface DashboardContentProps {
   activeTab: string;
@@ -16,11 +14,7 @@ const DashboardContent = ({ activeTab }: DashboardContentProps) => {
     switch (activeTab) {
       case 'hero':
       case 'footer':
-        return <ContentEditor />;
-      case 'attractions':
-        return <AttractionsManager />;
-      case 'travel-guide':
-        return <EditableTravelGuide />;
+        return <ContentEditor filterSection={activeTab} />;
       case 'visual-design':
         return <VisualDesignManager />;
       case 'admin':
@@ -30,7 +24,7 @@ const DashboardContent = ({ activeTab }: DashboardContentProps) => {
       case 'profile':
         return <UserProfile />;
       default:
-        return <ContentEditor />;
+        return <ContentEditor filterSection="hero" />;
     }
   };
 
