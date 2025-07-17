@@ -1,5 +1,6 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { supabase } from '@/integrations/supabase/client';
 import ChatButton from './chat/ChatButton';
 import ChatWindow from './chat/ChatWindow';
 
@@ -12,130 +13,199 @@ interface Message {
 
 interface ChatResponse {
   reply: string;
+  error?: string;
+}
+
+interface RequestPayload {
+  message: string;
+  sessionId: string;
 }
 
 const ChatBot = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const [sessionId] = useState(() => crypto.randomUUID());
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       type: 'bot',
-      content:
-        '¡Hola! 👋 Soy tu asistente personal de Puerto López. ¿En qué puedo ayudarte hoy?',
+      content: '¡Hola! 👋 Soy tu asistente personal de Puerto López. ¿En qué puedo ayudarte hoy?',
       timestamp: new Date(),
     },
   ]);
   const [inputValue, setInputValue] = useState('');
   const [isLoading, setIsLoading] = useState(false);
+  const [connectionRetries, setConnectionRetries] = useState(0);
   const { toast } = useToast();
 
-  const clearConversation = () => {
+  const clearConversation = useCallback(() => {
     setMessages([
       {
-        id: '1',
+        id: crypto.randomUUID(),
         type: 'bot',
-        content:
-          '¡Hola! 👋 Soy tu asistente personal de Puerto López. ¿En qué puedo ayudarte hoy?',
+        content: '¡Hola! 👋 Soy tu asistente personal de Puerto López. ¿En qué puedo ayudarte hoy?',
         timestamp: new Date(),
       },
     ]);
     setInputValue('');
+    setConnectionRetries(0);
     toast({
       title: 'Conversación reiniciada',
       description: 'El historial del chat ha sido borrado.',
     });
+  }, [toast]);
+
+  const validateMessage = (message: string): { isValid: boolean; sanitized?: string; error?: string } => {
+    if (!message.trim()) {
+      return { isValid: false, error: 'El mensaje no puede estar vacío.' };
+    }
+
+    const sanitized = message
+      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
+      .replace(/<[^>]*>/g, '')
+      .replace(/[^\w\s\u00C0-\u017F.,;:¿?¡!()@+-]/g, '')
+      .trim()
+      .substring(0, 1000);
+
+    if (!sanitized) {
+      return { isValid: false, error: 'El mensaje contiene caracteres no válidos.' };
+    }
+
+    return { isValid: true, sanitized };
+  };
+
+  const callChatFunction = async (payload: RequestPayload): Promise<ChatResponse> => {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000); // 30s timeout
+
+    try {
+      console.log('📤 Enviando a chat-support:', payload);
+      
+      const { data, error } = await supabase.functions.invoke('chat-support', {
+        body: payload,
+        headers: {
+          'Content-Type': 'application/json',
+        },
+      });
+
+      clearTimeout(timeoutId);
+
+      if (error) {
+        console.error('❌ Error de Supabase Functions:', error);
+        throw new Error(`Error del servidor: ${error.message || 'Respuesta inválida'}`);
+      }
+
+      if (!data || typeof data.reply !== 'string') {
+        console.error('❌ Respuesta inválida:', data);
+        throw new Error('El servidor devolvió una respuesta inválida');
+      }
+
+      return data as ChatResponse;
+    } catch (error: any) {
+      clearTimeout(timeoutId);
+      
+      if (error.name === 'AbortError') {
+        throw new Error('La consulta tardó demasiado en responder. Intenta de nuevo.');
+      }
+      
+      console.error('❌ Error en callChatFunction:', error);
+      throw error;
+    }
   };
 
   const sendMessage = async (messageContent?: string) => {
-    const raw = (messageContent ?? inputValue).trim();
-    if (!raw || isLoading) return;
+    const rawMessage = (messageContent ?? inputValue).trim();
+    if (!rawMessage || isLoading) return;
 
-    // 1) Sanitizar entrada
-    const sanitized = raw
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/<[^>]*>/g, '')
-      .substring(0, 1000)
-      .trim();
-    if (!sanitized) {
+    const validation = validateMessage(rawMessage);
+    if (!validation.isValid) {
       toast({
         title: 'Mensaje inválido',
-        description: 'El mensaje no puede estar vacío.',
+        description: validation.error,
         variant: 'destructive',
       });
       return;
     }
 
-    // 2) Mostrar mensaje de usuario
+    const sanitizedMessage = validation.sanitized!;
+    const userMessageId = crypto.randomUUID();
+    
+    // Mostrar mensaje del usuario inmediatamente
     setMessages(prev => [
       ...prev,
-      { id: Date.now().toString(), type: 'user', content: sanitized, timestamp: new Date() }
+      { 
+        id: userMessageId, 
+        type: 'user', 
+        content: sanitizedMessage, 
+        timestamp: new Date() 
+      }
     ]);
+    
     if (!messageContent) setInputValue('');
     setIsLoading(true);
 
     try {
-      // 3) Construir payload y loguearlo
-      const payload = { message: sanitized };
-      console.log('📤 Payload JSON:', JSON.stringify(payload));
+      const payload: RequestPayload = {
+        message: sanitizedMessage,
+        sessionId: sessionId,
+      };
 
-      // 4) Enviar POST directo a la Edge Function
-      const res = await fetch(
-        'https://lncxwrrcsuhphxxsvjod.supabase.co/functions/v1/chat-support',
-        {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-            'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxuY3h3dnJjc3VocGh4eHN2am9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0NjM4MzgsImV4cCI6MjA2NDAzOTgzOH0.82qRAvif76C7GwmFgbCvM9OZVmf-P3FLJFzXkF88_tc',
-            'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxuY3h3dnJjc3VocGh4eHN2am9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0NjM4MzgsImV4cCI6MjA2NDAzOTgzOH0.82qRAvif76C7GwmFgbCvM9OZVmf-P3FLJFzXkF88_tc',
-          },
-          body: JSON.stringify(payload),
+      const response = await callChatFunction(payload);
+      
+      // Mostrar respuesta del bot
+      setMessages(prev => [
+        ...prev,
+        { 
+          id: crypto.randomUUID(), 
+          type: 'bot', 
+          content: response.reply, 
+          timestamp: new Date() 
         }
-      );
-
-      console.log('🌐 Status HTTP:', res.status);
-
-      // 5) Verificar status y parsear JSON
-      if (!res.ok) {
-        const errText = await res.text();
-        console.error('❌ Error HTTP:', res.status, errText);
-        throw new Error('Error interno del servidor');
-      }
-
-      let data: ChatResponse;
-      try {
-        data = await res.json();
-      } catch (parseErr) {
-        console.error('❌ JSON inválido en respuesta:', parseErr);
-        throw new Error('Respuesta malformada del servidor');
-      }
-      console.log('📥 JSON recibido:', data);
-
-      // 6) Validar reply
-      if (typeof data.reply !== 'string' || !data.reply.trim()) {
-        console.error('❌ Reply vacío o inválido:', data);
-        throw new Error('El asistente no pudo generar una respuesta válida');
-      }
-
-      // 7) Mostrar respuesta del bot
-      setMessages(prev => [
-        ...prev,
-        { id: (Date.now() + 1).toString(), type: 'bot', content: data.reply, timestamp: new Date() }
       ]);
-    } catch (err: any) {
-      console.error('❌ Error en sendMessage():', err.message);
 
-      // Fallback genérico con info de contacto
-      const fallback = `Lo siento, no pude conectarme con el asistente.  
-📧 apincay@gmail.com  
+      // Reset retry counter on success
+      setConnectionRetries(0);
+
+    } catch (error: any) {
+      console.error('❌ Error al enviar mensaje:', error);
+      
+      const retryCount = connectionRetries + 1;
+      setConnectionRetries(retryCount);
+
+      let errorMessage = 'No se pudo conectar con el asistente.';
+      let botResponse = '';
+
+      if (retryCount <= 2) {
+        errorMessage = `Error de conexión (intento ${retryCount}/3). Reintentando...`;
+        botResponse = `Disculpa, hubo un problema de conexión. Estoy intentando reconectarme...
+
+Mientras tanto, puedes contactarnos directamente:
+📧 apincay@gmail.com
 📱 +593 99 199 5390`;
+      } else {
+        errorMessage = 'No se pudo conectar después de varios intentos.';
+        botResponse = `Lo siento, el asistente está temporalmente fuera de línea.
+
+Para asistencia inmediata, contacta:
+📧 apincay@gmail.com
+📱 +593 99 199 5390
+🌐 https://www.whalexpeditionsecuador.com/
+
+O intenta nuevamente en unos minutos.`;
+      }
+
       setMessages(prev => [
         ...prev,
-        { id: (Date.now() + 1).toString(), type: 'bot', content: fallback, timestamp: new Date() }
+        { 
+          id: crypto.randomUUID(), 
+          type: 'bot', 
+          content: botResponse, 
+          timestamp: new Date() 
+        }
       ]);
 
       toast({
         title: 'Error de conexión',
-        description: 'No se pudo conectar con el asistente. Puedes contactarnos directamente.',
+        description: errorMessage,
         variant: 'destructive',
       });
     } finally {
@@ -143,13 +213,16 @@ const ChatBot = () => {
     }
   };
 
-  const handleQuickOption = (msg: string) => sendMessage(msg);
-  const handleKeyPress = (e: React.KeyboardEvent) => {
+  const handleQuickOption = useCallback((msg: string) => {
+    sendMessage(msg);
+  }, [sendMessage]);
+
+  const handleKeyPress = useCallback((e: React.KeyboardEvent) => {
     if (e.key === 'Enter' && !e.shiftKey) {
       e.preventDefault();
       sendMessage();
     }
-  };
+  }, [sendMessage]);
 
   return (
     <>
