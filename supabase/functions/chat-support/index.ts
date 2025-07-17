@@ -118,7 +118,8 @@ const logInteraction = async (userMessage: string, botResponse: string, source: 
 };
 
 serve(async (req) => {
-  console.log(`📨 ${req.method} request received`);
+  console.log(`📨 ${req.method} request received at ${new Date().toISOString()}`);
+  console.log('🔧 Function is operational and responding');
   
   // Handle CORS preflight
   if (req.method === 'OPTIONS') {
