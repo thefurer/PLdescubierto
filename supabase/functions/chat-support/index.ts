@@ -88,7 +88,7 @@ const callGemini = async (prompt: string, apiKey: string): Promise<string> => {
   return generatedText;
 };
 
-const logInteraction = async (userMessage: string, botResponse: string) => {
+const logInteraction = async (userMessage: string, botResponse: string, source: string = 'unknown') => {
   try {
     const supabase = createClient(
       Deno.env.get('SUPABASE_URL') ?? '',
@@ -100,6 +100,7 @@ const logInteraction = async (userMessage: string, botResponse: string) => {
       new_content: {
         user_message: userMessage,
         bot_response: botResponse,
+        response_source: source,
         timestamp: new Date().toISOString(),
         session_type: 'chatbot'
       },
@@ -139,15 +140,17 @@ serve(async (req) => {
   try {
     // Read request body
     const rawText = await req.text();
-    console.log('📥 Raw request body:', rawText);
+    console.log('📥 Raw request body received. Length:', rawText.length);
+    console.log('📥 Request content preview:', rawText.substring(0, 200));
 
     if (!rawText || !rawText.trim()) {
-      console.log('⚠️ Empty request body detected');
+      console.log('⚠️ Empty request body detected - this should not happen for valid messages');
       return new Response(
         JSON.stringify({ 
-          reply: 'Por favor, envía un mensaje para que pueda ayudarte con información sobre Puerto López.' 
+          reply: 'Error: No se recibió ningún mensaje. Por favor, intenta escribir tu pregunta de nuevo.',
+          source: 'validation_error'
         }),
-        { status: 200, headers: corsHeaders }
+        { status: 400, headers: corsHeaders }
       );
     }
 
@@ -155,7 +158,11 @@ serve(async (req) => {
     let requestData: RequestBody;
     try {
       requestData = JSON.parse(rawText);
-      console.log('📋 Parsed request data:', requestData);
+      console.log('📋 Successfully parsed request data:', {
+        messageLength: requestData.message?.length || 0,
+        hasSessionId: !!requestData.sessionId,
+        messagePreview: requestData.message?.substring(0, 50) || 'N/A'
+      });
     } catch (parseError) {
       console.error('❌ JSON parse error:', parseError);
       return new Response(
@@ -168,55 +175,87 @@ serve(async (req) => {
 
     // Validate message
     const { message } = requestData;
+    console.log('🔍 Validating message:', { 
+      messageType: typeof message, 
+      messageLength: message?.length || 0,
+      isTruthy: !!message,
+      trimmedLength: message?.trim()?.length || 0
+    });
+    
     if (!message || typeof message !== 'string' || !message.trim()) {
-      console.log('⚠️ Invalid or empty message:', message);
+      console.log('⚠️ Invalid message detected:', { message, type: typeof message });
       return new Response(
         JSON.stringify({ 
-          reply: 'Por favor, incluye un mensaje válido en tu consulta sobre Puerto López.' 
+          reply: 'Error: El mensaje está vacío o no es válido. Por favor, escribe una pregunta sobre Puerto López.',
+          source: 'validation_error'
         }),
-        { status: 200, headers: corsHeaders }
+        { status: 400, headers: corsHeaders }
       );
     }
 
     // Sanitize message
     const sanitizedMessage = sanitizeMessage(message);
+    console.log('🧹 Message sanitization:', {
+      originalLength: message.length,
+      sanitizedLength: sanitizedMessage.length,
+      wasModified: message !== sanitizedMessage
+    });
+    
     if (!sanitizedMessage) {
       console.log('⚠️ Message became empty after sanitization');
       return new Response(
         JSON.stringify({ 
-          reply: 'El mensaje contiene caracteres no válidos. Por favor, usa solo texto simple.' 
+          reply: 'El mensaje contiene caracteres no válidos. Por favor, usa solo texto simple sin caracteres especiales.',
+          source: 'sanitization_error'
         }),
-        { status: 200, headers: corsHeaders }
+        { status: 400, headers: corsHeaders }
       );
     }
 
-    console.log('✅ Sanitized message:', sanitizedMessage);
+    console.log('✅ Message validation passed. Sanitized message:', sanitizedMessage);
 
     // Check API key
     const apiKey = Deno.env.get('GOOGLE_API_KEY');
+    console.log('🔑 Google API Key status:', {
+      isConfigured: !!apiKey,
+      keyLength: apiKey?.length || 0,
+      keyPreview: apiKey ? `${apiKey.substring(0, 8)}...` : 'NOT_SET'
+    });
+    
     if (!apiKey) {
-      console.error('❌ GOOGLE_API_KEY not configured');
-      const fallbackResponse = `Lo siento, el asistente está temporalmente fuera de línea.
+      console.error('❌ GOOGLE_API_KEY not configured in Supabase secrets');
+      const fallbackResponse = `🤖 El asistente de IA está temporalmente fuera de línea (API key no configurada).
 
 Para información sobre Puerto López, contacta directamente:
 📧 ${CONTACT_INFO.email}
 📱 ${CONTACT_INFO.whatsapp}
-🌐 ${CONTACT_INFO.website}`;
+🌐 ${CONTACT_INFO.website}
+
+Mientras tanto, te puedo decir que Puerto López es famoso por el avistamiento de ballenas jorobadas de junio a septiembre.`;
       
       await logInteraction(sanitizedMessage, fallbackResponse);
       return new Response(
-        JSON.stringify({ reply: fallbackResponse }),
+        JSON.stringify({ 
+          reply: fallbackResponse,
+          source: 'api_key_missing'
+        }),
         { status: 200, headers: corsHeaders }
       );
     }
 
     // Generate response with Gemini
     let botResponse: string;
+    let responseSource = 'gemini';
+    
     try {
       const prompt = generatePrompt(sanitizedMessage);
-      console.log('🤖 Calling Gemini API...');
+      console.log('🤖 Calling Gemini API with prompt length:', prompt.length);
+      console.log('🎯 Prompt preview:', prompt.substring(0, 200) + '...');
+      
       botResponse = await callGemini(prompt, apiKey);
-      console.log('✅ Gemini response received:', botResponse.substring(0, 100) + '...');
+      console.log('✅ Gemini response received successfully');
+      console.log('📝 Response preview:', botResponse.substring(0, 100) + '...');
+      responseSource = 'gemini';
     } catch (geminiError) {
       console.error('❌ Gemini error:', geminiError);
       
@@ -249,14 +288,18 @@ Para planificar tu visita:
 📧 ${CONTACT_INFO.email}
 🌐 ${CONTACT_INFO.website}`;
       }
+      responseSource = 'fallback';
     }
 
-    // Log the interaction
-    await logInteraction(sanitizedMessage, botResponse);
+    // Log the interaction with source information
+    await logInteraction(sanitizedMessage, botResponse, responseSource);
 
-    console.log('✅ Sending response to user');
+    console.log(`✅ Sending response to user. Source: ${responseSource}, Length: ${botResponse.length}`);
     return new Response(
-      JSON.stringify({ reply: botResponse }),
+      JSON.stringify({ 
+        reply: botResponse,
+        source: responseSource
+      }),
       { status: 200, headers: corsHeaders }
     );
 

@@ -79,6 +79,8 @@ const ChatBot = () => {
 
     try {
       console.log('📤 Enviando a chat-support:', payload);
+      console.log('📊 Session ID:', sessionId);
+      console.log('📝 Message content:', payload.message);
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
         body: payload,
