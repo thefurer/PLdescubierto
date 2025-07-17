@@ -1,189 +1,276 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
-import { CORS_HEADERS, CONTACT_INFO } from './constants.ts';
-import { GeminiClient } from './gemini-client.ts';
-import { createErrorResponse, createSuccessResponse } from './error-handler.ts';
-import { 
-  handleItineraryRequest, 
-  handleContactRequest, 
-  handleSeasonsRequest, 
-  handleActivitiesRequest, 
-  handleWeatherRequest, 
-  handleGeneralRequest,
-  logInteraction 
-} from './message-handlers.ts';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+  'Access-Control-Allow-Methods': 'POST, OPTIONS',
+  'Content-Type': 'application/json'
+};
+
+const CONTACT_INFO = {
+  email: 'apincay@gmail.com',
+  whatsapp: '+593 99 199 5390',
+  website: 'https://www.whalexpeditionsecuador.com/'
+};
 
 interface RequestBody {
   message: string;
   sessionId?: string;
 }
 
-interface ValidationResult {
-  isValid: boolean;
-  message?: string;
-  sanitizedInput?: string;
-}
-
-const validateRequest = (rawText: string): ValidationResult => {
-  if (!rawText.trim()) {
-    return { isValid: false, message: '¡Hola! 👋 Por favor, escribe tu pregunta sobre Puerto López y estaré encantado de ayudarte.' };
-  }
-
-  let body: RequestBody;
-  try {
-    body = JSON.parse(rawText);
-  } catch (err) {
-    console.error('❌ JSON parse error:', err);
-    return { isValid: false, message: 'Formato de mensaje inválido. Por favor, intenta de nuevo.' };
-  }
-
-  const { message } = body;
-  if (typeof message !== 'string' || !message.trim()) {
-    return { isValid: false, message: 'Por favor, incluye un mensaje válido en tu consulta.' };
-  }
-
-  // Sanitización robusta
-  const sanitized = message
+const sanitizeMessage = (message: string): string => {
+  return message
     .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
     .replace(/<[^>]*>/g, '')
     .replace(/[^\w\s\u00C0-\u017F.,;:¿?¡!()@+-]/g, '')
     .trim()
     .substring(0, 1000);
-
-  if (!sanitized) {
-    return { isValid: false, message: 'El mensaje contiene caracteres no válidos. Intenta con texto simple.' };
-  }
-
-  return { isValid: true, sanitizedInput: sanitized };
 };
 
-const classifyMessage = (message: string): string => {
-  const lower = message.toLowerCase();
+const generatePrompt = (message: string): string => {
+  return `Eres un asistente turístico especializado en Puerto López, Ecuador.
+
+INFORMACIÓN CLAVE sobre Puerto López:
+- Ubicación: Costa de Manabí, Ecuador
+- Mejor época para ballenas: Junio a Septiembre
+- Atracciones principales: Parque Nacional Machalilla, Isla de la Plata, Playa Los Frailes, Agua Blanca
+- Actividades: Avistamiento de ballenas, snorkeling, tours ecológicos, arqueología
+
+OPERADOR TURÍSTICO:
+- Empresa: Whale Expeditions Tour - Ángel Pincay
+- Email: ${CONTACT_INFO.email}
+- WhatsApp: ${CONTACT_INFO.whatsapp}
+- Web: ${CONTACT_INFO.website}
+
+INSTRUCCIONES:
+- Responde en español de manera amigable y profesional
+- Máximo 200 palabras por respuesta
+- Para reservas específicas, dirige al usuario a contactar directamente
+- Incluye información práctica y útil sobre Puerto López
+
+PREGUNTA DEL USUARIO: ${message}
+
+Respuesta:`;
+};
+
+const callGemini = async (prompt: string, apiKey: string): Promise<string> => {
+  const response = await fetch(
+    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
+    {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 500
+        }
+      })
+    }
+  );
+
+  if (!response.ok) {
+    const errorText = await response.text();
+    console.error('❌ Gemini API Error:', response.status, errorText);
+    throw new Error(`Gemini API error: ${response.status}`);
+  }
+
+  const result = await response.json();
+  const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
   
-  if (lower.includes('itinerario') || lower.includes('plan') || lower.includes('ruta') || lower.includes('días')) {
-    return 'itinerary';
+  if (!generatedText) {
+    throw new Error('No se pudo generar respuesta válida');
   }
-  if (lower.includes('contacto') || lower.includes('teléfono') || lower.includes('email') || lower.includes('información')) {
-    return 'contact';
+
+  return generatedText;
+};
+
+const logInteraction = async (userMessage: string, botResponse: string) => {
+  try {
+    const supabase = createClient(
+      Deno.env.get('SUPABASE_URL') ?? '',
+      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
+    );
+
+    const { error } = await supabase.from('content_history').insert({
+      section_name: 'chat_interaction',
+      new_content: {
+        user_message: userMessage,
+        bot_response: botResponse,
+        timestamp: new Date().toISOString(),
+        session_type: 'chatbot'
+      },
+      change_type: 'chat_message'
+    });
+
+    if (error) {
+      console.error('❌ Error logging interaction:', error);
+    } else {
+      console.log('✅ Interaction logged successfully');
+    }
+  } catch (err) {
+    console.error('❌ Failed to log interaction:', err);
   }
-  if (lower.includes('temporada') || lower.includes('época') || lower.includes('cuando') || lower.includes('mes')) {
-    return 'seasons';
-  }
-  if (lower.includes('actividad') || lower.includes('tour') || lower.includes('hacer') || lower.includes('ballena')) {
-    return 'activities';
-  }
-  if (lower.includes('clima') || lower.includes('tiempo') || lower.includes('lluvia') || lower.includes('temperatura')) {
-    return 'weather';
-  }
-  
-  return 'general';
 };
 
 serve(async (req) => {
-  const startTime = Date.now();
+  console.log(`📨 ${req.method} request received`);
   
-  // CORS preflight
+  // Handle CORS preflight
   if (req.method === 'OPTIONS') {
-    return new Response(null, { status: 204, headers: CORS_HEADERS });
+    console.log('✅ CORS preflight handled');
+    return new Response(null, { status: 204, headers: corsHeaders });
   }
 
   if (req.method !== 'POST') {
-    return createErrorResponse('Método no permitido. Use POST.', 405);
+    console.log('❌ Invalid method:', req.method);
+    return new Response(
+      JSON.stringify({ 
+        error: 'Method not allowed',
+        reply: 'Solo se permiten solicitudes POST.' 
+      }),
+      { status: 405, headers: corsHeaders }
+    );
   }
 
   try {
-    // Leer y validar request body
+    // Read request body
     const rawText = await req.text();
-    console.log('📥 Request recibido:', rawText.substring(0, 200));
-    
-    const validation = validateRequest(rawText);
-    if (!validation.isValid) {
-      return createSuccessResponse(validation.message!);
+    console.log('📥 Raw request body:', rawText);
+
+    if (!rawText || !rawText.trim()) {
+      console.log('⚠️ Empty request body detected');
+      return new Response(
+        JSON.stringify({ 
+          reply: 'Por favor, envía un mensaje para que pueda ayudarte con información sobre Puerto López.' 
+        }),
+        { status: 200, headers: corsHeaders }
+      );
     }
 
-    const sanitizedMessage = validation.sanitizedInput!;
-    console.log('📨 Mensaje sanitizado:', sanitizedMessage);
+    // Parse JSON
+    let requestData: RequestBody;
+    try {
+      requestData = JSON.parse(rawText);
+      console.log('📋 Parsed request data:', requestData);
+    } catch (parseError) {
+      console.error('❌ JSON parse error:', parseError);
+      return new Response(
+        JSON.stringify({ 
+          reply: 'Error en el formato del mensaje. Por favor, intenta de nuevo.' 
+        }),
+        { status: 400, headers: corsHeaders }
+      );
+    }
 
-    // Verificar API key
+    // Validate message
+    const { message } = requestData;
+    if (!message || typeof message !== 'string' || !message.trim()) {
+      console.log('⚠️ Invalid or empty message:', message);
+      return new Response(
+        JSON.stringify({ 
+          reply: 'Por favor, incluye un mensaje válido en tu consulta sobre Puerto López.' 
+        }),
+        { status: 200, headers: corsHeaders }
+      );
+    }
+
+    // Sanitize message
+    const sanitizedMessage = sanitizeMessage(message);
+    if (!sanitizedMessage) {
+      console.log('⚠️ Message became empty after sanitization');
+      return new Response(
+        JSON.stringify({ 
+          reply: 'El mensaje contiene caracteres no válidos. Por favor, usa solo texto simple.' 
+        }),
+        { status: 200, headers: corsHeaders }
+      );
+    }
+
+    console.log('✅ Sanitized message:', sanitizedMessage);
+
+    // Check API key
     const apiKey = Deno.env.get('GOOGLE_API_KEY');
     if (!apiKey) {
-      console.error('❌ GOOGLE_API_KEY no configurada');
-      const fallbackMsg = `El asistente está temporalmente fuera de línea. 
-📧 Contacto: ${CONTACT_INFO.email}
-📱 WhatsApp: ${CONTACT_INFO.whatsapp}
-🌐 Web: ${CONTACT_INFO.website}`;
-      return createSuccessResponse(fallbackMsg);
+      console.error('❌ GOOGLE_API_KEY not configured');
+      const fallbackResponse = `Lo siento, el asistente está temporalmente fuera de línea.
+
+Para información sobre Puerto López, contacta directamente:
+📧 ${CONTACT_INFO.email}
+📱 ${CONTACT_INFO.whatsapp}
+🌐 ${CONTACT_INFO.website}`;
+      
+      await logInteraction(sanitizedMessage, fallbackResponse);
+      return new Response(
+        JSON.stringify({ reply: fallbackResponse }),
+        { status: 200, headers: corsHeaders }
+      );
     }
 
-    // Inicializar cliente de Gemini
-    const geminiClient = new GeminiClient(apiKey);
-    
-    // Clasificar mensaje y procesarlo
-    const messageType = classifyMessage(sanitizedMessage);
-    console.log('🏷️ Tipo de mensaje clasificado:', messageType);
-    
-    let response: string;
-    
+    // Generate response with Gemini
+    let botResponse: string;
     try {
-      switch (messageType) {
-        case 'itinerary':
-          response = await handleItineraryRequest(sanitizedMessage, geminiClient);
-          break;
-        case 'contact':
-          response = await handleContactRequest(sanitizedMessage, geminiClient);
-          break;
-        case 'seasons':
-          response = await handleSeasonsRequest(sanitizedMessage, geminiClient);
-          break;
-        case 'activities':
-          response = await handleActivitiesRequest(sanitizedMessage, geminiClient);
-          break;
-        case 'weather':
-          response = await handleWeatherRequest(sanitizedMessage, geminiClient);
-          break;
-        default:
-          response = await handleGeneralRequest(sanitizedMessage, geminiClient);
-      }
+      const prompt = generatePrompt(sanitizedMessage);
+      console.log('🤖 Calling Gemini API...');
+      botResponse = await callGemini(prompt, apiKey);
+      console.log('✅ Gemini response received:', botResponse.substring(0, 100) + '...');
     } catch (geminiError) {
-      console.error('❌ Error en Gemini:', geminiError);
+      console.error('❌ Gemini error:', geminiError);
       
-      // Respuesta específica basada en el tipo de consulta
-      switch (messageType) {
-        case 'contact':
-          response = `📧 Email: ${CONTACT_INFO.email}
-📱 WhatsApp: ${CONTACT_INFO.whatsapp}
-🌐 Website: ${CONTACT_INFO.website}
-📍 Ubicación: ${CONTACT_INFO.location}`;
-          break;
-        case 'activities':
-          response = `🐋 Principales actividades en Puerto López:
-• Avistamiento de ballenas (junio-septiembre)
-• Tour a Isla de la Plata
-• Visita a Playa Los Frailes
-• Exploración de Agua Blanca
-• Snorkeling y buceo
+      // Provide contextual fallback based on message content
+      const lowerMessage = sanitizedMessage.toLowerCase();
+      if (lowerMessage.includes('ballena') || lowerMessage.includes('whale')) {
+        botResponse = `🐋 La temporada de avistamiento de ballenas jorobadas en Puerto López es de junio a septiembre. Es una experiencia única que no te puedes perder.
 
-Para más información: ${CONTACT_INFO.whatsapp}`;
-          break;
-        default:
-          response = `Puerto López te ofrece experiencias únicas como avistamiento de ballenas, Isla de la Plata y Playa Los Frailes.
-
-Para información detallada contacta:
+Para tours especializados contacta:
 📱 ${CONTACT_INFO.whatsapp}
 📧 ${CONTACT_INFO.email}`;
+      } else if (lowerMessage.includes('isla') || lowerMessage.includes('plata')) {
+        botResponse = `🏝️ La Isla de la Plata, conocida como "Galápagos de los pobres", es una de las principales atracciones de Puerto López. Puedes ver piqueros de patas azules, fragatas y hacer snorkeling.
+
+Para más información:
+📱 ${CONTACT_INFO.whatsapp}
+📧 ${CONTACT_INFO.email}`;
+      } else if (lowerMessage.includes('contacto') || lowerMessage.includes('información')) {
+        botResponse = `📍 Información de contacto para tours en Puerto López:
+
+🏢 Whale Expeditions Tour - Ángel Pincay
+📧 Email: ${CONTACT_INFO.email}
+📱 WhatsApp: ${CONTACT_INFO.whatsapp}
+🌐 Web: ${CONTACT_INFO.website}`;
+      } else {
+        botResponse = `Puerto López es un destino increíble en la costa ecuatoriana, famoso por el avistamiento de ballenas jorobadas y la hermosa Isla de la Plata.
+
+Para planificar tu visita:
+📱 ${CONTACT_INFO.whatsapp}
+📧 ${CONTACT_INFO.email}
+🌐 ${CONTACT_INFO.website}`;
       }
     }
 
-    // Registrar interacción en base de datos
-    await logInteraction(sanitizedMessage, response);
-    
-    const processingTime = Date.now() - startTime;
-    console.log(`✅ Respuesta generada en ${processingTime}ms`);
-    
-    return createSuccessResponse(response);
+    // Log the interaction
+    await logInteraction(sanitizedMessage, botResponse);
+
+    console.log('✅ Sending response to user');
+    return new Response(
+      JSON.stringify({ reply: botResponse }),
+      { status: 200, headers: corsHeaders }
+    );
 
   } catch (error) {
-    console.error('❌ Error general:', error);
-    return createErrorResponse(error, 500);
+    console.error('❌ Unexpected error:', error);
+    
+    const errorResponse = `Lo siento, ocurrió un error técnico. Por favor, intenta de nuevo o contacta directamente:
+
+📧 ${CONTACT_INFO.email}
+📱 ${CONTACT_INFO.whatsapp}`;
+
+    return new Response(
+      JSON.stringify({ reply: errorResponse }),
+      { status: 500, headers: corsHeaders }
+    );
   }
 });
