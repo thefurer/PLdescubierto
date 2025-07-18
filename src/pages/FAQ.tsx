@@ -1,7 +1,6 @@
-
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
-import ChatBot from '@/components/ChatBot';
+// import ChatBot from '@/components/ChatBot'; // Temporarily disabled
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { HelpCircle, MessageSquare } from 'lucide-react';
 
@@ -63,7 +62,7 @@ const FAQ = () => {
               </p>
               <div className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-sm rounded-full border border-white/20">
                 <MessageSquare className="h-5 w-5 text-white mr-2" />
-                <span className="text-white font-medium">¿Tienes más preguntas? Usa nuestro chat</span>
+                <span className="text-white font-medium">Información de contacto disponible abajo</span>
               </div>
             </div>
           </div>
@@ -99,19 +98,13 @@ const FAQ = () => {
                   ¿No encontraste tu respuesta?
                 </h3>
                 <p className="text-gray-600 mb-6">
-                  Nuestro asistente virtual está disponible 24/7 para ayudarte con cualquier consulta específica.
+                  Para más información, contacta directamente con nosotros:
                 </p>
-                <button
-                  onClick={() => {
-                    const chatButton = document.querySelector('[aria-label="Abrir chat de soporte"]') as HTMLButtonElement;
-                    if (chatButton) {
-                      chatButton.click();
-                    }
-                  }}
-                  className="bg-ocean hover:bg-ocean-dark text-white px-8 py-3 rounded-full font-semibold transition-colors duration-300 shadow-lg hover:shadow-xl"
-                >
-                  Abrir Chat de Soporte
-                </button>
+                <div className="space-y-2 text-gray-800">
+                  <p><strong>Email:</strong> apincay@gmail.com</p>
+                  <p><strong>WhatsApp:</strong> +593 99 199 5390</p>
+                  <p><strong>Web:</strong> https://www.whalexpeditionsecuador.com/</p>
+                </div>
               </div>
             </div>
           </div>
@@ -119,7 +112,7 @@ const FAQ = () => {
       </div>
 
       <Footer />
-      <ChatBot />
+      {/* <ChatBot /> */} {/* Temporarily disabled */}
     </div>
   );
 };
