@@ -4,6 +4,7 @@ import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/useLanguage";
 import { getVirtualTourLocations, virtualTourTexts } from "@/data/virtualTourData";
 import MetaversePreview from "@/components/virtual-tour/MetaversePreview";
+import MetaverseGuide from "@/components/virtual-tour/MetaverseGuide";
 
 type VirtualTourProps = {
   className?: string;
@@ -65,6 +66,17 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
             texts={{
               enterMetaverse: t.enterMetaverse,
               exploreSpace: t.exploreSpace
+            }}
+          />
+        </div>
+
+        <div className="mb-20">
+          <MetaverseGuide
+            texts={{
+              tips: t.tips,
+              tip1: t.tip1,
+              tip2: t.tip2,
+              tip3: t.tip3
             }}
           />
         </div>
