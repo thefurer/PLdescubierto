@@ -12,7 +12,7 @@ export const getVirtualTourLocations = (language: 'es' | 'en'): VirtualTourLocat
     name: "Plaza Central Virtual",
     image: "https://images.unsplash.com/photo-1507525428034-b723cf961d3e?auto=format&fit=crop&q=80",
     description: language === 'es' 
-      ? "Explora el centro del metaespacio de Puerto López, donde puedes interactuar con otros visitantes virtuales."
+      ? "Explora el centro del metaverso de Puerto López, donde puedes interactuar con otros visitantes virtuales."
       : "Explore the center of Puerto López's metaspace, where you can interact with other virtual visitors."
   },
   {
@@ -45,7 +45,7 @@ export const virtualTourTexts = {
   es: {
     title: "Experiencia en el",
     subtitle: "Metaverso",
-    description: "Sumérgete en nuestro metaespacio interactivo de Puerto López. Una experiencia inmersiva donde puedes explorar, socializar y descubrir desde cualquier lugar del mundo.",
+    description: "Sumérgete en nuestro metaespacio interactivo de Puerto López. Una experiencia inmersiva donde puedes explorar y conocer las maravillas del Cantón",
     enterMetaverse: "Entrar al Metaverso",
     exploreSpace: "Explorar Espacio",
     highlights: "Características del Metaespacio",
