@@ -4,7 +4,6 @@ import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/useLanguage";
 import { getVirtualTourLocations, virtualTourTexts } from "@/data/virtualTourData";
 import MetaversePreview from "@/components/virtual-tour/MetaversePreview";
-import LocationSelector from "@/components/virtual-tour/LocationSelector";
 
 type VirtualTourProps = {
   className?: string;
@@ -60,24 +59,12 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
           </div>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-20">
+        <div className="mb-20">
           <MetaversePreview 
             activeLocation={currentLocation}
             texts={{
               enterMetaverse: t.enterMetaverse,
               exploreSpace: t.exploreSpace
-            }}
-          />
-
-          <LocationSelector
-            locations={locations}
-            activeLocation={activeLocation}
-            onLocationSelect={setActiveLocation}
-            texts={{
-              tips: t.tips,
-              tip1: t.tip1,
-              tip2: t.tip2,
-              tip3: t.tip3
             }}
           />
         </div>
