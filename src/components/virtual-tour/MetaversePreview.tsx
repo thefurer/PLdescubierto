@@ -36,7 +36,7 @@ const MetaversePreview = ({ activeLocation, texts }: MetaversePreviewProps) => {
               <div className="bg-gradient-to-r from-emerald-400 to-emerald-600 text-white px-4 py-2 rounded-full text-sm font-semibold shadow-2xl border border-white/20 backdrop-blur-sm">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
-                  ✨ Metaespacio Activo
+                  ✨ Metaverso Activo
                 </div>
               </div>
             </div>
