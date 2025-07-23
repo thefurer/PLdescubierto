@@ -29,7 +29,7 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
 
   return (
     <div 
-      className="relative py-12"
+      className="relative py-16"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
     >
@@ -41,10 +41,10 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
         isPaused={isPaused}
       />
 
-      {/* Carousel Container */}
+      {/* Carousel Container - Improved spacing and sizing */}
       <div
         ref={carouselRef}
-        className="flex gap-6 overflow-x-auto scrollbar-hide px-12 scroll-smooth"
+        className="flex gap-8 overflow-x-auto scrollbar-hide px-16 scroll-smooth"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {attractions.map((attraction, index) => (

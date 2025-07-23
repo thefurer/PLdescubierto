@@ -26,44 +26,48 @@ export const CarouselCard = ({ attraction, index, currentIndex, onClick }: Carou
       key={attraction.id}
       className={`group flex-shrink-0 cursor-pointer smooth-transition ${
         isCentered 
-          ? 'w-80 scale-110 z-10' 
-          : 'w-72 scale-95 opacity-60 blur-[1px]'
+          ? 'w-96 scale-105 z-10' 
+          : 'w-80 scale-100'
       }`}
       onClick={() => onClick(attraction, index)}
     >
-      <div className="relative bg-white rounded-3xl overflow-hidden shadow-2xl hover:shadow-3xl smooth-transition h-[420px] border border-white/20">
-        <div className="relative h-full overflow-hidden rounded-3xl">
+      <div className="relative bg-white rounded-2xl overflow-hidden shadow-lg hover:shadow-xl smooth-transition h-[480px] border border-gray-200/50">
+        <div className="relative h-full overflow-hidden rounded-2xl">
           <img 
             src={displayImage} 
             alt={attraction.name}
             className="w-full h-full object-cover group-hover:scale-110 smooth-transition duration-700"
           />
           
-          {/* Enhanced overlay gradient */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-black/10 opacity-70 group-hover:opacity-85 smooth-transition"></div>
+          {/* Subtle gradient overlay */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
 
-          {/* Attraction name positioned at bottom center - hidden on hover */}
-          <div className="absolute bottom-24 left-1/2 transform -translate-x-1/2 text-center group-hover:opacity-0 smooth-transition">
-            <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg px-4">
+          {/* Attraction name positioned at bottom - always visible */}
+          <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/80 via-black/40 to-transparent">
+            <h3 className="text-2xl font-bold text-white mb-2 drop-shadow-lg leading-tight">
               {attraction.name}
             </h3>
+            
+            {/* Location indicator */}
+            <div className="flex items-center text-white/90 opacity-0 group-hover:opacity-100 smooth-transition duration-300">
+              <MapPin size={16} className="mr-2" />
+              <span className="text-sm font-medium">Puerto López, Ecuador</span>
+            </div>
           </div>
 
-          {/* Enhanced sliding information overlay */}
-          <div className="absolute inset-x-0 bottom-0 transform translate-y-full group-hover:translate-y-0 smooth-transition duration-500 ease-out">
-            <div className="bg-gradient-to-t from-black/95 via-black/80 to-transparent p-8 pt-16 rounded-b-3xl">
-              <h3 className="text-xl font-bold text-white mb-4 line-clamp-2 leading-tight">
+          {/* Hover overlay with description */}
+          <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 smooth-transition duration-300 flex items-center justify-center p-6">
+            <div className="text-center">
+              <h3 className="text-xl font-bold text-white mb-3 leading-tight">
                 {attraction.name}
               </h3>
-              <p className="text-gray-200 text-sm mb-6 line-clamp-4 leading-relaxed">
+              <p className="text-gray-200 text-sm mb-4 line-clamp-4 leading-relaxed">
                 {attraction.description}
               </p>
               
-              <div className="flex items-center justify-center">
-                <div className="flex items-center text-green-300">
-                  <MapPin size={16} className="mr-2" />
-                  <span className="text-sm font-medium">Descubrir más detalles</span>
-                </div>
+              <div className="inline-flex items-center text-green-300 bg-green-500/20 px-4 py-2 rounded-full">
+                <MapPin size={16} className="mr-2" />
+                <span className="text-sm font-medium">Explorar detalles</span>
               </div>
             </div>
           </div>

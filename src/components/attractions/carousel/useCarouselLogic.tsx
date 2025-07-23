@@ -1,4 +1,3 @@
-
 import { useState, useRef, useEffect } from "react";
 import { TouristAttraction } from "@/types/touristAttractions";
 
@@ -21,8 +20,9 @@ export const useCarouselLogic = (attractions: TouristAttraction[]) => {
 
   const scrollToIndex = (index: number) => {
     if (carouselRef.current) {
-      const cardWidth = 280; // Width of each card
-      const gap = 24; // Gap between cards
+      // Updated card width and gap for larger cards
+      const cardWidth = 320; // Width of each card (w-80)
+      const gap = 32; // Gap between cards (gap-8)
       const scrollPosition = index * (cardWidth + gap) - (carouselRef.current.clientWidth / 2) + (cardWidth / 2);
       carouselRef.current.scrollTo({
         left: scrollPosition,
