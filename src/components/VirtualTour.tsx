@@ -43,7 +43,7 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
         <div className="text-center mb-20 animate-fade-in">
           <div className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-8">
             <div className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></div>
-            <span className="text-white/90 text-sm font-medium">✨ Experiencia Virtual Activa</span>
+            <span className="text-white/90 text-sm font-medium">✨ Activo</span>
           </div>
           
           <h2 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent leading-tight">
