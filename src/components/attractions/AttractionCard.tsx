@@ -7,6 +7,7 @@ import { AttractionModal } from "./AttractionModal";
 interface AttractionCardProps {
   attraction: TouristAttraction;
   index: number;
+  onAttractionSelect?: (attraction: TouristAttraction) => void;
 }
 
 const categoryLabels = {
@@ -24,12 +25,14 @@ const defaultImages = {
 
 export const AttractionCard = ({
   attraction,
-  index
+  index,
+  onAttractionSelect
 }: AttractionCardProps) => {
   const [modalOpen, setModalOpen] = useState(false);
 
   const handleCardClick = () => {
     setModalOpen(true);
+    onAttractionSelect?.(attraction);
   };
 
   // Usar la primera imagen de la galería o la imagen principal

@@ -5,6 +5,7 @@ import DesktopNavigation from "./navbar/DesktopNavigation";
 import MobileNavigation from "./navbar/MobileNavigation";
 import UserActions from "./navbar/UserActions";
 import MobileMenuButton from "./navbar/MobileMenuButton";
+import WeatherWidget from "./weather/WeatherWidget";
 
 const Navbar = () => {
   const {
@@ -39,12 +40,16 @@ const Navbar = () => {
             onNavigate={handleNavigation}
           />
 
-          <UserActions
-            user={user}
-            scrolled={scrolled}
-            onNavigate={handleNavigation}
-            onSignOut={handleSignOut}
-          />
+          <div className="flex items-center gap-4">
+            <WeatherWidget scrolled={scrolled} />
+            
+            <UserActions
+              user={user}
+              scrolled={scrolled}
+              onNavigate={handleNavigation}
+              onSignOut={handleSignOut}
+            />
+          </div>
 
           <MobileMenuButton
             isOpen={isOpen}

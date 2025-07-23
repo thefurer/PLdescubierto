@@ -2,11 +2,13 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useTouristAttractions } from "@/hooks/useTouristAttractions";
+import { useAttractionSidebar } from "@/hooks/useAttractionSidebar";
 import { AttractionsHeader } from "./attractions/AttractionsHeader";
 import { CategoryFilters } from "./attractions/CategoryFilters";
 import { AttractionsGrid } from "./attractions/AttractionsGrid";
 import { AttractionsCarousel } from "./attractions/AttractionsCarousel";
 import { ShowMoreButton } from "./attractions/ShowMoreButton";
+import { AttractionsSidebar } from "./attractions/AttractionsSidebar";
 
 type AttractionsProps = {
   className?: string;
@@ -14,6 +16,7 @@ type AttractionsProps = {
 
 const Attractions = ({ className }: AttractionsProps) => {
   const { attractions, loading } = useTouristAttractions();
+  const { isOpen, selectedAttraction, openSidebar, closeSidebar } = useAttractionSidebar();
   const [activeCategory, setActiveCategory] = useState<string>("todo");
   const [showAllAttractions, setShowAllAttractions] = useState(false);
   const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
@@ -55,36 +58,51 @@ const Attractions = ({ className }: AttractionsProps) => {
   }
 
   return (
-    <section 
-      id="attractions" 
-      className={cn("py-20 bg-gradient-to-b from-white via-green-muted/30 to-white", className)}
-    >
-      <div className="container mx-auto px-4">
-        <AttractionsHeader totalCount={attractions.length} />
-        
-        <CategoryFilters 
-          activeCategory={activeCategory}
-          onCategoryChange={handleCategoryChange}
-        />
+    <>
+      <section 
+        id="attractions" 
+        className={cn("py-20 bg-gradient-to-b from-white via-green-muted/30 to-white", className)}
+      >
+        <div className="container mx-auto px-4">
+          <AttractionsHeader totalCount={attractions.length} />
+          
+          <CategoryFilters 
+            activeCategory={activeCategory}
+            onCategoryChange={handleCategoryChange}
+          />
 
-        {/* Render carousel for "todo" category, grid for specific categories */}
-        {viewMode === 'carousel' && activeCategory === "todo" ? (
-          <AttractionsCarousel attractions={filteredAttractions} />
-        ) : (
-          <>
-            <AttractionsGrid attractions={displayedAttractions} />
-            <ShowMoreButton
-              hasMoreAttractions={hasMoreAttractions}
-              showAllAttractions={showAllAttractions}
-              onToggleShowAll={handleToggleShowAll}
-              displayedCount={displayedAttractions.length}
-              totalCount={filteredAttractions.length}
-              activeCategory={activeCategory}
+          {/* Render carousel for "todo" category, grid for specific categories */}
+          {viewMode === 'carousel' && activeCategory === "todo" ? (
+            <AttractionsCarousel 
+              attractions={filteredAttractions} 
+              onAttractionSelect={openSidebar}
             />
-          </>
-        )}
-      </div>
-    </section>
+          ) : (
+            <>
+              <AttractionsGrid 
+                attractions={displayedAttractions}
+                onAttractionSelect={openSidebar}
+              />
+              <ShowMoreButton
+                hasMoreAttractions={hasMoreAttractions}
+                showAllAttractions={showAllAttractions}
+                onToggleShowAll={handleToggleShowAll}
+                displayedCount={displayedAttractions.length}
+                totalCount={filteredAttractions.length}
+                activeCategory={activeCategory}
+              />
+            </>
+          )}
+        </div>
+      </section>
+
+      {/* Sidebar with Interactive Map */}
+      <AttractionsSidebar
+        selectedAttraction={selectedAttraction}
+        isOpen={isOpen}
+        onClose={closeSidebar}
+      />
+    </>
   );
 };
 

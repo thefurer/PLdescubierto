@@ -18,99 +18,190 @@ const Footer = () => {
     phone: footerContent?.phone || "+593 99 199 5390",
     address: footerContent?.address || "Puerto López, Manabí, Ecuador"
   };
-  return <footer className="bg-ocean-dark text-white">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+  return (
+    <footer className="relative bg-gradient-to-br from-ocean-dark via-ocean to-ocean-dark text-white overflow-hidden">
+      {/* Decorative background patterns */}
+      <div className="absolute inset-0 opacity-10">
+        <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-green-400 to-blue-400 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-0 right-1/4 w-80 h-80 bg-gradient-to-tr from-coral to-orange-400 rounded-full blur-3xl"></div>
+      </div>
+      
+      {/* Wave decoration */}
+      <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-white/5 to-transparent">
+        <svg 
+          viewBox="0 0 1200 120" 
+          className="absolute bottom-0 w-full h-full"
+          style={{ transform: 'rotateX(180deg)' }}
+        >
+          <path 
+            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
+            className="fill-white/5"
+          />
+        </svg>
+      </div>
+
+      <div className="relative container mx-auto px-4 py-16">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-12">
           {/* Company Info */}
-          <div>
-            <h3 className="text-xl font-bold mb-4">{footerData.companyName}</h3>
-            <p className="text-gray-300 mb-4">
-              {footerData.description}
-            </p>
+          <div className="space-y-6">
+            <div className="space-y-4">
+              <h3 className="text-2xl font-bold bg-gradient-to-r from-green-300 to-blue-300 bg-clip-text text-transparent">
+                {footerData.companyName}
+              </h3>
+              <p className="text-gray-300 leading-relaxed">
+                {footerData.description}
+              </p>
+            </div>
+            
             <div className="flex space-x-4">
-              <a href="#" className="text-white hover:text-coral transition-colors">
-                <Facebook size={20} />
+              <a href="#" className="group p-3 bg-white/10 backdrop-blur-sm rounded-full hover:bg-coral/20 transition-all duration-300 hover:scale-110">
+                <Facebook size={20} className="text-white group-hover:text-coral transition-colors" />
               </a>
-              <a href="#" className="text-white hover:text-coral transition-colors">
-                <Instagram size={20} />
+              <a href="#" className="group p-3 bg-white/10 backdrop-blur-sm rounded-full hover:bg-coral/20 transition-all duration-300 hover:scale-110">
+                <Instagram size={20} className="text-white group-hover:text-coral transition-colors" />
               </a>
-              <a href="#" className="text-white hover:text-coral transition-colors">
-                <Twitter size={20} />
+              <a href="#" className="group p-3 bg-white/10 backdrop-blur-sm rounded-full hover:bg-coral/20 transition-all duration-300 hover:scale-110">
+                <Twitter size={20} className="text-white group-hover:text-coral transition-colors" />
               </a>
             </div>
           </div>
 
           {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-bold mb-4">{t.quickLinks}</h3>
-            <ul className="space-y-2">
+          <div className="space-y-6">
+            <h3 className="text-lg font-bold text-green-300 mb-4">{t.quickLinks}</h3>
+            <ul className="space-y-3">
               <li>
-                <a href="#home" className="text-gray-300 hover:text-white transition-colors">{t.home}</a>
+                <a href="#home" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-coral mr-0 group-hover:mr-3 transition-all duration-300"></span>
+                  {t.home}
+                </a>
               </li>
               <li>
-                <a href="#attractions" className="text-gray-300 hover:text-white transition-colors">{t.attractions}</a>
+                <a href="#attractions" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-coral mr-0 group-hover:mr-3 transition-all duration-300"></span>
+                  {t.attractions}
+                </a>
               </li>
               <li>
-                <a href="#virtual-tour" className="text-gray-300 hover:text-white transition-colors">{t.virtualTour}</a>
+                <a href="#virtual-tour" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-coral mr-0 group-hover:mr-3 transition-all duration-300"></span>
+                  {t.virtualTour}
+                </a>
               </li>
               <li>
-                <a href="#contact" className="text-gray-300 hover:text-white transition-colors">{t.contact}</a>
+                <a href="#contact" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-coral mr-0 group-hover:mr-3 transition-all duration-300"></span>
+                  {t.contact}
+                </a>
               </li>
             </ul>
           </div>
 
           {/* Resources */}
-          <div>
-            <h3 className="text-lg font-bold mb-4">{t.resources}</h3>
-            <ul className="space-y-2">
+          <div className="space-y-6">
+            <h3 className="text-lg font-bold text-green-300 mb-4">{t.resources}</h3>
+            <ul className="space-y-3">
               <li>
-                <a href="/travel-guide" className="text-gray-300 hover:text-white transition-colors">{t.travelGuide}</a>
+                <a href="/travel-guide" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-coral mr-0 group-hover:mr-3 transition-all duration-300"></span>
+                  {t.travelGuide}
+                </a>
               </li>
               <li>
-                <a href="/faq" className="text-gray-300 hover:text-white transition-colors">{t.faq}</a>
+                <a href="/faq" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-coral mr-0 group-hover:mr-3 transition-all duration-300"></span>
+                  {t.faq}
+                </a>
               </li>
               <li>
-                <a href="/testimonials" className="text-gray-300 hover:text-white transition-colors">{t.testimonials}</a>
+                <a href="/testimonials" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-coral mr-0 group-hover:mr-3 transition-all duration-300"></span>
+                  {t.testimonials}
+                </a>
               </li>
               <li>
-                <a href="/blog" className="text-gray-300 hover:text-white transition-colors">{t.blog}</a>
+                <a href="/blog" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-coral mr-0 group-hover:mr-3 transition-all duration-300"></span>
+                  {t.blog}
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">{t.privacyPolicy}</a>
+                <a href="#" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-coral mr-0 group-hover:mr-3 transition-all duration-300"></span>
+                  {t.privacyPolicy}
+                </a>
               </li>
               <li>
-                <a href="#" className="text-gray-300 hover:text-white transition-colors">{t.termsOfService}</a>
+                <a href="#" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
+                  <span className="w-0 group-hover:w-2 h-0.5 bg-coral mr-0 group-hover:mr-3 transition-all duration-300"></span>
+                  {t.termsOfService}
+                </a>
               </li>
             </ul>
           </div>
 
           {/* Contact Info */}
-          <div>
-            <h3 className="text-lg font-bold mb-4">{t.contactUs}</h3>
-            <ul className="space-y-4">
-              <li className="flex items-start">
-                <Globe size={20} className="mr-2 mt-0.5 text-green-500 flex-shrink-0" />
-                <span className="text-gray-300">{footerData.address}</span>
+          <div className="space-y-6">
+            <h3 className="text-lg font-bold text-green-300 mb-4">{t.contactUs}</h3>
+            <ul className="space-y-6">
+              <li className="flex items-start group">
+                <div className="p-2 bg-green-500/20 rounded-lg mr-4 group-hover:bg-green-500/30 transition-colors">
+                  <Globe size={20} className="text-green-400 flex-shrink-0" />
+                </div>
+                <div>
+                  <span className="text-gray-300 leading-relaxed">{footerData.address}</span>
+                  <p className="text-xs text-gray-400 mt-1">Ubicación</p>
+                </div>
               </li>
-              <li className="flex items-start">
-                <Mail size={20} className="mr-2 mt-0.5 text-green-500 flex-shrink-0" />
-                <span className="text-gray-300">{footerData.email}</span>
+              <li className="flex items-start group">
+                <div className="p-2 bg-blue-500/20 rounded-lg mr-4 group-hover:bg-blue-500/30 transition-colors">
+                  <Mail size={20} className="text-blue-400 flex-shrink-0" />
+                </div>
+                <div>
+                  <span className="text-gray-300">{footerData.email}</span>
+                  <p className="text-xs text-gray-400 mt-1">Correo electrónico</p>
+                </div>
               </li>
-              <li className="flex items-start">
-                <Phone size={20} className="mr-2 mt-0.5 text-green-500 flex-shrink-0" />
-                <a href={`https://wa.me/${footerData.phone.replace(/\D/g, '')}?text=Hola,%20me%20gustaría%20obtener%20más%20información%20sobre%20los%20tours%20en%20Puerto%20López`} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
-                  {footerData.phone}
-                </a>
+              <li className="flex items-start group">
+                <div className="p-2 bg-coral/20 rounded-lg mr-4 group-hover:bg-coral/30 transition-colors">
+                  <Phone size={20} className="text-coral flex-shrink-0" />
+                </div>
+                <div>
+                  <a href={`https://wa.me/${footerData.phone.replace(/\D/g, '')}?text=Hola,%20me%20gustaría%20obtener%20más%20información%20sobre%20los%20tours%20en%20Puerto%20López`} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
+                    {footerData.phone}
+                  </a>
+                  <p className="text-xs text-gray-400 mt-1">WhatsApp disponible</p>
+                </div>
               </li>
             </ul>
           </div>
         </div>
 
-        <div className="border-t border-gray-700 mt-12 pt-8 text-center text-gray-400">
-          <p>&copy; {new Date().getFullYear()} {footerData.companyName}. {t.allRightsReserved}</p>
-          <p className="mt-2 text-sm">Un escaparate del paraíso costero de Ecuador. Hecho por Abel Castillo - UNESUM (SmartCityCore - PL: smartcity-core.com)</p>
+        <div className="border-t border-white/10 mt-16 pt-8">
+          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
+            <div className="text-center md:text-left">
+              <p className="text-gray-300">
+                &copy; {new Date().getFullYear()} 
+                <span className="font-semibold text-white"> {footerData.companyName}</span>. 
+                {t.allRightsReserved}
+              </p>
+              <p className="mt-2 text-sm text-gray-400">
+                Un escaparate del paraíso costero de Ecuador. 
+                <span className="text-green-300"> Hecho por Abel Castillo - UNESUM</span>
+              </p>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <span className="text-xs text-gray-400">Desarrollado con ❤️ en Ecuador</span>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span className="text-xs text-green-300">SmartCityCore - PL</span>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
-    </footer>;
+    </footer>
+  );
 };
 export default Footer;

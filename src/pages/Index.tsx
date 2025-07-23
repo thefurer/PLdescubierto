@@ -1,4 +1,5 @@
 
+import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import Attractions from "@/components/Attractions";
 import VirtualTour from "@/components/VirtualTour";
@@ -9,7 +10,7 @@ import Footer from "@/components/Footer";
 const Index = () => {
   return (
     <div className="min-h-screen overflow-x-hidden">
-      {/* No Navbar in the main page */}
+      <Navbar />
       <Hero />
       <Attractions />
       <VirtualTour />

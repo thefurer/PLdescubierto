@@ -8,9 +8,10 @@ import { useCarouselLogic } from "./carousel/useCarouselLogic";
 
 interface AttractionsCarouselProps {
   attractions: TouristAttraction[];
+  onAttractionSelect?: (attraction: TouristAttraction) => void;
 }
 
-export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) => {
+export const AttractionsCarousel = ({ attractions, onAttractionSelect }: AttractionsCarouselProps) => {
   const {
     currentIndex,
     selectedAttraction,
@@ -53,7 +54,10 @@ export const AttractionsCarousel = ({ attractions }: AttractionsCarouselProps) =
             attraction={attraction}
             index={index}
             currentIndex={currentIndex}
-            onClick={handleCardClick}
+            onClick={(attraction, index) => {
+              handleCardClick(attraction, index);
+              onAttractionSelect?.(attraction);
+            }}
           />
         ))}
       </div>
