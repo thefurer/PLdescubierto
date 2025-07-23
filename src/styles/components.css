@@ -129,6 +129,60 @@
     @apply transition-all duration-300 ease-in-out;
   }
 
+  /* Cultural Pattern Backgrounds */
+  .cultural-bg {
+    background-image: 
+      radial-gradient(circle at 20% 80%, rgba(142, 120, 70, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(52, 100, 165, 0.08) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(142, 180, 95, 0.06) 0%, transparent 50%);
+    background-size: 400px 400px, 300px 300px, 200px 200px;
+    background-position: 0 0, 100px 100px, 200px 50px;
+    animation: float-patterns 20s ease-in-out infinite;
+  }
+
+  .translucent-panel {
+    @apply backdrop-blur-sm bg-white/15 border border-white/25 rounded-xl;
+    box-shadow: 0 8px 32px rgba(31, 38, 135, 0.2);
+  }
+
+  .coastal-text {
+    font-family: 'Poppins', 'Montserrat', sans-serif;
+    font-weight: 500;
+    letter-spacing: 0.025em;
+  }
+
+  .btn-cultural {
+    @apply relative overflow-hidden rounded-xl px-6 py-3 font-medium;
+    background: linear-gradient(135deg, hsl(var(--ocean-blue)), hsl(var(--green-primary)));
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+  }
+
+  .btn-cultural:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
+  }
+
+  .btn-cultural:active {
+    transform: translateY(0);
+    transition: transform 0.1s;
+  }
+
+  .btn-cultural::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
+
+  .btn-cultural:hover::before {
+    left: 100%;
+  }
+
   /* Enhanced Button Styles */
   .btn-primary {
     @apply bg-ocean hover:bg-ocean-dark text-white font-semibold px-6 py-3 rounded-full smooth-transition shadow-lg hover:shadow-xl focus:ring-2 focus:ring-ocean-light focus:ring-opacity-50;
