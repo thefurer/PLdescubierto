@@ -24,7 +24,9 @@ const Footer = () => {
       {/* Enhanced Background Pattern with Cultural Elements */}
       <div className="absolute inset-0 opacity-20">
         <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-transparent via-coral/10 to-transparent"></div>
-        <div className="absolute inset-0 bg-[url('data:image/svg+xml,%3Csvg width=\"80\" height=\"80\" viewBox=\"0 0 80 80\" xmlns=\"http://www.w3.org/2000/svg\"%3E%3Cg fill=\"none\" fill-rule=\"evenodd\"%3E%3Cg fill=\"%23ffffff\" fill-opacity=\"0.08\"%3E%3Cpath d=\"M40 40c8.837 0 16-7.163 16-16S48.837 8 40 8s-16 7.163-16 16 7.163 16 16 16zm0-4c6.627 0 12-5.373 12-12S46.627 16 40 16s-12 5.373-12 12 5.373 12 12 12z\"/%3E%3C/g%3E%3C/g%3E%3C/svg%3E')] bg-repeat animate-pulse"></div>
+        <div className="absolute inset-0 bg-repeat animate-pulse" style={{
+          backgroundImage: `url("data:image/svg+xml,%3Csvg width='80' height='80' viewBox='0 0 80 80' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.08'%3E%3Cpath d='M40 40c8.837 0 16-7.163 16-16S48.837 8 40 8s-16 7.163-16 16 7.163 16 16 16zm0-4c6.627 0 12-5.373 12-12S46.627 16 40 16s-12 5.373-12 12 5.373 12 12 12z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E")`
+        }}></div>
         <div className="absolute bottom-0 right-0 w-96 h-96 bg-gradient-radial from-green-500/20 to-transparent rounded-full blur-3xl"></div>
       </div>
 
