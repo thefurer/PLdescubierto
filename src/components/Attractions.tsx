@@ -1,88 +1,85 @@
+import { useState } from 'react';
+import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
+import { Star } from 'lucide-react';
+import { useContentManager } from "@/hooks/useContentManager";
+import { useTranslations } from "@/hooks/useTranslations";
+import AttractionsCarousel from './attractions/AttractionsCarousel';
+import AttractionsGrid from './attractions/AttractionsGrid';
+import AttractionsHeader from './attractions/AttractionsHeader';
 
-import { useState } from "react";
-import { cn } from "@/lib/utils";
-import { useTouristAttractions } from "@/hooks/useTouristAttractions";
-import { AttractionsHeader } from "./attractions/AttractionsHeader";
-import { CategoryFilters } from "./attractions/CategoryFilters";
-import { AttractionsGrid } from "./attractions/AttractionsGrid";
-import { AttractionsCarousel } from "./attractions/AttractionsCarousel";
-import { ShowMoreButton } from "./attractions/ShowMoreButton";
+interface AttractionsProps {
+  onAttractionSelect?: (attraction: string) => void;
+}
 
-type AttractionsProps = {
-  className?: string;
-};
+const Attractions = ({ onAttractionSelect }: AttractionsProps) => {
+  const { content } = useContentManager();
+  const t = useTranslations();
+  const [open, setOpen] = useState(false);
+  const [selectedAttraction, setSelectedAttraction] = useState(null);
 
-const Attractions = ({ className }: AttractionsProps) => {
-  const { attractions, loading } = useTouristAttractions();
-  const [activeCategory, setActiveCategory] = useState<string>("todo");
-  const [showAllAttractions, setShowAllAttractions] = useState(false);
-  const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
+  // Find attractions content from database
+  const attractionsContent = content.filter(item => item.section_name === 'attractions');
 
-  const filteredAttractions = activeCategory === "todo" 
-    ? attractions 
-    : attractions.filter(attr => attr.category === activeCategory);
-
-  // Show first 8 attractions (2 rows) or all if expanded for grid view
-  const displayedAttractions = showAllAttractions 
-    ? filteredAttractions 
-    : filteredAttractions.slice(0, 8);
-
-  const hasMoreAttractions = filteredAttractions.length > 8;
-
-  const handleCategoryChange = (category: string) => {
-    setActiveCategory(category);
-    setShowAllAttractions(false);
-    // Switch to carousel for "todo" category, grid for specific categories
-    setViewMode(category === "todo" ? 'carousel' : 'grid');
+  const handleAttractionClick = (attraction: any) => {
+    if (onAttractionSelect) {
+      onAttractionSelect(attraction.name);
+    }
+    setSelectedAttraction(attraction);
+    setOpen(true);
   };
-
-  const handleToggleShowAll = () => {
-    setShowAllAttractions(!showAllAttractions);
-  };
-
-  if (loading) {
-    return (
-      <section id="attractions" className={cn("py-20 bg-gradient-to-b from-white to-green-muted", className)}>
-        <div className="container mx-auto px-4">
-          <div className="text-center">
-            <div className="glass-card p-8 rounded-2xl inline-block">
-              <p className="text-lg text-ocean font-medium">Cargando atracciones...</p>
-            </div>
-          </div>
-        </div>
-      </section>
-    );
-  }
 
   return (
-    <section 
-      id="attractions" 
-      className={cn("py-20 bg-gradient-to-b from-white via-green-muted/30 to-white", className)}
-    >
+    <section id="attractions" className="py-20 bg-gradient-to-b from-blue-50 to-white">
+      
       <div className="container mx-auto px-4">
-        <AttractionsHeader totalCount={attractions.length} />
+        <AttractionsHeader />
         
-        <CategoryFilters 
-          activeCategory={activeCategory}
-          onCategoryChange={handleCategoryChange}
-        />
+        <div className="mb-12">
+          <AttractionsCarousel 
+            onAttractionClick={handleAttractionClick}
+            attractions={attractionsContent}
+          />
+        </div>
 
-        {/* Render carousel for "todo" category, grid for specific categories */}
-        {viewMode === 'carousel' && activeCategory === "todo" ? (
-          <AttractionsCarousel attractions={filteredAttractions} />
-        ) : (
-          <>
-            <AttractionsGrid attractions={displayedAttractions} />
-            <ShowMoreButton
-              hasMoreAttractions={hasMoreAttractions}
-              showAllAttractions={showAllAttractions}
-              onToggleShowAll={handleToggleShowAll}
-              displayedCount={displayedAttractions.length}
-              totalCount={filteredAttractions.length}
-              activeCategory={activeCategory}
-            />
-          </>
-        )}
+        <div className="mb-12">
+          <AttractionsGrid
+            onAttractionClick={handleAttractionClick}
+            attractions={attractionsContent}
+          />
+        </div>
+
+        <Dialog open={open} onOpenChange={setOpen}>
+          <DialogContent className="max-w-3xl">
+            <DialogHeader>
+              <DialogTitle>{selectedAttraction?.content?.title}</DialogTitle>
+              <DialogDescription>
+                {selectedAttraction?.content?.subtitle}
+              </DialogDescription>
+            </DialogHeader>
+            <Card>
+              <CardHeader>
+                <CardTitle className="text-2xl font-bold">{selectedAttraction?.content?.title}</CardTitle>
+                <CardDescription>{selectedAttraction?.content?.subtitle}</CardDescription>
+              </CardHeader>
+              <CardContent className="grid gap-4">
+                <div className="grid gap-2">
+                  <img src={selectedAttraction?.content?.imageUrl} alt={selectedAttraction?.content?.title} className="rounded-md" />
+                </div>
+                <div className="grid gap-2">
+                  <p>{selectedAttraction?.content?.description}</p>
+                </div>
+                <div className="grid gap-2">
+                  <Badge variant="secondary">
+                    <Star className="mr-2 h-4 w-4" />
+                    {selectedAttraction?.content?.rating} / 5
+                  </Badge>
+                </div>
+              </CardContent>
+            </Card>
+          </DialogContent>
+        </Dialog>
       </div>
     </section>
   );
