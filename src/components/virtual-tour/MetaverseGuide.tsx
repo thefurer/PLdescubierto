@@ -64,7 +64,7 @@ const MetaverseGuide = ({ texts }: MetaverseGuideProps) => {
       <div className="bg-gradient-to-r from-white/5 to-white/10 rounded-3xl p-8 border border-white/20 backdrop-blur-sm">
         <div className="text-center mb-8">
           <h4 className="text-2xl font-bold text-white mb-3">
-            🌐 Experiencia Multidispositivo
+            Experiencia Multidispositivo
           </h4>
           <p className="text-white/80 text-lg">
             Accede desde cualquier dispositivo y disfruta de una experiencia optimizada
