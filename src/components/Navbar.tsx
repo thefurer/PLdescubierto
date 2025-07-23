@@ -16,7 +16,8 @@ const Navbar = () => {
     config,
     handleSignOut,
     handleNavigation,
-    navItems
+    navItems,
+    isHomePage
   } = useNavbar();
 
   return (
@@ -34,11 +35,14 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20 relative">
           <NavbarLogo scrolled={scrolled} />
 
-          <DesktopNavigation 
-            navItems={navItems}
-            scrolled={scrolled}
-            onNavigate={handleNavigation}
-          />
+          {/* Only show navigation on resource pages */}
+          {!isHomePage && (
+            <DesktopNavigation 
+              navItems={navItems}
+              scrolled={scrolled}
+              onNavigate={handleNavigation}
+            />
+          )}
 
           <div className="flex items-center gap-3">
             <WeatherWidget scrolled={scrolled} />
@@ -51,19 +55,25 @@ const Navbar = () => {
             />
           </div>
 
-          <MobileMenuButton
-            isOpen={isOpen}
-            scrolled={scrolled}
-            onClick={() => setIsOpen(!isOpen)}
-          />
+          {/* Only show mobile menu button on resource pages */}
+          {!isHomePage && (
+            <MobileMenuButton
+              isOpen={isOpen}
+              scrolled={scrolled}
+              onClick={() => setIsOpen(!isOpen)}
+            />
+          )}
         </div>
 
-        <MobileNavigation
-          isOpen={isOpen}
-          navItems={navItems}
-          onNavigate={handleNavigation}
-          user={user}
-        />
+        {/* Only show mobile navigation on resource pages */}
+        {!isHomePage && (
+          <MobileNavigation
+            isOpen={isOpen}
+            navItems={navItems}
+            onNavigate={handleNavigation}
+            user={user}
+          />
+        )}
       </div>
     </nav>
   );

@@ -78,14 +78,21 @@ export const useNavbar = () => {
     setIsOpen(false);
   };
 
-  // Use navbar items from visual config
-  const navItems = config.navbarSettings.items
+  // Determine if current page is home page
+  const isHomePage = location.pathname === '/';
+
+  // Use navbar items from visual config, but filter based on page type
+  const allNavItems = config.navbarSettings.items
     .filter(item => item.visible)
     .sort((a, b) => a.order - b.order)
     .map(item => ({
       label: item.name,
       url: item.url
     }));
+
+  // For home page, show no navigation items (only login, weather, language)
+  // For resource pages, show all navigation items
+  const navItems = isHomePage ? [] : allNavItems;
 
   return {
     isOpen,
@@ -97,6 +104,7 @@ export const useNavbar = () => {
     config,
     handleSignOut,
     handleNavigation,
-    navItems
+    navItems,
+    isHomePage
   };
 };
