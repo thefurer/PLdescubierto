@@ -1,16 +1,22 @@
 
 import { useNavbar } from "@/hooks/useNavbar";
 import NavbarLogo from "./navbar/NavbarLogo";
+import DesktopNavigation from "./navbar/DesktopNavigation";
+import MobileNavigation from "./navbar/MobileNavigation";
 import UserActions from "./navbar/UserActions";
+import MobileMenuButton from "./navbar/MobileMenuButton";
 import WeatherWidget from "./weather/WeatherWidget";
 
 const Navbar = () => {
   const {
+    isOpen,
+    setIsOpen,
     scrolled,
     user,
     config,
     handleSignOut,
-    handleNavigation
+    handleNavigation,
+    navItems
   } = useNavbar();
 
   return (
@@ -28,7 +34,13 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20 relative">
           <NavbarLogo scrolled={scrolled} />
 
-          <div className="flex items-center gap-3">
+          <DesktopNavigation 
+            navItems={navItems}
+            scrolled={scrolled}
+            onNavigate={handleNavigation}
+          />
+
+          <div className="flex items-center gap-4">
             <WeatherWidget scrolled={scrolled} />
             
             <UserActions
@@ -38,7 +50,20 @@ const Navbar = () => {
               onSignOut={handleSignOut}
             />
           </div>
+
+          <MobileMenuButton
+            isOpen={isOpen}
+            scrolled={scrolled}
+            onClick={() => setIsOpen(!isOpen)}
+          />
         </div>
+
+        <MobileNavigation
+          isOpen={isOpen}
+          navItems={navItems}
+          onNavigate={handleNavigation}
+          user={user}
+        />
       </div>
     </nav>
   );

@@ -12,19 +12,10 @@ const AccessibilityButton = ({
   compact = false
 }: AccessibilityButtonProps) => {
   if (compact) {
-    return (
-      <Button 
-        variant="ghost" 
-        size="sm" 
-        onClick={onToggle} 
-        aria-expanded={isExpanded} 
-        aria-controls="accessibility-options" 
-        aria-label={isExpanded ? 'Ocultar opciones de accesibilidad' : 'Mostrar opciones de accesibilidad'} 
-        className="h-8 w-8 p-1 bg-white/20 hover:bg-white/30 rounded-full"
-      >
-        <Settings className="h-4 w-4 text-white" aria-hidden="true" />
-      </Button>
-    );
+    return <Button variant="ghost" size="sm" onClick={onToggle} aria-expanded={isExpanded} aria-controls="accessibility-options" aria-label={isExpanded ? 'Ocultar opciones de accesibilidad' : 'Mostrar opciones de accesibilidad'} className="bg-slate-300 hover:bg-slate-200">
+        <Settings className={`h-4 w-4 ${isExpanded ? "text-ocean" : "text-gray-700 hover:text-ocean"}`} aria-hidden="true" />
+        <span className={`text-sm font-medium ${isExpanded ? "text-ocean" : "text-gray-700"}`}>Accesibilidad</span>
+      </Button>;
   }
   return <Button variant="outline" size="sm" onClick={onToggle} className="w-full flex items-center justify-between mb-2" aria-expanded={isExpanded} aria-controls="accessibility-options" aria-label={isExpanded ? 'Ocultar opciones de accesibilidad' : 'Mostrar opciones de accesibilidad'}>
       <div className="flex items-center">
