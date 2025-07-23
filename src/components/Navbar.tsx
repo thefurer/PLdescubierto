@@ -34,12 +34,6 @@ const Navbar = () => {
         <div className="flex items-center justify-between h-20 relative">
           <NavbarLogo scrolled={scrolled} />
 
-          <DesktopNavigation 
-            navItems={navItems}
-            scrolled={scrolled}
-            onNavigate={handleNavigation}
-          />
-
           <div className="flex items-center gap-3">
             <WeatherWidget scrolled={scrolled} />
             
