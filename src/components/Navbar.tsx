@@ -5,7 +5,6 @@ import DesktopNavigation from "./navbar/DesktopNavigation";
 import MobileNavigation from "./navbar/MobileNavigation";
 import UserActions from "./navbar/UserActions";
 import MobileMenuButton from "./navbar/MobileMenuButton";
-import WeatherIndicator from "./WeatherIndicator";
 
 const Navbar = () => {
   const {
@@ -40,22 +39,18 @@ const Navbar = () => {
             onNavigate={handleNavigation}
           />
 
-          <div className="flex items-center space-x-4">
-            <WeatherIndicator />
-            
-            <UserActions
-              user={user}
-              scrolled={scrolled}
-              onNavigate={handleNavigation}
-              onSignOut={handleSignOut}
-            />
+          <UserActions
+            user={user}
+            scrolled={scrolled}
+            onNavigate={handleNavigation}
+            onSignOut={handleSignOut}
+          />
 
-            <MobileMenuButton
-              isOpen={isOpen}
-              scrolled={scrolled}
-              onClick={() => setIsOpen(!isOpen)}
-            />
-          </div>
+          <MobileMenuButton
+            isOpen={isOpen}
+            scrolled={scrolled}
+            onClick={() => setIsOpen(!isOpen)}
+          />
         </div>
 
         <MobileNavigation

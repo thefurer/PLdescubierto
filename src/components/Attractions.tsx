@@ -42,11 +42,11 @@ const Attractions = ({ className }: AttractionsProps) => {
 
   if (loading) {
     return (
-      <section id="attractions" className={cn("py-20 bg-gradient-to-b from-white to-green-muted cultural-bg", className)}>
+      <section id="attractions" className={cn("py-20 bg-gradient-to-b from-white to-green-muted", className)}>
         <div className="container mx-auto px-4">
-          <div className="text-center slide-fade-in">
-            <div className="translucent-panel p-8 rounded-2xl inline-block gentle-sway">
-              <p className="text-lg text-ocean font-medium coastal-text">Cargando atracciones...</p>
+          <div className="text-center">
+            <div className="glass-card p-8 rounded-2xl inline-block">
+              <p className="text-lg text-ocean font-medium">Cargando atracciones...</p>
             </div>
           </div>
         </div>
@@ -57,9 +57,9 @@ const Attractions = ({ className }: AttractionsProps) => {
   return (
     <section 
       id="attractions" 
-      className={cn("py-20 bg-gradient-to-b from-white via-green-muted/30 to-white cultural-bg", className)}
+      className={cn("py-20 bg-gradient-to-b from-white via-green-muted/30 to-white", className)}
     >
-      <div className="container mx-auto px-4 slide-fade-in">
+      <div className="container mx-auto px-4">
         <AttractionsHeader totalCount={attractions.length} />
         
         <CategoryFilters 

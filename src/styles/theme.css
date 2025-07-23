@@ -61,17 +61,6 @@
     --glass-bg: rgba(255, 255, 255, 0.08);
     --glass-border: rgba(255, 255, 255, 0.18);
     --glass-backdrop: blur(12px);
-    
-    /* Cultural Pattern Colors - Puerto López */
-    --coffee-brown: 45 40% 20%;
-    --coffee-light: 45 30% 65%;
-    --whale-blue: 215 85% 25%;
-    --whale-light: 215 70% 80%;
-    --parrot-green: 142 70% 38%;
-    --parrot-yellow: 52 100% 65%;
-    --parrot-red: 15 85% 60%;
-    --coastal-sand: 43 77% 89%;
-    --coastal-mist: 200 40% 95%;
   }
 
   .dark {

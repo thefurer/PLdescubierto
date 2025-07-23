@@ -58,13 +58,11 @@ const Hero = () => {
   return (
     <section 
       id="home" 
-      className="relative h-screen overflow-hidden bg-cover bg-center bg-no-repeat cultural-bg"
+      className="relative h-screen overflow-hidden bg-cover bg-center bg-no-repeat"
       style={{
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
       }}
     >
-      {/* Cultural pattern overlay */}
-      <div className="absolute inset-0 cultural-bg opacity-20"></div>
       {/* Fixed Top navigation bar with scroll effect */}
       <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
         isScrolled 
@@ -113,15 +111,15 @@ const Hero = () => {
       </div>
 
       {/* Hero Content */}
-      <div className="container mx-auto px-4 h-full flex flex-col justify-center items-center relative z-10 text-center slide-fade-in">
-        <div className="max-w-4xl translucent-panel p-8 gentle-sway">
+      <div className="container mx-auto px-4 h-full flex flex-col justify-center items-center relative z-10 text-center">
+        <div className="max-w-4xl">
           {/* Main Title without wave effect */}
-          <h1 className="text-6xl md:text-8xl font-bold text-white mb-4 drop-shadow-lg coastal-text">
+          <h1 className="text-6xl md:text-8xl font-bold text-white mb-4 drop-shadow-lg">
             {currentTexts.title}
           </h1>
           
           {/* Subtitle with green accent */}
-          <h2 className="text-4xl md:text-5xl font-bold text-green-400 mb-6 drop-shadow-lg coastal-text">
+          <h2 className="text-4xl md:text-5xl font-bold text-green-400 mb-6 drop-shadow-lg">
             {currentTexts.subtitle}
           </h2>
           
