@@ -1,22 +1,16 @@
 
 import { useNavbar } from "@/hooks/useNavbar";
 import NavbarLogo from "./navbar/NavbarLogo";
-import DesktopNavigation from "./navbar/DesktopNavigation";
-import MobileNavigation from "./navbar/MobileNavigation";
 import UserActions from "./navbar/UserActions";
-import MobileMenuButton from "./navbar/MobileMenuButton";
 import WeatherWidget from "./weather/WeatherWidget";
 
 const Navbar = () => {
   const {
-    isOpen,
-    setIsOpen,
     scrolled,
     user,
     config,
     handleSignOut,
-    handleNavigation,
-    navItems
+    handleNavigation
   } = useNavbar();
 
   return (
@@ -44,20 +38,7 @@ const Navbar = () => {
               onSignOut={handleSignOut}
             />
           </div>
-
-          <MobileMenuButton
-            isOpen={isOpen}
-            scrolled={scrolled}
-            onClick={() => setIsOpen(!isOpen)}
-          />
         </div>
-
-        <MobileNavigation
-          isOpen={isOpen}
-          navItems={navItems}
-          onNavigate={handleNavigation}
-          user={user}
-        />
       </div>
     </nav>
   );
