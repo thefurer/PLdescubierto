@@ -20,7 +20,7 @@ const AccessibilityButton = ({
         aria-expanded={isExpanded} 
         aria-controls="accessibility-options" 
         aria-label={isExpanded ? 'Ocultar opciones de accesibilidad' : 'Mostrar opciones de accesibilidad'} 
-        className="h-8 w-8 p-1 bg-white/20 hover:bg-white/30 rounded-full"
+        className="h-10 w-10 p-2 bg-blue-600/80 hover:bg-blue-600 rounded-full"
       >
         <Settings className="h-4 w-4 text-white" aria-hidden="true" />
       </Button>
