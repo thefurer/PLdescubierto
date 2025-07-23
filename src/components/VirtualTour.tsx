@@ -75,8 +75,7 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
             texts={{
               tips: t.tips,
               tip1: t.tip1,
-              tip2: t.tip2,
-              tip3: t.tip3
+              tip2: t.tip2
             }}
           />
         </div>

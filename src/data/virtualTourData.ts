@@ -48,7 +48,7 @@ export const virtualTourTexts = {
     description: "Sumérgete en nuestro metaverso interactivo de Puerto López. Una experiencia inmersiva donde puedes explorar y conocer las maravillas del Cantón",
     enterMetaverse: "Entrar al Metaverso",
     exploreSpace: "Explorar Espacio",
-    highlights: "Características del Metaverso,
+    highlights: "Características del Metaverso",
     tips: "Guía del Metaverso",
     tip1: "Usa auriculares VR para una experiencia completamente inmersiva",
     tip2: "Interactúa con otros visitantes usando tu avatar personalizado",
