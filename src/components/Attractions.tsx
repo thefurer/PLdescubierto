@@ -1,3 +1,4 @@
+
 import { useState } from 'react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -5,9 +6,9 @@ import { Badge } from "@/components/ui/badge";
 import { Star } from 'lucide-react';
 import { useContentManager } from "@/hooks/useContentManager";
 import { useTranslations } from "@/hooks/useTranslations";
-import AttractionsCarousel from './attractions/AttractionsCarousel';
-import AttractionsGrid from './attractions/AttractionsGrid';
-import AttractionsHeader from './attractions/AttractionsHeader';
+import { AttractionsCarousel } from './attractions/AttractionsCarousel';
+import { AttractionsGrid } from './attractions/AttractionsGrid';
+import { AttractionsHeader } from './attractions/AttractionsHeader';
 
 interface AttractionsProps {
   onAttractionSelect?: (attraction: string) => void;
