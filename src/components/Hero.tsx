@@ -63,52 +63,6 @@ const Hero = () => {
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
       }}
     >
-      {/* Fixed Top navigation bar with scroll effect */}
-      <div className={`fixed top-0 left-0 right-0 z-50 transition-all duration-300 ${
-        isScrolled 
-          ? "bg-white/95 backdrop-blur-lg border-b border-gray-200/50 shadow-lg" 
-          : "bg-transparent"
-      }`}>
-        <div className="flex justify-between items-center p-4">
-          <div className="flex items-center gap-4">
-            <AccessibilityToolbar compact />
-          </div>
-          <div className="flex items-center gap-4">
-            {!user && <LanguageToggle compact />}
-            {user ? (
-              <div className="flex items-center gap-3">
-                <Button
-                  onClick={() => navigate('/dashboard')}
-                  size="sm"
-                  className={`transition-all duration-300 ${
-                    isScrolled
-                      ? "bg-green-primary hover:bg-green-600 text-white"
-                      : "bg-white/90 hover:bg-white text-ocean-dark shadow-lg hover:shadow-xl backdrop-blur-sm"
-                  }`}
-                >
-                  <Settings className="h-4 w-4 mr-2" />
-                  Dashboard
-                </Button>
-                <UserMenu />
-              </div>
-            ) : (
-              <Link to="/auth">
-                <Button 
-                  size="sm"
-                  className={`transition-all duration-300 ${
-                    isScrolled
-                      ? "bg-ocean hover:bg-ocean-dark text-white"
-                      : "bg-white/90 hover:bg-white text-ocean-dark shadow-lg hover:shadow-xl backdrop-blur-sm"
-                  }`}
-                >
-                  <User className="h-4 w-4 mr-2" />
-                  Iniciar Sesión
-                </Button>
-              </Link>
-            )}
-          </div>
-        </div>
-      </div>
 
       {/* Hero Content */}
       <div className="container mx-auto px-4 h-full flex flex-col justify-center items-center relative z-10 text-center">
