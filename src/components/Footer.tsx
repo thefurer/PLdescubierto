@@ -192,9 +192,10 @@ const Footer = () => {
             </div>
             
             <div className="flex items-center space-x-4">
+              <span className="text-xs text-gray-400">Desarrollado con ❤️ en Ecuador</span>
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                <span className="text-xs text-green-300">smartcity-core.com</span>
+                <span className="text-xs text-green-300">SmartCityCore - PL</span>
               </div>
             </div>
           </div>
