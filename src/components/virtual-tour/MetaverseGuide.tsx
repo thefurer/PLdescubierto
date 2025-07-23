@@ -45,7 +45,19 @@ const MetaverseGuide = ({ texts }: MetaverseGuideProps) => {
             <h4 className="text-xl font-semibold text-white mb-3">Interacción Social</h4>
             <p className="text-white/80 leading-relaxed">{texts.tip2}</p>
           </div>
-        </div>     
+        </div>
+
+        {/* Tip 3 - Navigation */}
+        <div className="group relative p-6 bg-gradient-to-br from-emerald-500/10 to-teal-500/10 rounded-2xl border border-white/20 backdrop-blur-sm hover:from-emerald-500/20 hover:to-teal-500/20 transition-all duration-300 hover:scale-105 hover:shadow-2xl">
+          <div className="absolute inset-0 bg-gradient-to-br from-emerald-500/5 to-teal-500/5 rounded-2xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+          <div className="relative z-10">
+            <div className="w-12 h-12 bg-gradient-to-r from-emerald-500 to-teal-500 rounded-full flex items-center justify-center mb-4 group-hover:rotate-12 transition-transform duration-300">
+              <Settings className="text-white" size={24} />
+            </div>
+            <h4 className="text-xl font-semibold text-white mb-3">Navegación</h4>
+            <p className="text-white/80 leading-relaxed">{texts.tip3}</p>
+          </div>
+        </div>
       </div>
 
       {/* Multi-device section */}
