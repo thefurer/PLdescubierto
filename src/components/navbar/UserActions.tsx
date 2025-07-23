@@ -9,6 +9,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { useNavbarButtonStyles } from "./NavbarButtonStyles";
+import LanguageToggle from "@/components/accessibility/LanguageToggle";
 
 interface UserActionsProps {
   user: any;
@@ -25,7 +26,9 @@ const UserActions = ({ user, scrolled, onNavigate, onSignOut }: UserActionsProps
   };
 
   return (
-    <div className={`flex items-center space-x-4 ${getNavPositionClass()}`}>
+    <div className={`flex items-center space-x-3 ${getNavPositionClass()}`}>
+      <LanguageToggle compact />
+      
       {user ? (
         <>
           {/* Dashboard Button - Show only when authenticated */}
