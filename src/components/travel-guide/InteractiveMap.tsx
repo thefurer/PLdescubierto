@@ -111,7 +111,7 @@ const InteractiveMap = () => {
 
         <div className="w-full h-[500px] rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
           <iframe
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3975.344!2d-80.7833!3d-1.5667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x902e0c0a0a0a0a0a%3A0x0a0a0a0a0a0a0a0a!2sPuerto%20L%C3%B3pez%2C%20Ecuador!5e0!3m2!1ses!2sus!4v1234567890"
+            src="https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=Puerto+López,Ecuador&center=-1.5667,-80.7833&zoom=13"
             width="100%"
             height="100%"
             style={{ border: 0 }}
