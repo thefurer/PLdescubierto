@@ -1,8 +1,9 @@
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { MapPin, Navigation, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { supabase } from '@/integrations/supabase/client';
 
 interface Destination {
   name: string;
@@ -45,6 +46,29 @@ const destinations: Destination[] = [
 
 const InteractiveMap = () => {
   const [selectedDestination, setSelectedDestination] = useState('');
+  const [mapEmbedUrl, setMapEmbedUrl] = useState('');
+
+  useEffect(() => {
+    const getMapEmbedUrl = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('google-maps-embed', {
+          body: {
+            location: 'Puerto López, Ecuador',
+            center: '-1.5667,-80.7833'
+          }
+        });
+
+        if (error) throw error;
+        setMapEmbedUrl(data.embedUrl);
+      } catch (error) {
+        console.error('Error loading map:', error);
+        // Fallback to basic map without API key
+        setMapEmbedUrl('https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3975.344!2d-80.7833!3d-1.5667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMcKwMzQnMDAuMSJTIDgwwrA0NicwMC4wIlc!5e0!3m2!1sen!2s!4v1234567890');
+      }
+    };
+
+    getMapEmbedUrl();
+  }, []);
 
   const handleGetDirections = (destination: string) => {
     const destination_coords = destinations.find(d => d.name === destination)?.coords || '';
@@ -110,17 +134,23 @@ const InteractiveMap = () => {
         )}
 
         <div className="w-full h-[500px] rounded-2xl overflow-hidden shadow-2xl border-4 border-white">
-          <iframe
-            src="https://www.google.com/maps/embed/v1/place?key=YOUR_API_KEY&q=Puerto+López,Ecuador&center=-1.5667,-80.7833&zoom=13"
-            width="100%"
-            height="100%"
-            style={{ border: 0 }}
-            allowFullScreen
-            loading="lazy"
-            referrerPolicy="no-referrer-when-downgrade"
-            title="Mapa de Puerto López"
-            className="hover:scale-105 transition-transform duration-700"
-          ></iframe>
+          {mapEmbedUrl ? (
+            <iframe
+              src={mapEmbedUrl}
+              width="100%"
+              height="100%"
+              style={{ border: 0 }}
+              allowFullScreen
+              loading="lazy"
+              referrerPolicy="no-referrer-when-downgrade"
+              title="Mapa de Puerto López"
+              className="hover:scale-105 transition-transform duration-700"
+            ></iframe>
+          ) : (
+            <div className="flex items-center justify-center h-full bg-gray-100">
+              <p className="text-gray-600">Cargando mapa...</p>
+            </div>
+          )}
         </div>
       </CardContent>
     </Card>
