@@ -133,6 +133,47 @@ export type Database = {
           },
         ]
       }
+      attraction_ratings: {
+        Row: {
+          attraction_id: string
+          created_at: string
+          id: string
+          ip_address: unknown | null
+          rating: number
+          updated_at: string
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          attraction_id: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          rating: number
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          attraction_id?: string
+          created_at?: string
+          id?: string
+          ip_address?: unknown | null
+          rating?: number
+          updated_at?: string
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attraction_ratings_attraction_id_fkey"
+            columns: ["attraction_id"]
+            isOneToOne: false
+            referencedRelation: "tourist_attractions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       authorized_emails: {
         Row: {
           authorized_at: string
@@ -684,6 +725,13 @@ export type Database = {
       create_initial_admin: {
         Args: Record<PropertyKey, never>
         Returns: undefined
+      }
+      get_attraction_rating_average: {
+        Args: { attraction_uuid: string }
+        Returns: {
+          average_rating: number
+          total_ratings: number
+        }[]
       }
       has_role: {
         Args: {
