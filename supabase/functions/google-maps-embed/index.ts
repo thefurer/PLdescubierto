@@ -27,22 +27,8 @@ serve(async (req) => {
     
     console.log('Generated embed URL (without key):', embedUrl.replace(GOOGLE_MAPS_API_KEY, 'HIDDEN_KEY'))
     
-    // Test the API key by making a request to verify it works
-    const testUrl = `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(location)}&key=${GOOGLE_MAPS_API_KEY}`
-    
-    try {
-      const testResponse = await fetch(testUrl)
-      const testData = await testResponse.json()
-      
-      console.log('API test response status:', testData.status)
-      
-      if (testData.status === 'REQUEST_DENIED') {
-        throw new Error(`Google Maps API request denied: ${testData.error_message || 'Invalid API key or API not enabled'}`)
-      }
-    } catch (testError) {
-      console.error('API key test failed:', testError)
-      throw new Error(`Google Maps API key validation failed: ${testError.message}`)
-    }
+    // Note: We skip API validation here since Maps Embed API doesn't have a direct validation endpoint
+    // The embed will fail gracefully if the API key is invalid
     
     return new Response(
       JSON.stringify({ embedUrl }),
