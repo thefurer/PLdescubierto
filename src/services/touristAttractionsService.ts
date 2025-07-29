@@ -22,6 +22,11 @@ export const touristAttractionsService = {
       category: attraction.category as 'todo' | 'playa' | 'cultura' | 'naturaleza',
       gallery_images: attraction.gallery_images || [],
       activities: attraction.activities || [],
+      coordinates: attraction.coordinates && typeof attraction.coordinates === 'object' && 
+                   attraction.coordinates !== null &&
+                   'lat' in attraction.coordinates && 'lng' in attraction.coordinates
+        ? attraction.coordinates as { lat: number; lng: number }
+        : undefined,
       recommendations: Array.isArray(attraction.recommendations) 
         ? attraction.recommendations as TouristAttraction['recommendations']
         : [],
@@ -58,6 +63,7 @@ export const touristAttractionsService = {
       console.log('Setting recommendations as jsonb:', updateData.recommendations);
     }
     if (updates.additional_info !== undefined) updateData.additional_info = updates.additional_info;
+    if (updates.coordinates !== undefined) updateData.coordinates = updates.coordinates;
     if (updates.display_order !== undefined) updateData.display_order = updates.display_order;
     if (updates.is_active !== undefined) updateData.is_active = updates.is_active;
     
