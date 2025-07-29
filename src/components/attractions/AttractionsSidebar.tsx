@@ -22,9 +22,12 @@ export const AttractionsSidebar = ({ selectedAttraction, isOpen, onClose }: Attr
       
       // Si la atracción tiene coordenadas específicas, usarlas
       if (selectedAttraction.coordinates) {
-        setMapCoordinates(`${selectedAttraction.coordinates.lat},${selectedAttraction.coordinates.lng}`);
+        const coords = `${selectedAttraction.coordinates.lat},${selectedAttraction.coordinates.lng}`;
+        console.log('Sidebar: Using specific coordinates for', selectedAttraction.name, ':', coords);
+        setMapCoordinates(coords);
       } else {
         // Usar coordenadas por defecto de Puerto López
+        console.log('Sidebar: Using default coordinates for', selectedAttraction.name);
         setMapCoordinates("-1.5667,-80.7833");
       }
     }
@@ -33,6 +36,8 @@ export const AttractionsSidebar = ({ selectedAttraction, isOpen, onClose }: Attr
   useEffect(() => {
     const getMapEmbedUrl = async () => {
       try {
+        console.log('Sidebar: Requesting map with location:', mapCenter, 'and coordinates:', mapCoordinates);
+        
         const { data, error } = await supabase.functions.invoke('google-maps-embed', {
           body: {
             location: mapCenter,
@@ -41,15 +46,19 @@ export const AttractionsSidebar = ({ selectedAttraction, isOpen, onClose }: Attr
         });
 
         if (error) throw error;
+        
+        console.log('Sidebar: Map embed URL received:', data.embedUrl);
         setMapEmbedUrl(data.embedUrl);
       } catch (error) {
-        console.error('Error loading map:', error);
+        console.error('Sidebar: Error loading map:', error);
         // Fallback to basic map without API key
         setMapEmbedUrl('https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3975.344!2d-80.7833!3d-1.5667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMcKwMzQnMDAuMSJTIDgwwrA0NicwMC4wIlc!5e0!3m2!1sen!2s!4v1234567890');
       }
     };
 
-    getMapEmbedUrl();
+    if (mapCenter && mapCoordinates) {
+      getMapEmbedUrl();
+    }
   }, [mapCenter, mapCoordinates]);
 
   if (!isOpen) return null;
