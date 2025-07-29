@@ -91,9 +91,7 @@ export const AttractionRating = ({ attraction }: AttractionRatingProps) => {
       // Intentar insertar o actualizar la calificación
       const { error } = await supabase
         .from('attraction_ratings')
-        .upsert(ratingData, {
-          onConflict: user ? 'attraction_id,user_id' : 'attraction_id,ip_address'
-        });
+        .upsert(ratingData);
 
       if (error) throw error;
 
@@ -156,29 +154,6 @@ export const AttractionRating = ({ attraction }: AttractionRatingProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Promedio de calificaciones */}
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2 text-ocean">
-            <Star className="h-5 w-5 text-amber-400 fill-amber-400" />
-            Calificaciones
-          </CardTitle>
-        </CardHeader>
-        <CardContent className="space-y-4">
-          <div className="text-center">
-            <div className="flex justify-center items-center gap-2 mb-2">
-              {renderStars(false)}
-            </div>
-            <div className="text-2xl font-bold text-ocean">
-              {ratingData.averageRating > 0 ? ratingData.averageRating.toFixed(1) : 'Sin calificaciones'}
-            </div>
-            <p className="text-sm text-gray-600">
-              {ratingData.totalRatings} {ratingData.totalRatings === 1 ? 'calificación' : 'calificaciones'}
-            </p>
-          </div>
-        </CardContent>
-      </Card>
-
       {/* Calificar atracción */}
       <Card>
         <CardHeader>

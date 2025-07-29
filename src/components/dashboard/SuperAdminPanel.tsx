@@ -2,11 +2,12 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Users, History, Mail } from 'lucide-react';
+import { Shield, Users, History, Mail, Star } from 'lucide-react';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
 import EmailAuthorizationManager from './admin/EmailAuthorizationManager';
 import PermissionsManager from './admin/PermissionsManager';
 import ActionsHistoryViewer from './admin/ActionsHistoryViewer';
+import { RatingsManager } from './RatingsManager';
 
 const SuperAdminPanel = () => {
   const { isMainAdmin } = useAdminManagement();
@@ -42,7 +43,7 @@ const SuperAdminPanel = () => {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="emails" className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
             Autorización de Emails
@@ -54,6 +55,10 @@ const SuperAdminPanel = () => {
           <TabsTrigger value="history" className="flex items-center gap-2">
             <History className="h-4 w-4" />
             Historial de Acciones
+          </TabsTrigger>
+          <TabsTrigger value="ratings" className="flex items-center gap-2">
+            <Star className="h-4 w-4" />
+            Calificaciones
           </TabsTrigger>
         </TabsList>
 
@@ -67,6 +72,10 @@ const SuperAdminPanel = () => {
 
         <TabsContent value="history" className="mt-6">
           <ActionsHistoryViewer />
+        </TabsContent>
+
+        <TabsContent value="ratings" className="mt-6">
+          <RatingsManager />
         </TabsContent>
       </Tabs>
     </div>
