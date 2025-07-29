@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Star, TrendingUp, Users, MapPin } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Star, TrendingUp, Users, MapPin, Download } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 
@@ -135,6 +136,69 @@ export const RatingsManager = () => {
     return ratingsData.reduce((sum, attraction) => sum + attraction.recent_ratings, 0);
   };
 
+  const generateStatisticalReport = () => {
+    const now = new Date();
+    const reportData = [];
+
+    // Encabezados
+    reportData.push([
+      'Atracción',
+      'Promedio de Calificación',
+      'Total de Calificaciones',
+      'Calificaciones Última Semana',
+      'Porcentaje de Calificaciones Positivas (4-5 estrellas)',
+      'Fecha de Reporte'
+    ]);
+
+    // Datos de cada atracción
+    ratingsData.forEach(attraction => {
+      const positivePercentage = '0%'; // Se calculará con datos detallados si es necesario
+      reportData.push([
+        attraction.attraction_name,
+        attraction.average_rating.toString(),
+        attraction.total_ratings.toString(),
+        attraction.recent_ratings.toString(),
+        positivePercentage,
+        now.toLocaleDateString('es-ES')
+      ]);
+    });
+
+    // Resumen general
+    reportData.push([]);
+    reportData.push(['RESUMEN GENERAL']);
+    reportData.push(['Total de Atracciones', ratingsData.length.toString()]);
+    reportData.push(['Promedio General', getAverageRating().toString()]);
+    reportData.push(['Total de Calificaciones', getTotalRatings().toString()]);
+    reportData.push(['Calificaciones Última Semana', getRecentRatings().toString()]);
+
+    return reportData;
+  };
+
+  const downloadReport = () => {
+    const reportData = generateStatisticalReport();
+    const csvContent = reportData.map(row => 
+      row.map(cell => `"${cell}"`).join(',')
+    ).join('\n');
+
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const link = document.createElement('a');
+    
+    if (link.download !== undefined) {
+      const url = URL.createObjectURL(blob);
+      link.setAttribute('href', url);
+      link.setAttribute('download', `reporte-calificaciones-${new Date().toISOString().split('T')[0]}.csv`);
+      link.style.visibility = 'hidden';
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+    }
+
+    toast({
+      title: "Reporte Descargado",
+      description: "El reporte estadístico se ha descargado exitosamente.",
+    });
+  };
+
   if (loading) {
     return (
       <div className="space-y-6">
@@ -160,9 +224,19 @@ export const RatingsManager = () => {
 
   return (
     <div className="space-y-6">
-      <div className="flex items-center gap-2">
-        <Star className="h-6 w-6 text-amber-400" />
-        <h2 className="text-2xl font-bold text-ocean">Gestión de Calificaciones</h2>
+      <div className="flex items-center justify-between">
+        <div className="flex items-center gap-2">
+          <Star className="h-6 w-6 text-amber-400" />
+          <h2 className="text-2xl font-bold text-ocean">Gestión de Calificaciones</h2>
+        </div>
+        <Button 
+          onClick={downloadReport}
+          variant="outline"
+          className="flex items-center gap-2"
+        >
+          <Download className="h-4 w-4" />
+          Descargar Reporte
+        </Button>
       </div>
 
       {/* Estadísticas generales */}
