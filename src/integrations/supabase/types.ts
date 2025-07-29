@@ -588,6 +588,7 @@ export type Database = {
           activities: string[] | null
           additional_info: Json | null
           category: string
+          coordinates: Json | null
           created_at: string
           description: string | null
           display_order: number | null
@@ -604,6 +605,7 @@ export type Database = {
           activities?: string[] | null
           additional_info?: Json | null
           category: string
+          coordinates?: Json | null
           created_at?: string
           description?: string | null
           display_order?: number | null
@@ -620,6 +622,7 @@ export type Database = {
           activities?: string[] | null
           additional_info?: Json | null
           category?: string
+          coordinates?: Json | null
           created_at?: string
           description?: string | null
           display_order?: number | null
