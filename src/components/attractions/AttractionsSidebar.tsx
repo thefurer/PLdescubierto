@@ -13,11 +13,20 @@ interface AttractionsSidebarProps {
 
 export const AttractionsSidebar = ({ selectedAttraction, isOpen, onClose }: AttractionsSidebarProps) => {
   const [mapCenter, setMapCenter] = useState("Puerto López, Manabí, Ecuador");
+  const [mapCoordinates, setMapCoordinates] = useState("-1.5667,-80.7833");
   const [mapEmbedUrl, setMapEmbedUrl] = useState('');
 
   useEffect(() => {
     if (selectedAttraction?.name) {
       setMapCenter(`${selectedAttraction.name}, Puerto López, Manabí, Ecuador`);
+      
+      // Si la atracción tiene coordenadas específicas, usarlas
+      if (selectedAttraction.coordinates) {
+        setMapCoordinates(`${selectedAttraction.coordinates.lat},${selectedAttraction.coordinates.lng}`);
+      } else {
+        // Usar coordenadas por defecto de Puerto López
+        setMapCoordinates("-1.5667,-80.7833");
+      }
     }
   }, [selectedAttraction]);
 
@@ -27,7 +36,7 @@ export const AttractionsSidebar = ({ selectedAttraction, isOpen, onClose }: Attr
         const { data, error } = await supabase.functions.invoke('google-maps-embed', {
           body: {
             location: mapCenter,
-            center: '-1.5667,-80.7833'
+            center: mapCoordinates
           }
         });
 
@@ -41,7 +50,7 @@ export const AttractionsSidebar = ({ selectedAttraction, isOpen, onClose }: Attr
     };
 
     getMapEmbedUrl();
-  }, [mapCenter]);
+  }, [mapCenter, mapCoordinates]);
 
   if (!isOpen) return null;
 
@@ -80,12 +89,20 @@ export const AttractionsSidebar = ({ selectedAttraction, isOpen, onClose }: Attr
               <p className="text-sm text-gray-600 mb-3">
                 {selectedAttraction.description?.substring(0, 100)}...
               </p>
-              <div className="flex items-center gap-2 text-sm text-ocean-dark">
+              <div className="flex items-center gap-2 text-sm text-ocean-dark mb-2">
                 <span className="font-medium">Categoría:</span>
                 <span className="px-2 py-1 bg-green-light/20 rounded-full text-xs">
                   {selectedAttraction.category}
                 </span>
               </div>
+              {selectedAttraction.coordinates && (
+                <div className="flex items-center gap-2 text-sm text-ocean-dark">
+                  <span className="font-medium">Coordenadas:</span>
+                  <span className="text-xs text-gray-600">
+                    {selectedAttraction.coordinates.lat.toFixed(4)}, {selectedAttraction.coordinates.lng.toFixed(4)}
+                  </span>
+                </div>
+              )}
             </CardContent>
           </Card>
         )}
@@ -100,7 +117,12 @@ export const AttractionsSidebar = ({ selectedAttraction, isOpen, onClose }: Attr
               <Button
                 variant="outline"
                 size="sm"
-                onClick={() => window.open(`https://maps.google.com/?q=${encodeURIComponent(mapCenter)}`, '_blank')}
+                onClick={() => {
+                  const coordinates = selectedAttraction?.coordinates 
+                    ? `${selectedAttraction.coordinates.lat},${selectedAttraction.coordinates.lng}` 
+                    : `${mapCenter}`;
+                  window.open(`https://maps.google.com/?q=${encodeURIComponent(coordinates)}`, '_blank');
+                }}
                 className="text-xs"
               >
                 <ZoomIn size={14} className="mr-1" />

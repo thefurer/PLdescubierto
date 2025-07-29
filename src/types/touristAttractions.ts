@@ -7,6 +7,7 @@ export interface TouristAttraction {
   image_url?: string;
   gallery_images?: string[];
   activities?: string[];
+  coordinates?: { lat: number; lng: number };
   recommendations?: Array<{
     id: string;
     text: string;
