@@ -3,6 +3,7 @@ import { TouristAttraction } from "@/types/touristAttractions";
 import { MapPin, X, ZoomIn } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { supabase } from '@/integrations/supabase/client';
 
 interface AttractionsSidebarProps {
   selectedAttraction: TouristAttraction | null;
@@ -12,6 +13,7 @@ interface AttractionsSidebarProps {
 
 export const AttractionsSidebar = ({ selectedAttraction, isOpen, onClose }: AttractionsSidebarProps) => {
   const [mapCenter, setMapCenter] = useState("Puerto López, Manabí, Ecuador");
+  const [mapEmbedUrl, setMapEmbedUrl] = useState('');
 
   useEffect(() => {
     if (selectedAttraction?.name) {
@@ -19,10 +21,27 @@ export const AttractionsSidebar = ({ selectedAttraction, isOpen, onClose }: Attr
     }
   }, [selectedAttraction]);
 
-  const getEmbedUrl = () => {
-    const encodedLocation = encodeURIComponent(mapCenter);
-    return `https://www.google.com/maps/embed/v1/place?key=AIzaSyBFw0Qbyq9zTFTd-tUY6dM2_WvbSn-VKo4&q=${encodedLocation}&zoom=14&maptype=roadmap`;
-  };
+  useEffect(() => {
+    const getMapEmbedUrl = async () => {
+      try {
+        const { data, error } = await supabase.functions.invoke('google-maps-embed', {
+          body: {
+            location: mapCenter,
+            center: '-1.5667,-80.7833'
+          }
+        });
+
+        if (error) throw error;
+        setMapEmbedUrl(data.embedUrl);
+      } catch (error) {
+        console.error('Error loading map:', error);
+        // Fallback to basic map without API key
+        setMapEmbedUrl('https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3975.344!2d-80.7833!3d-1.5667!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMcKwMzQnMDAuMSJTIDgwwrA0NicwMC4wIlc!5e0!3m2!1sen!2s!4v1234567890');
+      }
+    };
+
+    getMapEmbedUrl();
+  }, [mapCenter]);
 
   if (!isOpen) return null;
 
@@ -91,16 +110,22 @@ export const AttractionsSidebar = ({ selectedAttraction, isOpen, onClose }: Attr
           </CardHeader>
           <CardContent>
             <div className="relative overflow-hidden rounded-lg border border-gray-200">
-              <iframe
-                src={getEmbedUrl()}
-                width="100%"
-                height="300"
-                style={{ border: 0 }}
-                allowFullScreen
-                loading="lazy"
-                referrerPolicy="no-referrer-when-downgrade"
-                className="rounded-lg"
-              ></iframe>
+              {mapEmbedUrl ? (
+                <iframe
+                  src={mapEmbedUrl}
+                  width="100%"
+                  height="300"
+                  style={{ border: 0 }}
+                  allowFullScreen
+                  loading="lazy"
+                  referrerPolicy="no-referrer-when-downgrade"
+                  className="rounded-lg"
+                ></iframe>
+              ) : (
+                <div className="flex items-center justify-center h-[300px] bg-gray-100 rounded-lg">
+                  <p className="text-gray-600">Cargando mapa...</p>
+                </div>
+              )}
             </div>
           </CardContent>
         </Card>
