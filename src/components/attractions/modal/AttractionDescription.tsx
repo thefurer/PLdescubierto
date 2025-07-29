@@ -43,12 +43,6 @@ export const AttractionDescription = ({ attraction }: AttractionDescriptionProps
           </div>
         </div>
       )}
-
-      {/* Location */}
-      <div className="flex items-center text-sm text-gray-600">
-        <MapPin className="h-4 w-4 mr-2 text-green-primary" />
-        <span>Puerto López, Ecuador</span>
-      </div>
     </div>
   );
 };
