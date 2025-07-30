@@ -83,7 +83,7 @@ const ChatBot = () => {
       console.log('📝 Message content:', payload.message);
       
       const { data, error } = await supabase.functions.invoke('chat-support', {
-        body: payload,
+        body: JSON.stringify(payload),
         headers: {
           'Content-Type': 'application/json',
         },
