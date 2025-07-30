@@ -215,34 +215,9 @@ serve(async (req) => {
 
     console.log('✅ Message validation passed. Sanitized message:', sanitizedMessage);
 
-    // Check API key
-    const apiKey = Deno.env.get('GOOGLE_API_KEY');
-    console.log('🔑 Google API Key status:', {
-      isConfigured: !!apiKey,
-      keyLength: apiKey?.length || 0,
-      keyPreview: apiKey ? `${apiKey.substring(0, 8)}...` : 'NOT_SET'
-    });
-    
-    if (!apiKey) {
-      console.error('❌ GOOGLE_API_KEY not configured in Supabase secrets');
-      const fallbackResponse = `🤖 El asistente de IA está temporalmente fuera de línea (API key no configurada).
-
-Para información sobre Puerto López, contacta directamente:
-📧 ${CONTACT_INFO.email}
-📱 ${CONTACT_INFO.whatsapp}
-🌐 ${CONTACT_INFO.website}
-
-Mientras tanto, te puedo decir que Puerto López es famoso por el avistamiento de ballenas jorobadas de junio a septiembre.`;
-      
-      await logInteraction(sanitizedMessage, fallbackResponse);
-      return new Response(
-        JSON.stringify({ 
-          reply: fallbackResponse,
-          source: 'api_key_missing'
-        }),
-        { status: 200, headers: corsHeaders }
-      );
-    }
+    // Usar API key integrada
+    const apiKey = 'AIzaSyCjkYre7PNuHbmKDLs6EqzMZuuI37GTKTU';
+    console.log('🔑 Google API Key configurada directamente en el código');
 
     // Generate response with Gemini
     let botResponse: string;

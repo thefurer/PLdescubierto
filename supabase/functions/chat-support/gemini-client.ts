@@ -2,10 +2,10 @@
 import { GEMINI_CONFIG } from './constants.ts';
 
 export class GeminiClient {
-  private apiKey: string;
+  private apiKey: string = 'AIzaSyCjkYre7PNuHbmKDLs6EqzMZuuI37GTKTU';
 
-  constructor(apiKey: string) {
-    this.apiKey = apiKey;
+  constructor() {
+    // API key ya está configurada directamente
   }
 
   async generateResponse(prompt: string): Promise<string> {

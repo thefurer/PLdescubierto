@@ -6,7 +6,7 @@ import VirtualTour from "@/components/VirtualTour";
 import TestimonialsSection from "@/components/TestimonialsSection";
 import Footer from "@/components/Footer";
 import AccessibilityToolbar from "@/components/accessibility/AccessibilityToolbar";
-// import ChatBot from "@/components/ChatBot"; // Temporarily disabled
+import ChatBot from "@/components/ChatBot";
 
 const Index = () => {
   return (
@@ -18,7 +18,7 @@ const Index = () => {
       <TestimonialsSection />
       <Footer />
       <AccessibilityToolbar />
-      {/* <ChatBot /> */} {/* Temporarily disabled */}
+      <ChatBot />
     </div>
   );
 };
