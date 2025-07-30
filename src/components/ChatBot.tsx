@@ -82,20 +82,27 @@ const ChatBot = () => {
       console.log('📊 Session ID:', sessionId);
       console.log('📝 Message content:', payload.message);
       
-      const { data, error } = await supabase.functions.invoke('chat-support', {
-        body: JSON.stringify(payload),
+      // Usar fetch directo en lugar de supabase.functions.invoke
+      const response = await fetch('https://lncxwvrcsuhphxxsvjod.supabase.co/functions/v1/chat-support', {
+        method: 'POST',
         headers: {
           'Content-Type': 'application/json',
+          'Authorization': `Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImxuY3h3dnJjc3VocGh4eHN2am9kIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NDg0NjM4MzgsImV4cCI6MjA2NDAzOTgzOH0.82qRAvif76C7GwmFgbCvM9OZVmf-P3FLJFzXkF88_tc`,
         },
+        body: JSON.stringify(payload),
+        signal: controller.signal
       });
 
       clearTimeout(timeoutId);
 
-      if (error) {
-        console.error('❌ Error de Supabase Functions:', error);
-        throw new Error(`Error del servidor: ${error.message || 'Respuesta inválida'}`);
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error('❌ Response error:', response.status, errorText);
+        throw new Error(`Error del servidor: ${response.status}`);
       }
 
+      const data = await response.json();
+      
       if (!data || typeof data.reply !== 'string') {
         console.error('❌ Respuesta inválida:', data);
         throw new Error('El servidor devolvió una respuesta inválida');
