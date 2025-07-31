@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
@@ -12,10 +11,8 @@ import LogoManager from './visual-design/LogoManager';
 import ButtonStylesManager from './visual-design/ButtonStylesManager';
 import TypographyManager from './visual-design/TypographyManager';
 import VisualPreview from './visual-design/VisualPreview';
-
 const VisualDesignManager = () => {
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-4">
           <div className="flex items-center gap-3">
@@ -47,59 +44,35 @@ const VisualDesignManager = () => {
           <Tabs defaultValue="home" className="space-y-6">
             <div className="bg-white rounded-xl p-1 shadow-sm border">
               <TabsList className="grid w-full grid-cols-8 bg-transparent gap-1">
-                <TabsTrigger 
-                  value="home" 
-                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all duration-200"
-                >
+                <TabsTrigger value="home" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all duration-200">
                   <Home className="h-4 w-4" />
-                  <span className="hidden sm:inline">Página Principal</span>
+                  <span className="hidden sm:inline">P. Principal</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="travel-guide" 
-                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-green-500 data-[state=active]:text-white transition-all duration-200"
-                >
+                <TabsTrigger value="travel-guide" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-green-500 data-[state=active]:text-white transition-all duration-200">
                   <Map className="h-4 w-4" />
                   <span className="hidden sm:inline">Guía de Viaje</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="blog" 
-                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all duration-200"
-                >
+                <TabsTrigger value="blog" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all duration-200">
                   <FileText className="h-4 w-4" />
                   <span className="hidden sm:inline">Blog</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="testimonials" 
-                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white transition-all duration-200"
-                >
+                <TabsTrigger value="testimonials" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white transition-all duration-200">
                   <Star className="h-4 w-4" />
                   <span className="hidden sm:inline">Testimonios</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="navbar" 
-                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all duration-200"
-                >
+                <TabsTrigger value="navbar" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all duration-200">
                   <Navigation className="h-4 w-4" />
                   <span className="hidden sm:inline">Navbar</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="buttons" 
-                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-violet-500 data-[state=active]:text-white transition-all duration-200"
-                >
+                <TabsTrigger value="buttons" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-violet-500 data-[state=active]:text-white transition-all duration-200">
                   <MousePointer className="h-4 w-4" />
                   <span className="hidden sm:inline">Botones</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="typography" 
-                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-pink-500 data-[state=active]:text-white transition-all duration-200"
-                >
+                <TabsTrigger value="typography" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-pink-500 data-[state=active]:text-white transition-all duration-200">
                   <Type className="h-4 w-4" />
                   <span className="hidden sm:inline">Tipografía</span>
                 </TabsTrigger>
-                <TabsTrigger 
-                  value="logo" 
-                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all duration-200"
-                >
+                <TabsTrigger value="logo" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all duration-200">
                   <Image className="h-4 w-4" />
                   <span className="hidden sm:inline">Logo</span>
                 </TabsTrigger>
@@ -142,8 +115,6 @@ const VisualDesignManager = () => {
           </Tabs>
         </div>
       </div>
-    </div>
-  );
+    </div>;
 };
-
 export default VisualDesignManager;
