@@ -2,11 +2,15 @@
 import { useState, useEffect } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Home, Map, FileText, MessageSquare, Star, Palette } from 'lucide-react';
+import { Home, Map, FileText, MessageSquare, Star, Palette, Navigation, Image, MousePointer, Type } from 'lucide-react';
 import HomePageEditor from './visual-design/pages/HomePageEditor';
 import TravelGuidePageEditor from './visual-design/pages/TravelGuidePageEditor';
 import BlogPageEditor from './visual-design/pages/BlogPageEditor';
 import TestimonialsPageEditor from './visual-design/pages/TestimonialsPageEditor';
+import EnhancedNavbarManager from './visual-design/EnhancedNavbarManager';
+import LogoManager from './visual-design/LogoManager';
+import ButtonStylesManager from './visual-design/ButtonStylesManager';
+import TypographyManager from './visual-design/TypographyManager';
 import VisualPreview from './visual-design/VisualPreview';
 
 const VisualDesignManager = () => {
@@ -42,7 +46,7 @@ const VisualDesignManager = () => {
         <div className="2xl:col-span-7 order-1 2xl:order-2">
           <Tabs defaultValue="home" className="space-y-6">
             <div className="bg-white rounded-xl p-1 shadow-sm border">
-              <TabsList className="grid w-full grid-cols-4 bg-transparent gap-1">
+              <TabsList className="grid w-full grid-cols-8 bg-transparent gap-1">
                 <TabsTrigger 
                   value="home" 
                   className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all duration-200"
@@ -71,6 +75,34 @@ const VisualDesignManager = () => {
                   <Star className="h-4 w-4" />
                   <span className="hidden sm:inline">Testimonios</span>
                 </TabsTrigger>
+                <TabsTrigger 
+                  value="navbar" 
+                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all duration-200"
+                >
+                  <Navigation className="h-4 w-4" />
+                  <span className="hidden sm:inline">Navbar</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="buttons" 
+                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-violet-500 data-[state=active]:text-white transition-all duration-200"
+                >
+                  <MousePointer className="h-4 w-4" />
+                  <span className="hidden sm:inline">Botones</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="typography" 
+                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-pink-500 data-[state=active]:text-white transition-all duration-200"
+                >
+                  <Type className="h-4 w-4" />
+                  <span className="hidden sm:inline">Tipografía</span>
+                </TabsTrigger>
+                <TabsTrigger 
+                  value="logo" 
+                  className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all duration-200"
+                >
+                  <Image className="h-4 w-4" />
+                  <span className="hidden sm:inline">Logo</span>
+                </TabsTrigger>
               </TabsList>
             </div>
 
@@ -89,6 +121,22 @@ const VisualDesignManager = () => {
 
               <TabsContent value="testimonials" className="mt-6">
                 <TestimonialsPageEditor />
+              </TabsContent>
+
+              <TabsContent value="navbar" className="mt-6">
+                <EnhancedNavbarManager />
+              </TabsContent>
+
+              <TabsContent value="buttons" className="mt-6">
+                <ButtonStylesManager />
+              </TabsContent>
+
+              <TabsContent value="typography" className="mt-6">
+                <TypographyManager />
+              </TabsContent>
+
+              <TabsContent value="logo" className="mt-6">
+                <LogoManager />
               </TabsContent>
             </div>
           </Tabs>
