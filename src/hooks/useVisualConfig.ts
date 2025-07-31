@@ -64,6 +64,11 @@ export const useVisualConfig = () => {
       const oldConfig = { ...config };
       const updatedConfig = { ...config, ...newConfig };
       
+      // Immediately update the state for UI responsiveness
+      setConfig(updatedConfig);
+      applyConfigToCSS(updatedConfig);
+      localStorage.setItem('visual_config', JSON.stringify(updatedConfig));
+      
       // Save each config type separately
       const configTypeMap = {
         colorPalette: 'color_palette',
@@ -83,17 +88,15 @@ export const useVisualConfig = () => {
         }
       }
 
-      setConfig(updatedConfig);
-      applyConfigToCSS(updatedConfig);
       setPreviewMode(false);
-      
-      // Update localStorage
-      localStorage.setItem('visual_config', JSON.stringify(updatedConfig));
-      
       toast.success('Configuración guardada exitosamente');
     } catch (error) {
       console.error('Error saving visual config:', error);
       toast.error('Error al guardar la configuración');
+      // Revert on error
+      setConfig(config);
+      applyConfigToCSS(config);
+      localStorage.setItem('visual_config', JSON.stringify(config));
     } finally {
       setLoading(false);
     }

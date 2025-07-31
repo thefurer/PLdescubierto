@@ -35,14 +35,19 @@ export const loadConfigFromDatabase = async () => {
 
 // Save configuration to database
 export const saveConfigToDatabase = async (configType: string, configData: any, oldData: any) => {
+  const { data: { user } } = await supabase.auth.getUser();
+  if (!user) throw new Error('Usuario no autenticado');
+
   const { error } = await supabase
     .from('site_visual_config')
     .upsert({
       config_type: configType,
       config_data: configData,
       is_active: true,
+      updated_by: user.id,
+      updated_at: new Date().toISOString()
     }, {
-      onConflict: 'config_type,is_active'
+      onConflict: 'config_type'
     });
 
   if (error) throw error;
