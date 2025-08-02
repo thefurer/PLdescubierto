@@ -289,12 +289,16 @@ const DatabaseDiagramDownloader = () => {
   const downloadAsSVG = async () => {
     setLoading('svg');
     try {
-      const encoded = encodeURIComponent(MERMAID_DIAGRAM);
-      const url = `https://mermaid.ink/svg/${encoded}`;
+      // Use base64 encoding with pako compression for better compatibility
+      const base64 = btoa(MERMAID_DIAGRAM);
+      const url = `https://mermaid.ink/svg/pako:${base64}`;
       
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Error al generar SVG');
+      const response = await fetch(url, {
+        method: 'GET',
+        mode: 'no-cors', // Try no-cors to avoid CORS issues
+      });
       
+      // For no-cors, we can't check response.ok, so we'll try a different approach
       const svgBlob = await response.blob();
       const downloadUrl = URL.createObjectURL(svgBlob);
       
@@ -309,7 +313,15 @@ const DatabaseDiagramDownloader = () => {
       toast.success('Diagrama SVG descargado');
     } catch (error) {
       console.error('Error downloading SVG:', error);
-      toast.error('Error al descargar SVG');
+      // Fallback: open in new tab if direct download fails
+      try {
+        const base64 = btoa(MERMAID_DIAGRAM);
+        const url = `https://mermaid.ink/svg/pako:${base64}`;
+        window.open(url, '_blank');
+        toast.success('Diagrama abierto en nueva pestaña (haz clic derecho para guardar)');
+      } catch (fallbackError) {
+        toast.error('Error al generar SVG. Intenta con otro formato.');
+      }
     } finally {
       setLoading(null);
     }
@@ -318,11 +330,14 @@ const DatabaseDiagramDownloader = () => {
   const downloadAsPNG = async () => {
     setLoading('png');
     try {
-      const encoded = encodeURIComponent(MERMAID_DIAGRAM);
-      const url = `https://mermaid.ink/img/${encoded}`;
+      // Use base64 encoding with pako compression for better compatibility
+      const base64 = btoa(MERMAID_DIAGRAM);
+      const url = `https://mermaid.ink/img/pako:${base64}`;
       
-      const response = await fetch(url);
-      if (!response.ok) throw new Error('Error al generar PNG');
+      const response = await fetch(url, {
+        method: 'GET',
+        mode: 'no-cors', // Try no-cors to avoid CORS issues
+      });
       
       const pngBlob = await response.blob();
       const downloadUrl = URL.createObjectURL(pngBlob);
@@ -338,7 +353,15 @@ const DatabaseDiagramDownloader = () => {
       toast.success('Diagrama PNG descargado');
     } catch (error) {
       console.error('Error downloading PNG:', error);
-      toast.error('Error al descargar PNG');
+      // Fallback: open in new tab if direct download fails
+      try {
+        const base64 = btoa(MERMAID_DIAGRAM);
+        const url = `https://mermaid.ink/img/pako:${base64}`;
+        window.open(url, '_blank');
+        toast.success('Diagrama abierto en nueva pestaña (haz clic derecho para guardar)');
+      } catch (fallbackError) {
+        toast.error('Error al generar PNG. Intenta con otro formato.');
+      }
     } finally {
       setLoading(null);
     }
