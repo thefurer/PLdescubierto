@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useRef, useCallback } from 'react';
 import { Download, FileImage, FileText, File } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { toast } from 'sonner';
+import mermaid from 'mermaid';
 
 const MERMAID_DIAGRAM = `erDiagram
     %% Tabla de Usuarios (Supabase Auth)
@@ -272,6 +273,21 @@ const MERMAID_DIAGRAM = `erDiagram
 
 const DatabaseDiagramDownloader = () => {
   const [loading, setLoading] = useState<string | null>(null);
+  const containerRef = useRef<HTMLDivElement>(null);
+
+  // Initialize Mermaid
+  const initMermaid = useCallback(() => {
+    mermaid.initialize({
+      startOnLoad: false,
+      theme: 'default',
+      er: {
+        useMaxWidth: true,
+      },
+      flowchart: {
+        useMaxWidth: true,
+      }
+    });
+  }, []);
 
   const downloadAsText = () => {
     const blob = new Blob([MERMAID_DIAGRAM], { type: 'text/plain' });
@@ -289,23 +305,26 @@ const DatabaseDiagramDownloader = () => {
   const downloadAsSVG = async () => {
     setLoading('svg');
     try {
-      // Create URL directly using the simple mermaid.ink format
-      const encodedDiagram = encodeURIComponent(MERMAID_DIAGRAM);
-      const url = `https://mermaid.ink/svg/${encodedDiagram}`;
+      initMermaid();
       
-      // Create a temporary link and download
+      // Render the diagram
+      const { svg } = await mermaid.render('database-diagram-svg', MERMAID_DIAGRAM);
+      
+      // Create download
+      const blob = new Blob([svg], { type: 'image/svg+xml' });
+      const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url;
       a.download = 'database-diagram.svg';
-      a.target = '_blank';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
+      URL.revokeObjectURL(url);
       
       toast.success('Diagrama SVG descargado');
     } catch (error) {
       console.error('Error downloading SVG:', error);
-      toast.error('Error al descargar SVG');
+      toast.error('Error al generar SVG');
     } finally {
       setLoading(null);
     }
@@ -314,92 +333,54 @@ const DatabaseDiagramDownloader = () => {
   const downloadAsPNG = async () => {
     setLoading('png');
     try {
-      // Use iframe approach to render and download PNG
-      const iframe = document.createElement('iframe');
-      iframe.style.position = 'absolute';
-      iframe.style.left = '-9999px';
-      iframe.style.width = '1200px';
-      iframe.style.height = '800px';
-      document.body.appendChild(iframe);
-
-      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
-      if (!iframeDoc) {
-        throw new Error('No se pudo acceder al iframe');
-      }
-
-      // Create HTML with mermaid
-      const html = `
-        <!DOCTYPE html>
-        <html>
-        <head>
-          <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
-          <style>
-            body { 
-              margin: 0; 
-              padding: 20px; 
-              font-family: Arial, sans-serif; 
-              background: white;
-            }
-            .mermaid { 
-              display: flex; 
-              justify-content: center; 
-            }
-          </style>
-        </head>
-        <body>
-          <div class="mermaid">
-            ${MERMAID_DIAGRAM}
-          </div>
-          <script>
-            mermaid.initialize({ 
-              startOnLoad: true,
-              theme: 'default',
-              flowchart: { useMaxWidth: true }
-            });
-            
-            window.parent.postMessage('mermaid-ready', '*');
-          </script>
-        </body>
-        </html>
-      `;
-
-      iframeDoc.open();
-      iframeDoc.write(html);
-      iframeDoc.close();
-
-      // Wait for mermaid to render
-      const handleMessage = (event: MessageEvent) => {
-        if (event.data === 'mermaid-ready') {
-          window.removeEventListener('message', handleMessage);
+      initMermaid();
+      
+      // Render the diagram to SVG first
+      const { svg } = await mermaid.render('database-diagram-png', MERMAID_DIAGRAM);
+      
+      // Create canvas to convert SVG to PNG
+      const canvas = document.createElement('canvas');
+      const ctx = canvas.getContext('2d');
+      const img = new Image();
+      
+      await new Promise((resolve, reject) => {
+        img.onload = () => {
+          canvas.width = img.width;
+          canvas.height = img.height;
+          ctx?.drawImage(img, 0, 0);
           
-          setTimeout(() => {
-            // Use html2canvas or similar approach
-            const encodedDiagram = encodeURIComponent(MERMAID_DIAGRAM);
-            const url = `https://mermaid.ink/img/${encodedDiagram}`;
-            
-            // Open in new tab as fallback
-            window.open(url, '_blank');
-            toast.success('Diagrama PNG abierto en nueva pestaña (haz clic derecho para guardar)');
-            
-            document.body.removeChild(iframe);
-            setLoading(null);
-          }, 2000);
-        }
-      };
-
-      window.addEventListener('message', handleMessage);
-
+          // Convert to PNG and download
+          canvas.toBlob((blob) => {
+            if (blob) {
+              const url = URL.createObjectURL(blob);
+              const a = document.createElement('a');
+              a.href = url;
+              a.download = 'database-diagram.png';
+              document.body.appendChild(a);
+              a.click();
+              document.body.removeChild(a);
+              URL.revokeObjectURL(url);
+              
+              toast.success('Diagrama PNG descargado');
+              resolve(null);
+            } else {
+              reject(new Error('Error al convertir a PNG'));
+            }
+          }, 'image/png');
+        };
+        
+        img.onerror = () => reject(new Error('Error al cargar SVG'));
+        
+        // Convert SVG to data URL
+        const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
+        const svgUrl = URL.createObjectURL(svgBlob);
+        img.src = svgUrl;
+      });
+      
     } catch (error) {
       console.error('Error downloading PNG:', error);
-      // Fallback: direct URL
-      try {
-        const encodedDiagram = encodeURIComponent(MERMAID_DIAGRAM);
-        const url = `https://mermaid.ink/img/${encodedDiagram}`;
-        window.open(url, '_blank');
-        toast.success('Diagrama PNG abierto en nueva pestaña (haz clic derecho para guardar)');
-      } catch (fallbackError) {
-        toast.error('Error al generar PNG');
-      }
+      toast.error('Error al generar PNG');
+    } finally {
       setLoading(null);
     }
   };
