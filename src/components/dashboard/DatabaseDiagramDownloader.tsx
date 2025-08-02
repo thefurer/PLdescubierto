@@ -289,39 +289,23 @@ const DatabaseDiagramDownloader = () => {
   const downloadAsSVG = async () => {
     setLoading('svg');
     try {
-      // Use base64 encoding with pako compression for better compatibility
-      const base64 = btoa(MERMAID_DIAGRAM);
-      const url = `https://mermaid.ink/svg/pako:${base64}`;
+      // Create URL directly using the simple mermaid.ink format
+      const encodedDiagram = encodeURIComponent(MERMAID_DIAGRAM);
+      const url = `https://mermaid.ink/svg/${encodedDiagram}`;
       
-      const response = await fetch(url, {
-        method: 'GET',
-        mode: 'no-cors', // Try no-cors to avoid CORS issues
-      });
-      
-      // For no-cors, we can't check response.ok, so we'll try a different approach
-      const svgBlob = await response.blob();
-      const downloadUrl = URL.createObjectURL(svgBlob);
-      
+      // Create a temporary link and download
       const a = document.createElement('a');
-      a.href = downloadUrl;
+      a.href = url;
       a.download = 'database-diagram.svg';
+      a.target = '_blank';
       document.body.appendChild(a);
       a.click();
       document.body.removeChild(a);
-      URL.revokeObjectURL(downloadUrl);
       
       toast.success('Diagrama SVG descargado');
     } catch (error) {
       console.error('Error downloading SVG:', error);
-      // Fallback: open in new tab if direct download fails
-      try {
-        const base64 = btoa(MERMAID_DIAGRAM);
-        const url = `https://mermaid.ink/svg/pako:${base64}`;
-        window.open(url, '_blank');
-        toast.success('Diagrama abierto en nueva pestaña (haz clic derecho para guardar)');
-      } catch (fallbackError) {
-        toast.error('Error al generar SVG. Intenta con otro formato.');
-      }
+      toast.error('Error al descargar SVG');
     } finally {
       setLoading(null);
     }
@@ -330,39 +314,92 @@ const DatabaseDiagramDownloader = () => {
   const downloadAsPNG = async () => {
     setLoading('png');
     try {
-      // Use base64 encoding with pako compression for better compatibility
-      const base64 = btoa(MERMAID_DIAGRAM);
-      const url = `https://mermaid.ink/img/pako:${base64}`;
-      
-      const response = await fetch(url, {
-        method: 'GET',
-        mode: 'no-cors', // Try no-cors to avoid CORS issues
-      });
-      
-      const pngBlob = await response.blob();
-      const downloadUrl = URL.createObjectURL(pngBlob);
-      
-      const a = document.createElement('a');
-      a.href = downloadUrl;
-      a.download = 'database-diagram.png';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(downloadUrl);
-      
-      toast.success('Diagrama PNG descargado');
+      // Use iframe approach to render and download PNG
+      const iframe = document.createElement('iframe');
+      iframe.style.position = 'absolute';
+      iframe.style.left = '-9999px';
+      iframe.style.width = '1200px';
+      iframe.style.height = '800px';
+      document.body.appendChild(iframe);
+
+      const iframeDoc = iframe.contentDocument || iframe.contentWindow?.document;
+      if (!iframeDoc) {
+        throw new Error('No se pudo acceder al iframe');
+      }
+
+      // Create HTML with mermaid
+      const html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+          <script src="https://cdn.jsdelivr.net/npm/mermaid@10.6.1/dist/mermaid.min.js"></script>
+          <style>
+            body { 
+              margin: 0; 
+              padding: 20px; 
+              font-family: Arial, sans-serif; 
+              background: white;
+            }
+            .mermaid { 
+              display: flex; 
+              justify-content: center; 
+            }
+          </style>
+        </head>
+        <body>
+          <div class="mermaid">
+            ${MERMAID_DIAGRAM}
+          </div>
+          <script>
+            mermaid.initialize({ 
+              startOnLoad: true,
+              theme: 'default',
+              flowchart: { useMaxWidth: true }
+            });
+            
+            window.parent.postMessage('mermaid-ready', '*');
+          </script>
+        </body>
+        </html>
+      `;
+
+      iframeDoc.open();
+      iframeDoc.write(html);
+      iframeDoc.close();
+
+      // Wait for mermaid to render
+      const handleMessage = (event: MessageEvent) => {
+        if (event.data === 'mermaid-ready') {
+          window.removeEventListener('message', handleMessage);
+          
+          setTimeout(() => {
+            // Use html2canvas or similar approach
+            const encodedDiagram = encodeURIComponent(MERMAID_DIAGRAM);
+            const url = `https://mermaid.ink/img/${encodedDiagram}`;
+            
+            // Open in new tab as fallback
+            window.open(url, '_blank');
+            toast.success('Diagrama PNG abierto en nueva pestaña (haz clic derecho para guardar)');
+            
+            document.body.removeChild(iframe);
+            setLoading(null);
+          }, 2000);
+        }
+      };
+
+      window.addEventListener('message', handleMessage);
+
     } catch (error) {
       console.error('Error downloading PNG:', error);
-      // Fallback: open in new tab if direct download fails
+      // Fallback: direct URL
       try {
-        const base64 = btoa(MERMAID_DIAGRAM);
-        const url = `https://mermaid.ink/img/pako:${base64}`;
+        const encodedDiagram = encodeURIComponent(MERMAID_DIAGRAM);
+        const url = `https://mermaid.ink/img/${encodedDiagram}`;
         window.open(url, '_blank');
-        toast.success('Diagrama abierto en nueva pestaña (haz clic derecho para guardar)');
+        toast.success('Diagrama PNG abierto en nueva pestaña (haz clic derecho para guardar)');
       } catch (fallbackError) {
-        toast.error('Error al generar PNG. Intenta con otro formato.');
+        toast.error('Error al generar PNG');
       }
-    } finally {
       setLoading(null);
     }
   };
