@@ -341,13 +341,26 @@ const DatabaseDiagramDownloader = () => {
       // Create canvas to convert SVG to PNG
       const canvas = document.createElement('canvas');
       const ctx = canvas.getContext('2d');
-      const img = new Image();
       
-      await new Promise((resolve, reject) => {
-        img.onload = () => {
-          canvas.width = img.width;
-          canvas.height = img.height;
-          ctx?.drawImage(img, 0, 0);
+      if (!ctx) {
+        throw new Error('No se pudo crear el contexto del canvas');
+      }
+      
+      // Create image from SVG data
+      const img = new Image();
+      const svgData = `data:image/svg+xml;base64,${btoa(unescape(encodeURIComponent(svg)))}`;
+      
+      img.onload = () => {
+        try {
+          canvas.width = img.naturalWidth || 800;
+          canvas.height = img.naturalHeight || 600;
+          
+          // Fill white background
+          ctx.fillStyle = 'white';
+          ctx.fillRect(0, 0, canvas.width, canvas.height);
+          
+          // Draw the image
+          ctx.drawImage(img, 0, 0);
           
           // Convert to PNG and download
           canvas.toBlob((blob) => {
@@ -362,25 +375,29 @@ const DatabaseDiagramDownloader = () => {
               URL.revokeObjectURL(url);
               
               toast.success('Diagrama PNG descargado');
-              resolve(null);
             } else {
-              reject(new Error('Error al convertir a PNG'));
+              toast.error('Error al crear la imagen PNG');
             }
-          }, 'image/png');
-        };
-        
-        img.onerror = () => reject(new Error('Error al cargar SVG'));
-        
-        // Convert SVG to data URL
-        const svgBlob = new Blob([svg], { type: 'image/svg+xml' });
-        const svgUrl = URL.createObjectURL(svgBlob);
-        img.src = svgUrl;
-      });
+            setLoading(null);
+          }, 'image/png', 0.95);
+        } catch (error) {
+          console.error('Error in onload:', error);
+          toast.error('Error al procesar la imagen');
+          setLoading(null);
+        }
+      };
+      
+      img.onerror = () => {
+        console.error('Error loading image');
+        toast.error('Error al cargar la imagen SVG');
+        setLoading(null);
+      };
+      
+      img.src = svgData;
       
     } catch (error) {
       console.error('Error downloading PNG:', error);
       toast.error('Error al generar PNG');
-    } finally {
       setLoading(null);
     }
   };
