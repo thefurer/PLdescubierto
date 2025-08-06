@@ -6,7 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Mail, Plus, AlertCircle, RotateCcw, Edit, X } from 'lucide-react';
+import { Trash2, Mail, Plus, AlertCircle, RotateCcw, Edit, X, UserPlus } from 'lucide-react';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
 import { EditNotesModal } from './EditNotesModal';
 import {
@@ -43,6 +43,7 @@ const EmailAuthorizationManager = () => {
     reactivateEmailAuthorization,
     deleteEmailPermanently,
     updateEmailNotes,
+    assignAdminRoleAndActivate,
     loadAuthorizedEmails
   } = useAdminManagement();
 
@@ -84,6 +85,10 @@ const EmailAuthorizationManager = () => {
     if (selectedEmail) {
       await updateEmailNotes(selectedEmail.id, newNotes);
     }
+  };
+
+  const handleAssignAdminRole = async (email: string) => {
+    await assignAdminRoleAndActivate(email);
   };
 
   return (
@@ -157,6 +162,7 @@ const EmailAuthorizationManager = () => {
                   <TableHead>Estado</TableHead>
                   <TableHead>Fecha de Autorización</TableHead>
                   <TableHead>Notas</TableHead>
+                  <TableHead>Rol</TableHead>
                   <TableHead>Acciones</TableHead>
                 </TableRow>
               </TableHeader>
@@ -173,6 +179,18 @@ const EmailAuthorizationManager = () => {
                       {new Date(email.authorized_at).toLocaleDateString('es-ES')}
                     </TableCell>
                     <TableCell>{email.notes || '-'}</TableCell>
+                    <TableCell>
+                      <Button
+                        onClick={() => handleAssignAdminRole(email.email)}
+                        disabled={loading}
+                        size="sm"
+                        variant="outline"
+                        className="text-blue-600 border-blue-200 hover:bg-blue-50"
+                      >
+                        <UserPlus className="h-4 w-4 mr-1" />
+                        Asignar Admin
+                      </Button>
+                    </TableCell>
                     <TableCell>
                       <div className="flex gap-2">
                         {/* Botón Editar Notas */}

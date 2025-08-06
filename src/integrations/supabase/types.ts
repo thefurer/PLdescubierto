@@ -708,6 +708,10 @@ export type Database = {
         Args: { user_email: string }
         Returns: undefined
       }
+      assign_admin_role_and_activate: {
+        Args: { user_email: string }
+        Returns: undefined
+      }
       assign_section_permissions: {
         Args: {
           target_user_id: string

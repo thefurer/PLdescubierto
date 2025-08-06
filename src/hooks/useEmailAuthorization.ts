@@ -260,6 +260,36 @@ export const useEmailAuthorization = () => {
     }
   };
 
+  // Asignar rol de administrador y activar email autorizado
+  const assignAdminRoleAndActivate = async (email: string) => {
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase.rpc('assign_admin_role_and_activate', {
+        user_email: email
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Éxito',
+        description: `Rol de administrador asignado a ${email} y email activado`,
+      });
+
+      // Recargar la lista para mostrar los cambios
+      await loadAuthorizedEmails();
+    } catch (error: any) {
+      console.error('Error assigning admin role and activating email:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'No se pudo asignar el rol de administrador',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   return {
     loading,
     authorizedEmails,
@@ -269,6 +299,7 @@ export const useEmailAuthorization = () => {
     reactivateEmailAuthorization,
     deleteEmailPermanently,
     updateEmailNotes,
+    assignAdminRoleAndActivate,
     checkEmailAuthorization
   };
 };
