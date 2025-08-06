@@ -1,11 +1,12 @@
 
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Calendar, History, Activity, Star } from 'lucide-react';
+import { Calendar, History, MapPin, Activity, Star } from 'lucide-react';
 import { TouristAttraction } from '@/types/touristAttractions';
 import { AttractionDescription } from './AttractionDescription';
 import { AttractionActivities } from './AttractionActivities';
 import { AttractionSchedules } from './AttractionSchedules';
 import { AttractionRecommendations } from './AttractionRecommendations';
+import { AttractionLocation } from './AttractionLocation';
 import { AttractionRating } from './AttractionRating';
 
 interface AttractionTabsProps {
@@ -15,7 +16,7 @@ interface AttractionTabsProps {
 export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
   return (
     <Tabs defaultValue="description" className="w-full">
-      <TabsList className="grid w-full grid-cols-5">
+      <TabsList className="grid w-full grid-cols-6">
         <TabsTrigger value="description" className="flex items-center gap-2">
           <History className="h-4 w-4" />
           Descripción
@@ -31,6 +32,10 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
         <TabsTrigger value="recommendations" className="flex items-center gap-2">
           <History className="h-4 w-4" />
           Recomendaciones
+        </TabsTrigger>
+        <TabsTrigger value="location" className="flex items-center gap-2">
+          <MapPin className="h-4 w-4" />
+          Ubicación
         </TabsTrigger>
         <TabsTrigger value="rating" className="flex items-center gap-2">
           <Star className="h-4 w-4" />
@@ -54,6 +59,9 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
         <AttractionRecommendations attraction={attraction} />
       </TabsContent>
 
+      <TabsContent value="location" className="space-y-4 mt-4">
+        <AttractionLocation attraction={attraction} />
+      </TabsContent>
 
       <TabsContent value="rating" className="space-y-4 mt-4">
         <AttractionRating attraction={attraction} />
