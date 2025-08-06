@@ -96,12 +96,6 @@ const Attractions = ({ className }: AttractionsProps) => {
         </div>
       </section>
 
-      {/* Sidebar with Interactive Map */}
-      <AttractionsSidebar
-        selectedAttraction={selectedAttraction}
-        isOpen={isOpen}
-        onClose={closeSidebar}
-      />
     </>
   );
 };
