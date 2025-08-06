@@ -113,6 +113,94 @@ export const useEmailAuthorization = () => {
     }
   };
 
+  // Reactivar autorización de email
+  const reactivateEmailAuthorization = async (emailId: string) => {
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase.rpc('reactivate_authorized_email', {
+        email_id: emailId
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Éxito',
+        description: 'Email reactivado correctamente',
+      });
+
+      await loadAuthorizedEmails();
+    } catch (error: any) {
+      console.error('Error reactivating email authorization:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'No se pudo reactivar el email',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Eliminar email permanentemente
+  const deleteEmailPermanently = async (emailId: string) => {
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase.rpc('delete_authorized_email', {
+        email_id: emailId
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Éxito',
+        description: 'Email eliminado permanentemente',
+      });
+
+      await loadAuthorizedEmails();
+    } catch (error: any) {
+      console.error('Error deleting email permanently:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'No se pudo eliminar el email',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Actualizar notas de email
+  const updateEmailNotes = async (emailId: string, notes: string) => {
+    try {
+      setLoading(true);
+      
+      const { error } = await supabase.rpc('update_authorized_email_notes', {
+        email_id: emailId,
+        new_notes: notes
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: 'Éxito',
+        description: 'Notas actualizadas correctamente',
+      });
+
+      await loadAuthorizedEmails();
+    } catch (error: any) {
+      console.error('Error updating email notes:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'No se pudieron actualizar las notas',
+        variant: 'destructive'
+      });
+    } finally {
+      setLoading(false);
+    }
+  };
+
   // Verificar si un email está autorizado
   const checkEmailAuthorization = async (email: string): Promise<boolean> => {
     if (!email || email.trim().length === 0) {
@@ -178,6 +266,9 @@ export const useEmailAuthorization = () => {
     loadAuthorizedEmails,
     authorizeEmail,
     revokeEmailAuthorization,
+    reactivateEmailAuthorization,
+    deleteEmailPermanently,
+    updateEmailNotes,
     checkEmailAuthorization
   };
 };

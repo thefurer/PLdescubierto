@@ -6,8 +6,9 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
-import { Trash2, Mail, Plus, AlertCircle } from 'lucide-react';
+import { Trash2, Mail, Plus, AlertCircle, RotateCcw, Edit, X } from 'lucide-react';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
+import { EditNotesModal } from './EditNotesModal';
 import {
   Table,
   TableBody,
@@ -31,11 +32,17 @@ import {
 const EmailAuthorizationManager = () => {
   const [newEmail, setNewEmail] = useState('');
   const [notes, setNotes] = useState('');
+  const [editModalOpen, setEditModalOpen] = useState(false);
+  const [selectedEmail, setSelectedEmail] = useState<{ id: string; email: string; notes: string | null } | null>(null);
+  
   const { 
     authorizedEmails, 
     loading, 
     authorizeEmail, 
     revokeEmailAuthorization,
+    reactivateEmailAuthorization,
+    deleteEmailPermanently,
+    updateEmailNotes,
     loadAuthorizedEmails
   } = useAdminManagement();
 
@@ -56,6 +63,27 @@ const EmailAuthorizationManager = () => {
   const handleRevokeAuthorization = async (emailId: string) => {
     console.log('Revoking authorization for email ID:', emailId);
     await revokeEmailAuthorization(emailId);
+  };
+
+  const handleReactivateAuthorization = async (emailId: string) => {
+    console.log('Reactivating authorization for email ID:', emailId);
+    await reactivateEmailAuthorization(emailId);
+  };
+
+  const handleDeletePermanently = async (emailId: string) => {
+    console.log('Deleting email permanently:', emailId);
+    await deleteEmailPermanently(emailId);
+  };
+
+  const handleEditNotes = (email: { id: string; email: string; notes: string | null }) => {
+    setSelectedEmail(email);
+    setEditModalOpen(true);
+  };
+
+  const handleSaveNotes = async (newNotes: string) => {
+    if (selectedEmail) {
+      await updateEmailNotes(selectedEmail.id, newNotes);
+    }
   };
 
   return (
@@ -146,32 +174,101 @@ const EmailAuthorizationManager = () => {
                     </TableCell>
                     <TableCell>{email.notes || '-'}</TableCell>
                     <TableCell>
-                      {email.is_active && (
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="outline" size="sm">
-                              <Trash2 className="h-4 w-4" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>¿Revocar autorización?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Esto impedirá que {email.email} pueda registrarse o mantener acceso al sistema.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction
-                                onClick={() => handleRevokeAuthorization(email.id)}
-                                className="bg-red-600 hover:bg-red-700"
-                              >
-                                Revocar
-                              </AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
-                      )}
+                      <div className="flex gap-2">
+                        {/* Botón Editar Notas */}
+                        <Button 
+                          variant="outline" 
+                          size="sm"
+                          onClick={() => handleEditNotes(email)}
+                          disabled={loading}
+                        >
+                          <Edit className="h-4 w-4" />
+                        </Button>
+
+                        {email.is_active ? (
+                          /* Email Activo - Opciones de Revocar */
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button variant="outline" size="sm">
+                                <Trash2 className="h-4 w-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>¿Revocar autorización?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Esto impedirá que {email.email} pueda registrarse o mantener acceso al sistema. 
+                                  El email se mantendrá en el sistema pero será desactivado.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction
+                                  onClick={() => handleRevokeAuthorization(email.id)}
+                                  className="bg-yellow-600 hover:bg-yellow-700"
+                                >
+                                  Revocar
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        ) : (
+                          /* Email Revocado - Opciones de Reactivar y Eliminar */
+                          <div className="flex gap-2">
+                            {/* Reactivar */}
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="text-green-600">
+                                  <RotateCcw className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>¿Reactivar autorización?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Esto permitirá que {email.email} pueda registrarse y acceder al sistema nuevamente.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleReactivateAuthorization(email.id)}
+                                    className="bg-green-600 hover:bg-green-700"
+                                  >
+                                    Reactivar
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+
+                            {/* Eliminar Permanentemente */}
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="outline" size="sm" className="text-red-600">
+                                  <X className="h-4 w-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>¿Eliminar permanentemente?</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Esta acción NO se puede deshacer. {email.email} será eliminado completamente del sistema.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction
+                                    onClick={() => handleDeletePermanently(email.id)}
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Eliminar Permanentemente
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
@@ -180,6 +277,16 @@ const EmailAuthorizationManager = () => {
           )}
         </CardContent>
       </Card>
+
+      {/* Modal para Editar Notas */}
+      <EditNotesModal
+        isOpen={editModalOpen}
+        onClose={() => setEditModalOpen(false)}
+        onSave={handleSaveNotes}
+        currentNotes={selectedEmail?.notes || null}
+        email={selectedEmail?.email || ''}
+        loading={loading}
+      />
     </div>
   );
 };

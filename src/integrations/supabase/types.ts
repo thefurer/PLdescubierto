@@ -726,6 +726,10 @@ export type Database = {
         Args: Record<PropertyKey, never>
         Returns: undefined
       }
+      delete_authorized_email: {
+        Args: { email_id: string }
+        Returns: undefined
+      }
       get_attraction_rating_average: {
         Args: { attraction_uuid: string }
         Returns: {
@@ -763,6 +767,14 @@ export type Database = {
           target_id?: string
           details?: Json
         }
+        Returns: undefined
+      }
+      reactivate_authorized_email: {
+        Args: { email_id: string }
+        Returns: undefined
+      }
+      update_authorized_email_notes: {
+        Args: { email_id: string; new_notes: string }
         Returns: undefined
       }
     }

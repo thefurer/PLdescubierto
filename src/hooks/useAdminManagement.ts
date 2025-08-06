@@ -38,6 +38,9 @@ export const useAdminManagement = () => {
     loadAuthorizedEmails: emailAuth.loadAuthorizedEmails,
     authorizeEmail: emailAuth.authorizeEmail,
     revokeEmailAuthorization: emailAuth.revokeEmailAuthorization,
+    reactivateEmailAuthorization: emailAuth.reactivateEmailAuthorization,
+    deleteEmailPermanently: emailAuth.deleteEmailPermanently,
+    updateEmailNotes: emailAuth.updateEmailNotes,
     checkEmailAuthorization: emailAuth.checkEmailAuthorization,
 
     // Gestión de usuarios administradores
