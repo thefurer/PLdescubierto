@@ -26,28 +26,24 @@ export const useAdminActions = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase
-        .from('admin_actions_log')
-        .select('*')
-        .order('created_at', { ascending: false })
-        .limit(100);
+      const { data, error } = await supabase.rpc('get_admin_actions_with_user_info');
 
       if (error) throw error;
 
-      // Enriquecer con información del administrador
-      const enrichedActions: AdminAction[] = [];
-      for (const action of data) {
-        const userData = await adminService.getUserById(action.admin_id);
-        if (userData) {
-          enrichedActions.push({
-            ...action,
-            admin_name: userData.full_name,
-            admin_email: userData.email
-          });
-        }
-      }
+      // Transformar datos al formato esperado
+      const actions: AdminAction[] = data.map((action: any) => ({
+        id: action.id,
+        admin_id: action.admin_id,
+        admin_name: action.admin_name,
+        admin_email: action.admin_email,
+        action_type: action.action_type,
+        target_table: action.target_table,
+        target_id: action.target_id,
+        details: action.details,
+        created_at: action.created_at
+      }));
 
-      setAdminActions(enrichedActions);
+      setAdminActions(actions);
     } catch (error) {
       console.error('Error loading admin actions:', error);
       toast({

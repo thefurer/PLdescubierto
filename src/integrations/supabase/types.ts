@@ -734,6 +734,30 @@ export type Database = {
         Args: { email_id: string }
         Returns: undefined
       }
+      get_admin_actions_with_user_info: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          admin_id: string
+          admin_email: string
+          admin_name: string
+          action_type: string
+          target_table: string
+          target_id: string
+          details: Json
+          created_at: string
+        }[]
+      }
+      get_admin_users_with_permissions: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          email: string
+          full_name: string
+          created_at: string
+          permissions: Json
+        }[]
+      }
       get_attraction_rating_average: {
         Args: { attraction_uuid: string }
         Returns: {

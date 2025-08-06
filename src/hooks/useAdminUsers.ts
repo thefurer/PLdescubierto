@@ -31,23 +31,18 @@ export const useAdminUsers = () => {
     try {
       setLoading(true);
       
-      const { data: roles, error: rolesError } = await supabase
-        .from('user_roles')
-        .select('user_id, created_at')
-        .eq('role', 'admin');
+      const { data, error } = await supabase.rpc('get_admin_users_with_permissions');
 
-      if (rolesError) throw rolesError;
+      if (error) throw error;
 
-      // Obtener información de usuarios
-      const userIds = roles.map(role => role.user_id);
-      const users: AdminUser[] = [];
-      
-      for (const userId of userIds) {
-        const userData = await adminService.getUserById(userId);
-        if (userData) {
-          users.push(userData);
-        }
-      }
+      // Transformar datos al formato esperado
+      const users: AdminUser[] = data.map((user: any) => ({
+        id: user.id,
+        email: user.email,
+        full_name: user.full_name,
+        created_at: user.created_at,
+        permissions: user.permissions || []
+      }));
 
       setAdminUsers(users);
     } catch (error) {
