@@ -6,9 +6,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, UserPlus, Shield, Settings } from 'lucide-react';
+import { Loader2, UserPlus, Shield, Settings, Users, Lock } from 'lucide-react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SuperAdminPanel from './SuperAdminPanel';
+import PermissionsManager from './admin/PermissionsManager';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
 
 const AdminManager = () => {
@@ -81,10 +82,18 @@ const AdminManager = () => {
   return (
     <div className="space-y-6">
       <Tabs defaultValue={isMainAdmin ? "super-admin" : "basic"} className="w-full">
-        <TabsList className="grid w-full grid-cols-2">
+        <TabsList className="grid w-full grid-cols-3">
           <TabsTrigger value="basic" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Administración Básica
+          </TabsTrigger>
+          <TabsTrigger 
+            value="permissions"
+            className="flex items-center gap-2"
+            disabled={!isMainAdmin}
+          >
+            <Lock className="h-4 w-4" />
+            Permisos Granulares
           </TabsTrigger>
           <TabsTrigger 
             value="super-admin" 
@@ -171,9 +180,15 @@ const AdminManager = () => {
               <p>• Todas las operaciones están protegidas por RLS</p>
               <p>• El formulario de contacto tiene límites de velocidad</p>
               <p>• Solo emails autorizados pueden registrarse en el sistema</p>
+              <p>• Una vez autorizado, el usuario podrá completar su registro</p>
               <p>• El administrador principal controla todos los permisos granulares</p>
+              <p>• Los permisos se asignan por módulo y acción específica</p>
             </CardContent>
           </Card>
+        </TabsContent>
+
+        <TabsContent value="permissions">
+          <PermissionsManager />
         </TabsContent>
 
         <TabsContent value="super-admin">
