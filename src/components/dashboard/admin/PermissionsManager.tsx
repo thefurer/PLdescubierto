@@ -108,35 +108,45 @@ const PermissionsManager = () => {
 
   useEffect(() => {
     // Inicializar permisos desde los datos de usuarios admin
-    const initialPermissions: Record<string, Record<string, PermissionState>> = {};
-    
-    adminUsers.forEach(user => {
-      initialPermissions[user.id] = {};
+    if (adminUsers.length > 0) {
+      const initialPermissions: Record<string, Record<string, PermissionState>> = {};
       
-      SECTIONS.forEach(section => {
-        const userPermission = user.permissions?.find((p: any) => p.section_name === section.id);
-        initialPermissions[user.id][section.id] = {
-          can_view: userPermission?.can_view || false,
-          can_edit: userPermission?.can_edit || false,
-          can_delete: userPermission?.can_delete || false
-        };
+      adminUsers.forEach(user => {
+        initialPermissions[user.id] = {};
+        
+        SECTIONS.forEach(section => {
+          const userPermission = user.permissions?.find((p: any) => p.section_name === section.id);
+          initialPermissions[user.id][section.id] = {
+            can_view: userPermission?.can_view || false,
+            can_edit: userPermission?.can_edit || false,
+            can_delete: userPermission?.can_delete || false
+          };
+        });
       });
-    });
-    
-    setPermissions(initialPermissions);
+      
+      setPermissions(initialPermissions);
+      console.log('Initialized permissions:', initialPermissions);
+    }
   }, [adminUsers]);
 
   const updatePermission = (userId: string, sectionId: string, permissionType: keyof PermissionState, value: boolean) => {
-    setPermissions(prev => ({
-      ...prev,
-      [userId]: {
-        ...prev[userId],
-        [sectionId]: {
-          ...prev[userId]?.[sectionId],
-          [permissionType]: value
+    console.log('Updating permission:', { userId, sectionId, permissionType, value });
+    
+    setPermissions(prev => {
+      const newPermissions = {
+        ...prev,
+        [userId]: {
+          ...prev[userId] || {},
+          [sectionId]: {
+            ...prev[userId]?.[sectionId] || { can_view: false, can_edit: false, can_delete: false },
+            [permissionType]: value
+          }
         }
-      }
-    }));
+      };
+      
+      console.log('New permissions state:', newPermissions);
+      return newPermissions;
+    });
   };
 
   const saveUserPermissions = async (userId: string) => {
@@ -361,6 +371,12 @@ const PermissionsManager = () => {
                           can_delete: false
                         };
 
+                        console.log('Rendering section permissions:', { 
+                          userId: user.id, 
+                          sectionId: section.id, 
+                          permissions: userSectionPermissions 
+                        });
+
                         return (
                           <div key={section.id}>
                             <div className="space-y-4">
@@ -370,25 +386,31 @@ const PermissionsManager = () => {
                                   <h4 className="font-semibold text-gray-900">{section.name}</h4>
                                   <p className="text-sm text-gray-600 mb-4">{section.description}</p>
                                   
-                                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                                    {(['can_view', 'can_edit', 'can_delete'] as const).map(permission => (
-                                      <div 
-                                        key={permission}
-                                        className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
-                                      >
-                                        <div className="flex items-center gap-2">
-                                          {getPermissionIcon(permission)}
-                                          <span className="font-medium">{getPermissionLabel(permission)}</span>
-                                        </div>
-                                        <Switch
-                                          checked={userSectionPermissions[permission]}
-                                          onCheckedChange={(checked) => 
-                                            updatePermission(user.id, section.id, permission, checked)
-                                          }
-                                        />
-                                      </div>
-                                    ))}
-                                  </div>
+                                    <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                                      {(['can_view', 'can_edit', 'can_delete'] as const).map(permission => {
+                                        const isChecked = userSectionPermissions[permission] || false;
+                                        console.log('Switch state:', { permission, isChecked });
+                                        
+                                        return (
+                                          <div 
+                                            key={permission}
+                                            className="flex items-center justify-between p-3 border rounded-lg hover:bg-gray-50 transition-colors"
+                                          >
+                                            <div className="flex items-center gap-2">
+                                              {getPermissionIcon(permission)}
+                                              <span className="font-medium">{getPermissionLabel(permission)}</span>
+                                            </div>
+                                            <Switch
+                                              checked={isChecked}
+                                              onCheckedChange={(checked) => {
+                                                console.log('Switch clicked:', { permission, checked, userId: user.id, sectionId: section.id });
+                                                updatePermission(user.id, section.id, permission, checked);
+                                              }}
+                                            />
+                                          </div>
+                                        );
+                                      })}
+                                    </div>
                                 </div>
                               </div>
                             </div>

@@ -42,7 +42,7 @@ export const useAdminUsers = () => {
       console.log('Raw admin users data:', data);
 
       // Transformar datos al formato esperado
-      const users: AdminUser[] = data.map((user: any) => ({
+      const users: AdminUser[] = (data || []).map((user: any) => ({
         id: user.id,
         email: user.email,
         full_name: user.full_name,
@@ -53,17 +53,20 @@ export const useAdminUsers = () => {
       console.log('Transformed admin users:', users);
       setAdminUsers(users);
       
-      toast({
-        title: 'Éxito',
-        description: `Se cargaron ${users.length} usuarios administradores`,
-      });
-    } catch (error) {
+      // Only show success message if there are actually users loaded and it's the initial load
+      if (users.length > 0) {
+        console.log(`Successfully loaded ${users.length} admin users`);
+      }
+    } catch (error: any) {
       console.error('Error loading admin users:', error);
-      toast({
-        title: 'Error',
-        description: `No se pudieron cargar los usuarios administradores: ${error.message || 'Error desconocido'}`,
-        variant: 'destructive'
-      });
+      // Only show error toast for actual critical errors
+      if (error.message && !error.message.includes('Solo el administrador principal')) {
+        toast({
+          title: 'Error',
+          description: `No se pudieron cargar los usuarios administradores: ${error.message}`,
+          variant: 'destructive'
+        });
+      }
     } finally {
       setLoading(false);
     }
