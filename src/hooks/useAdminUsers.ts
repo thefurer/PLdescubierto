@@ -30,10 +30,16 @@ export const useAdminUsers = () => {
   const loadAdminUsers = async () => {
     try {
       setLoading(true);
+      console.log('Loading admin users...');
       
       const { data, error } = await supabase.rpc('get_admin_users_with_permissions');
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase RPC error:', error);
+        throw error;
+      }
+
+      console.log('Raw admin users data:', data);
 
       // Transformar datos al formato esperado
       const users: AdminUser[] = data.map((user: any) => ({
@@ -44,12 +50,18 @@ export const useAdminUsers = () => {
         permissions: user.permissions || []
       }));
 
+      console.log('Transformed admin users:', users);
       setAdminUsers(users);
+      
+      toast({
+        title: 'Éxito',
+        description: `Se cargaron ${users.length} usuarios administradores`,
+      });
     } catch (error) {
       console.error('Error loading admin users:', error);
       toast({
         title: 'Error',
-        description: 'No se pudieron cargar los usuarios administradores',
+        description: `No se pudieron cargar los usuarios administradores: ${error.message || 'Error desconocido'}`,
         variant: 'destructive'
       });
     } finally {

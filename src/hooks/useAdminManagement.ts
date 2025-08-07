@@ -5,7 +5,7 @@ import { adminService } from '@/services/adminService';
 import { useEmailAuthorization } from './useEmailAuthorization';
 import { useAdminUsers } from './useAdminUsers';
 import { usePermissionsManagement } from './usePermissionsManagement';
-import { useAdminActions } from './useAdminActions';
+
 
 export const useAdminManagement = () => {
   const { user } = useAuth();
@@ -15,7 +15,8 @@ export const useAdminManagement = () => {
   const emailAuth = useEmailAuthorization();
   const adminUsers = useAdminUsers();
   const permissions = usePermissionsManagement();
-  const actions = useAdminActions();
+  // Don't load admin actions by default since we removed the history tab
+  // const actions = useAdminActions();
 
   // Verificar si el usuario actual es el admin principal
   useEffect(() => {
@@ -31,7 +32,7 @@ export const useAdminManagement = () => {
   return {
     // Estado general
     isMainAdmin,
-    loading: emailAuth.loading || adminUsers.loading || permissions.loading || actions.loading,
+    loading: emailAuth.loading || adminUsers.loading || permissions.loading,
 
     // Gestión de emails autorizados
     authorizedEmails: emailAuth.authorizedEmails,
@@ -49,10 +50,6 @@ export const useAdminManagement = () => {
     loadAdminUsers: adminUsers.loadAdminUsers,
 
     // Gestión de permisos
-    assignPermissions: permissions.assignPermissions,
-
-    // Historial de acciones
-    adminActions: actions.adminActions,
-    loadAdminActions: actions.loadAdminActions
+    assignPermissions: permissions.assignPermissions
   };
 };

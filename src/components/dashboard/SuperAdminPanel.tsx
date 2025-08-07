@@ -2,11 +2,10 @@
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Shield, Users, History, Mail, Star, Database } from 'lucide-react';
+import { Shield, Users, Mail, Star, Database } from 'lucide-react';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
 import EmailAuthorizationManager from './admin/EmailAuthorizationManager';
 import PermissionsManager from './admin/PermissionsManager';
-import ActionsHistoryViewer from './admin/ActionsHistoryViewer';
 import { RatingsManager } from './RatingsManager';
 import DatabaseDiagramDownloader from './DatabaseDiagramDownloader';
 
@@ -44,7 +43,7 @@ const SuperAdminPanel = () => {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-4">
           <TabsTrigger value="emails" className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
             Autorización de Emails
@@ -52,10 +51,6 @@ const SuperAdminPanel = () => {
           <TabsTrigger value="permissions" className="flex items-center gap-2">
             <Users className="h-4 w-4" />
             Gestión de Permisos
-          </TabsTrigger>
-          <TabsTrigger value="history" className="flex items-center gap-2">
-            <History className="h-4 w-4" />
-            Historial de Acciones
           </TabsTrigger>
           <TabsTrigger value="ratings" className="flex items-center gap-2">
             <Star className="h-4 w-4" />
@@ -73,10 +68,6 @@ const SuperAdminPanel = () => {
 
         <TabsContent value="permissions" className="mt-6">
           <PermissionsManager />
-        </TabsContent>
-
-        <TabsContent value="history" className="mt-6">
-          <ActionsHistoryViewer />
         </TabsContent>
 
         <TabsContent value="ratings" className="mt-6">
