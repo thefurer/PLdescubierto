@@ -133,12 +133,19 @@ const PermissionsManager = () => {
     console.log('Updating permission:', { userId, sectionId, permissionType, value });
     
     setPermissions(prev => {
+      const currentUserPermissions = prev[userId] || {};
+      const currentSectionPermissions = currentUserPermissions[sectionId] || { 
+        can_view: false, 
+        can_edit: false, 
+        can_delete: false 
+      };
+      
       const newPermissions = {
         ...prev,
         [userId]: {
-          ...prev[userId] || {},
+          ...currentUserPermissions,
           [sectionId]: {
-            ...prev[userId]?.[sectionId] || { can_view: false, can_edit: false, can_delete: false },
+            ...currentSectionPermissions,
             [permissionType]: value
           }
         }

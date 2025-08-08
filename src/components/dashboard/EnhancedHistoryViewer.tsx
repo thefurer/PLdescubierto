@@ -123,8 +123,14 @@ const EnhancedHistoryViewer = () => {
     }
   };
 
-  // Obtener listas únicas para filtros
-  const uniqueUsers = [...new Set(history.map(item => ({ id: item.changed_by, name: item.changed_by_name })).filter(user => user.id))];
+  // Obtener listas únicas para filtros - evitar duplicados
+  const uniqueUsers = history.reduce((acc, item) => {
+    if (item.changed_by && !acc.find(u => u.id === item.changed_by)) {
+      acc.push({ id: item.changed_by, name: item.changed_by_name || 'Usuario desconocido' });
+    }
+    return acc;
+  }, [] as Array<{ id: string; name: string }>);
+  
   const uniqueSections = [...new Set(history.map(item => item.section_name))];
   const uniqueChangeTypes = [...new Set(history.map(item => item.change_type))];
 
