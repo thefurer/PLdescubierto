@@ -107,8 +107,8 @@ const PermissionsManager = () => {
   }, [isMainAdmin, loadAdminUsers]);
 
   useEffect(() => {
-    // Inicializar permisos desde los datos de usuarios admin
-    if (adminUsers.length > 0) {
+    // Inicializar permisos desde los datos de usuarios admin solo si no hay permisos locales
+    if (adminUsers.length > 0 && Object.keys(permissions).length === 0) {
       const initialPermissions: Record<string, Record<string, PermissionState>> = {};
       
       adminUsers.forEach(user => {
@@ -193,8 +193,8 @@ const PermissionsManager = () => {
         description: 'Permisos actualizados correctamente',
       });
 
-      // Recargar datos
-      await loadAdminUsers();
+      // No recargar automáticamente para evitar sobrescribir cambios pendientes
+      // await loadAdminUsers();
       
     } catch (error: any) {
       console.error('Error saving permissions:', error);
