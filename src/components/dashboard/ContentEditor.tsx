@@ -53,7 +53,7 @@ const ContentEditor = ({ filterSection }: ContentEditorProps) => {
     setPreviewMode(previewMode === sectionName ? null : sectionName);
   };
 
-  const updateFormField = (field: string, value: string) => {
+  const updateFormField = (field: string, value: string | string[]) => {
     setFormData(prev => ({ ...prev, [field]: value }));
   };
 

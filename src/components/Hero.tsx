@@ -1,5 +1,5 @@
 
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { useLanguage } from "@/hooks/useLanguage";
 import { useContentManager } from "@/hooks/useContentManager";
@@ -18,6 +18,7 @@ const Hero = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const [isScrolled, setIsScrolled] = useState(false);
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Handle scroll effect for navbar
   useEffect(() => {
@@ -31,6 +32,37 @@ const Hero = () => {
 
   // Find hero content from database
   const heroContent = content.find(item => item.section_name === 'hero')?.content;
+  
+  // Get background images array
+  const backgroundImages = heroContent?.backgroundImages || [
+    heroContent?.backgroundImage || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'
+  ].filter(Boolean);
+
+  // Auto-advance carousel
+  useEffect(() => {
+    if (backgroundImages.length > 1) {
+      const interval = setInterval(() => {
+        setCurrentImageIndex((prevIndex) => 
+          (prevIndex + 1) % backgroundImages.length
+        );
+      }, 5000); // Change image every 5 seconds
+
+      return () => clearInterval(interval);
+    }
+  }, [backgroundImages.length]);
+
+  const nextImage = () => {
+    setCurrentImageIndex((prevIndex) => 
+      (prevIndex + 1) % backgroundImages.length
+    );
+  };
+
+  const prevImage = () => {
+    setCurrentImageIndex((prevIndex) => 
+      prevIndex === 0 ? backgroundImages.length - 1 : prevIndex - 1
+    );
+  };
+
   const texts = {
     es: {
       title: heroContent?.title || "Puerto López",
@@ -58,11 +90,46 @@ const Hero = () => {
   return (
     <section 
       id="home" 
-      className="relative h-screen overflow-hidden bg-cover bg-center bg-no-repeat"
+      className="relative h-screen overflow-hidden bg-cover bg-center bg-no-repeat transition-all duration-1000"
       style={{
-        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80')`
+        backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${backgroundImages[currentImageIndex]}')`
       }}
     >
+      {/* Carousel Controls */}
+      {backgroundImages.length > 1 && (
+        <>
+          <button
+            onClick={prevImage}
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300"
+            aria-label="Imagen anterior"
+          >
+            <ChevronLeft className="h-6 w-6 text-white" />
+          </button>
+          <button
+            onClick={nextImage}
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300"
+            aria-label="Siguiente imagen"
+          >
+            <ChevronRight className="h-6 w-6 text-white" />
+          </button>
+          
+          {/* Indicators */}
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            {backgroundImages.map((_, index) => (
+              <button
+                key={index}
+                onClick={() => setCurrentImageIndex(index)}
+                className={`w-3 h-3 rounded-full transition-all duration-300 ${
+                  index === currentImageIndex 
+                    ? 'bg-white scale-110' 
+                    : 'bg-white/50 hover:bg-white/70'
+                }`}
+                aria-label={`Ir a imagen ${index + 1}`}
+              />
+            ))}
+          </div>
+        </>
+      )}
 
       {/* Hero Content */}
       <div className="container mx-auto px-4 h-full flex flex-col justify-center items-center relative z-10 text-center">
