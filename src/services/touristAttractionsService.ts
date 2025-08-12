@@ -88,5 +88,62 @@ export const touristAttractionsService = {
 
     console.log('Attraction updated successfully:', data);
     return data;
+  },
+
+  async createAttraction(attractionData: Partial<TouristAttraction>) {
+    console.log('Creating attraction:', attractionData);
+    
+    // Get current user
+    const { data: { user }, error: userError } = await supabase.auth.getUser();
+    if (userError) {
+      console.error('Error getting user:', userError);
+    }
+
+    const createData = {
+      name: attractionData.name || 'Nueva Atracción',
+      description: attractionData.description || '',
+      category: attractionData.category || 'todo',
+      image_url: attractionData.image_url || null,
+      gallery_images: attractionData.gallery_images || [],
+      activities: attractionData.activities || [],
+      recommendations: attractionData.recommendations || [],
+      additional_info: attractionData.additional_info || {},
+      coordinates: attractionData.coordinates || null,
+      display_order: attractionData.display_order || 0,
+      is_active: attractionData.is_active !== undefined ? attractionData.is_active : true,
+      updated_by: user?.id || null
+    };
+
+    console.log('Create data being sent to database:', createData);
+
+    const { data, error } = await supabase
+      .from('tourist_attractions')
+      .insert(createData)
+      .select()
+      .single();
+
+    if (error) {
+      console.error('Database error details:', error);
+      throw error;
+    }
+
+    console.log('Attraction created successfully:', data);
+    return data as TouristAttraction;
+  },
+
+  async deleteAttraction(id: string) {
+    console.log('Deleting attraction:', id);
+
+    const { error } = await supabase
+      .from('tourist_attractions')
+      .delete()
+      .eq('id', id);
+
+    if (error) {
+      console.error('Database error details:', error);
+      throw error;
+    }
+
+    console.log('Attraction deleted successfully');
   }
 };

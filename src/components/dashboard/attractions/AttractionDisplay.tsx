@@ -1,12 +1,13 @@
 
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Edit2 } from 'lucide-react';
+import { Edit2, Trash2 } from 'lucide-react';
 import { TouristAttraction } from '@/hooks/useTouristAttractions';
 
 interface AttractionDisplayProps {
   attraction: TouristAttraction;
   onEdit: () => void;
+  onDelete: () => Promise<void>;
 }
 
 const categoryLabels = {
@@ -16,7 +17,7 @@ const categoryLabels = {
   naturaleza: "Naturaleza"
 };
 
-const AttractionDisplay = ({ attraction, onEdit }: AttractionDisplayProps) => {
+const AttractionDisplay = ({ attraction, onEdit, onDelete }: AttractionDisplayProps) => {
   return (
     <>
       <div className="flex justify-between items-start mb-4">
@@ -31,13 +32,23 @@ const AttractionDisplay = ({ attraction, onEdit }: AttractionDisplayProps) => {
             <p className="text-gray-600 text-sm line-clamp-2">{attraction.description}</p>
           )}
         </div>
-        <Button
-          variant="outline"
-          size="sm"
-          onClick={onEdit}
-        >
-          <Edit2 className="h-4 w-4" />
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onEdit}
+          >
+            <Edit2 className="h-4 w-4" />
+          </Button>
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onDelete}
+            className="text-red-600 hover:text-red-700 hover:bg-red-50"
+          >
+            <Trash2 className="h-4 w-4" />
+          </Button>
+        </div>
       </div>
 
       {attraction.image_url && (

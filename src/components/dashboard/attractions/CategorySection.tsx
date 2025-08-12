@@ -18,6 +18,7 @@ interface CategorySectionProps {
   onSave: (id: string, updates: Partial<TouristAttraction>) => Promise<void>;
   onCancel: () => void;
   onUploadImage: (file: File, attractionId: string) => Promise<string>;
+  onDelete: (id: string) => Promise<void>;
 }
 
 const categoryLabels = {
@@ -38,7 +39,8 @@ const CategorySection = ({
   onEdit, 
   onSave, 
   onCancel,
-  onUploadImage
+  onUploadImage,
+  onDelete
 }: CategorySectionProps) => {
   return (
     <Card>
@@ -79,6 +81,7 @@ const CategorySection = ({
                   onSave={(updates) => onSave(attraction.id, updates)}
                   onCancel={onCancel}
                   onUploadImage={onUploadImage}
+                  onDelete={() => onDelete(attraction.id)}
                 />
               ))}
             </div>

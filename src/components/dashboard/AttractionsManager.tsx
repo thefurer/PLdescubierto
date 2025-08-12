@@ -1,15 +1,18 @@
 
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useTouristAttractions } from '@/hooks/useTouristAttractions';
 import { TouristAttraction } from '@/types/touristAttractions';
-import { Loader2 } from 'lucide-react';
+import { Loader2, Search, Plus } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 import AttractionsHeader from './attractions/AttractionsHeader';
 import CategorySection from './attractions/CategorySection';
 
 const AttractionsManager = () => {
-  const { attractions, loading, saving, uploading, updateAttraction, uploadImage } = useTouristAttractions();
+  const { attractions, loading, saving, uploading, updateAttraction, uploadImage, deleteAttraction, createAttraction } = useTouristAttractions();
   const [editingId, setEditingId] = useState<string | null>(null);
   const [openItems, setOpenItems] = useState<Set<string>>(new Set());
+  const [searchTerm, setSearchTerm] = useState('');
 
   const handleEdit = (attraction: TouristAttraction) => {
     setEditingId(attraction.id);
@@ -28,6 +31,29 @@ const AttractionsManager = () => {
     return await uploadImage(file, attractionId);
   };
 
+  const handleDelete = async (id: string) => {
+    if (window.confirm('¿Estás seguro de que deseas eliminar esta atracción?')) {
+      await deleteAttraction(id);
+    }
+  };
+
+  const handleCreateNew = async () => {
+    const newAttraction: Partial<TouristAttraction> = {
+      name: 'Nueva Atracción',
+      description: 'Descripción de la nueva atracción',
+      category: 'todo',
+      is_active: true,
+      display_order: attractions.length + 1
+    };
+    
+    try {
+      const created = await createAttraction(newAttraction);
+      setEditingId(created.id);
+    } catch (error) {
+      console.error('Error creating attraction:', error);
+    }
+  };
+
   const toggleItem = (id: string) => {
     const newOpenItems = new Set(openItems);
     if (newOpenItems.has(id)) {
@@ -38,7 +64,18 @@ const AttractionsManager = () => {
     setOpenItems(newOpenItems);
   };
 
-  const groupedAttractions = attractions.reduce((acc, attraction) => {
+  // Filter attractions based on search term
+  const filteredAttractions = useMemo(() => {
+    if (!searchTerm.trim()) return attractions;
+    
+    return attractions.filter(attraction =>
+      attraction.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      attraction.description?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      attraction.category.toLowerCase().includes(searchTerm.toLowerCase())
+    );
+  }, [attractions, searchTerm]);
+
+  const groupedAttractions = filteredAttractions.reduce((acc, attraction) => {
     if (!acc[attraction.category]) {
       acc[attraction.category] = [];
     }
@@ -59,6 +96,27 @@ const AttractionsManager = () => {
     <div className="space-y-6">
       <AttractionsHeader attractionsCount={attractions.length} />
 
+      {/* Search Bar and Create Button */}
+      <div className="flex gap-4 items-center">
+        <div className="relative flex-1">
+          <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 h-4 w-4" />
+          <Input
+            placeholder="Buscar atracciones por nombre, descripción o categoría..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            className="pl-10"
+          />
+        </div>
+        <Button
+          onClick={handleCreateNew}
+          className="flex items-center gap-2"
+          disabled={saving}
+        >
+          <Plus className="h-4 w-4" />
+          Nueva Atracción
+        </Button>
+      </div>
+
       <div className="space-y-4">
         {Object.entries(groupedAttractions).map(([category, categoryAttractions]) => (
           <CategorySection
@@ -74,6 +132,7 @@ const AttractionsManager = () => {
             onSave={handleSave}
             onCancel={handleCancel}
             onUploadImage={handleUploadImage}
+            onDelete={handleDelete}
           />
         ))}
       </div>

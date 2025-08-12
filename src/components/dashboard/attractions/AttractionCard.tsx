@@ -14,6 +14,7 @@ interface AttractionCardProps {
   onSave: (updates: Partial<TouristAttraction>) => Promise<void>;
   onCancel: () => void;
   onUploadImage: (file: File, attractionId: string) => Promise<string>;
+  onDelete: () => Promise<void>;
 }
 
 const AttractionCard = ({ 
@@ -24,7 +25,8 @@ const AttractionCard = ({
   onEdit, 
   onSave, 
   onCancel,
-  onUploadImage
+  onUploadImage,
+  onDelete
 }: AttractionCardProps) => {
   if (isEditing) {
     return (
@@ -49,6 +51,7 @@ const AttractionCard = ({
         <AttractionDisplay
           attraction={attraction}
           onEdit={onEdit}
+          onDelete={onDelete}
         />
       </CardContent>
     </Card>

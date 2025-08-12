@@ -84,6 +84,63 @@ export const useTouristAttractions = () => {
     }
   };
 
+  const createAttraction = async (attractionData: Partial<TouristAttraction>) => {
+    setSaving(true);
+    try {
+      const newAttraction = await touristAttractionsService.createAttraction(attractionData);
+      
+      toast({
+        title: 'Éxito',
+        description: 'Atracción creada correctamente',
+      });
+
+      // Add to local state
+      setAttractions(prev => [...prev, newAttraction]);
+      return newAttraction;
+      
+    } catch (error: any) {
+      console.error('Failed to create attraction:', error);
+      
+      toast({
+        title: 'Error',
+        description: 'No se pudo crear la atracción',
+        variant: 'destructive'
+      });
+      
+      throw error;
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const deleteAttraction = async (id: string) => {
+    setSaving(true);
+    try {
+      await touristAttractionsService.deleteAttraction(id);
+      
+      toast({
+        title: 'Éxito',
+        description: 'Atracción eliminada correctamente',
+      });
+
+      // Remove from local state
+      setAttractions(prev => prev.filter(attraction => attraction.id !== id));
+      
+    } catch (error: any) {
+      console.error('Failed to delete attraction:', error);
+      
+      toast({
+        title: 'Error',
+        description: 'No se pudo eliminar la atracción',
+        variant: 'destructive'
+      });
+      
+      throw error;
+    } finally {
+      setSaving(false);
+    }
+  };
+
   useEffect(() => {
     fetchAttractions();
 
@@ -138,6 +195,8 @@ export const useTouristAttractions = () => {
     saving,
     uploading,
     updateAttraction,
+    createAttraction,
+    deleteAttraction,
     uploadImage,
     fetchAttractions
   };
