@@ -42,20 +42,22 @@ export const AttractionModal = ({ attraction, isOpen, onClose }: AttractionModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-3 sm:p-6 w-[95vw] sm:w-full">
         <DialogHeader className="pb-2 sm:pb-4">
-          <DialogTitle className="text-xl sm:text-2xl font-bold text-ocean-dark leading-tight">
+          <DialogTitle className="text-lg sm:text-2xl font-bold text-ocean-dark leading-tight">
             {attraction.name}
           </DialogTitle>
         </DialogHeader>
 
         {/* Image Gallery with auto-advance */}
         {images.length > 0 && (
-          <ImageGallery images={images} attractionName={attraction.name} />
+          <div className="mb-3 sm:mb-4">
+            <ImageGallery images={images} attractionName={attraction.name} />
+          </div>
         )}
 
         {/* Category and Rating */}
-        <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
           <Badge variant="outline" className="capitalize text-xs sm:text-sm">
             {categoryLabels[attraction.category as keyof typeof categoryLabels]}
           </Badge>
