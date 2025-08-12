@@ -42,9 +42,9 @@ export const AttractionModal = ({ attraction, isOpen, onClose }: AttractionModal
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle className="text-2xl font-bold text-ocean-dark">
+      <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto p-4 sm:p-6">
+        <DialogHeader className="pb-2 sm:pb-4">
+          <DialogTitle className="text-xl sm:text-2xl font-bold text-ocean-dark leading-tight">
             {attraction.name}
           </DialogTitle>
         </DialogHeader>
@@ -55,8 +55,8 @@ export const AttractionModal = ({ attraction, isOpen, onClose }: AttractionModal
         )}
 
         {/* Category and Rating */}
-        <div className="flex items-center justify-between">
-          <Badge variant="outline" className="capitalize">
+        <div className="flex items-center justify-between mb-4">
+          <Badge variant="outline" className="capitalize text-xs sm:text-sm">
             {categoryLabels[attraction.category as keyof typeof categoryLabels]}
           </Badge>
           <div className="flex items-center">

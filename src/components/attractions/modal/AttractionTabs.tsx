@@ -16,54 +16,60 @@ interface AttractionTabsProps {
 export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
   return (
     <Tabs defaultValue="description" className="w-full">
-      <TabsList className="grid w-full grid-cols-6">
-        <TabsTrigger value="description" className="flex items-center gap-2">
-          <History className="h-4 w-4" />
-          Descripción
+      <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1">
+        <TabsTrigger value="description" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+          <History className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline">Descripción</span>
+          <span className="sm:hidden">Info</span>
         </TabsTrigger>
-        <TabsTrigger value="activities" className="flex items-center gap-2">
-          <Activity className="h-4 w-4" />
-          Actividades
+        <TabsTrigger value="activities" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+          <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline">Actividades</span>
+          <span className="sm:hidden">Act.</span>
         </TabsTrigger>
-        <TabsTrigger value="schedules" className="flex items-center gap-2">
-          <Calendar className="h-4 w-4" />
-          Horarios
+        <TabsTrigger value="schedules" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+          <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline">Horarios</span>
+          <span className="sm:hidden">Hrs.</span>
         </TabsTrigger>
-        <TabsTrigger value="recommendations" className="flex items-center gap-2">
-          <History className="h-4 w-4" />
-          Recomendaciones
+        <TabsTrigger value="recommendations" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+          <History className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline">Recomendaciones</span>
+          <span className="sm:hidden">Rec.</span>
         </TabsTrigger>
-        <TabsTrigger value="location" className="flex items-center gap-2">
-          <MapPin className="h-4 w-4" />
-          Ubicación
+        <TabsTrigger value="location" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+          <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline">Ubicación</span>
+          <span className="sm:hidden">Loc.</span>
         </TabsTrigger>
-        <TabsTrigger value="rating" className="flex items-center gap-2">
-          <Star className="h-4 w-4" />
-          Calificar
+        <TabsTrigger value="rating" className="flex items-center gap-1 sm:gap-2 text-xs sm:text-sm p-2 sm:p-3">
+          <Star className="h-3 w-3 sm:h-4 sm:w-4" />
+          <span className="hidden sm:inline">Calificar</span>
+          <span className="sm:hidden">★</span>
         </TabsTrigger>
       </TabsList>
 
-      <TabsContent value="description" className="space-y-4 mt-4">
+      <TabsContent value="description" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 px-1 sm:px-0">
         <AttractionDescription attraction={attraction} />
       </TabsContent>
 
-      <TabsContent value="activities" className="space-y-4 mt-4">
+      <TabsContent value="activities" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 px-1 sm:px-0">
         <AttractionActivities attraction={attraction} />
       </TabsContent>
 
-      <TabsContent value="schedules" className="space-y-4 mt-4">
+      <TabsContent value="schedules" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 px-1 sm:px-0">
         <AttractionSchedules attraction={attraction} />
       </TabsContent>
 
-      <TabsContent value="recommendations" className="space-y-4 mt-4">
+      <TabsContent value="recommendations" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 px-1 sm:px-0">
         <AttractionRecommendations attraction={attraction} />
       </TabsContent>
 
-      <TabsContent value="location" className="space-y-4 mt-4">
+      <TabsContent value="location" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 px-1 sm:px-0">
         <AttractionLocation attraction={attraction} />
       </TabsContent>
 
-      <TabsContent value="rating" className="space-y-4 mt-4">
+      <TabsContent value="rating" className="space-y-3 sm:space-y-4 mt-3 sm:mt-4 px-1 sm:px-0">
         <AttractionRating attraction={attraction} />
       </TabsContent>
     </Tabs>

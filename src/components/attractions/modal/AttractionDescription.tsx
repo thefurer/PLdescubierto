@@ -10,10 +10,10 @@ export const AttractionDescription = ({ attraction }: AttractionDescriptionProps
   const additionalInfo = attraction.additional_info || {};
 
   return (
-    <div className="space-y-4">
+    <div className="space-y-3 sm:space-y-4">
       <div>
-        <h3 className="text-lg font-semibold mb-2">Historia y Descripción</h3>
-        <p className="text-gray-600 leading-relaxed">
+        <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Historia y Descripción</h3>
+        <p className="text-gray-600 leading-relaxed text-sm sm:text-base">
           {attraction.description || 'Sin descripción disponible.'}
         </p>
       </div>
@@ -21,22 +21,22 @@ export const AttractionDescription = ({ attraction }: AttractionDescriptionProps
       {/* Additional Information */}
       {Object.keys(additionalInfo).length > 0 && (
         <div>
-          <h3 className="text-lg font-semibold mb-2">Información Adicional</h3>
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <h3 className="text-base sm:text-lg font-semibold mb-2 sm:mb-3">Información Adicional</h3>
+          <div className="grid grid-cols-1 gap-3 sm:gap-4 sm:grid-cols-2">
             {additionalInfo.duration && (
-              <div className="flex items-center text-sm">
-                <Clock className="h-4 w-4 mr-2 text-green-primary" />
+              <div className="flex items-center text-xs sm:text-sm p-2 sm:p-0">
+                <Clock className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-green-primary flex-shrink-0" />
                 <span>Duración: {additionalInfo.duration}</span>
               </div>
             )}
             {additionalInfo.capacity && (
-              <div className="flex items-center text-sm">
-                <Users className="h-4 w-4 mr-2 text-green-primary" />
+              <div className="flex items-center text-xs sm:text-sm p-2 sm:p-0">
+                <Users className="h-3 w-3 sm:h-4 sm:w-4 mr-2 text-green-primary flex-shrink-0" />
                 <span>Capacidad: {additionalInfo.capacity}</span>
               </div>
             )}
             {additionalInfo.price && (
-              <div className="flex items-center text-sm">
+              <div className="flex items-center text-xs sm:text-sm p-2 sm:p-0">
                 <span className="font-medium">Precio: {additionalInfo.price}</span>
               </div>
             )}
