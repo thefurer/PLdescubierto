@@ -24,13 +24,24 @@ export const createHistoryEntry = async (sectionName: string, oldContent: any, n
 
 // Load configuration from database
 export const loadConfigFromDatabase = async () => {
-  const { data, error } = await supabase
-    .from('site_visual_config')
-    .select('*')
-    .eq('is_active', true);
+  try {
+    const { data, error } = await supabase
+      .from('site_visual_config')
+      .select('*')
+      .eq('is_active', true);
 
-  if (error) throw error;
-  return data;
+    if (error) {
+      console.error('Error loading visual config:', error);
+      // Return null instead of throwing error to allow public access with default config
+      return null;
+    }
+
+    return data;
+  } catch (error) {
+    console.error('Error loading visual config:', error);
+    // Return null for public users to use default config
+    return null;
+  }
 };
 
 // Save configuration to database

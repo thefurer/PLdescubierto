@@ -51,12 +51,28 @@ const HomePageEditor = () => {
     const updatedColors = { ...localColors, [colorKey]: newColor };
     setLocalColors(updatedColors);
     
+    // Map section colors to main color palette for real-time preview
+    const mappedColors = {
+      primary: updatedColors.heroPrimary || config.colorPalette.primary,
+      secondary: updatedColors.heroSecondary || config.colorPalette.secondary,
+      background: updatedColors.heroBackground || config.colorPalette.background,
+      text: updatedColors.heroText || config.colorPalette.text,
+      accent: updatedColors.heroAccent || config.colorPalette.accent,
+      card: updatedColors.attractionsCard || config.colorPalette.card,
+      border: updatedColors.attractionsBorder || config.colorPalette.border,
+      muted: updatedColors.galleryMuted || config.colorPalette.muted,
+      navbar: updatedColors.heroPrimary || config.colorPalette.navbar,
+      button: updatedColors.heroAccent || config.colorPalette.button,
+      link: updatedColors.heroPrimary || config.colorPalette.link,
+      destructive: config.colorPalette.destructive,
+      warning: config.colorPalette.warning,
+      success: config.colorPalette.success,
+      info: config.colorPalette.info,
+    };
+    
     // Vista previa en tiempo real
     previewConfig({
-      colorPalette: {
-        ...config.colorPalette,
-        ...updatedColors,
-      },
+      colorPalette: mappedColors,
     });
   };
 
@@ -73,6 +89,9 @@ const HomePageEditor = () => {
           card: localColors.attractionsCard,
           border: localColors.attractionsBorder,
           muted: localColors.galleryMuted,
+          navbar: localColors.heroPrimary,
+          button: localColors.heroAccent,
+          link: localColors.heroPrimary,
         },
       });
       toast.success('Colores de la página principal guardados');

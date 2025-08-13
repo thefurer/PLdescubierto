@@ -51,7 +51,11 @@ export const useVisualConfig = () => {
       localStorage.setItem('visual_config', JSON.stringify(mergedConfig));
     } catch (error) {
       console.error('Error loading visual config:', error);
-      toast.error('Error al cargar la configuración visual');
+      // Don't show error toast for users who are not logged in
+      // This allows the app to work with default config for public visitors
+      if (error?.message && !error.message.includes('unauthorized')) {
+        toast.error('Error al cargar la configuración visual');
+      }
     } finally {
       setLoading(false);
     }

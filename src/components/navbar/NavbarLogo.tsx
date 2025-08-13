@@ -28,6 +28,7 @@ const NavbarLogo = ({ scrolled }: NavbarLogoProps) => {
           src={config.logoSettings.logoUrl} 
           alt="Puerto López Logo" 
           className="object-contain transition-all cursor-pointer"
+          data-logo="true"
           style={{ 
             height: `${config.logoSettings.height}px`,
             filter: scrolled ? 'none' : 'brightness(0) invert(1)'
@@ -37,6 +38,7 @@ const NavbarLogo = ({ scrolled }: NavbarLogoProps) => {
       ) : (
         <h1 
           className="font-bold transition-colors cursor-pointer"
+          data-logo="true"
           onClick={() => navigate('/')}
           style={{ 
             color: scrolled ? config.navbarSettings.textColor : "white",
