@@ -704,6 +704,15 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_get_profile_summary: {
+        Args: { target_user_id: string }
+        Returns: {
+          id: string
+          email: string
+          full_name: string
+          created_at: string
+        }[]
+      }
       assign_admin_role: {
         Args: { user_email: string }
         Returns: undefined
@@ -796,6 +805,19 @@ export type Database = {
           details?: Json
         }
         Returns: undefined
+      }
+      main_admin_get_full_profile: {
+        Args: { target_user_id: string }
+        Returns: {
+          id: string
+          email: string
+          full_name: string
+          phone: string
+          bio: string
+          avatar_url: string
+          created_at: string
+          updated_at: string
+        }[]
       }
       reactivate_authorized_email: {
         Args: { email_id: string }
