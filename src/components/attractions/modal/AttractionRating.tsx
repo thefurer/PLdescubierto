@@ -31,11 +31,11 @@ export const AttractionRating = ({ attraction }: AttractionRatingProps) => {
 
   const fetchRatingData = async () => {
     try {
-      // Obtener el promedio de calificaciones
-      const { data: avgData, error: avgError } = await supabase
-        .rpc('get_attraction_rating_average', { attraction_uuid: attraction.id });
+      // Use the secure function to get rating statistics
+      const { data: statsData, error: statsError } = await supabase
+        .rpc('get_attraction_rating_stats', { attraction_uuid: attraction.id });
 
-      if (avgError) throw avgError;
+      if (statsError) throw statsError;
 
       // Obtener la calificación del usuario actual (si está logueado)
       const { data: { user } } = await supabase.auth.getUser();
@@ -55,8 +55,8 @@ export const AttractionRating = ({ attraction }: AttractionRatingProps) => {
       }
 
       setRatingData({
-        averageRating: avgData?.[0]?.average_rating || 0,
-        totalRatings: avgData?.[0]?.total_ratings || 0,
+        averageRating: statsData?.[0]?.average_rating || 0,
+        totalRatings: statsData?.[0]?.total_ratings || 0,
         userRating
       });
     } catch (error) {

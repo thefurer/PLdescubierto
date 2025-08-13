@@ -701,7 +701,32 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      attraction_ratings_public: {
+        Row: {
+          attraction_id: string | null
+          created_at: string | null
+          rating: number | null
+        }
+        Insert: {
+          attraction_id?: string | null
+          created_at?: string | null
+          rating?: number | null
+        }
+        Update: {
+          attraction_id?: string | null
+          created_at?: string | null
+          rating?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "attraction_ratings_attraction_id_fkey"
+            columns: ["attraction_id"]
+            isOneToOne: false
+            referencedRelation: "tourist_attractions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Functions: {
       admin_get_profile_summary: {
@@ -786,6 +811,15 @@ export type Database = {
         Returns: {
           average_rating: number
           total_ratings: number
+        }[]
+      }
+      get_attraction_rating_stats: {
+        Args: { attraction_uuid: string }
+        Returns: {
+          attraction_id: string
+          average_rating: number
+          total_ratings: number
+          rating_distribution: Json
         }[]
       }
       has_role: {

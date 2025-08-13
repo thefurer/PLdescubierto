@@ -26,9 +26,9 @@ export const RatingsManager = () => {
     try {
       setLoading(true);
       
-      // Obtener datos de calificaciones agrupados por atracción
+      // Use the secure view for aggregated rating data (admin access only)
       const { data: ratingsQuery, error: ratingsError } = await supabase
-        .from('attraction_ratings')
+        .from('attraction_ratings_public')
         .select(`
           attraction_id,
           rating,
