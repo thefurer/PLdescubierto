@@ -767,6 +767,20 @@ export type Database = {
           permissions: Json
         }[]
       }
+      get_all_admin_actions_secure: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          id: string
+          admin_id: string
+          admin_email: string
+          admin_name: string
+          action_type: string
+          target_table: string
+          target_id: string
+          details: Json
+          created_at: string
+        }[]
+      }
       get_attraction_rating_average: {
         Args: { attraction_uuid: string }
         Returns: {

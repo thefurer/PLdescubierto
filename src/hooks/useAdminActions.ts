@@ -26,7 +26,7 @@ export const useAdminActions = () => {
     try {
       setLoading(true);
       
-      const { data, error } = await supabase.rpc('get_admin_actions_with_user_info');
+      const { data, error } = await supabase.rpc('get_all_admin_actions_secure');
 
       if (error) throw error;
 
