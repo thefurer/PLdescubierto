@@ -8,11 +8,7 @@ const corsHeaders = {
   'Content-Type': 'application/json'
 };
 
-const CONTACT_INFO = {
-  email: 'apincay@gmail.com',
-  whatsapp: '+593 99 199 5390',
-  website: 'https://www.whalexpeditionsecuador.com/'
-};
+// Contact info removed as requested by user
 
 interface RequestBody {
   message: string;
@@ -31,27 +27,25 @@ const sanitizeMessage = (message: string): string => {
 const generatePrompt = (message: string): string => {
   return `Eres un asistente turístico especializado en Puerto López, Ecuador.
 
-INFORMACIÓN CLAVE sobre Puerto López:
-- Ubicación: Costa de Manabí, Ecuador
-- Mejor época para ballenas: Junio a Septiembre
-- Atracciones principales: Parque Nacional Machalilla, Isla de la Plata, Playa Los Frailes, Agua Blanca
+INFORMACIÓN CLAVE:
+- Puerto López: Costa de Manabí, Ecuador
+- Temporada de ballenas: Junio a Septiembre
+- Atracciones: Parque Nacional Machalilla, Isla de la Plata, Playa Los Frailes, Agua Blanca
 - Actividades: Avistamiento de ballenas, snorkeling, tours ecológicos, arqueología
+- Gastronomía: Mariscos frescos, ceviche, encebollado
+- Hospedaje: Hoteles boutique, hostales, cabañas frente al mar
 
-OPERADOR TURÍSTICO:
-- Empresa: Whale Expeditions Tour - Ángel Pincay
-- Email: ${CONTACT_INFO.email}
-- WhatsApp: ${CONTACT_INFO.whatsapp}
-- Web: ${CONTACT_INFO.website}
+INSTRUCCIONES IMPORTANTES:
+- Responde en español, máximo 100 palabras
+- Sé directo y preciso, evita información redundante
+- NO menciones operadores turísticos específicos
+- NO incluyas información de contacto de empresas
+- Para reservas, sugiere buscar "tours Puerto López" o contactar la oficina de turismo local
+- Enfócate en información práctica y útil
 
-INSTRUCCIONES:
-- Responde en español de manera amigable y profesional
-- Máximo 200 palabras por respuesta
-- Para reservas específicas, dirige al usuario a contactar directamente
-- Incluye información práctica y útil sobre Puerto López
+PREGUNTA: ${message}
 
-PREGUNTA DEL USUARIO: ${message}
-
-Respuesta:`;
+Respuesta breve y precisa:`;
 };
 
 const callGemini = async (prompt: string, apiKey: string): Promise<string> => {
@@ -63,10 +57,10 @@ const callGemini = async (prompt: string, apiKey: string): Promise<string> => {
       body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 500
+          temperature: 0.6,
+          topK: 30,
+          topP: 0.9,
+          maxOutputTokens: 200
         }
       })
     }
@@ -238,31 +232,17 @@ serve(async (req) => {
       // Provide contextual fallback based on message content
       const lowerMessage = sanitizedMessage.toLowerCase();
       if (lowerMessage.includes('ballena') || lowerMessage.includes('whale')) {
-        botResponse = `🐋 La temporada de avistamiento de ballenas jorobadas en Puerto López es de junio a septiembre. Es una experiencia única que no te puedes perder.
-
-Para tours especializados contacta:
-📱 ${CONTACT_INFO.whatsapp}
-📧 ${CONTACT_INFO.email}`;
+        botResponse = `🐋 Temporada de ballenas jorobadas: Junio a Septiembre. Puerto López es el mejor punto de partida para este avistamiento. Los tours salen desde el malecón temprano en la mañana.`;
       } else if (lowerMessage.includes('isla') || lowerMessage.includes('plata')) {
-        botResponse = `🏝️ La Isla de la Plata, conocida como "Galápagos de los pobres", es una de las principales atracciones de Puerto López. Puedes ver piqueros de patas azules, fragatas y hacer snorkeling.
-
-Para más información:
-📱 ${CONTACT_INFO.whatsapp}
-📧 ${CONTACT_INFO.email}`;
+        botResponse = `🏝️ Isla de la Plata: Conocida como "Galápagos de los pobres". Piqueros de patas azules, fragatas y excelente snorkeling. Tours de día completo disponibles desde Puerto López.`;
       } else if (lowerMessage.includes('contacto') || lowerMessage.includes('información')) {
-        botResponse = `📍 Información de contacto para tours en Puerto López:
-
-🏢 Whale Expeditions Tour - Ángel Pincay
-📧 Email: ${CONTACT_INFO.email}
-📱 WhatsApp: ${CONTACT_INFO.whatsapp}
-🌐 Web: ${CONTACT_INFO.website}`;
+        botResponse = `📍 Para tours en Puerto López busca "tours Puerto López" en línea o visita la oficina de turismo local en el malecón. Hay múltiples operadores disponibles.`;
+      } else if (lowerMessage.includes('playa') || lowerMessage.includes('frailes')) {
+        botResponse = `🏖️ Playa Los Frailes: Considerada una de las más hermosas del Ecuador. Parte del Parque Nacional Machalilla, agua cristalina y arena dorada. Acceso gratuito.`;
+      } else if (lowerMessage.includes('machalilla')) {
+        botResponse = `🌿 Parque Nacional Machalilla: Bosque seco tropical, senderos ecológicos, Agua Blanca (sitio arqueológico) y playas vírgenes. Entrada: $5 adultos.`;
       } else {
-        botResponse = `Puerto López es un destino increíble en la costa ecuatoriana, famoso por el avistamiento de ballenas jorobadas y la hermosa Isla de la Plata.
-
-Para planificar tu visita:
-📱 ${CONTACT_INFO.whatsapp}
-📧 ${CONTACT_INFO.email}
-🌐 ${CONTACT_INFO.website}`;
+        botResponse = `Puerto López, Manabí: Destino ecuatoriano famoso por ballenas jorobadas (Jun-Sep), Isla de la Plata, Playa Los Frailes y Parque Nacional Machalilla. Base ideal para ecoturismo marino.`;
       }
       responseSource = 'fallback';
     }
@@ -282,10 +262,7 @@ Para planificar tu visita:
   } catch (error) {
     console.error('❌ Unexpected error:', error);
     
-    const errorResponse = `Lo siento, ocurrió un error técnico. Por favor, intenta de nuevo o contacta directamente:
-
-📧 ${CONTACT_INFO.email}
-📱 ${CONTACT_INFO.whatsapp}`;
+    const errorResponse = `Lo siento, ocurrió un error técnico. Por favor, intenta de nuevo en unos momentos o busca información turística en el malecón de Puerto López.`;
 
     return new Response(
       JSON.stringify({ reply: errorResponse }),
