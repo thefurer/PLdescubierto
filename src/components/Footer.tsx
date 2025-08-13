@@ -18,8 +18,7 @@ const Footer = () => {
     phone: footerContent?.phone || "+593 99 199 5390",
     address: footerContent?.address || "Puerto López, Manabí, Ecuador"
   };
-  return (
-    <footer className="relative bg-gradient-to-br from-ocean-dark via-ocean to-ocean-dark text-white overflow-hidden">
+  return <footer className="relative bg-gradient-to-br from-ocean-dark via-ocean to-ocean-dark text-white overflow-hidden">
       {/* Decorative background patterns */}
       <div className="absolute inset-0 opacity-10">
         <div className="absolute top-0 left-1/4 w-96 h-96 bg-gradient-to-br from-green-400 to-blue-400 rounded-full blur-3xl"></div>
@@ -28,15 +27,10 @@ const Footer = () => {
       
       {/* Wave decoration */}
       <div className="absolute top-0 left-0 right-0 h-24 bg-gradient-to-b from-white/5 to-transparent">
-        <svg 
-          viewBox="0 0 1200 120" 
-          className="absolute bottom-0 w-full h-full"
-          style={{ transform: 'rotateX(180deg)' }}
-        >
-          <path 
-            d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" 
-            className="fill-white/5"
-          />
+        <svg viewBox="0 0 1200 120" className="absolute bottom-0 w-full h-full" style={{
+        transform: 'rotateX(180deg)'
+      }}>
+          <path d="M321.39,56.44c58-10.79,114.16-30.13,172-41.86,82.39-16.72,168.19-17.73,250.45-.39C823.78,31,906.67,72,985.66,92.83c70.05,18.48,146.53,26.09,214.34,3V0H0V27.35A600.21,600.21,0,0,0,321.39,56.44Z" className="fill-white/5" />
         </svg>
       </div>
 
@@ -68,7 +62,7 @@ const Footer = () => {
 
           {/* Quick Links */}
           <div className="space-y-6">
-            <h3 className="text-lg font-bold text-green-300 mb-4">{t.quickLinks}</h3>
+            <h3 className="text-lg font-bold text-green-300 mb-4 text-center">{t.quickLinks}</h3>
             <ul className="space-y-3">
               <li>
                 <a href="#home" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
@@ -99,7 +93,7 @@ const Footer = () => {
 
           {/* Resources */}
           <div className="space-y-6">
-            <h3 className="text-lg font-bold text-green-300 mb-4">{t.resources}</h3>
+            <h3 className="text-lg font-bold text-green-300 mb-4 text-center">{t.resources}</h3>
             <ul className="space-y-3">
               <li>
                 <a href="/travel-guide" className="group flex items-center text-gray-300 hover:text-white transition-all duration-300">
@@ -142,7 +136,7 @@ const Footer = () => {
 
           {/* Contact Info */}
           <div className="space-y-6">
-            <h3 className="text-lg font-bold text-green-300 mb-4">{t.contactUs}</h3>
+            <h3 className="text-lg font-bold text-green-300 mb-4 text-center">{t.contactUs}</h3>
             <ul className="space-y-6">
               <li className="flex items-start group">
                 <div className="p-2 bg-green-500/20 rounded-lg mr-4 group-hover:bg-green-500/30 transition-colors">
@@ -194,12 +188,7 @@ const Footer = () => {
             <div className="flex items-center space-x-4">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <a 
-                    href="https://www.smartcity-core.com" 
-                    target="_blank" 
-                    rel="noopener noreferrer" 
-                    className="text-xs text-green-300 hover:text-green-400 transition-colors"
-                  >
+                  <a href="https://www.smartcity-core.com" target="_blank" rel="noopener noreferrer" className="text-xs text-green-300 hover:text-green-400 transition-colors">
                     SmartCityCore - PL
                   </a>
               </div>
@@ -207,7 +196,6 @@ const Footer = () => {
           </div>
         </div>
       </div>
-    </footer>
-  );
+    </footer>;
 };
 export default Footer;
