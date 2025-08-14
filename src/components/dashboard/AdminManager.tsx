@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -11,13 +10,15 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import SuperAdminPanel from './SuperAdminPanel';
 import PermissionsManager from './admin/PermissionsManager';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
-
 const AdminManager = () => {
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
-  const { isMainAdmin } = useAdminManagement();
-  const { toast } = useToast();
-
+  const {
+    isMainAdmin
+  } = useAdminManagement();
+  const {
+    toast
+  } = useToast();
   const assignAdminRole = async () => {
     if (!email.trim()) {
       toast({
@@ -27,22 +28,20 @@ const AdminManager = () => {
       });
       return;
     }
-
     setLoading(true);
     try {
-      const { error } = await supabase.rpc('assign_admin_role', {
+      const {
+        error
+      } = await supabase.rpc('assign_admin_role', {
         user_email: email.trim()
       });
-
       if (error) {
         throw error;
       }
-
       toast({
         title: 'Éxito',
-        description: `Rol de administrador asignado a ${email}`,
+        description: `Rol de administrador asignado a ${email}`
       });
-
       setEmail('');
     } catch (error: any) {
       toast({
@@ -54,19 +53,18 @@ const AdminManager = () => {
       setLoading(false);
     }
   };
-
   const createInitialAdmin = async () => {
     setLoading(true);
     try {
-      const { error } = await supabase.rpc('create_initial_admin');
-
+      const {
+        error
+      } = await supabase.rpc('create_initial_admin');
       if (error) {
         throw error;
       }
-
       toast({
         title: 'Éxito',
-        description: 'Rol de administrador inicial creado',
+        description: 'Rol de administrador inicial creado'
       });
     } catch (error: any) {
       toast({
@@ -78,28 +76,18 @@ const AdminManager = () => {
       setLoading(false);
     }
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <Tabs defaultValue={isMainAdmin ? "super-admin" : "basic"} className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-3 bg-slate-200">
           <TabsTrigger value="basic" className="flex items-center gap-2">
             <Shield className="h-4 w-4" />
             Administración Básica
           </TabsTrigger>
-          <TabsTrigger 
-            value="permissions"
-            className="flex items-center gap-2"
-            disabled={!isMainAdmin}
-          >
+          <TabsTrigger value="permissions" className="flex items-center gap-2" disabled={!isMainAdmin}>
             <Lock className="h-4 w-4" />
             Permisos Granulares
           </TabsTrigger>
-          <TabsTrigger 
-            value="super-admin" 
-            className="flex items-center gap-2"
-            disabled={!isMainAdmin}
-          >
+          <TabsTrigger value="super-admin" className="flex items-center gap-2" disabled={!isMainAdmin}>
             <Settings className="h-4 w-4" />
             Super Administrador
           </TabsTrigger>
@@ -121,26 +109,11 @@ const AdminManager = () => {
             <CardContent className="space-y-4">
               <div>
                 <Label htmlFor="admin-email">Email del Usuario</Label>
-                <Input
-                  id="admin-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  placeholder="usuario@ejemplo.com"
-                  disabled={loading}
-                />
+                <Input id="admin-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="usuario@ejemplo.com" disabled={loading} />
               </div>
 
-              <Button 
-                onClick={assignAdminRole} 
-                disabled={loading || !email.trim()}
-                className="w-full"
-              >
-                {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <UserPlus className="h-4 w-4 mr-2" />
-                )}
+              <Button onClick={assignAdminRole} disabled={loading || !email.trim()} className="w-full">
+                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <UserPlus className="h-4 w-4 mr-2" />}
                 Asignar Rol de Administrador
               </Button>
             </CardContent>
@@ -154,17 +127,8 @@ const AdminManager = () => {
               </CardDescription>
             </CardHeader>
             <CardContent>
-              <Button 
-                onClick={createInitialAdmin} 
-                disabled={loading}
-                variant="outline"
-                className="w-full"
-              >
-                {loading ? (
-                  <Loader2 className="h-4 w-4 animate-spin mr-2" />
-                ) : (
-                  <Shield className="h-4 w-4 mr-2" />
-                )}
+              <Button onClick={createInitialAdmin} disabled={loading} variant="outline" className="w-full">
+                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Shield className="h-4 w-4 mr-2" />}
                 Crear Administrador Inicial
               </Button>
             </CardContent>
@@ -195,8 +159,6 @@ const AdminManager = () => {
           <SuperAdminPanel />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>;
 };
-
 export default AdminManager;
