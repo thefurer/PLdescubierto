@@ -110,13 +110,62 @@ const colorCategories = {
 };
 
 const EnhancedColorPaletteManager = () => {
-  const { config, saveConfig, previewConfig, resetPreview, loading, previewMode } = useVisualConfig();
-  const [localColorPalette, setLocalColorPalette] = useState(config.colorPalette);
+  const { config, saveConfig, previewConfig, resetPreview, loading, previewMode, isInitialized } = useVisualConfig();
+  
+  // Helper to convert HSL to hex for color inputs
+  const hslToHex = (hsl: string): string => {
+    if (hsl.startsWith('#')) return hsl;
+    
+    const parts = hsl.split(' ');
+    if (parts.length !== 3) return '#000000';
+    
+    const h = parseInt(parts[0]) / 360;
+    const s = parseInt(parts[1]) / 100;
+    const l = parseInt(parts[2]) / 100;
+    
+    const hue2rgb = (p: number, q: number, t: number) => {
+      if (t < 0) t += 1;
+      if (t > 1) t -= 1;
+      if (t < 1/6) return p + (q - p) * 6 * t;
+      if (t < 1/2) return q;
+      if (t < 2/3) return p + (q - p) * (2/3 - t) * 6;
+      return p;
+    };
+
+    const q = l < 0.5 ? l * (1 + s) : l + s - l * s;
+    const p = 2 * l - q;
+    const r = hue2rgb(p, q, h + 1/3);
+    const g = hue2rgb(p, q, h);
+    const b = hue2rgb(p, q, h - 1/3);
+
+    const toHex = (c: number) => {
+      const hex = Math.round(c * 255).toString(16);
+      return hex.length === 1 ? '0' + hex : hex;
+    };
+
+    return `#${toHex(r)}${toHex(g)}${toHex(b)}`;
+  };
+
+  // Convert config colors to hex for display
+  const [localColorPalette, setLocalColorPalette] = useState(() => {
+    const hexPalette: any = {};
+    Object.entries(config.colorPalette).forEach(([key, value]) => {
+      hexPalette[key] = hslToHex(value);
+    });
+    return hexPalette;
+  });
+  
   const [showPreview, setShowPreview] = useState(true);
 
   useEffect(() => {
-    setLocalColorPalette(config.colorPalette);
-  }, [config.colorPalette]);
+    if (isInitialized) {
+      const hexPalette: any = {};
+      Object.entries(config.colorPalette).forEach(([key, value]) => {
+        hexPalette[key] = hslToHex(value);
+      });
+      setLocalColorPalette(hexPalette);
+    }
+  }, [config.colorPalette, isInitialized]);
 
   const handleColorChange = (key: keyof VisualConfig['colorPalette'], newColor: string) => {
     const safeColor = newColor || '#000000';
@@ -133,7 +182,11 @@ const EnhancedColorPaletteManager = () => {
 
   const handleResetPreview = () => {
     resetPreview();
-    setLocalColorPalette(config.colorPalette);
+    const hexPalette: any = {};
+    Object.entries(config.colorPalette).forEach(([key, value]) => {
+      hexPalette[key] = hslToHex(value);
+    });
+    setLocalColorPalette(hexPalette);
   };
 
   const togglePreview = () => {

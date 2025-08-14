@@ -6,53 +6,83 @@ import { applyConfigToCSS } from '@/utils/cssUtils';
 import { loadConfigFromDatabase, saveConfigToDatabase, subscribeToConfigChanges } from '@/services/visualConfigService';
 
 export const useVisualConfig = () => {
-  const [config, setConfig] = useState<VisualConfig>(() => {
-    // Try to load from localStorage first
-    const savedConfig = localStorage.getItem('visual_config');
-    if (savedConfig) {
-      try {
-        return JSON.parse(savedConfig);
-      } catch (e) {
-        console.error('Error parsing saved config:', e);
-      }
-    }
-    return defaultConfig;
-  });
-  const [loading, setLoading] = useState(false);
+  const [config, setConfig] = useState<VisualConfig>(defaultConfig);
+  const [loading, setLoading] = useState(true); // Start with loading true
   const [previewMode, setPreviewMode] = useState(false);
+  const [isInitialized, setIsInitialized] = useState(false);
 
   // Load configuration from database
   const loadConfig = async () => {
     try {
-      setLoading(true);
+      console.log('Loading visual config from database...');
       const data = await loadConfigFromDatabase();
+      console.log('Database config data:', data);
 
-      const mergedConfig = { ...defaultConfig };
+      let mergedConfig = { ...defaultConfig };
       
-      data?.forEach(configItem => {
-        const configData = configItem.config_data as any;
-        if (configItem.config_type === 'color_palette') {
-          mergedConfig.colorPalette = { ...mergedConfig.colorPalette, ...configData };
-        } else if (configItem.config_type === 'navbar_settings') {
-          mergedConfig.navbarSettings = { ...mergedConfig.navbarSettings, ...configData };
-        } else if (configItem.config_type === 'logo_settings') {
-          mergedConfig.logoSettings = { ...mergedConfig.logoSettings, ...configData };
-        } else if (configItem.config_type === 'button_styles') {
-          mergedConfig.buttonStyles = { ...mergedConfig.buttonStyles, ...configData };
-        } else if (configItem.config_type === 'typography') {
-          mergedConfig.typography = { ...mergedConfig.typography, ...configData };
+      // If we have data from database, merge it
+      if (data && data.length > 0) {
+        data.forEach(configItem => {
+          const configData = configItem.config_data as any;
+          console.log(`Processing ${configItem.config_type}:`, configData);
+          
+          if (configItem.config_type === 'color_palette') {
+            mergedConfig.colorPalette = { ...mergedConfig.colorPalette, ...configData };
+          } else if (configItem.config_type === 'navbar_settings') {
+            mergedConfig.navbarSettings = { ...mergedConfig.navbarSettings, ...configData };
+          } else if (configItem.config_type === 'logo_settings') {
+            mergedConfig.logoSettings = { ...mergedConfig.logoSettings, ...configData };
+          } else if (configItem.config_type === 'button_styles') {
+            mergedConfig.buttonStyles = { ...mergedConfig.buttonStyles, ...configData };
+          } else if (configItem.config_type === 'typography') {
+            mergedConfig.typography = { ...mergedConfig.typography, ...configData };
+          }
+        });
+      } else {
+        // If no database config, try localStorage as fallback
+        const savedConfig = localStorage.getItem('visual_config');
+        if (savedConfig) {
+          try {
+            const parsedConfig = JSON.parse(savedConfig);
+            mergedConfig = { ...defaultConfig, ...parsedConfig };
+            console.log('Using localStorage config as fallback');
+          } catch (e) {
+            console.error('Error parsing localStorage config:', e);
+          }
         }
-      });
+      }
 
+      console.log('Final merged config:', mergedConfig);
       setConfig(mergedConfig);
       applyConfigToCSS(mergedConfig);
       
       // Store in localStorage for persistence across sessions
       localStorage.setItem('visual_config', JSON.stringify(mergedConfig));
+      setIsInitialized(true);
     } catch (error) {
       console.error('Error loading visual config:', error);
+      
+      // Try to use localStorage as fallback
+      const savedConfig = localStorage.getItem('visual_config');
+      if (savedConfig) {
+        try {
+          const parsedConfig = JSON.parse(savedConfig);
+          setConfig({ ...defaultConfig, ...parsedConfig });
+          applyConfigToCSS({ ...defaultConfig, ...parsedConfig });
+          console.log('Using localStorage config due to database error');
+        } catch (e) {
+          console.error('Error parsing localStorage config:', e);
+          setConfig(defaultConfig);
+          applyConfigToCSS(defaultConfig);
+        }
+      } else {
+        setConfig(defaultConfig);
+        applyConfigToCSS(defaultConfig);
+      }
+      
+      setIsInitialized(true);
+      
       // Don't show error toast for users who are not logged in
-      // This allows the app to work with default config for public visitors
       if (error?.message && !error.message.includes('unauthorized')) {
         toast.error('Error al cargar la configuración visual');
       }
@@ -125,7 +155,10 @@ export const useVisualConfig = () => {
     
     const setupSubscription = async () => {
       await loadConfig();
-      unsubscribe = subscribeToConfigChanges(loadConfig);
+      unsubscribe = subscribeToConfigChanges(() => {
+        console.log('Visual config changed, reloading...');
+        loadConfig();
+      });
     };
     
     setupSubscription();
@@ -137,15 +170,18 @@ export const useVisualConfig = () => {
     };
   }, []);
 
-  // Apply config on mount and when config changes
+  // Apply config when it changes (but only after initialization)
   useEffect(() => {
-    applyConfigToCSS(config);
-  }, [config]);
+    if (isInitialized) {
+      applyConfigToCSS(config);
+    }
+  }, [config, isInitialized]);
 
   return {
     config,
     loading,
     previewMode,
+    isInitialized,
     saveConfig,
     previewConfig,
     resetPreview,

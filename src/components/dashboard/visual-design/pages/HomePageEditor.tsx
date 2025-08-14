@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -9,7 +9,7 @@ import { useVisualConfig } from '@/hooks/useVisualConfig';
 import { toast } from 'sonner';
 
 const HomePageEditor = () => {
-  const { config, loading, previewMode, saveConfig, previewConfig, resetPreview } = useVisualConfig();
+  const { config, loading, previewMode, isInitialized, saveConfig, previewConfig, resetPreview } = useVisualConfig();
   // Helper to convert HSL to hex for color inputs
   const hslToHex = (hsl: string): string => {
     if (hsl.startsWith('#')) return hsl;
@@ -80,6 +80,37 @@ const HomePageEditor = () => {
     contactBackground: hslToHex(config.colorPalette.card),
     contactText: hslToHex(config.colorPalette.text),
   });
+
+  // Sync local colors with config when it changes
+  useEffect(() => {
+    if (isInitialized) {
+      setLocalColors({
+        heroPrimary: hslToHex(config.colorPalette.primary),
+        heroSecondary: hslToHex(config.colorPalette.secondary),
+        heroBackground: hslToHex(config.colorPalette.background),
+        heroText: hslToHex(config.colorPalette.text),
+        heroAccent: hslToHex(config.colorPalette.accent),
+        attractionsPrimary: hslToHex(config.colorPalette.primary),
+        attractionsCard: hslToHex(config.colorPalette.card),
+        attractionsText: hslToHex(config.colorPalette.text),
+        attractionsBorder: hslToHex(config.colorPalette.border),
+        activitiesSecondary: hslToHex(config.colorPalette.secondary),
+        activitiesAccent: hslToHex(config.colorPalette.accent),
+        activitiesBackground: hslToHex(config.colorPalette.background),
+        galleryCard: hslToHex(config.colorPalette.card),
+        galleryText: hslToHex(config.colorPalette.text),
+        galleryMuted: hslToHex(config.colorPalette.muted),
+        metaversePrimary: '#6366f1',
+        metaverseSecondary: '#8b5cf6',
+        metaverseAccent: '#ec4899',
+        metaverseBackground: '#1e1b4b',
+        metaverseText: '#ffffff',
+        contactPrimary: hslToHex(config.colorPalette.primary),
+        contactBackground: hslToHex(config.colorPalette.card),
+        contactText: hslToHex(config.colorPalette.text),
+      });
+    }
+  }, [config, isInitialized]);
 
   const handleColorChange = (colorKey: string, newColor: string) => {
     const updatedColors = { ...localColors, [colorKey]: newColor };
