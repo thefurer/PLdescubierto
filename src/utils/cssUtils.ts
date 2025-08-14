@@ -3,8 +3,22 @@ import { VisualConfig } from '@/types/visualConfig';
 
 // Helper function to convert hex to HSL
 const hexToHsl = (hex: string): string => {
-  // Remove # if present
+  // Handle null/undefined/empty values
+  if (!hex) return '0 0% 0%';
+  
+  // Remove # if present and handle short hex values
   hex = hex.replace('#', '');
+  
+  // Handle 3-character hex codes by expanding them
+  if (hex.length === 3) {
+    hex = hex.split('').map(char => char + char).join('');
+  }
+  
+  // Ensure we have a valid 6-character hex
+  if (hex.length !== 6 || !/^[0-9A-Fa-f]{6}$/.test(hex)) {
+    console.warn(`Invalid hex color: ${hex}, using fallback`);
+    return '0 0% 0%'; // Fallback to black
+  }
   
   // Parse r, g, b values
   const r = parseInt(hex.substr(0, 2), 16) / 255;
@@ -37,10 +51,19 @@ export const applyConfigToCSS = (config: VisualConfig) => {
   
   // Apply color palette with HSL conversion
   Object.entries(config.colorPalette).forEach(([key, value]) => {
-    const hslValue = value.startsWith('#') ? hexToHsl(value) : value;
+    // Ensure value is valid and convert to HSL if it's a hex color
+    let hslValue = value;
+    if (value && value.startsWith('#')) {
+      hslValue = hexToHsl(value);
+    } else if (value && !value.includes(' ')) {
+      // If it's not HSL format (missing spaces), assume it's a hex without #
+      hslValue = hexToHsl('#' + value.replace('#', ''));
+    }
+    
+    // Set dynamic color variables
     root.style.setProperty(`--color-${key}`, hslValue);
     
-    // Also update main CSS variables
+    // Also update main CSS variables for theme compatibility
     if (key === 'primary') {
       root.style.setProperty('--primary', hslValue);
     } else if (key === 'secondary') {
@@ -57,14 +80,33 @@ export const applyConfigToCSS = (config: VisualConfig) => {
       root.style.setProperty('--border', hslValue);
     } else if (key === 'muted') {
       root.style.setProperty('--muted', hslValue);
+    } else if (key === 'destructive') {
+      root.style.setProperty('--destructive', hslValue);
+    } else if (key === 'warning') {
+      root.style.setProperty('--warning', hslValue);
+    } else if (key === 'success') {
+      root.style.setProperty('--success', hslValue);
+    } else if (key === 'info') {
+      root.style.setProperty('--info', hslValue);
     }
   });
 
-  // Apply typography
+  // Apply typography with HSL conversion for colors
   root.style.setProperty('--font-family', config.typography.fontFamily);
-  root.style.setProperty('--font-heading-color', config.typography.headingColor);
-  root.style.setProperty('--font-body-color', config.typography.bodyColor);
-  root.style.setProperty('--font-link-color', config.typography.linkColor);
+  
+  const headingColorHsl = config.typography.headingColor.startsWith('#') 
+    ? hexToHsl(config.typography.headingColor) 
+    : config.typography.headingColor;
+  const bodyColorHsl = config.typography.bodyColor.startsWith('#') 
+    ? hexToHsl(config.typography.bodyColor) 
+    : config.typography.bodyColor;
+  const linkColorHsl = config.typography.linkColor.startsWith('#') 
+    ? hexToHsl(config.typography.linkColor) 
+    : config.typography.linkColor;
+    
+  root.style.setProperty('--font-heading-color', headingColorHsl);
+  root.style.setProperty('--font-body-color', bodyColorHsl);
+  root.style.setProperty('--font-link-color', linkColorHsl);
 
   // Apply button styles with proper border radius values
   const borderRadiusValue = config.buttonStyles.primaryStyle === 'pill' ? '9999px' : 

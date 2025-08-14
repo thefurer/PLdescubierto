@@ -51,21 +51,21 @@ export interface VisualConfig {
 
 export const defaultConfig: VisualConfig = {
   colorPalette: {
-    primary: '#2563eb',
-    secondary: '#10b981',
-    background: '#ffffff',
-    text: '#1f2937',
-    accent: '#f59e0b',
-    navbar: '#ffffff',
-    button: '#2563eb',
-    link: '#2563eb',
-    card: '#f8fafc',
-    border: '#e5e7eb',
-    muted: '#6b7280',
-    destructive: '#ef4444',
-    warning: '#f59e0b',
-    success: '#10b981',
-    info: '#3b82f6',
+    primary: '200 82% 39%',        // Ocean blue HSL
+    secondary: '142 70% 38%',      // Green HSL
+    background: '210 100% 99%',    // Almost white HSL
+    text: '222 84% 5%',           // Dark text HSL
+    accent: '199 75% 48%',        // Accent blue HSL
+    navbar: '0 0% 100%',          // White HSL
+    button: '200 82% 39%',        // Primary color HSL
+    link: '200 82% 39%',          // Primary color HSL
+    card: '0 0% 100%',            // White HSL
+    border: '214 32% 91%',        // Light border HSL
+    muted: '215 16% 47%',         // Muted text HSL
+    destructive: '0 84% 60%',     // Red HSL
+    warning: '43 96% 56%',        // Orange HSL
+    success: '142 70% 38%',       // Green HSL
+    info: '217 91% 60%',          // Blue HSL
   },
   navbarSettings: {
     items: [
@@ -75,8 +75,8 @@ export const defaultConfig: VisualConfig = {
       { name: 'Galería', url: '#gallery', visible: true, order: 4 },
       { name: 'Contacto', url: '#contact', visible: true, order: 5 },
     ],
-    backgroundColor: '#ffffff',
-    textColor: '#1f2937',
+    backgroundColor: '0 0% 100%',     // White HSL
+    textColor: '222 84% 5%',         // Dark text HSL
     position: 'fixed',
   },
   logoSettings: {
@@ -87,14 +87,14 @@ export const defaultConfig: VisualConfig = {
   },
   buttonStyles: {
     primaryStyle: 'rounded',
-    primaryColor: '#2563eb',
-    secondaryColor: '#10b981',
+    primaryColor: '200 82% 39%',     // Ocean blue HSL
+    secondaryColor: '142 70% 38%',   // Green HSL
     hoverEffect: 'scale',
   },
   typography: {
     fontFamily: 'Poppins',
-    headingColor: '#1f2937',
-    bodyColor: '#4b5563',
-    linkColor: '#2563eb',
+    headingColor: '222 84% 5%',      // Dark text HSL
+    bodyColor: '215 16% 47%',        // Muted text HSL
+    linkColor: '200 82% 39%',        // Ocean blue HSL
   },
 };

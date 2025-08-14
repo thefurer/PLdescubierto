@@ -10,6 +10,7 @@ import EnhancedNavbarManager from './visual-design/EnhancedNavbarManager';
 import LogoManager from './visual-design/LogoManager';
 import ButtonStylesManager from './visual-design/ButtonStylesManager';
 import TypographyManager from './visual-design/TypographyManager';
+import EnhancedColorPaletteManager from './visual-design/EnhancedColorPaletteManager';
 import VisualPreview from './visual-design/VisualPreview';
 const VisualDesignManager = () => {
   return <div className="space-y-6">
@@ -43,7 +44,7 @@ const VisualDesignManager = () => {
         <div className="2xl:col-span-7 order-1 2xl:order-2">
           <Tabs defaultValue="home" className="space-y-6">
             <div className="bg-white rounded-xl p-1 shadow-sm border">
-              <TabsList className="grid w-full grid-cols-8 bg-transparent gap-1">
+              <TabsList className="grid w-full grid-cols-9 bg-transparent gap-1">
                 <TabsTrigger value="home" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all duration-200">
                   <Home className="h-4 w-4" />
                   <span className="hidden sm:inline">P. Principal</span>
@@ -75,6 +76,10 @@ const VisualDesignManager = () => {
                 <TabsTrigger value="logo" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all duration-200">
                   <Image className="h-4 w-4" />
                   <span className="hidden sm:inline">Logo</span>
+                </TabsTrigger>
+                <TabsTrigger value="colors" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-emerald-500 data-[state=active]:text-white transition-all duration-200">
+                  <Palette className="h-4 w-4" />
+                  <span className="hidden sm:inline">Colores</span>
                 </TabsTrigger>
               </TabsList>
             </div>
@@ -110,6 +115,10 @@ const VisualDesignManager = () => {
 
               <TabsContent value="logo" className="mt-6">
                 <LogoManager />
+              </TabsContent>
+
+              <TabsContent value="colors" className="mt-6">
+                <EnhancedColorPaletteManager />
               </TabsContent>
             </div>
           </Tabs>
