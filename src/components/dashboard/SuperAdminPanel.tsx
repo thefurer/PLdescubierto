@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -7,26 +6,22 @@ import { useAdminManagement } from '@/hooks/useAdminManagement';
 import EmailAuthorizationManager from './admin/EmailAuthorizationManager';
 import { RatingsManager } from './RatingsManager';
 import DatabaseDiagramDownloader from './DatabaseDiagramDownloader';
-
 const SuperAdminPanel = () => {
-  const { isMainAdmin } = useAdminManagement();
+  const {
+    isMainAdmin
+  } = useAdminManagement();
   const [activeTab, setActiveTab] = useState('emails');
-
   if (!isMainAdmin) {
-    return (
-      <Card>
+    return <Card>
         <CardContent className="flex flex-col items-center justify-center h-64">
           <Shield className="h-12 w-12 text-gray-400 mb-4" />
           <p className="text-gray-500 text-center">
             Solo el administrador principal puede acceder a este panel
           </p>
         </CardContent>
-      </Card>
-    );
+      </Card>;
   }
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <Card>
         <CardHeader>
           <div className="flex items-center gap-3">
@@ -42,7 +37,7 @@ const SuperAdminPanel = () => {
       </Card>
 
       <Tabs value={activeTab} onValueChange={setActiveTab}>
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-3 bg-slate-200">
           <TabsTrigger value="emails" className="flex items-center gap-2">
             <Mail className="h-4 w-4" />
             Autorización de Emails
@@ -69,8 +64,6 @@ const SuperAdminPanel = () => {
           <DatabaseDiagramDownloader />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>;
 };
-
 export default SuperAdminPanel;
