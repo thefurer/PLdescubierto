@@ -1,4 +1,3 @@
-
 import { useState } from 'react';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { TouristAttraction } from '@/types/touristAttractions';
@@ -9,7 +8,6 @@ import ActivitiesTab from './form/ActivitiesTab';
 import SchedulesTab from './form/SchedulesTab';
 import RecommendationsTab from './form/RecommendationsTab';
 import FormActions from './form/FormActions';
-
 interface AttractionEditFormProps {
   attraction: TouristAttraction;
   isSaving: boolean;
@@ -18,16 +16,17 @@ interface AttractionEditFormProps {
   onCancel: () => void;
   onUploadImage: (file: File, attractionId: string) => Promise<string>;
 }
-
-const AttractionEditForm = ({ 
-  attraction, 
+const AttractionEditForm = ({
+  attraction,
   isSaving,
   isUploading,
-  onSave, 
+  onSave,
   onCancel,
   onUploadImage
 }: AttractionEditFormProps) => {
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [formData, setFormData] = useState({
     name: attraction.name,
     description: attraction.description || '',
@@ -38,24 +37,18 @@ const AttractionEditForm = ({
     recommendations: attraction.recommendations || [],
     additional_info: attraction.additional_info || {}
   });
-
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
-
   const validateForm = () => {
     const errors: Record<string, string> = {};
-    
     if (!formData.name.trim()) {
       errors.name = 'El nombre es obligatorio';
     }
-    
     if (!formData.category) {
       errors.category = 'La categoría es obligatoria';
     }
-    
     setFormErrors(errors);
     return Object.keys(errors).length === 0;
   };
-
   const handleSave = async () => {
     if (!validateForm()) {
       toast({
@@ -65,38 +58,48 @@ const AttractionEditForm = ({
       });
       return;
     }
-
     try {
       await onSave(formData);
     } catch (error) {
       console.error('Error saving attraction:', error);
     }
   };
-
   const handleFormDataChange = (updates: Partial<TouristAttraction>) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+    setFormData(prev => ({
+      ...prev,
+      ...updates
+    }));
   };
-
   const handleErrorClear = (field: string) => {
-    setFormErrors(prev => ({ ...prev, [field]: '' }));
+    setFormErrors(prev => ({
+      ...prev,
+      [field]: ''
+    }));
   };
-
   const handleImageUpdate = (imageUrl: string) => {
-    setFormData(prev => ({ ...prev, image_url: imageUrl }));
+    setFormData(prev => ({
+      ...prev,
+      image_url: imageUrl
+    }));
   };
-
   const handleGalleryUpdate = (images: string[]) => {
-    setFormData(prev => ({ ...prev, gallery_images: images }));
+    setFormData(prev => ({
+      ...prev,
+      gallery_images: images
+    }));
   };
-
   const handleActivitiesUpdate = (activities: string[]) => {
-    setFormData(prev => ({ ...prev, activities }));
+    setFormData(prev => ({
+      ...prev,
+      activities
+    }));
   };
-
   const handleRecommendationsUpdate = (recommendations: TouristAttraction['recommendations']) => {
-    setFormData(prev => ({ ...prev, recommendations }));
+    setFormData(prev => ({
+      ...prev,
+      recommendations
+    }));
   };
-
   const handleSchedulesUpdate = (schedules: any[]) => {
     setFormData(prev => ({
       ...prev,
@@ -106,11 +109,9 @@ const AttractionEditForm = ({
       }
     }));
   };
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       <Tabs defaultValue="basic" className="w-full">
-        <TabsList className="grid w-full grid-cols-5">
+        <TabsList className="grid w-full grid-cols-5 bg-slate-200">
           <TabsTrigger value="basic">Información Básica</TabsTrigger>
           <TabsTrigger value="images">Imágenes</TabsTrigger>
           <TabsTrigger value="activities">Actividades</TabsTrigger>
@@ -119,57 +120,27 @@ const AttractionEditForm = ({
         </TabsList>
 
         <TabsContent value="basic">
-          <BasicInfoTab
-            formData={formData}
-            formErrors={formErrors}
-            onFormDataChange={handleFormDataChange}
-            onErrorClear={handleErrorClear}
-          />
+          <BasicInfoTab formData={formData} formErrors={formErrors} onFormDataChange={handleFormDataChange} onErrorClear={handleErrorClear} />
         </TabsContent>
 
         <TabsContent value="images">
-          <ImagesTab
-            attractionId={attraction.id}
-            currentImageUrl={formData.image_url}
-            currentGalleryImages={formData.gallery_images}
-            isUploading={isUploading}
-            onImageUpdate={handleImageUpdate}
-            onGalleryUpdate={handleGalleryUpdate}
-            onUploadImage={onUploadImage}
-          />
+          <ImagesTab attractionId={attraction.id} currentImageUrl={formData.image_url} currentGalleryImages={formData.gallery_images} isUploading={isUploading} onImageUpdate={handleImageUpdate} onGalleryUpdate={handleGalleryUpdate} onUploadImage={onUploadImage} />
         </TabsContent>
 
         <TabsContent value="activities">
-          <ActivitiesTab
-            activities={formData.activities}
-            onActivitiesUpdate={handleActivitiesUpdate}
-          />
+          <ActivitiesTab activities={formData.activities} onActivitiesUpdate={handleActivitiesUpdate} />
         </TabsContent>
 
         <TabsContent value="recommendations">
-          <RecommendationsTab
-            recommendations={formData.recommendations}
-            onRecommendationsUpdate={handleRecommendationsUpdate}
-          />
+          <RecommendationsTab recommendations={formData.recommendations} onRecommendationsUpdate={handleRecommendationsUpdate} />
         </TabsContent>
 
         <TabsContent value="schedules">
-          <SchedulesTab
-            attractionId={attraction.id}
-            currentSchedules={formData.additional_info.schedules || []}
-            onSchedulesUpdate={handleSchedulesUpdate}
-          />
+          <SchedulesTab attractionId={attraction.id} currentSchedules={formData.additional_info.schedules || []} onSchedulesUpdate={handleSchedulesUpdate} />
         </TabsContent>
       </Tabs>
 
-      <FormActions
-        isSaving={isSaving}
-        isUploading={isUploading}
-        onSave={handleSave}
-        onCancel={onCancel}
-      />
-    </div>
-  );
+      <FormActions isSaving={isSaving} isUploading={isUploading} onSave={handleSave} onCancel={onCancel} />
+    </div>;
 };
-
 export default AttractionEditForm;
