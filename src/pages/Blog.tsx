@@ -2,16 +2,28 @@
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 import ChatBot from '@/components/ChatBot';
+import BlogHeader from '@/components/blog/BlogHeader';
+import BlogPostCard from '@/components/blog/BlogPostCard';
+import BlogEditor from '@/components/blog/BlogEditor';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Calendar, User, BookOpen, Search } from 'lucide-react';
+import { BookOpen, Search } from 'lucide-react';
 import { Input } from '@/components/ui/input';
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuthContext';
+import { useBlogPosts } from '@/hooks/useBlogPosts';
+import { BlogPost } from '@/types/blog';
 
 const Blog = () => {
   const [searchTerm, setSearchTerm] = useState('');
+  const [showEditor, setShowEditor] = useState(false);
+  const [editingPost, setEditingPost] = useState<BlogPost | null>(null);
+  const [selectedPost, setSelectedPost] = useState<BlogPost | null>(null);
+  
+  const { user } = useAuth();
+  const { posts, loading, createPost, updatePost } = useBlogPosts();
 
-  const blogPosts = [
+  const staticPosts = [
     {
       id: 1,
       title: "Guía Completa para el Avistamiento de Ballenas en Puerto López",
@@ -80,13 +92,51 @@ const Blog = () => {
     }
   ];
 
-  const categories = [...new Set(blogPosts.map(post => post.category))];
+  const allPosts = [...posts, ...staticPosts];
+  const categories = [...new Set(allPosts.map(post => post.category))];
 
-  const filteredPosts = blogPosts.filter(post =>
+  const filteredPosts = allPosts.filter(post =>
     post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    post.excerpt.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    post.tags.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
+    (post.excerpt || post.content).toLowerCase().includes(searchTerm.toLowerCase()) ||
+    post.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
   );
+
+  const handleCreatePost = () => {
+    setEditingPost(null);
+    setShowEditor(true);
+  };
+
+  const handleEditPost = (post: BlogPost) => {
+    setEditingPost(post);
+    setShowEditor(true);
+  };
+
+  const handleSavePost = async (postData: any) => {
+    if (editingPost) {
+      await updatePost(editingPost.id, postData);
+    } else {
+      await createPost(postData);
+    }
+    setShowEditor(false);
+    setEditingPost(null);
+  };
+
+  const handleReadMore = (post: BlogPost) => {
+    setSelectedPost(post);
+  };
+
+  if (showEditor) {
+    return (
+      <BlogEditor
+        post={editingPost}
+        onSave={handleSavePost}
+        onCancel={() => {
+          setShowEditor(false);
+          setEditingPost(null);
+        }}
+      />
+    );
+  }
 
   return (
     <div className="min-h-screen bg-white">
@@ -125,6 +175,7 @@ const Blog = () => {
       {/* Blog Content */}
       <div className="py-16 bg-gradient-to-br from-blue-50 via-white to-green-50">
         <div className="container mx-auto px-4">
+          <BlogHeader user={user} onCreatePost={handleCreatePost} />
           {/* Categories */}
           <div className="flex flex-wrap justify-center gap-3 mb-12">
             <Badge variant="outline" className="text-ocean border-ocean hover:bg-ocean hover:text-white cursor-pointer">
@@ -143,48 +194,30 @@ const Blog = () => {
 
           {/* Blog Posts Grid */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredPosts.map((post) => (
-              <Card key={post.id} className="hover:shadow-lg transition-shadow duration-300 cursor-pointer group">
-                <div className="aspect-video bg-gray-200 rounded-t-lg overflow-hidden">
-                  <img 
-                    src={post.image} 
-                    alt={post.title}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
-                  />
-                </div>
-                <CardHeader>
-                  <div className="flex items-center justify-between mb-2">
-                    <Badge variant="secondary">{post.category}</Badge>
-                    <span className="text-sm text-gray-500">{post.readTime}</span>
-                  </div>
-                  <CardTitle className="group-hover:text-ocean transition-colors line-clamp-2">
-                    {post.title}
-                  </CardTitle>
-                  <CardDescription className="line-clamp-3">
-                    {post.excerpt}
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="flex items-center justify-between text-sm text-gray-500 mb-4">
-                    <div className="flex items-center">
-                      <User className="h-4 w-4 mr-1" />
-                      {post.author}
-                    </div>
-                    <div className="flex items-center">
-                      <Calendar className="h-4 w-4 mr-1" />
-                      {new Date(post.date).toLocaleDateString('es-ES')}
-                    </div>
-                  </div>
-                  <div className="flex flex-wrap gap-2">
-                    {post.tags.map((tag) => (
-                      <Badge key={tag} variant="outline" className="text-xs">
-                        #{tag}
-                      </Badge>
-                    ))}
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
+            {loading ? (
+              Array.from({ length: 6 }).map((_, i) => (
+                <Card key={i} className="animate-pulse">
+                  <div className="aspect-video bg-gray-200 rounded-t-lg" />
+                  <CardHeader className="space-y-2">
+                    <div className="h-4 bg-gray-200 rounded" />
+                    <div className="h-6 bg-gray-200 rounded" />
+                    <div className="h-12 bg-gray-200 rounded" />
+                  </CardHeader>
+                </Card>
+              ))
+            ) : filteredPosts.length === 0 ? (
+              <div className="col-span-full text-center py-12">
+                <p className="text-muted-foreground">No se encontraron publicaciones</p>
+              </div>
+            ) : (
+              filteredPosts.map((post) => (
+                <BlogPostCard
+                  key={post.id}
+                  post={post}
+                  onReadMore={handleReadMore}
+                />
+              ))
+            )}
           </div>
 
           {/* Newsletter Section */}
