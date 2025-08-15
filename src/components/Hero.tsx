@@ -10,6 +10,7 @@ import { useAuth } from "@/hooks/useAuthContext";
 import { Button } from "@/components/ui/button";
 import { User, Settings } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
+import { useImagePreloader } from "@/hooks/useImagePreloader";
 const Hero = () => {
   const {
     language
@@ -39,6 +40,12 @@ const Hero = () => {
   // Get background images array
   const backgroundImages = heroContent?.backgroundImages || [heroContent?.backgroundImage || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'].filter(Boolean);
 
+  // Preload images for smooth transitions
+  const { isImageLoaded } = useImagePreloader({ 
+    images: backgroundImages,
+    preloadCount: Math.min(3, backgroundImages.length) 
+  });
+
   // Auto-advance carousel
   useEffect(() => {
     if (backgroundImages.length > 1) {
@@ -49,10 +56,10 @@ const Hero = () => {
       return () => clearInterval(interval);
     }
   }, [backgroundImages.length]);
-  const nextImage = () => {
+  const handleNextImage = () => {
     setCurrentImageIndex(prevIndex => (prevIndex + 1) % backgroundImages.length);
   };
-  const prevImage = () => {
+  const handlePrevImage = () => {
     setCurrentImageIndex(prevIndex => prevIndex === 0 ? backgroundImages.length - 1 : prevIndex - 1);
   };
   const texts = {
@@ -78,15 +85,29 @@ const Hero = () => {
     }
   };
   const currentTexts = texts[language];
-  return <section id="home" className="relative h-screen overflow-hidden bg-cover bg-center bg-no-repeat transition-all duration-1000" style={{
-    backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${backgroundImages[currentImageIndex]}')`
-  }}>
+
+  return <section id="home" className="relative h-screen overflow-hidden">
+      {/* Background Images with crossfade */}
+      <div className="absolute inset-0">
+        {backgroundImages.map((image, index) => (
+          <div
+            key={image}
+            className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${
+              index === currentImageIndex ? 'opacity-100' : 'opacity-0'
+            }`}
+            style={{
+              backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('${image}')`,
+              willChange: 'opacity'
+            }}
+          />
+        ))}
+      </div>
       {/* Carousel Controls */}
       {backgroundImages.length > 1 && <>
-          <button onClick={prevImage} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300" aria-label="Imagen anterior">
+          <button onClick={handlePrevImage} className="absolute left-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300" aria-label="Imagen anterior">
             <ChevronLeft className="h-6 w-6 text-white" />
           </button>
-          <button onClick={nextImage} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300" aria-label="Siguiente imagen">
+          <button onClick={handleNextImage} className="absolute right-4 top-1/2 -translate-y-1/2 z-20 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-full p-2 transition-all duration-300" aria-label="Siguiente imagen">
             <ChevronRight className="h-6 w-6 text-white" />
           </button>
           
