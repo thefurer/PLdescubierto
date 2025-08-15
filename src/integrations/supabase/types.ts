@@ -7,7 +7,7 @@ export type Json =
   | Json[]
 
 export type Database = {
-  // Allows to automatically instanciate createClient with right options
+  // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
     PostgrestVersion: "12.2.3 (519615d)"
@@ -201,6 +201,156 @@ export type Database = {
         }
         Relationships: []
       }
+      blog_comments: {
+        Row: {
+          author_email: string | null
+          author_id: string | null
+          author_name: string | null
+          content: string
+          created_at: string
+          id: string
+          is_approved: boolean | null
+          is_flagged: boolean | null
+          parent_id: string | null
+          post_id: string
+          updated_at: string
+        }
+        Insert: {
+          author_email?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          content: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          is_flagged?: boolean | null
+          parent_id?: string | null
+          post_id: string
+          updated_at?: string
+        }
+        Update: {
+          author_email?: string | null
+          author_id?: string | null
+          author_name?: string | null
+          content?: string
+          created_at?: string
+          id?: string
+          is_approved?: boolean | null
+          is_flagged?: boolean | null
+          parent_id?: string | null
+          post_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_comments_parent_id_fkey"
+            columns: ["parent_id"]
+            isOneToOne: false
+            referencedRelation: "blog_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      blog_posts: {
+        Row: {
+          author_id: string
+          category: string
+          content: string
+          created_at: string
+          excerpt: string | null
+          id: string
+          image_url: string | null
+          is_featured: boolean | null
+          is_published: boolean
+          like_count: number | null
+          tags: string[] | null
+          title: string
+          updated_at: string
+          view_count: number | null
+        }
+        Insert: {
+          author_id: string
+          category?: string
+          content: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean
+          like_count?: number | null
+          tags?: string[] | null
+          title: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Update: {
+          author_id?: string
+          category?: string
+          content?: string
+          created_at?: string
+          excerpt?: string | null
+          id?: string
+          image_url?: string | null
+          is_featured?: boolean | null
+          is_published?: boolean
+          like_count?: number | null
+          tags?: string[] | null
+          title?: string
+          updated_at?: string
+          view_count?: number | null
+        }
+        Relationships: []
+      }
+      blog_reactions: {
+        Row: {
+          comment_id: string | null
+          created_at: string
+          id: string
+          post_id: string | null
+          reaction_type: string
+          user_id: string | null
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          reaction_type: string
+          user_id?: string | null
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string
+          id?: string
+          post_id?: string | null
+          reaction_type?: string
+          user_id?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "blog_reactions_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "blog_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "blog_reactions_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       content_history: {
         Row: {
           change_type: string
@@ -238,6 +388,60 @@ export type Database = {
             columns: ["content_id"]
             isOneToOne: false
             referencedRelation: "site_content"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_reports: {
+        Row: {
+          comment_id: string | null
+          created_at: string
+          description: string | null
+          id: string
+          post_id: string | null
+          reason: string
+          reporter_id: string | null
+          reviewed_by: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          comment_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          post_id?: string | null
+          reason: string
+          reporter_id?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          comment_id?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          post_id?: string | null
+          reason?: string
+          reporter_id?: string | null
+          reviewed_by?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_reports_comment_id_fkey"
+            columns: ["comment_id"]
+            isOneToOne: false
+            referencedRelation: "blog_comments"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "content_reports_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "blog_posts"
             referencedColumns: ["id"]
           },
         ]
@@ -365,6 +569,33 @@ export type Database = {
           type?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      moderation_words: {
+        Row: {
+          created_at: string
+          id: string
+          is_active: boolean | null
+          replacement: string | null
+          severity: string
+          word: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          replacement?: string | null
+          severity?: string
+          word: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          is_active?: boolean | null
+          replacement?: string | null
+          severity?: string
+          word?: string
         }
         Relationships: []
       }
@@ -732,10 +963,10 @@ export type Database = {
       admin_get_profile_summary: {
         Args: { target_user_id: string }
         Returns: {
-          id: string
+          created_at: string
           email: string
           full_name: string
-          created_at: string
+          id: string
         }[]
       }
       assign_admin_role: {
@@ -748,16 +979,16 @@ export type Database = {
       }
       assign_section_permissions: {
         Args: {
-          target_user_id: string
-          section: string
-          can_view?: boolean
-          can_edit?: boolean
           can_delete?: boolean
+          can_edit?: boolean
+          can_view?: boolean
+          section: string
+          target_user_id: string
         }
         Returns: undefined
       }
       authorize_email: {
-        Args: { user_email: string; notes?: string }
+        Args: { notes?: string; user_email: string }
         Returns: undefined
       }
       create_initial_admin: {
@@ -771,39 +1002,39 @@ export type Database = {
       get_admin_actions_with_user_info: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          admin_id: string
-          admin_email: string
-          admin_name: string
           action_type: string
-          target_table: string
-          target_id: string
-          details: Json
+          admin_email: string
+          admin_id: string
+          admin_name: string
           created_at: string
+          details: Json
+          id: string
+          target_id: string
+          target_table: string
         }[]
       }
       get_admin_users_with_permissions: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
+          created_at: string
           email: string
           full_name: string
-          created_at: string
+          id: string
           permissions: Json
         }[]
       }
       get_all_admin_actions_secure: {
         Args: Record<PropertyKey, never>
         Returns: {
-          id: string
-          admin_id: string
-          admin_email: string
-          admin_name: string
           action_type: string
-          target_table: string
-          target_id: string
-          details: Json
+          admin_email: string
+          admin_id: string
+          admin_name: string
           created_at: string
+          details: Json
+          id: string
+          target_id: string
+          target_table: string
         }[]
       }
       get_attraction_rating_average: {
@@ -818,19 +1049,19 @@ export type Database = {
         Returns: {
           attraction_id: string
           average_rating: number
-          total_ratings: number
           rating_distribution: Json
+          total_ratings: number
         }[]
       }
       has_role: {
         Args: {
-          _user_id: string
           _role: Database["public"]["Enums"]["app_role"]
+          _user_id: string
         }
         Returns: boolean
       }
       has_section_permission: {
-        Args: { user_id: string; section: string; permission_type: string }
+        Args: { permission_type: string; section: string; user_id: string }
         Returns: boolean
       }
       is_admin: {
@@ -848,24 +1079,28 @@ export type Database = {
       log_admin_action: {
         Args: {
           action_type: string
-          target_table?: string
-          target_id?: string
           details?: Json
+          target_id?: string
+          target_table?: string
         }
         Returns: undefined
       }
       main_admin_get_full_profile: {
         Args: { target_user_id: string }
         Returns: {
-          id: string
+          avatar_url: string
+          bio: string
+          created_at: string
           email: string
           full_name: string
+          id: string
           phone: string
-          bio: string
-          avatar_url: string
-          created_at: string
           updated_at: string
         }[]
+      }
+      moderate_content: {
+        Args: { content_text: string }
+        Returns: string
       }
       reactivate_authorized_email: {
         Args: { email_id: string }
