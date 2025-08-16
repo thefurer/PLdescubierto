@@ -1,6 +1,5 @@
 
-import { useState } from 'react';
-import { Save, Upload, X } from 'lucide-react';
+import { Upload, X } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -18,8 +17,6 @@ interface BlogEditorSidebarProps {
   onCategoryChange: (value: string) => void;
   onImageChange: (image: string) => void;
   onImageFileChange: (file: File | null) => void;
-  onSave: () => void;
-  onCancel: () => void;
 }
 
 const BlogEditorSidebar = ({ 
@@ -28,16 +25,18 @@ const BlogEditorSidebar = ({
   isEditing,
   onCategoryChange, 
   onImageChange, 
-  onImageFileChange,
-  onSave, 
-  onCancel 
+  onImageFileChange
 }: BlogEditorSidebarProps) => {
   const categories: Category[] = [
-    { value: 'noticias', label: 'Noticias', color: 'bg-blue-100 text-blue-800' },
-    { value: 'eventos', label: 'Eventos', color: 'bg-green-100 text-green-800' },
-    { value: 'conservacion', label: 'Conservación', color: 'bg-emerald-100 text-emerald-800' },
-    { value: 'turismo', label: 'Turismo', color: 'bg-purple-100 text-purple-800' },
-    { value: 'cultura', label: 'Cultura', color: 'bg-orange-100 text-orange-800' }
+    { value: 'general', label: 'General', color: 'bg-blue-100 text-blue-800' },
+    { value: 'vida-marina', label: 'Vida Marina', color: 'bg-cyan-100 text-cyan-800' },
+    { value: 'actividades', label: 'Actividades', color: 'bg-green-100 text-green-800' },
+    { value: 'gastronomia', label: 'Gastronomía', color: 'bg-orange-100 text-orange-800' },
+    { value: 'naturaleza', label: 'Naturaleza', color: 'bg-emerald-100 text-emerald-800' },
+    { value: 'fotografia', label: 'Fotografía', color: 'bg-purple-100 text-purple-800' },
+    { value: 'cultura', label: 'Cultura', color: 'bg-pink-100 text-pink-800' },
+    { value: 'noticias', label: 'Noticias', color: 'bg-red-100 text-red-800' },
+    { value: 'consejos', label: 'Consejos', color: 'bg-yellow-100 text-yellow-800' }
   ];
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -145,26 +144,15 @@ const BlogEditorSidebar = ({
         </CardContent>
       </Card>
 
-      {/* Publishing Actions */}
+      {/* Preview Card */}
       <Card className="glass-card border-0 shadow-lg">
         <CardHeader>
-          <CardTitle>Acciones</CardTitle>
+          <CardTitle>Vista previa</CardTitle>
         </CardHeader>
-        <CardContent className="space-y-3">
-          <Button 
-            onClick={onSave}
-            className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700"
-          >
-            <Save className="h-4 w-4 mr-2" />
-            {isEditing ? 'Actualizar noticia' : 'Publicar noticia'}
-          </Button>
-          <Button 
-            variant="outline" 
-            onClick={onCancel}
-            className="w-full"
-          >
-            Cancelar
-          </Button>
+        <CardContent>
+          <p className="text-sm text-gray-600">
+            Tu publicación se verá en la página de blog una vez publicada.
+          </p>
         </CardContent>
       </Card>
     </div>

@@ -6,20 +6,11 @@ import BlogEditorHeader from './BlogEditorHeader';
 import BlogEditorForm from './BlogEditorForm';
 import BlogEditorSidebar from './BlogEditorSidebar';
 
-interface BlogPost {
-  id: string;
-  title: string;
-  content: string;
-  image?: string;
-  author: string;
-  date: string;
-  excerpt: string;
-  category: string;
-}
+import { BlogPost } from '@/types/blog';
 
 interface BlogEditorProps {
   post?: BlogPost | null;
-  onSave: (post: BlogPost | Omit<BlogPost, 'id' | 'date' | 'author'>) => void;
+  onSave: (post: Partial<BlogPost>) => void;
   onCancel: () => void;
 }
 
@@ -28,7 +19,7 @@ const BlogEditor = ({ post, onSave, onCancel }: BlogEditorProps) => {
   const [content, setContent] = useState(post?.content || '');
   const [excerpt, setExcerpt] = useState(post?.excerpt || '');
   const [category, setCategory] = useState(post?.category || 'noticias');
-  const [image, setImage] = useState(post?.image || '');
+  const [image, setImage] = useState(post?.image_url || '');
   const [imageFile, setImageFile] = useState<File | null>(null);
 
   const handleSave = () => {
@@ -42,7 +33,9 @@ const BlogEditor = ({ post, onSave, onCancel }: BlogEditorProps) => {
       content: content.trim(),
       excerpt: excerpt.trim() || content.substring(0, 150).replace(/[#*>`-]/g, '') + '...',
       category,
-      image: image || undefined
+      image_url: image || undefined,
+      tags: [],
+      is_published: true
     };
 
     if (post) {
@@ -88,8 +81,6 @@ const BlogEditor = ({ post, onSave, onCancel }: BlogEditorProps) => {
               onCategoryChange={setCategory}
               onImageChange={setImage}
               onImageFileChange={setImageFile}
-              onSave={handleSave}
-              onCancel={onCancel}
             />
           </div>
         </div>

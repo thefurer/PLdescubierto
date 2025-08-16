@@ -23,79 +23,9 @@ const Blog = () => {
   const { user } = useAuth();
   const { posts, loading, createPost, updatePost } = useBlogPosts();
 
-  const staticPosts = [
-    {
-      id: 1,
-      title: "Guía Completa para el Avistamiento de Ballenas en Puerto López",
-      excerpt: "Descubre los mejores consejos para disfrutar al máximo de la temporada de ballenas jorobadas en la costa ecuatoriana.",
-      category: "Vida Marina",
-      author: "María González",
-      date: "2024-06-15",
-      readTime: "8 min",
-      image: "/placeholder.svg",
-      tags: ["ballenas", "turismo", "guía"]
-    },
-    {
-      id: 2,
-      title: "Los Mejores Spots de Snorkeling en la Isla de la Plata",
-      excerpt: "Explora los arrecifes de coral y la vida marina tropical en las aguas cristalinas de la Isla de la Plata.",
-      category: "Actividades",
-      author: "Carlos Ruiz",
-      date: "2024-06-10",
-      readTime: "6 min",
-      image: "/placeholder.svg",
-      tags: ["snorkeling", "isla de la plata", "buceo"]
-    },
-    {
-      id: 3,
-      title: "Gastronomía Local: Sabores del Mar en Puerto López",
-      excerpt: "Un recorrido por los platos típicos y restaurantes imperdibles de Puerto López, desde ceviches hasta mariscos frescos.",
-      category: "Gastronomía",
-      author: "Ana Morales",
-      date: "2024-06-05",
-      readTime: "5 min",
-      image: "/placeholder.svg",
-      tags: ["comida", "gastronomía", "mariscos"]
-    },
-    {
-      id: 4,
-      title: "Senderos y Aventuras en el Parque Nacional Machalilla",
-      excerpt: "Descubre las rutas de senderismo más espectaculares y los tesoros naturales del Parque Nacional Machalilla.",
-      category: "Naturaleza",
-      author: "Diego Pérez",
-      date: "2024-05-28",
-      readTime: "10 min",
-      image: "/placeholder.svg",
-      tags: ["senderismo", "naturaleza", "parque nacional"]
-    },
-    {
-      id: 5,
-      title: "Fotografía de Vida Silvestre: Capturando la Belleza Natural",
-      excerpt: "Consejos profesionales para fotografiar la increíble fauna y paisajes de Puerto López.",
-      category: "Fotografía",
-      author: "Sofía Vega",
-      date: "2024-05-20",
-      readTime: "7 min",
-      image: "/placeholder.svg",
-      tags: ["fotografía", "vida silvestre", "técnicas"]
-    },
-    {
-      id: 6,
-      title: "Historia y Cultura: El Patrimonio de Puerto López",
-      excerpt: "Un viaje a través de la rica historia y tradiciones culturales de este pueblo pesquero ecuatoriano.",
-      category: "Cultura",
-      author: "Roberto Silva",
-      date: "2024-05-15",
-      readTime: "9 min",
-      image: "/placeholder.svg",
-      tags: ["historia", "cultura", "tradiciones"]
-    }
-  ];
+  const categories = [...new Set(posts.map(post => post.category))];
 
-  const allPosts = [...posts, ...staticPosts];
-  const categories = [...new Set(allPosts.map(post => post.category))];
-
-  const filteredPosts = allPosts.filter(post =>
+  const filteredPosts = posts.filter(post =>
     post.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
     (post.excerpt || post.content).toLowerCase().includes(searchTerm.toLowerCase()) ||
     post.tags?.some(tag => tag.toLowerCase().includes(searchTerm.toLowerCase()))
