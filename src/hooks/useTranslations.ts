@@ -171,7 +171,60 @@ export const useTranslations = () => {
       // Gallery
       gallery: "Galería",
       photos: "Fotos",
-      videos: "Videos"
+      videos: "Videos",
+      
+      // Attraction Modal Tabs
+      description: "Descripción",
+      activities: "Actividades",
+      schedules: "Horarios",
+      recommendations: "Recomendaciones",
+      location: "Ubicación",
+      rating: "Calificar",
+      
+      // Attraction Description
+      historyDescription: "Historia y Descripción",
+      noDescription: "Sin descripción disponible.",
+      additionalInfo: "Información Adicional",
+      duration: "Duración",
+      capacity: "Capacidad",
+      price: "Precio",
+      
+      // Attraction Activities
+      availableActivities: "Actividades Disponibles",
+      noActivities: "No hay actividades específicas registradas para esta atracción.",
+      
+      // Attraction Schedules
+      attentionSchedules: "Horarios de Atención",
+      monday: "Lunes",
+      tuesday: "Martes",
+      wednesday: "Miércoles",
+      thursday: "Jueves",
+      friday: "Viernes",
+      saturday: "Sábados",
+      sunday: "Domingos",
+      weekdays: "Lunes - Viernes",
+      closed: "Cerrado",
+      note: "Nota",
+      scheduleNote: "Los horarios pueden variar según la temporada. Se recomienda confirmar antes de su visita.",
+      
+      // Attraction Recommendations
+      noRecommendations: "No hay recomendaciones disponibles para esta atracción.",
+      
+      // Virtual Tour
+      interactive: "Interactivo",
+      interactiveDesc: "Explora cada rincón con controles intuitivos",
+      social: "Social",
+      socialDesc: "Comparte experiencias con otros viajeros",
+      immersive: "Inmersivo",
+      immersiveDesc: "Tecnología de realidad virtual de última generación",
+      explore: "Explorar",
+      metaverseExperience: "Experiencia en el Metaverso",
+      virtualGuide: "Guía Virtual",
+      startTour: "Iniciar Tour",
+      tips: "Consejos",
+      useHeadphones: "Usa audífonos para una mejor experiencia",
+      fullscreen: "Pantalla completa recomendada",
+      goodConnection: "Asegúrate de tener una buena conexión a internet"
     },
     en: {
       // Navigation
@@ -339,7 +392,60 @@ export const useTranslations = () => {
       // Gallery
       gallery: "Gallery",
       photos: "Photos",
-      videos: "Videos"
+      videos: "Videos",
+      
+      // Attraction Modal Tabs
+      description: "Description",
+      activities: "Activities",
+      schedules: "Schedules",
+      recommendations: "Recommendations",
+      location: "Location",
+      rating: "Rate",
+      
+      // Attraction Description
+      historyDescription: "History and Description",
+      noDescription: "No description available.",
+      additionalInfo: "Additional Information",
+      duration: "Duration",
+      capacity: "Capacity",
+      price: "Price",
+      
+      // Attraction Activities
+      availableActivities: "Available Activities",
+      noActivities: "No specific activities recorded for this attraction.",
+      
+      // Attraction Schedules
+      attentionSchedules: "Operating Hours",
+      monday: "Monday",
+      tuesday: "Tuesday",
+      wednesday: "Wednesday",
+      thursday: "Thursday",
+      friday: "Friday",
+      saturday: "Saturday",
+      sunday: "Sunday",
+      weekdays: "Monday - Friday",
+      closed: "Closed",
+      note: "Note",
+      scheduleNote: "Hours may vary by season. We recommend confirming before your visit.",
+      
+      // Attraction Recommendations
+      noRecommendations: "No recommendations available for this attraction.",
+      
+      // Virtual Tour
+      interactive: "Interactive",
+      interactiveDesc: "Explore every corner with intuitive controls",
+      social: "Social",
+      socialDesc: "Share experiences with other travelers",
+      immersive: "Immersive",
+      immersiveDesc: "Latest virtual reality technology",
+      explore: "Explore",
+      metaverseExperience: "Metaverse Experience",
+      virtualGuide: "Virtual Guide",
+      startTour: "Start Tour",
+      tips: "Tips",
+      useHeadphones: "Use headphones for better experience",
+      fullscreen: "Full screen recommended",
+      goodConnection: "Make sure you have a good internet connection"
     }
   };
 

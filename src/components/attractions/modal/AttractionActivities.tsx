@@ -1,5 +1,6 @@
 
 import { TouristAttraction } from '@/types/touristAttractions';
+import { useTranslations } from '@/hooks/useTranslations';
 
 interface AttractionActivitiesProps {
   attraction: TouristAttraction;
@@ -7,10 +8,11 @@ interface AttractionActivitiesProps {
 
 export const AttractionActivities = ({ attraction }: AttractionActivitiesProps) => {
   const activities = attraction.activities || [];
+  const t = useTranslations();
 
   return (
     <div>
-      <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Actividades Disponibles</h3>
+      <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t.availableActivities}</h3>
       {activities.length > 0 ? (
         <div className="grid grid-cols-1 gap-2 sm:gap-3 sm:grid-cols-2">
           {activities.map((activity, index) => (
@@ -21,7 +23,7 @@ export const AttractionActivities = ({ attraction }: AttractionActivitiesProps) 
           ))}
         </div>
       ) : (
-        <p className="text-gray-500 italic text-sm sm:text-base">No hay actividades específicas registradas para esta atracción.</p>
+        <p className="text-gray-500 italic text-sm sm:text-base">{t.noActivities}</p>
       )}
     </div>
   );

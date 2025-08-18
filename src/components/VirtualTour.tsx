@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { cn } from "@/lib/utils";
 import { useLanguage } from "@/hooks/useLanguage";
+import { useTranslations } from "@/hooks/useTranslations";
 import { getVirtualTourLocations, virtualTourTexts } from "@/data/virtualTourData";
 import MetaversePreview from "@/components/virtual-tour/MetaversePreview";
 import MetaverseGuide from "@/components/virtual-tour/MetaverseGuide";
@@ -13,9 +14,10 @@ type VirtualTourProps = {
 const VirtualTour = ({ className }: VirtualTourProps) => {
   const [activeLocation, setActiveLocation] = useState(1);
   const { language } = useLanguage();
+  const t = useTranslations();
 
   const locations = getVirtualTourLocations(language);
-  const t = virtualTourTexts[language];
+  const virtualTexts = virtualTourTexts[language];
 
   const currentLocation = locations.find(loc => loc.id === activeLocation) || locations[0];
 
@@ -43,15 +45,15 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
         <div className="text-center mb-20 animate-fade-in">
           <div className="inline-flex items-center px-6 py-3 bg-white/10 backdrop-blur-md rounded-full border border-white/20 mb-8">
             <div className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></div>
-            <span className="text-white/90 text-sm font-medium">✨ Experiencia Virtual Activa</span>
+            <span className="text-white/90 text-sm font-medium">✨ {t.metaverseExperience}</span>
           </div>
           
           <h2 className="text-5xl md:text-7xl font-bold mb-8 bg-gradient-to-r from-white via-blue-200 to-purple-200 bg-clip-text text-transparent leading-tight">
-            {t.title} <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t.subtitle}</span>
+            {t.virtualTourTitle} <span className="bg-gradient-to-r from-blue-400 to-purple-400 bg-clip-text text-transparent">{t.virtualTourSubtitle}</span>
           </h2>
           
           <p className="text-xl md:text-2xl text-white/80 max-w-5xl mx-auto leading-relaxed font-light">
-            {t.description}
+            {t.virtualTourDescription}
           </p>
           
           {/* Decorative line */}
@@ -65,7 +67,7 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
             activeLocation={currentLocation}
             texts={{
               enterMetaverse: t.enterMetaverse,
-              exploreSpace: t.exploreSpace
+              exploreSpace: virtualTexts.exploreSpace
             }}
           />
         </div>
@@ -74,9 +76,9 @@ const VirtualTour = ({ className }: VirtualTourProps) => {
           <MetaverseGuide
             texts={{
               tips: t.tips,
-              tip1: t.tip1,
-              tip2: t.tip2,
-              tip3: t.tip3
+              tip1: t.useHeadphones,
+              tip2: t.fullscreen,
+              tip3: t.goodConnection
             }}
           />
         </div>

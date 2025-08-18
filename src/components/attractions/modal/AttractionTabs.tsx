@@ -2,6 +2,7 @@
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar, History, MapPin, Activity, Star } from 'lucide-react';
 import { TouristAttraction } from '@/types/touristAttractions';
+import { useTranslations } from '@/hooks/useTranslations';
 import { AttractionDescription } from './AttractionDescription';
 import { AttractionActivities } from './AttractionActivities';
 import { AttractionSchedules } from './AttractionSchedules';
@@ -14,6 +15,8 @@ interface AttractionTabsProps {
 }
 
 export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
+  const t = useTranslations();
+  
   return (
     <Tabs defaultValue="description" className="w-full">
       <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1 h-auto p-1 bg-muted/30">
@@ -23,7 +26,7 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
         >
           <History className="h-3 w-3 sm:h-4 sm:w-4" />
           <span className="sm:hidden">Info</span>
-          <span className="hidden sm:inline">Descripción</span>
+          <span className="hidden sm:inline">{t.description}</span>
         </TabsTrigger>
         <TabsTrigger 
           value="activities" 
@@ -31,7 +34,7 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
         >
           <Activity className="h-3 w-3 sm:h-4 sm:w-4" />
           <span className="sm:hidden">Act.</span>
-          <span className="hidden sm:inline">Actividades</span>
+          <span className="hidden sm:inline">{t.activities}</span>
         </TabsTrigger>
         <TabsTrigger 
           value="schedules" 
@@ -39,7 +42,7 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
         >
           <Calendar className="h-3 w-3 sm:h-4 sm:w-4" />
           <span className="sm:hidden">Hrs.</span>
-          <span className="hidden sm:inline">Horarios</span>
+          <span className="hidden sm:inline">{t.schedules}</span>
         </TabsTrigger>
         <TabsTrigger 
           value="recommendations" 
@@ -47,7 +50,7 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
         >
           <History className="h-3 w-3 sm:h-4 sm:w-4" />
           <span className="sm:hidden">Rec.</span>
-          <span className="hidden sm:inline">Recomendaciones</span>
+          <span className="hidden sm:inline">{t.recommendations}</span>
         </TabsTrigger>
         <TabsTrigger 
           value="location" 
@@ -55,7 +58,7 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
         >
           <MapPin className="h-3 w-3 sm:h-4 sm:w-4" />
           <span className="sm:hidden">Loc.</span>
-          <span className="hidden sm:inline">Ubicación</span>
+          <span className="hidden sm:inline">{t.location}</span>
         </TabsTrigger>
         <TabsTrigger 
           value="rating" 
@@ -63,7 +66,7 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
         >
           <Star className="h-3 w-3 sm:h-4 sm:w-4" />
           <span className="sm:hidden">★</span>
-          <span className="hidden sm:inline">Calificar</span>
+          <span className="hidden sm:inline">{t.rating}</span>
         </TabsTrigger>
       </TabsList>
 

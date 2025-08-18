@@ -2,6 +2,7 @@
 import { TouristAttraction } from '@/types/touristAttractions';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from 'lucide-react';
+import { useTranslations } from '@/hooks/useTranslations';
 
 interface AttractionRecommendationsProps {
   attraction: TouristAttraction;
@@ -9,10 +10,11 @@ interface AttractionRecommendationsProps {
 
 export const AttractionRecommendations = ({ attraction }: AttractionRecommendationsProps) => {
   const recommendations = attraction.recommendations || [];
+  const t = useTranslations();
 
   return (
     <div>
-      <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">Recomendaciones</h3>
+      <h3 className="text-base sm:text-lg font-semibold mb-3 sm:mb-4">{t.recommendations}</h3>
       {recommendations.length > 0 ? (
         <div className="space-y-2 sm:space-y-3">
           {recommendations.map((recommendation) => (
@@ -47,7 +49,7 @@ export const AttractionRecommendations = ({ attraction }: AttractionRecommendati
           ))}
         </div>
       ) : (
-        <p className="text-gray-500 italic text-sm sm:text-base">No hay recomendaciones disponibles para esta atracción.</p>
+        <p className="text-gray-500 italic text-sm sm:text-base">{t.noRecommendations}</p>
       )}
     </div>
   );
