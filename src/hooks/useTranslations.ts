@@ -15,6 +15,7 @@ export const useTranslations = () => {
       dashboard: "Dashboard",
       login: "Iniciar Sesión",
       profile: "Mi Perfil",
+      signOut: "Cerrar Sesión",
       
       // Hero Section
       heroTitle: "Descubre la Magia de",
@@ -236,6 +237,7 @@ export const useTranslations = () => {
       dashboard: "Dashboard",
       login: "Sign In",
       profile: "My Profile",
+      signOut: "Sign Out",
       
       // Hero Section
       heroTitle: "Discover the Magic of",

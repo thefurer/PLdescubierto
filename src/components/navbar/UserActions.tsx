@@ -10,6 +10,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useNavbarButtonStyles } from "./NavbarButtonStyles";
 import LanguageToggle from "@/components/accessibility/LanguageToggle";
+import { useTranslations } from "@/hooks/useTranslations";
 
 interface UserActionsProps {
   user: any;
@@ -20,6 +21,7 @@ interface UserActionsProps {
 
 const UserActions = ({ user, scrolled, onNavigate, onSignOut }: UserActionsProps) => {
   const { getButtonStyle, applyHoverEffect } = useNavbarButtonStyles();
+  const t = useTranslations();
 
   const getNavPositionClass = () => {
     return '';
@@ -45,7 +47,7 @@ const UserActions = ({ user, scrolled, onNavigate, onSignOut }: UserActionsProps
             onMouseLeave={(e) => applyHoverEffect(e.currentTarget, false, false)}
           >
             <Settings className="h-4 w-4 mr-2" />
-            Dashboard
+            {t.dashboard}
           </Button>
 
           <DropdownMenu>
@@ -63,16 +65,16 @@ const UserActions = ({ user, scrolled, onNavigate, onSignOut }: UserActionsProps
             <DropdownMenuContent align="end">
               <DropdownMenuItem onClick={() => onNavigate('/profile')}>
                 <User className="h-4 w-4 mr-2" />
-                Mi Perfil
+                {t.profile}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={() => onNavigate('/dashboard')} className="md:hidden">
                 <Settings className="h-4 w-4 mr-2" />
-                Dashboard
+                {t.dashboard}
               </DropdownMenuItem>
               <DropdownMenuSeparator />
               <DropdownMenuItem onClick={onSignOut}>
                 <LogOut className="h-4 w-4 mr-2" />
-                Cerrar Sesión
+                {t.signOut}
               </DropdownMenuItem>
             </DropdownMenuContent>
           </DropdownMenu>
@@ -88,7 +90,7 @@ const UserActions = ({ user, scrolled, onNavigate, onSignOut }: UserActionsProps
           onMouseLeave={(e) => applyHoverEffect(e.currentTarget, false, true)}
           className="px-4 py-2 font-medium"
         >
-          Iniciar Sesión
+          {t.login}
         </button>
       )}
     </div>
