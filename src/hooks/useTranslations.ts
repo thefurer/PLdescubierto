@@ -211,6 +211,33 @@ export const useTranslations = () => {
       // Attraction Recommendations
       noRecommendations: "No hay recomendaciones disponibles para esta atracción.",
       
+      // Attraction Location
+      locationOf: "Ubicación de",
+      address: "Dirección",
+      viewGoogleMaps: "Ver en Google Maps",
+      getDirections: "Obtener Direcciones",
+      manabíProvince: "🌊 Provincia de Manabí, Ecuador",
+      manabíDescription: "Descubre la provincia costera más hermosa de Ecuador con sus playas vírgenes, vida marina extraordinaria y culturas ancestrales que te esperan en cada rincón.",
+      
+      // Attraction Rating
+      yourRating: "Tu calificación",
+      rateAttraction: "Califica esta atracción",
+      ratedWithStars: "Has calificado esta atracción con",
+      star: "estrella",
+      stars: "estrellas",
+      clickToChange: "Haz clic para cambiar tu calificación.",
+      shareExperience: "Comparte tu experiencia calificando esta atracción",
+      sendingRating: "Enviando calificación...",
+      yourOpinionMatters: "¡Tu opinión cuenta!",
+      helpOtherVisitors: "Ayuda a otros visitantes compartiendo tu experiencia en",
+      ratingHelpsImprove: "Tu calificación nos ayuda a mejorar y recomendar los mejores destinos.",
+      ratingSent: "¡Calificación enviada!",
+      youRated: "Has calificado",
+      with: "con",
+      alreadyRated: "Ya has calificado",
+      alreadyRatedDesc: "Ya has calificado esta atracción anteriormente.",
+      ratingError: "No se pudo enviar tu calificación. Inténtalo de nuevo.",
+      
       // Virtual Tour
       interactive: "Interactivo",
       interactiveDesc: "Explora cada rincón con controles intuitivos",
@@ -432,6 +459,33 @@ export const useTranslations = () => {
       
       // Attraction Recommendations
       noRecommendations: "No recommendations available for this attraction.",
+      
+      // Attraction Location
+      locationOf: "Location of",
+      address: "Address",
+      viewGoogleMaps: "View on Google Maps",
+      getDirections: "Get Directions",
+      manabíProvince: "🌊 Manabí Province, Ecuador",
+      manabíDescription: "Discover the most beautiful coastal province of Ecuador with its pristine beaches, extraordinary marine life and ancestral cultures waiting for you in every corner.",
+      
+      // Attraction Rating
+      yourRating: "Your rating",
+      rateAttraction: "Rate this attraction",
+      ratedWithStars: "You have rated this attraction with",
+      star: "star",
+      stars: "stars",
+      clickToChange: "Click to change your rating.",
+      shareExperience: "Share your experience by rating this attraction",
+      sendingRating: "Sending rating...",
+      yourOpinionMatters: "Your opinion matters!",
+      helpOtherVisitors: "Help other visitors by sharing your experience at",
+      ratingHelpsImprove: "Your rating helps us improve and recommend the best destinations.",
+      ratingSent: "Rating sent!",
+      youRated: "You rated",
+      with: "with",
+      alreadyRated: "Already rated",
+      alreadyRatedDesc: "You have already rated this attraction.",
+      ratingError: "Could not send your rating. Please try again.",
       
       // Virtual Tour
       interactive: "Interactive",

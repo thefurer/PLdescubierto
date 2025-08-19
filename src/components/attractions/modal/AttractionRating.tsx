@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/button";
 import { TouristAttraction } from "@/types/touristAttractions";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
+import { useTranslations } from "@/hooks/useTranslations";
 
 interface AttractionRatingProps {
   attraction: TouristAttraction;
@@ -24,6 +25,7 @@ export const AttractionRating = ({ attraction }: AttractionRatingProps) => {
   const [hoveredRating, setHoveredRating] = useState(0);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const { toast } = useToast();
+  const t = useTranslations();
 
   useEffect(() => {
     fetchRatingData();
@@ -99,8 +101,8 @@ export const AttractionRating = ({ attraction }: AttractionRatingProps) => {
       await fetchRatingData();
 
       toast({
-        title: "¡Calificación enviada!",
-        description: `Has calificado ${attraction.name} con ${rating} estrella${rating > 1 ? 's' : ''}.`,
+        title: t.ratingSent,
+        description: `${t.youRated} ${attraction.name} ${t.with} ${rating} ${rating > 1 ? t.stars : t.star}.`,
       });
 
     } catch (error: any) {
@@ -108,14 +110,14 @@ export const AttractionRating = ({ attraction }: AttractionRatingProps) => {
       
       if (error.code === '23505') {
         toast({
-          title: "Ya has calificado",
-          description: "Ya has calificado esta atracción anteriormente.",
+          title: t.alreadyRated,
+          description: t.alreadyRatedDesc,
           variant: "destructive"
         });
       } else {
         toast({
-          title: "Error",
-          description: "No se pudo enviar tu calificación. Inténtalo de nuevo.",
+          title: t.error,
+          description: t.ratingError,
           variant: "destructive"
         });
       }
@@ -158,15 +160,15 @@ export const AttractionRating = ({ attraction }: AttractionRatingProps) => {
       <Card>
         <CardHeader>
           <CardTitle className="text-ocean">
-            {ratingData.userRating ? 'Tu calificación' : 'Califica esta atracción'}
+            {ratingData.userRating ? t.yourRating : t.rateAttraction}
           </CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="text-center">
             <p className="text-sm text-gray-600 mb-4">
               {ratingData.userRating 
-                ? `Has calificado esta atracción con ${ratingData.userRating} estrella${ratingData.userRating > 1 ? 's' : ''}. Haz clic para cambiar tu calificación.`
-                : 'Comparte tu experiencia calificando esta atracción'
+                ? `${t.ratedWithStars} ${ratingData.userRating} ${ratingData.userRating > 1 ? t.stars : t.star}. ${t.clickToChange}`
+                : t.shareExperience
               }
             </p>
             
@@ -176,14 +178,14 @@ export const AttractionRating = ({ attraction }: AttractionRatingProps) => {
 
             {hoveredRating > 0 && (
               <p className="text-sm text-ocean font-medium">
-                {hoveredRating} estrella{hoveredRating > 1 ? 's' : ''}
+                {hoveredRating} {hoveredRating > 1 ? t.stars : t.star}
               </p>
             )}
 
             {isSubmitting && (
               <div className="flex items-center justify-center gap-2">
                 <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-ocean"></div>
-                <span className="text-sm text-gray-600">Enviando calificación...</span>
+                <span className="text-sm text-gray-600">{t.sendingRating}</span>
               </div>
             )}
           </div>
@@ -195,11 +197,10 @@ export const AttractionRating = ({ attraction }: AttractionRatingProps) => {
         <CardContent className="pt-6">
           <div className="text-center">
             <h4 className="font-semibold text-amber-800 mb-2">
-              ⭐ ¡Tu opinión cuenta!
+              ⭐ {t.yourOpinionMatters}
             </h4>
             <p className="text-sm text-amber-700">
-              Ayuda a otros visitantes compartiendo tu experiencia en {attraction.name}. 
-              Tu calificación nos ayuda a mejorar y recomendar los mejores destinos.
+              {t.helpOtherVisitors} {attraction.name}. {t.ratingHelpsImprove}
             </p>
           </div>
         </CardContent>
