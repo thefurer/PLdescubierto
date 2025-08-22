@@ -4,7 +4,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Shield, Users, Mail, Star, Database } from 'lucide-react';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
 import EmailAuthorizationManager from './admin/EmailAuthorizationManager';
-import { RatingsManager } from './RatingsManager';
+import { EnhancedRatingsAnalytics } from './EnhancedRatingsAnalytics';
 import DatabaseDiagramDownloader from './DatabaseDiagramDownloader';
 const SuperAdminPanel = () => {
   const {
@@ -57,7 +57,7 @@ const SuperAdminPanel = () => {
         </TabsContent>
 
         <TabsContent value="ratings" className="mt-6">
-          <RatingsManager />
+          <EnhancedRatingsAnalytics />
         </TabsContent>
 
         <TabsContent value="database" className="mt-6">
