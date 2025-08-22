@@ -73,29 +73,49 @@ export const AttractionRating = ({ attraction }: AttractionRatingProps) => {
     try {
       const { data: { user } } = await supabase.auth.getUser();
 
-      // Preparar los datos de la calificación
-      const ratingData: any = {
-        attraction_id: attraction.id,
-        rating: rating
-      };
-
       if (user) {
-        ratingData.user_id = user.id;
+        // Usuario autenticado: verificar si ya tiene una calificación
+        const { data: existingRating } = await supabase
+          .from('attraction_ratings')
+          .select('id')
+          .eq('attraction_id', attraction.id)
+          .eq('user_id', user.id)
+          .maybeSingle();
+
+        if (existingRating) {
+          // Actualizar calificación existente
+          const { error } = await supabase
+            .from('attraction_ratings')
+            .update({ rating: rating })
+            .eq('attraction_id', attraction.id)
+            .eq('user_id', user.id);
+
+          if (error) throw error;
+        } else {
+          // Insertar nueva calificación para usuario autenticado
+          const { error } = await supabase
+            .from('attraction_ratings')
+            .insert({
+              attraction_id: attraction.id,
+              rating: rating,
+              user_id: user.id
+            });
+
+          if (error) throw error;
+        }
       } else {
-        // Para usuarios no logueados, usar IP y user agent
-        ratingData.ip_address = await fetch('https://api.ipify.org?format=json')
-          .then(res => res.json())
-          .then(data => data.ip)
-          .catch(() => null);
-        ratingData.user_agent = navigator.userAgent;
+        // Usuario anónimo: insertar nueva calificación
+        const { error } = await supabase
+          .from('attraction_ratings')
+          .insert({
+            attraction_id: attraction.id,
+            rating: rating,
+            user_id: null,
+            user_agent: navigator.userAgent
+          });
+
+        if (error) throw error;
       }
-
-      // Intentar insertar o actualizar la calificación
-      const { error } = await supabase
-        .from('attraction_ratings')
-        .upsert(ratingData);
-
-      if (error) throw error;
 
       // Actualizar los datos locales
       await fetchRatingData();
