@@ -130,7 +130,35 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
       return `🗺️ **Análisis de ${attraction.attraction_name}:**\n\n⭐ **Calificación:** ${attraction.average_rating}/5\n👥 **Total calificaciones:** ${attraction.total_ratings}\n📅 **Esta semana:** ${attraction.recent_ratings} nuevas\n🏷️ **Categoría:** ${attraction.category}\n\n📈 **Rendimiento:**\n${attraction.average_rating >= 4 ? '🟢 Excelente rendimiento' : attraction.average_rating >= 3 ? '🟡 Rendimiento moderado' : '🔴 Necesita mejoras urgentes'}\n\n💡 **Recomendación:** ${attraction.average_rating >= 4 ? 'Mantener estándares actuales y usar como referencia.' : attraction.average_rating >= 3 ? 'Oportunidad de mejora con pequeños ajustes.' : 'Requiere plan de mejora inmediato.'}`;
     }
 
-    // Comando no reconocido
+    // Fallback mejorado con plan de recomendaciones
+    if (lowercaseCommand.includes('recomend')) {
+      const foco = (command.split('para:')[1] || command).trim();
+      const worst = data.underPerformers[0] || [...data.attractions].sort((a,b)=>a.average_rating-b.average_rating)[0];
+      const best = data.topPerformers[0] || [...data.attractions].sort((a,b)=>b.average_rating-a.average_rating)[0];
+      const inactivas = data.attractions.filter(a => a.recent_ratings === 0).slice(0, 2);
+
+      return `📌 **Plan de Recomendaciones Programado**\n\n` +
+      (foco ? `**Objetivo:** ${foco}\n\n` : '') +
+      `1) **Acciones rápidas (72h)**\n`+
+      `• Auditar puntos de fricción de la atracción con menor puntuación (${worst?.attraction_name || 'N/A'}).\n`+
+      `• Responder públicamente reseñas negativas recientes con tono empático.\n`+
+      `• Añadir 3–5 fotos actualizadas y un video corto de experiencia.\n\n`+
+      `2) **Contenido y visibilidad**\n`+
+      `• Replicar mejores prácticas de ${best?.attraction_name || 'la mejor atracción'} (tono, fotos, FAQs).\n`+
+      `• Crear sección de “Consejos del visitante” y micro‑FAQ (precio, horarios, acceso).\n`+
+      `• Campaña UGC: incentivo suave para nuevas reseñas (al finalizar la visita).\n\n`+
+      `3) **Experiencia y servicio**\n`+
+      `• Señalética clara en puntos críticos; capacitar personal en saludo y cierre.\n`+
+      `• Ajustes rápidos de limpieza/espera; priorizar lo más mencionado en comentarios.\n\n`+
+      `4) **Tráfico y participación**\n`+
+      `• Publicar 2 piezas destacadas sobre ${inactivas.map(a=>a.attraction_name).join(' y ') || 'atracciones con baja interacción'}.\n`+
+      `• Promoción cruzada en secciones con mayor tráfico (Top del mes, Lo más valorado).\n\n`+
+      `5) **Medición y alertas**\n`+
+      `• Objetivo: +20% calificaciones en 30 días y +0.3⭐ en ${worst?.attraction_name || 'la atracción objetivo'}.\n`+
+      `• Activar alertas automáticas por caída >1⭐ o 0 calificaciones por 7 días.\n\n`+
+      `¿Quieres que genere un checklist accionable o un borrador de contenido para ${worst?.attraction_name || 'la atracción objetivo'}?`;
+    }
+
     return `🤔 No entendí completamente tu consulta. Aquí tienes algunos ejemplos de lo que puedo hacer:\n\n📊 **Análisis disponibles:**\n• "mejores atracciones" - Top performers\n• "atracciones que necesitan mejora" - Underperformers\n• "tendencias de la semana" - Análisis temporal\n• "alertas activas" - Anomalías detectadas\n• "reporte completo" - Resumen ejecutivo\n• "análisis de [nombre atracción]" - Datos específicos\n\n¿Podrías reformular tu pregunta?`;
   };
 
