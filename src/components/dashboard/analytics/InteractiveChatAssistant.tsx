@@ -1,4 +1,4 @@
-import { useState, useRef, useEffect } from "react";
+import { useState, useRef, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -134,7 +134,7 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
     return `🤔 No entendí completamente tu consulta. Aquí tienes algunos ejemplos de lo que puedo hacer:\n\n📊 **Análisis disponibles:**\n• "mejores atracciones" - Top performers\n• "atracciones que necesitan mejora" - Underperformers\n• "tendencias de la semana" - Análisis temporal\n• "alertas activas" - Anomalías detectadas\n• "reporte completo" - Resumen ejecutivo\n• "análisis de [nombre atracción]" - Datos específicos\n\n¿Podrías reformular tu pregunta?`;
   };
 
-  const handleSendMessage = () => {
+  const handleSendMessage = useCallback(() => {
     if (!inputValue.trim()) return;
 
     const userMessage: ChatMessage = {
@@ -145,12 +145,13 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
     };
 
     setMessages(prev => [...prev, userMessage]);
+    const currentInput = inputValue;
     setInputValue('');
     setIsTyping(true);
 
     // Simulate AI processing delay
     setTimeout(() => {
-      const response = processCommand(inputValue);
+      const response = processCommand(currentInput);
       const assistantMessage: ChatMessage = {
         id: (Date.now() + 1).toString(),
         type: 'assistant',
@@ -161,7 +162,25 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
       setMessages(prev => [...prev, assistantMessage]);
       setIsTyping(false);
     }, 1500);
-  };
+  }, [inputValue, data]);
+
+  useEffect(() => {
+    // Listen for external queries
+    const handleSetChatQuery = (event: any) => {
+      const query = event.detail.query;
+      setInputValue(query);
+      // Auto-send the query
+      setTimeout(() => {
+        handleSendMessage();
+      }, 500);
+    };
+
+    window.addEventListener('setChatQuery', handleSetChatQuery);
+    
+    return () => {
+      window.removeEventListener('setChatQuery', handleSetChatQuery);
+    };
+  }, [handleSendMessage]);
 
   const handleQuickCommand = (command: string) => {
     setInputValue(command);

@@ -299,8 +299,21 @@ const PatternDetector = ({ data }: PatternDetectorProps) => {
                       Acción Recomendada:
                     </p>
                     <p className="text-sm text-slate-600 mt-1">{pattern.action}</p>
-                    <Button size="sm" variant="outline" className="mt-2">
-                      Implementar Acción
+                    <Button 
+                      size="sm" 
+                      variant="outline" 
+                      className="mt-2"
+                      onClick={() => {
+                        // Navigate to chat tab and send pattern-specific query
+                        const event = new CustomEvent('openChatWithQuery', {
+                          detail: {
+                            query: `Genera recomendaciones específicas para: ${pattern.title}. ${pattern.description}`
+                          }
+                        });
+                        window.dispatchEvent(event);
+                      }}
+                    >
+                      Hablar con Chat Bot
                     </Button>
                   </div>
                 </div>

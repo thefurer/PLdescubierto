@@ -48,6 +48,26 @@ export const EnhancedRatingsAnalytics = () => {
     fetchAnalyticsData();
   }, [dateRange, selectedAttraction]);
 
+  useEffect(() => {
+    // Listen for pattern button clicks to open chat
+    const handleOpenChatWithQuery = (event: any) => {
+      setActiveView('chat');
+      // We'll pass the query to the chat component via a ref or state
+      setTimeout(() => {
+        const chatEvent = new CustomEvent('setChatQuery', {
+          detail: { query: event.detail.query }
+        });
+        window.dispatchEvent(chatEvent);
+      }, 100);
+    };
+
+    window.addEventListener('openChatWithQuery', handleOpenChatWithQuery);
+    
+    return () => {
+      window.removeEventListener('openChatWithQuery', handleOpenChatWithQuery);
+    };
+  }, []);
+
   const fetchAnalyticsData = async () => {
     try {
       setLoading(true);
