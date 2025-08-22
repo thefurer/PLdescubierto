@@ -4,28 +4,26 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { 
-  Star, TrendingUp, Users, MapPin, Download, MessageSquare, 
-  AlertTriangle, Lightbulb, BarChart3, LineChart, Radar,
-  Filter, Calendar, Send, Bot, User
-} from "lucide-react";
+import { Star, TrendingUp, Users, MapPin, Download, MessageSquare, AlertTriangle, Lightbulb, BarChart3, LineChart, Radar, Filter, Calendar, Send, Bot, User } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import RatingsChartsGrid from "./analytics/RatingsChartsGrid";
 import AIInsightsPanel from "./analytics/AIInsightsPanel";
 import PatternDetector from "./analytics/PatternDetector";
 import InteractiveChatAssistant from "./analytics/InteractiveChatAssistant";
-
 interface AttractionRating {
   attraction_id: string;
   attraction_name: string;
   average_rating: number;
   total_ratings: number;
   recent_ratings: number;
-  rating_history: Array<{ date: string; rating: number; count: number }>;
+  rating_history: Array<{
+    date: string;
+    rating: number;
+    count: number;
+  }>;
   category: string;
 }
-
 interface AnalyticsData {
   attractions: AttractionRating[];
   totalRatings: number;
@@ -33,21 +31,24 @@ interface AnalyticsData {
   weeklyTrend: number;
   topPerformers: AttractionRating[];
   underPerformers: AttractionRating[];
-  anomalies: Array<{ type: string; message: string; severity: 'low' | 'medium' | 'high' }>;
+  anomalies: Array<{
+    type: string;
+    message: string;
+    severity: 'low' | 'medium' | 'high';
+  }>;
 }
-
 export const EnhancedRatingsAnalytics = () => {
   const [analyticsData, setAnalyticsData] = useState<AnalyticsData | null>(null);
   const [loading, setLoading] = useState(true);
   const [dateRange, setDateRange] = useState("30");
   const [selectedAttraction, setSelectedAttraction] = useState("all");
   const [activeView, setActiveView] = useState("overview");
-  const { toast } = useToast();
-
+  const {
+    toast
+  } = useToast();
   useEffect(() => {
     fetchAnalyticsData();
   }, [dateRange, selectedAttraction]);
-
   useEffect(() => {
     // Listen for pattern button clicks to open chat
     const handleOpenChatWithQuery = (event: any) => {
@@ -55,40 +56,37 @@ export const EnhancedRatingsAnalytics = () => {
       // We'll pass the query to the chat component via a ref or state
       setTimeout(() => {
         const chatEvent = new CustomEvent('setChatQuery', {
-          detail: { query: event.detail.query }
+          detail: {
+            query: event.detail.query
+          }
         });
         window.dispatchEvent(chatEvent);
       }, 100);
     };
-
     window.addEventListener('openChatWithQuery', handleOpenChatWithQuery);
-    
     return () => {
       window.removeEventListener('openChatWithQuery', handleOpenChatWithQuery);
     };
   }, []);
-
   const fetchAnalyticsData = async () => {
     try {
       setLoading(true);
-      
+
       // Fetch ratings data with historical information
-      const { data: ratingsQuery, error: ratingsError } = await supabase
-        .from('attraction_ratings_public')
-        .select(`
+      const {
+        data: ratingsQuery,
+        error: ratingsError
+      } = await supabase.from('attraction_ratings_public').select(`
           attraction_id,
           rating,
           created_at,
           tourist_attractions!inner(name, category)
-        `)
-        .gte('created_at', new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000).toISOString());
-
+        `).gte('created_at', new Date(Date.now() - parseInt(dateRange) * 24 * 60 * 60 * 1000).toISOString());
       if (ratingsError) throw ratingsError;
 
       // Process data for analytics
       const processedData = processAnalyticsData(ratingsQuery);
       setAnalyticsData(processedData);
-      
     } catch (error) {
       console.error('Error fetching analytics data:', error);
       toast({
@@ -100,7 +98,6 @@ export const EnhancedRatingsAnalytics = () => {
       setLoading(false);
     }
   };
-
   const processAnalyticsData = (rawData: any[]): AnalyticsData => {
     const attractionsMap = new Map<string, any>();
     const now = new Date();
@@ -113,7 +110,6 @@ export const EnhancedRatingsAnalytics = () => {
       const category = rating.tourist_attractions.category;
       const ratingValue = rating.rating;
       const createdAt = new Date(rating.created_at);
-
       if (!attractionsMap.has(attractionId)) {
         attractionsMap.set(attractionId, {
           attraction_id: attractionId,
@@ -124,10 +120,11 @@ export const EnhancedRatingsAnalytics = () => {
           recent_count: 0
         });
       }
-
       const data = attractionsMap.get(attractionId)!;
-      data.ratings.push({ value: ratingValue, date: createdAt });
-      
+      data.ratings.push({
+        value: ratingValue,
+        date: createdAt
+      });
       if (createdAt >= lastWeek) {
         data.recent_count++;
       }
@@ -137,25 +134,26 @@ export const EnhancedRatingsAnalytics = () => {
     const attractions: AttractionRating[] = Array.from(attractionsMap.values()).map(data => {
       const ratings = data.ratings.map((r: any) => r.value);
       const average = ratings.length > 0 ? ratings.reduce((sum: number, r: number) => sum + r, 0) / ratings.length : 0;
-      
+
       // Group by date for history
       const historyMap = new Map();
       data.ratings.forEach((r: any) => {
         const dateKey = r.date.toISOString().split('T')[0];
         if (!historyMap.has(dateKey)) {
-          historyMap.set(dateKey, { total: 0, count: 0 });
+          historyMap.set(dateKey, {
+            total: 0,
+            count: 0
+          });
         }
         const dayData = historyMap.get(dateKey);
         dayData.total += r.value;
         dayData.count += 1;
       });
-
       const rating_history = Array.from(historyMap.entries()).map(([date, data]: [string, any]) => ({
         date,
         rating: data.total / data.count,
         count: data.count
       }));
-
       return {
         attraction_id: data.attraction_id,
         attraction_name: data.attraction_name,
@@ -169,7 +167,7 @@ export const EnhancedRatingsAnalytics = () => {
 
     // Calculate overall statistics
     const totalRatings = attractions.reduce((sum, a) => sum + a.total_ratings, 0);
-    const weightedAverage = attractions.reduce((sum, a) => sum + (a.average_rating * a.total_ratings), 0) / totalRatings;
+    const weightedAverage = attractions.reduce((sum, a) => sum + a.average_rating * a.total_ratings, 0) / totalRatings;
     const averageRating = totalRatings > 0 ? Math.round(weightedAverage * 10) / 10 : 0;
 
     // Identify top and underperformers
@@ -182,7 +180,6 @@ export const EnhancedRatingsAnalytics = () => {
 
     // Calculate weekly trend (simplified)
     const weeklyTrend = attractions.reduce((sum, a) => sum + a.recent_ratings, 0);
-
     return {
       attractions,
       totalRatings,
@@ -193,10 +190,8 @@ export const EnhancedRatingsAnalytics = () => {
       anomalies
     };
   };
-
   const detectAnomalies = (attractions: AttractionRating[]) => {
     const anomalies = [];
-    
     attractions.forEach(attraction => {
       // Detect low ratings
       if (attraction.average_rating < 2.5 && attraction.total_ratings > 5) {
@@ -206,7 +201,7 @@ export const EnhancedRatingsAnalytics = () => {
           severity: 'high' as const
         });
       }
-      
+
       // Detect no recent activity
       if (attraction.recent_ratings === 0 && attraction.total_ratings > 0) {
         anomalies.push({
@@ -220,11 +215,9 @@ export const EnhancedRatingsAnalytics = () => {
       if (attraction.rating_history.length > 1) {
         const recent = attraction.rating_history.slice(-3);
         const older = attraction.rating_history.slice(0, -3);
-        
         if (recent.length > 0 && older.length > 0) {
           const recentAvg = recent.reduce((sum, r) => sum + r.rating, 0) / recent.length;
           const olderAvg = older.reduce((sum, r) => sum + r.rating, 0) / older.length;
-          
           if (olderAvg - recentAvg > 1) {
             anomalies.push({
               type: 'rating_drop',
@@ -235,40 +228,16 @@ export const EnhancedRatingsAnalytics = () => {
         }
       }
     });
-    
     return anomalies;
   };
-
   const exportAnalyticsReport = () => {
     if (!analyticsData) return;
-
-    const reportData = [
-      ['REPORTE ANALÍTICO DE CALIFICACIONES'],
-      ['Fecha:', new Date().toLocaleDateString('es-ES')],
-      ['Período:', `Últimos ${dateRange} días`],
-      [''],
-      ['RESUMEN EJECUTIVO'],
-      ['Promedio General:', analyticsData.averageRating.toString()],
-      ['Total Calificaciones:', analyticsData.totalRatings.toString()],
-      ['Tendencia Semanal:', analyticsData.weeklyTrend.toString()],
-      [''],
-      ['TOP PERFORMERS'],
-      ...analyticsData.topPerformers.map(a => [a.attraction_name, a.average_rating.toString()]),
-      [''],
-      ['NECESITAN ATENCIÓN'],
-      ...analyticsData.underPerformers.map(a => [a.attraction_name, a.average_rating.toString()]),
-      [''],
-      ['ANOMALÍAS DETECTADAS'],
-      ...analyticsData.anomalies.map(a => [a.type, a.message, a.severity])
-    ];
-
-    const csvContent = reportData.map(row => 
-      row.map(cell => `"${cell}"`).join(',')
-    ).join('\n');
-
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+    const reportData = [['REPORTE ANALÍTICO DE CALIFICACIONES'], ['Fecha:', new Date().toLocaleDateString('es-ES')], ['Período:', `Últimos ${dateRange} días`], [''], ['RESUMEN EJECUTIVO'], ['Promedio General:', analyticsData.averageRating.toString()], ['Total Calificaciones:', analyticsData.totalRatings.toString()], ['Tendencia Semanal:', analyticsData.weeklyTrend.toString()], [''], ['TOP PERFORMERS'], ...analyticsData.topPerformers.map(a => [a.attraction_name, a.average_rating.toString()]), [''], ['NECESITAN ATENCIÓN'], ...analyticsData.underPerformers.map(a => [a.attraction_name, a.average_rating.toString()]), [''], ['ANOMALÍAS DETECTADAS'], ...analyticsData.anomalies.map(a => [a.type, a.message, a.severity])];
+    const csvContent = reportData.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
+    const blob = new Blob([csvContent], {
+      type: 'text/csv;charset=utf-8;'
+    });
     const link = document.createElement('a');
-    
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
@@ -278,36 +247,27 @@ export const EnhancedRatingsAnalytics = () => {
       link.click();
       document.body.removeChild(link);
     }
-
     toast({
       title: "Reporte Exportado",
-      description: "El reporte analítico se ha descargado exitosamente.",
+      description: "El reporte analítico se ha descargado exitosamente."
     });
   };
-
   if (loading) {
-    return (
-      <div className="space-y-6">
+    return <div className="space-y-6">
         <div className="animate-pulse">
           <div className="h-8 bg-gray-200 rounded mb-4"></div>
           <div className="grid gap-4 md:grid-cols-4">
-            {[...Array(4)].map((_, i) => (
-              <Card key={i}>
+            {[...Array(4)].map((_, i) => <Card key={i}>
                 <CardContent className="p-6">
                   <div className="h-20 bg-gray-200 rounded"></div>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (!analyticsData) return null;
-
-  return (
-    <div className="space-y-6">
+  return <div className="space-y-6">
       {/* Header with controls */}
       <div className="flex flex-col lg:flex-row justify-between gap-4">
         <div className="flex items-center gap-2">
@@ -336,29 +296,25 @@ export const EnhancedRatingsAnalytics = () => {
       </div>
 
       {/* Anomalies Alert */}
-      {analyticsData.anomalies.length > 0 && (
-        <Card className="border-amber-200 bg-amber-50">
+      {analyticsData.anomalies.length > 0 && <Card className="border-amber-200 bg-amber-50">
           <CardContent className="p-4">
             <div className="flex items-start gap-3">
               <AlertTriangle className="h-5 w-5 text-amber-500 mt-1" />
               <div>
                 <h4 className="font-semibold text-amber-800 mb-2">Anomalías Detectadas</h4>
                 <ul className="space-y-1">
-                  {analyticsData.anomalies.map((anomaly, index) => (
-                    <li key={index} className="text-sm text-amber-700">
+                  {analyticsData.anomalies.map((anomaly, index) => <li key={index} className="text-sm text-amber-700">
                       • {anomaly.message}
-                    </li>
-                  ))}
+                    </li>)}
                 </ul>
               </div>
             </div>
           </CardContent>
-        </Card>
-      )}
+        </Card>}
 
       {/* Main Analytics Tabs */}
       <Tabs value={activeView} onValueChange={setActiveView}>
-        <TabsList className="grid w-full grid-cols-4">
+        <TabsList className="grid w-full grid-cols-4 bg-slate-200">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Vista General
@@ -458,6 +414,5 @@ export const EnhancedRatingsAnalytics = () => {
           <InteractiveChatAssistant data={analyticsData} />
         </TabsContent>
       </Tabs>
-    </div>
-  );
+    </div>;
 };
