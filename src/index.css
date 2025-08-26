@@ -13,3 +13,6 @@
 
 /* Accessibility styles and utilities */
 @import './styles/accessibility.css';
+
+/* Accessibility test mode styles */
+@import './styles/accessibility-test.css';

@@ -6,6 +6,7 @@ import MobileNavigation from "./navbar/MobileNavigation";
 import UserActions from "./navbar/UserActions";
 import MobileMenuButton from "./navbar/MobileMenuButton";
 import WeatherWidget from "./weather/WeatherWidget";
+import AccessibilityNavbarButton from "./accessibility/AccessibilityNavbarButton";
 
 const Navbar = () => {
   const {
@@ -46,6 +47,7 @@ const Navbar = () => {
 
           <div className="flex items-center gap-3">
             <WeatherWidget scrolled={scrolled} />
+            <AccessibilityNavbarButton scrolled={scrolled} />
             
             <UserActions
               user={user}
