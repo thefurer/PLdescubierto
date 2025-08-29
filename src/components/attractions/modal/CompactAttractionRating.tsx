@@ -197,25 +197,30 @@ export const CompactAttractionRating = ({ attraction }: CompactAttractionRatingP
   }
 
   return (
-    <button
-      onClick={() => setShowInteractive(true)}
-      className="flex items-center gap-1 group hover:bg-gray-50 rounded-lg px-2 py-1 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50"
-      aria-label={`Calificación actual: ${ratingData.averageRating.toFixed(1)} estrellas de 5. ${ratingData.totalRatings} calificaciones. Hacer clic para calificar.`}
-    >
-      <Star className="h-4 w-4 text-amber-500 fill-current" />
-      <span className="text-sm font-medium">
-        {ratingData.averageRating > 0 ? ratingData.averageRating.toFixed(1) : 'Sin calificar'}
-      </span>
-      {ratingData.totalRatings > 0 && (
-        <span className="text-xs text-gray-500 group-hover:text-gray-700">
-          ({ratingData.totalRatings})
+    <div className="flex flex-col items-end">
+      <button
+        onClick={() => setShowInteractive(true)}
+        className="flex items-center gap-1 group hover:bg-amber-50 rounded-lg px-3 py-2 transition-colors focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-50 border border-amber-200 hover:border-amber-300"
+        aria-label={`Calificación actual: ${ratingData.averageRating.toFixed(1)} estrellas de 5. ${ratingData.totalRatings} calificaciones. Hacer clic para calificar.`}
+      >
+        <Star className="h-4 w-4 text-amber-500 fill-current" />
+        <span className="text-sm font-medium">
+          {ratingData.averageRating > 0 ? ratingData.averageRating.toFixed(1) : 'Sin calificar'}
         </span>
-      )}
-      {ratingData.userRating && (
-        <span className="text-xs text-blue-600 ml-1" aria-label={`Tu calificación: ${ratingData.userRating} estrellas`}>
-          ★ {ratingData.userRating}
-        </span>
-      )}
-    </button>
+        {ratingData.totalRatings > 0 && (
+          <span className="text-xs text-gray-500 group-hover:text-gray-700">
+            ({ratingData.totalRatings})
+          </span>
+        )}
+        {ratingData.userRating && (
+          <span className="text-xs text-blue-600 ml-1" aria-label={`Tu calificación: ${ratingData.userRating} estrellas`}>
+            ★ {ratingData.userRating}
+          </span>
+        )}
+      </button>
+      <p className="text-xs text-gray-500 mt-1 text-right">
+        {ratingData.userRating ? '¡Gracias por tu calificación!' : '¡Comparte tu experiencia!'}
+      </p>
+    </div>
   );
 };

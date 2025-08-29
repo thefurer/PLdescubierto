@@ -1,15 +1,52 @@
 
 import { useState, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Maximize2 } from 'lucide-react';
 
 interface ImageGalleryProps {
   images: string[];
   attractionName: string;
 }
 
+interface FullscreenModalProps {
+  isOpen: boolean;
+  imageUrl: string;
+  altText: string;
+  onClose: () => void;
+}
+
+const FullscreenModal = ({ isOpen, imageUrl, altText, onClose }: FullscreenModalProps) => {
+  if (!isOpen) return null;
+
+  return (
+    <div 
+      className="fixed inset-0 bg-black bg-opacity-90 z-50 flex items-center justify-center p-4"
+      onClick={onClose}
+    >
+      <div className="relative max-w-full max-h-full">
+        <img
+          src={imageUrl}
+          alt={altText}
+          className="max-w-full max-h-full object-contain"
+          onClick={(e) => e.stopPropagation()}
+        />
+        <button
+          onClick={onClose}
+          className="absolute top-4 right-4 text-white bg-black bg-opacity-50 rounded-full p-2 hover:bg-opacity-70 transition-all focus:outline-none focus:ring-2 focus:ring-white"
+          aria-label="Cerrar imagen en pantalla completa"
+        >
+          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+          </svg>
+        </button>
+      </div>
+    </div>
+  );
+};
+
 export const ImageGallery = ({ images, attractionName }: ImageGalleryProps) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [fullscreenImage, setFullscreenImage] = useState<{ url: string; alt: string } | null>(null);
 
   console.log('ImageGallery received images:', images);
   console.log('Images length:', images.length);
@@ -81,8 +118,17 @@ export const ImageGallery = ({ images, attractionName }: ImageGalleryProps) => {
 
   console.log('Displaying image', currentImageIndex, 'of', images.length, ':', images[currentImageIndex]);
 
+  const openFullscreen = (imageUrl: string, altText: string) => {
+    setFullscreenImage({ url: imageUrl, alt: altText });
+  };
+
+  const closeFullscreen = () => {
+    setFullscreenImage(null);
+  };
+
   return (
-    <div className="relative w-full h-64 md:h-80 overflow-hidden rounded-lg bg-gray-100">
+    <>
+      <div className="relative w-full h-64 md:h-80 overflow-hidden rounded-lg bg-gray-100">
       {isVideo(images[currentImageIndex]) ? (
         <video
           src={images[currentImageIndex]}
@@ -110,6 +156,17 @@ export const ImageGallery = ({ images, attractionName }: ImageGalleryProps) => {
             console.log('Successfully loaded image:', images[currentImageIndex]);
           }}
         />
+      )}
+
+      {/* Expand icon - always visible for images */}
+      {!isVideo(images[currentImageIndex]) && (
+        <button
+          onClick={() => openFullscreen(images[currentImageIndex], `${attractionName} - Imagen ${currentImageIndex + 1}`)}
+          className="absolute top-3 left-3 bg-black/50 hover:bg-black/70 text-white p-2 rounded-full transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white z-10"
+          aria-label="Ver imagen en pantalla completa"
+        >
+          <Maximize2 className="h-4 w-4" />
+        </button>
       )}
       
       {/* Navigation arrows - show when there are multiple images */}
@@ -159,6 +216,14 @@ export const ImageGallery = ({ images, attractionName }: ImageGalleryProps) => {
           </div>
         </>
       )}
-    </div>
+      </div>
+
+      <FullscreenModal
+        isOpen={fullscreenImage !== null}
+        imageUrl={fullscreenImage?.url || ''}
+        altText={fullscreenImage?.alt || ''}
+        onClose={closeFullscreen}
+      />
+    </>
   );
 };
