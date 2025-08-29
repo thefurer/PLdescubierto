@@ -19,7 +19,7 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
   
   return (
     <Tabs defaultValue="description" className="w-full">
-      <TabsList className="grid w-full grid-cols-3 sm:grid-cols-6 gap-1 h-auto p-1 bg-muted/30">
+      <TabsList className="grid w-full grid-cols-3 sm:grid-cols-5 gap-1 h-auto p-1 bg-muted/30">
         <TabsTrigger 
           value="description" 
           className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm p-2 h-auto min-h-[44px] data-[state=active]:bg-background"
@@ -60,14 +60,6 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
           <span className="sm:hidden">Loc.</span>
           <span className="hidden sm:inline">{t.location}</span>
         </TabsTrigger>
-        <TabsTrigger 
-          value="rating" 
-          className="flex flex-col sm:flex-row items-center gap-1 text-xs sm:text-sm p-2 h-auto min-h-[44px] data-[state=active]:bg-background"
-        >
-          <Star className="h-3 w-3 sm:h-4 sm:w-4" />
-          <span className="sm:hidden">★</span>
-          <span className="hidden sm:inline">{t.rating}</span>
-        </TabsTrigger>
       </TabsList>
 
       <TabsContent value="description" className="space-y-3 sm:space-y-4 mt-4 sm:mt-6 px-1 sm:px-0">
@@ -90,9 +82,6 @@ export const AttractionTabs = ({ attraction }: AttractionTabsProps) => {
         <AttractionLocation attraction={attraction} />
       </TabsContent>
 
-      <TabsContent value="rating" className="space-y-3 sm:space-y-4 mt-4 sm:mt-6 px-1 sm:px-0">
-        <AttractionRating attraction={attraction} />
-      </TabsContent>
     </Tabs>
   );
 };

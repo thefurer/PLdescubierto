@@ -1,10 +1,10 @@
 
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Badge } from '@/components/ui/badge';
-import { Star } from 'lucide-react';
 import { TouristAttraction } from '@/types/touristAttractions';
 import { ImageGallery } from './modal/ImageGallery';
 import { AttractionTabs } from './modal/AttractionTabs';
+import { CompactAttractionRating } from './modal/CompactAttractionRating';
 
 interface AttractionModalProps {
   attraction: TouristAttraction | null;
@@ -61,10 +61,7 @@ export const AttractionModal = ({ attraction, isOpen, onClose }: AttractionModal
           <Badge variant="outline" className="capitalize text-xs sm:text-sm">
             {categoryLabels[attraction.category as keyof typeof categoryLabels]}
           </Badge>
-          <div className="flex items-center">
-            <Star className="h-4 w-4 text-amber-500 fill-current" />
-            <span className="ml-1 text-sm font-medium">4.8</span>
-          </div>
+          <CompactAttractionRating attraction={attraction} />
         </div>
 
         {/* Tabs for organized content */}
