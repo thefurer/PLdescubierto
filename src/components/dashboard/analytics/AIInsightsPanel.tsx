@@ -336,7 +336,20 @@ const AIInsightsPanel = ({ data }: AIInsightsPanelProps) => {
                 </div>
                 <div className="text-right">
                   <p className="font-bold text-red-700">{attraction.average_rating} ⭐</p>
-                  <Button size="sm" variant="outline" className="text-xs mt-1">
+                  <Button 
+                    size="sm" 
+                    variant="outline" 
+                    className="text-xs mt-1"
+                    onClick={() => {
+                      // Dispatch event to open chat with improvement plan query
+                      const event = new CustomEvent('openChatWithQuery', {
+                        detail: {
+                          query: `Necesito un plan de mejora detallado para ${attraction.attraction_name}. Actualmente tiene ${attraction.average_rating} estrellas con ${attraction.total_ratings} calificaciones. Por favor proporciona recomendaciones específicas y actionables para mejorar la experiencia del visitante.`
+                        }
+                      });
+                      window.dispatchEvent(event);
+                    }}
+                  >
                     Ver Plan de Mejora
                   </Button>
                 </div>
