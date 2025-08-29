@@ -232,25 +232,108 @@ export const EnhancedRatingsAnalytics = () => {
   };
   const exportAnalyticsReport = () => {
     if (!analyticsData) return;
-    const reportData = [['REPORTE ANALÍTICO DE CALIFICACIONES'], ['Fecha:', new Date().toLocaleDateString('es-ES')], ['Período:', `Últimos ${dateRange} días`], [''], ['RESUMEN EJECUTIVO'], ['Promedio General:', analyticsData.averageRating.toString()], ['Total Calificaciones:', analyticsData.totalRatings.toString()], ['Tendencia Semanal:', analyticsData.weeklyTrend.toString()], [''], ['TOP PERFORMERS'], ...analyticsData.topPerformers.map(a => [a.attraction_name, a.average_rating.toString()]), [''], ['NECESITAN ATENCIÓN'], ...analyticsData.underPerformers.map(a => [a.attraction_name, a.average_rating.toString()]), [''], ['ANOMALÍAS DETECTADAS'], ...analyticsData.anomalies.map(a => [a.type, a.message, a.severity])];
-    const csvContent = reportData.map(row => row.map(cell => `"${cell}"`).join(',')).join('\n');
-    const blob = new Blob([csvContent], {
-      type: 'text/csv;charset=utf-8;'
+
+    // 1) Encabezado y resumen
+    const rows: (string | number)[][] = [];
+    const today = new Date();
+    rows.push(['REPORTE ANALÍTICO DE CALIFICACIONES']);
+    rows.push(['Fecha:', today.toLocaleDateString('es-ES')]);
+    rows.push(['Período:', `Últimos ${dateRange} días`]);
+    rows.push([]);
+
+    rows.push(['RESUMEN EJECUTIVO']);
+    rows.push(['Promedio General', analyticsData.averageRating.toString()]);
+    rows.push(['Total de Calificaciones', analyticsData.totalRatings.toString()]);
+    rows.push(['Calificaciones esta semana', analyticsData.weeklyTrend.toString()]);
+    rows.push([]);
+
+    // 2) Recomendaciones de IA (basadas en top/under y anomalías)
+    rows.push(['RECOMENDACIONES DE MEJORA']);
+    analyticsData.topPerformers.forEach((a) => {
+      rows.push([`Mantener impulso:`, `${a.attraction_name} (⭐ ${a.average_rating})`, 'Refuerza promoción y comparte testimonios.']);
     });
+    analyticsData.underPerformers.forEach((a) => {
+      rows.push([`Plan de mejora:`, `${a.attraction_name} (⭐ ${a.average_rating})`, 'Revisa horarios, guías y señalización; incentiva reseñas.']);
+    });
+    analyticsData.anomalies.forEach((an) => {
+      rows.push([`Alerta (${an.severity})`, an.type, an.message]);
+    });
+    rows.push([]);
+
+    // 3) Tabla detallada por atracción
+    rows.push(['DETALLE POR ATRACCIÓN']);
+    rows.push(['Atracción', 'Categoría', 'Promedio', 'Total', 'Recientes (7d)', 'Tendencia (últ.7 vs prev.7)']);
+
+    const calcTrend = (history: { date: string; rating: number; count: number }[]) => {
+      if (!history || history.length === 0) return '0';
+      const dates = history.map((h) => new Date(h.date)).sort((a, b) => a.getTime() - b.getTime());
+      const lastDate = dates[dates.length - 1];
+      const weekMs = 7 * 24 * 60 * 60 * 1000;
+      const last7Start = new Date(lastDate.getTime() - weekMs);
+      const prev7Start = new Date(last7Start.getTime() - weekMs);
+
+      const last7 = history.filter((h) => new Date(h.date) > last7Start);
+      const prev7 = history.filter((h) => new Date(h.date) > prev7Start && new Date(h.date) <= last7Start);
+
+      const avg = (arr: typeof history) => (arr.length ? arr.reduce((s, x) => s + x.rating, 0) / arr.length : 0);
+      const diff = avg(last7) - avg(prev7);
+      return diff.toFixed(2);
+    };
+
+    analyticsData.attractions.forEach((a) => {
+      rows.push([
+        a.attraction_name,
+        a.category,
+        a.average_rating.toFixed(1),
+        a.total_ratings,
+        a.recent_ratings,
+        calcTrend(a.rating_history)
+      ]);
+    });
+    rows.push([]);
+
+    // 4) Datos de series para gráficos (formato ancho)
+    rows.push(['DATOS PARA GRÁFICOS (copiar y crear gráficos en Excel)']);
+    // Reunir todas las fechas únicas
+    const allDatesSet = new Set<string>();
+    analyticsData.attractions.forEach((a) => a.rating_history.forEach((h) => allDatesSet.add(h.date)));
+    const allDates = Array.from(allDatesSet).sort((a, b) => a.localeCompare(b));
+
+    // Encabezados: Fecha + una columna por atracción
+    rows.push(['Fecha', ...analyticsData.attractions.map((a) => a.attraction_name)]);
+
+    allDates.forEach((date) => {
+      const row: (string | number)[] = [date];
+      analyticsData.attractions.forEach((a) => {
+        const found = a.rating_history.find((h) => h.date === date);
+        row.push(found ? Number(found.rating.toFixed(2)) : '');
+      });
+      rows.push(row);
+    });
+
+    // 5) Guía rápida para gráficos
+    rows.push([]);
+    rows.push(['GUÍA RÁPIDA']);
+    rows.push(['1) Selecciona el bloque "DATOS PARA GRÁFICOS" y crea un gráfico de líneas para ver la evolución.']);
+    rows.push(['2) Usa la tabla "DETALLE POR ATRACCIÓN" para gráficos de barras comparativos.']);
+    rows.push(['3) Prioriza acciones con base en las RECOMENDACIONES DE MEJORA.']);
+
+    // Construcción del CSV
+    const csvContent = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
+    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+
     const link = document.createElement('a');
     if (link.download !== undefined) {
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
-      link.setAttribute('download', `analytics-report-${new Date().toISOString().split('T')[0]}.csv`);
+      link.setAttribute('download', `analytics-report-${today.toISOString().split('T')[0]}.csv`);
       link.style.visibility = 'hidden';
       document.body.appendChild(link);
       link.click();
       document.body.removeChild(link);
     }
-    toast({
-      title: "Reporte Exportado",
-      description: "El reporte analítico se ha descargado exitosamente."
-    });
+
+    toast({ title: 'Reporte Exportado', description: 'El CSV incluye datos listos para crear gráficos y recomendaciones.' });
   };
   if (loading) {
     return <div className="space-y-6">
