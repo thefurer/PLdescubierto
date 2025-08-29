@@ -74,6 +74,86 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
   const processCommand = (command: string): string => {
     const lowercaseCommand = command.toLowerCase();
 
+    // Plan de mejora específico para una atracción
+    if (lowercaseCommand.includes('plan de mejora detallado para') || lowercaseCommand.includes('necesito un plan de mejora')) {
+      // Extraer el nombre de la atracción de la consulta
+      const attractionMatch = data.attractions.find(a => 
+        lowercaseCommand.includes(a.attraction_name.toLowerCase())
+      );
+      
+      if (attractionMatch) {
+        const generateImprovementPlan = (attraction: AttractionRating) => {
+          const rating = attraction.average_rating;
+          const totalRatings = attraction.total_ratings;
+          const recentRatings = attraction.recent_ratings;
+          
+          let priorityLevel = rating >= 4 ? 'mantenimiento' : rating >= 3 ? 'optimización' : 'urgente';
+          
+          return `🎯 **Plan de Mejora Detallado: ${attraction.attraction_name}**\n\n` +
+            `📊 **Situación Actual:**\n` +
+            `• Calificación promedio: ${rating}/5 estrellas\n` +
+            `• Total de calificaciones: ${totalRatings}\n` +
+            `• Actividad reciente: ${recentRatings} calificaciones esta semana\n` +
+            `• Categoría: ${attraction.category}\n` +
+            `• Nivel de prioridad: **${priorityLevel.toUpperCase()}**\n\n` +
+            
+            `🚀 **Recomendaciones Específicas:**\n\n` +
+            
+            `**1️⃣ Acciones Inmediatas (próximos 7 días):**\n` +
+            `${rating < 3 ? 
+              '• 🔍 Auditoría urgente: revisar limpieza, señalización y accesibilidad\n' +
+              '• 👥 Reunión con personal para identificar problemas operativos\n' +
+              '• 📝 Analizar cada comentario negativo y crear plan de acción\n' +
+              '• 🛠️ Reparaciones menores urgentes (baños, senderos, mobiliario)\n'
+              : rating < 4 ?
+              '• 📋 Revisar procesos de atención al visitante\n' +
+              '• 🧹 Mejorar protocolos de limpieza y mantenimiento\n' +
+              '• 📍 Optimizar señalización y orientación\n' +
+              '• 📱 Actualizar información en plataformas digitales\n'
+              :
+              '• ✅ Documentar mejores prácticas actuales\n' +
+              '• 📊 Monitorear consistencia en el servicio\n' +
+              '• 🎯 Identificar oportunidades de innovación\n' +
+              '• 📈 Implementar sistema de feedback continuo\n'
+            }` +
+            
+            `**2️⃣ Mejoras de Experiencia (próximas 2 semanas):**\n` +
+            '• 🎨 Mejorar la primera impresión (entrada, recepción, bienvenida)\n' +
+            '• 📚 Crear material informativo atractivo y fácil de entender\n' +
+            '• 🕒 Optimizar tiempos de espera y flujo de visitantes\n' +
+            '• 📸 Identificar y señalizar los mejores puntos para fotos\n' +
+            '• 🎯 Implementar actividades interactivas o experienciales\n\n' +
+            
+            `**3️⃣ Estrategia Digital (próximo mes):**\n` +
+            '• 📱 Actualizar fotos y descripción en plataformas online\n' +
+            '• 💬 Responder proactivamente a todas las reseñas\n' +
+            '• 🎥 Crear contenido visual (videos cortos, tours virtuales)\n' +
+            '• 📧 Implementar follow-up por email para solicitar feedback\n' +
+            '• 🏷️ Optimizar etiquetas y categorías para mejor visibilidad\n\n' +
+            
+            `**4️⃣ Monitoreo y Métricas:**\n` +
+            `• 🎯 **Objetivo:** Alcanzar ${rating < 3 ? '3.5' : rating < 4 ? '4.2' : '4.7'}⭐ en 30 días\n` +
+            `• 📈 **Meta de actividad:** ${Math.max(recentRatings * 2, 5)} calificaciones semanales\n` +
+            '• 📊 Revisión semanal de métricas y feedback\n' +
+            '• 🚨 Alertas automáticas por caídas en calificación\n' +
+            '• 📝 Reporte mensual de progreso y ajustes\n\n' +
+            
+            `💡 **Consejo Clave:** ${
+              rating < 3 ? 
+                'Enfócate primero en resolver problemas básicos (limpieza, acceso, información). Una vez estabilizado, trabaja en la experiencia.' :
+              rating < 4 ?
+                'Tienes una base sólida. Ahora diferénciate con detalles que marquen la diferencia y creen momentos memorables.' :
+                'Mantén la excelencia actual y conviértete en referencia. Usa tu éxito para elevar otras atracciones.'
+            }\n\n` +
+            
+            `📞 **¿Necesitas ayuda específica?**\n` +
+            `Pregúntame sobre: "checklist de limpieza", "ideas para ${attraction.category}", "respuestas a reseñas negativas", "estrategias de promoción"`
+        };
+        
+        return generateImprovementPlan(attractionMatch);
+      }
+    }
+
     // Análisis de top performers
     if (lowercaseCommand.includes('mejor') || lowercaseCommand.includes('top') || lowercaseCommand.includes('destacad')) {
       const top3 = data.topPerformers.slice(0, 3);
