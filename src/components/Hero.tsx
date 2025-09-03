@@ -112,12 +112,12 @@ const Hero = () => {
           </button>
           
           {/* Indicators */}
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 z-20">
             {backgroundImages.map((_, index) => 
               <button 
                 key={index} 
                 onClick={() => setCurrentImageIndex(index)} 
-                className={`w-2 h-2 rounded-full transition-all duration-300 hover:scale-150 hover:shadow-lg ${
+                className={`w-1.5 h-1.5 rounded-full transition-all duration-300 hover:scale-150 hover:shadow-lg ${
                   index === currentImageIndex 
                     ? 'bg-white shadow-md scale-125' 
                     : 'bg-white/40 hover:bg-white/80'
