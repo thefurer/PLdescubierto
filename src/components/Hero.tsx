@@ -112,8 +112,19 @@ const Hero = () => {
           </button>
           
           {/* Indicators */}
-          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2 z-20">
-            {backgroundImages.map((_, index) => <button key={index} onClick={() => setCurrentImageIndex(index)} className={`w-3 h-3 rounded-full transition-all duration-300 ${index === currentImageIndex ? 'bg-white scale-110' : 'bg-white/50 hover:bg-white/70'}`} aria-label={`Ir a imagen ${index + 1}`} />)}
+          <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-3 z-20">
+            {backgroundImages.map((_, index) => 
+              <button 
+                key={index} 
+                onClick={() => setCurrentImageIndex(index)} 
+                className={`w-2 h-2 rounded-full transition-all duration-300 hover:scale-150 hover:shadow-lg ${
+                  index === currentImageIndex 
+                    ? 'bg-white shadow-md scale-125' 
+                    : 'bg-white/40 hover:bg-white/80'
+                }`} 
+                aria-label={`Ir a imagen ${index + 1}`} 
+              />
+            )}
           </div>
         </>}
 
