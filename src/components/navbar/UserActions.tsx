@@ -63,7 +63,7 @@ const UserActions = ({
         </> : <button onClick={() => onNavigate('/auth')} style={getButtonStyle(true, scrolled)} onMouseEnter={e => {
       e.currentTarget.dataset.scrolled = scrolled.toString();
       applyHoverEffect(e.currentTarget, true, true);
-    }} onMouseLeave={e => applyHoverEffect(e.currentTarget, false, true)} className="px-4 py-2 font-medium bg-ocean">
+    }} onMouseLeave={e => applyHoverEffect(e.currentTarget, false, true)} className="px-4 py-2 font-medium bg-ocean border-sidebar-ring">
           {t.login}
         </button>}
     </div>;
