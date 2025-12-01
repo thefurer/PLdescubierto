@@ -21,7 +21,7 @@ export type Database = {
           created_at: string
           details: Json
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           target_id: string | null
           target_table: string | null
           user_agent: string | null
@@ -32,7 +32,7 @@ export type Database = {
           created_at?: string
           details?: Json
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_id?: string | null
           target_table?: string | null
           user_agent?: string | null
@@ -43,7 +43,7 @@ export type Database = {
           created_at?: string
           details?: Json
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           target_id?: string | null
           target_table?: string | null
           user_agent?: string | null
@@ -138,7 +138,7 @@ export type Database = {
           attraction_id: string
           created_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           rating: number
           updated_at: string
           user_agent: string | null
@@ -148,7 +148,7 @@ export type Database = {
           attraction_id: string
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           rating: number
           updated_at?: string
           user_agent?: string | null
@@ -158,7 +158,7 @@ export type Database = {
           attraction_id?: string
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           rating?: number
           updated_at?: string
           user_agent?: string | null
@@ -969,10 +969,7 @@ export type Database = {
           id: string
         }[]
       }
-      assign_admin_role: {
-        Args: { user_email: string }
-        Returns: undefined
-      }
+      assign_admin_role: { Args: { user_email: string }; Returns: undefined }
       assign_admin_role_and_activate: {
         Args: { user_email: string }
         Returns: undefined
@@ -991,16 +988,13 @@ export type Database = {
         Args: { notes?: string; user_email: string }
         Returns: undefined
       }
-      create_initial_admin: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      create_initial_admin: { Args: never; Returns: undefined }
       delete_authorized_email: {
         Args: { email_id: string }
         Returns: undefined
       }
       get_admin_actions_with_user_info: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           action_type: string
           admin_email: string
@@ -1014,7 +1008,7 @@ export type Database = {
         }[]
       }
       get_admin_users_with_permissions: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           created_at: string
           email: string
@@ -1024,7 +1018,7 @@ export type Database = {
         }[]
       }
       get_all_admin_actions_secure: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           action_type: string
           admin_email: string
@@ -1064,18 +1058,9 @@ export type Database = {
         Args: { permission_type: string; section: string; user_id: string }
         Returns: boolean
       }
-      is_admin: {
-        Args: { _user_id: string }
-        Returns: boolean
-      }
-      is_email_authorized: {
-        Args: { user_email: string }
-        Returns: boolean
-      }
-      is_main_admin: {
-        Args: { user_id: string }
-        Returns: boolean
-      }
+      is_admin: { Args: { _user_id: string }; Returns: boolean }
+      is_email_authorized: { Args: { user_email: string }; Returns: boolean }
+      is_main_admin: { Args: { user_id: string }; Returns: boolean }
       log_admin_action: {
         Args: {
           action_type: string
@@ -1098,10 +1083,7 @@ export type Database = {
           updated_at: string
         }[]
       }
-      moderate_content: {
-        Args: { content_text: string }
-        Returns: string
-      }
+      moderate_content: { Args: { content_text: string }; Returns: string }
       reactivate_authorized_email: {
         Args: { email_id: string }
         Returns: undefined
