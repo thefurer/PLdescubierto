@@ -1,272 +1,98 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
-import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 
 const corsHeaders = {
-  'Access-Control-Allow-Origin': '*',
-  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
-  'Access-Control-Allow-Methods': 'POST, OPTIONS',
-  'Content-Type': 'application/json'
-};
-
-// Contact info removed as requested by user
-
-interface RequestBody {
-  message: string;
-  sessionId?: string;
-}
-
-const sanitizeMessage = (message: string): string => {
-  return message
-    .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-    .replace(/<[^>]*>/g, '')
-    .replace(/[^\w\s\u00C0-\u017F.,;:¿?¡!()@+-]/g, '')
-    .trim()
-    .substring(0, 1000);
-};
-
-const generatePrompt = (message: string): string => {
-  return `Eres un asistente turístico especializado en Puerto López, Ecuador.
-
-INFORMACIÓN CLAVE:
-- Puerto López: Costa de Manabí, Ecuador
-- Temporada de ballenas: Junio a Septiembre
-- Atracciones: Parque Nacional Machalilla, Isla de la Plata, Playa Los Frailes, Agua Blanca
-- Actividades: Avistamiento de ballenas, snorkeling, tours ecológicos, arqueología
-- Gastronomía: Mariscos frescos, ceviche, encebollado
-- Hospedaje: Hoteles boutique, hostales, cabañas frente al mar
-
-INSTRUCCIONES IMPORTANTES:
-- Responde en español, máximo 100 palabras
-- Sé directo y preciso, evita información redundante
-- NO menciones operadores turísticos específicos
-- NO incluyas información de contacto de empresas
-- Para reservas, sugiere buscar "tours Puerto López" o contactar la oficina de turismo local
-- Enfócate en información práctica y útil
-
-PREGUNTA: ${message}
-
-Respuesta breve y precisa:`;
-};
-
-const callGemini = async (prompt: string, apiKey: string): Promise<string> => {
-  const response = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.6,
-          topK: 30,
-          topP: 0.9,
-          maxOutputTokens: 200
-        }
-      })
-    }
-  );
-
-  if (!response.ok) {
-    const errorText = await response.text();
-    console.error('❌ Gemini API Error:', response.status, errorText);
-    throw new Error(`Gemini API error: ${response.status}`);
-  }
-
-  const result = await response.json();
-  const generatedText = result?.candidates?.[0]?.content?.parts?.[0]?.text?.trim();
-  
-  if (!generatedText) {
-    throw new Error('No se pudo generar respuesta válida');
-  }
-
-  return generatedText;
-};
-
-const logInteraction = async (userMessage: string, botResponse: string, source: string = 'unknown') => {
-  try {
-    const supabase = createClient(
-      Deno.env.get('SUPABASE_URL') ?? '',
-      Deno.env.get('SUPABASE_ANON_KEY') ?? ''
-    );
-
-    const { error } = await supabase.from('content_history').insert({
-      section_name: 'chat_interaction',
-      new_content: {
-        user_message: userMessage,
-        bot_response: botResponse,
-        response_source: source,
-        timestamp: new Date().toISOString(),
-        session_type: 'chatbot'
-      },
-      change_type: 'chat_message'
-    });
-
-    if (error) {
-      console.error('❌ Error logging interaction:', error);
-    } else {
-      console.log('✅ Interaction logged successfully');
-    }
-  } catch (err) {
-    console.error('❌ Failed to log interaction:', err);
-  }
+  "Access-Control-Allow-Origin": "*",
+  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
 };
 
 serve(async (req) => {
-  console.log(`📨 ${req.method} request received at ${new Date().toISOString()}`);
-  console.log('🔧 Function is operational and responding');
-  
-  // Handle CORS preflight
-  if (req.method === 'OPTIONS') {
-    console.log('✅ CORS preflight handled');
-    return new Response(null, { status: 204, headers: corsHeaders });
-  }
-
-  if (req.method !== 'POST') {
-    console.log('❌ Invalid method:', req.method);
-    return new Response(
-      JSON.stringify({ 
-        error: 'Method not allowed',
-        reply: 'Solo se permiten solicitudes POST.' 
-      }),
-      { status: 405, headers: corsHeaders }
-    );
+  if (req.method === "OPTIONS") {
+    return new Response(null, { headers: corsHeaders });
   }
 
   try {
-    // Read request body
-    const rawText = await req.text();
-    console.log('📥 Raw request body received. Length:', rawText.length);
-    console.log('📥 Request content preview:', rawText.substring(0, 200));
-
-    if (!rawText || !rawText.trim()) {
-      console.log('⚠️ Empty request body detected - this should not happen for valid messages');
-      return new Response(
-        JSON.stringify({ 
-          reply: 'Error: No se recibió ningún mensaje. Por favor, intenta escribir tu pregunta de nuevo.',
-          source: 'validation_error'
-        }),
-        { status: 400, headers: corsHeaders }
-      );
-    }
-
-    // Parse JSON
-    let requestData: RequestBody;
-    try {
-      requestData = JSON.parse(rawText);
-      console.log('📋 Successfully parsed request data:', {
-        messageLength: requestData.message?.length || 0,
-        hasSessionId: !!requestData.sessionId,
-        messagePreview: requestData.message?.substring(0, 50) || 'N/A'
-      });
-    } catch (parseError) {
-      console.error('❌ JSON parse error:', parseError);
-      return new Response(
-        JSON.stringify({ 
-          reply: 'Error en el formato del mensaje. Por favor, intenta de nuevo.' 
-        }),
-        { status: 400, headers: corsHeaders }
-      );
-    }
-
-    // Validate message
-    const { message } = requestData;
-    console.log('🔍 Validating message:', { 
-      messageType: typeof message, 
-      messageLength: message?.length || 0,
-      isTruthy: !!message,
-      trimmedLength: message?.trim()?.length || 0
-    });
+    const { message } = await req.json();
+    const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     
+    if (!LOVABLE_API_KEY) {
+      throw new Error("LOVABLE_API_KEY is not configured");
+    }
+
     if (!message || typeof message !== 'string' || !message.trim()) {
-      console.log('⚠️ Invalid message detected:', { message, type: typeof message });
-      return new Response(
-        JSON.stringify({ 
-          reply: 'Error: El mensaje está vacío o no es válido. Por favor, escribe una pregunta sobre Puerto López.',
-          source: 'validation_error'
-        }),
-        { status: 400, headers: corsHeaders }
-      );
+      return new Response(JSON.stringify({ error: "Mensaje vacío o inválido" }), {
+        status: 400,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
     }
 
-    // Sanitize message
-    const sanitizedMessage = sanitizeMessage(message);
-    console.log('🧹 Message sanitization:', {
-      originalLength: message.length,
-      sanitizedLength: sanitizedMessage.length,
-      wasModified: message !== sanitizedMessage
-    });
-    
-    if (!sanitizedMessage) {
-      console.log('⚠️ Message became empty after sanitization');
-      return new Response(
-        JSON.stringify({ 
-          reply: 'El mensaje contiene caracteres no válidos. Por favor, usa solo texto simple sin caracteres especiales.',
-          source: 'sanitization_error'
-        }),
-        { status: 400, headers: corsHeaders }
-      );
-    }
+    const systemPrompt = `Eres un asistente turístico amigable y experto en Puerto López, Ecuador. Tu nombre es "Asistente Puerto López".
 
-    console.log('✅ Message validation passed. Sanitized message:', sanitizedMessage);
+INFORMACIÓN CLAVE SOBRE PUERTO LÓPEZ:
+- Ubicación: Costa de Manabí, Ecuador
+- Temporada de ballenas jorobadas: Junio a Septiembre
+- Atracciones principales:
+  • Parque Nacional Machalilla (entrada $5 adultos)
+  • Isla de la Plata ("Galápagos de los pobres") - piqueros de patas azules, fragatas
+  • Playa Los Frailes - una de las más hermosas del Ecuador
+  • Comunidad Agua Blanca - sitio arqueológico y laguna de azufre
+- Actividades: Avistamiento de ballenas, snorkeling, buceo, tours ecológicos
+- Gastronomía: Mariscos frescos, ceviche, encebollado, corviche
+- Clima: Tropical, cálido todo el año (25-30°C)
 
-    // Usar API key integrada
-    const apiKey = 'AIzaSyCjkYre7PNuHbmKDLs6EqzMZuuI37GTKTU';
-    console.log('🔑 Google API Key configurada directamente en el código');
+INSTRUCCIONES:
+- Responde siempre en español
+- Sé amigable, entusiasta y servicial
+- Mantén respuestas concisas (máximo 150 palabras)
+- Usa emojis ocasionalmente para hacer las respuestas más visuales
+- NO menciones operadores turísticos específicos ni información de contacto
+- Para reservas, sugiere buscar en línea o visitar la oficina de turismo local
+- Si no sabes algo específico, sé honesto y sugiere fuentes de información`;
 
-    // Generate response with Gemini
-    let botResponse: string;
-    let responseSource = 'gemini';
-    
-    try {
-      const prompt = generatePrompt(sanitizedMessage);
-      console.log('🤖 Calling Gemini API with prompt length:', prompt.length);
-      console.log('🎯 Prompt preview:', prompt.substring(0, 200) + '...');
-      
-      botResponse = await callGemini(prompt, apiKey);
-      console.log('✅ Gemini response received successfully');
-      console.log('📝 Response preview:', botResponse.substring(0, 100) + '...');
-      responseSource = 'gemini';
-    } catch (geminiError) {
-      console.error('❌ Gemini error:', geminiError);
-      
-      // Provide contextual fallback based on message content
-      const lowerMessage = sanitizedMessage.toLowerCase();
-      if (lowerMessage.includes('ballena') || lowerMessage.includes('whale')) {
-        botResponse = `🐋 Temporada de ballenas jorobadas: Junio a Septiembre. Puerto López es el mejor punto de partida para este avistamiento. Los tours salen desde el malecón temprano en la mañana.`;
-      } else if (lowerMessage.includes('isla') || lowerMessage.includes('plata')) {
-        botResponse = `🏝️ Isla de la Plata: Conocida como "Galápagos de los pobres". Piqueros de patas azules, fragatas y excelente snorkeling. Tours de día completo disponibles desde Puerto López.`;
-      } else if (lowerMessage.includes('contacto') || lowerMessage.includes('información')) {
-        botResponse = `📍 Para tours en Puerto López busca "tours Puerto López" en línea o visita la oficina de turismo local en el malecón. Hay múltiples operadores disponibles.`;
-      } else if (lowerMessage.includes('playa') || lowerMessage.includes('frailes')) {
-        botResponse = `🏖️ Playa Los Frailes: Considerada una de las más hermosas del Ecuador. Parte del Parque Nacional Machalilla, agua cristalina y arena dorada. Acceso gratuito.`;
-      } else if (lowerMessage.includes('machalilla')) {
-        botResponse = `🌿 Parque Nacional Machalilla: Bosque seco tropical, senderos ecológicos, Agua Blanca (sitio arqueológico) y playas vírgenes. Entrada: $5 adultos.`;
-      } else {
-        botResponse = `Puerto López, Manabí: Destino ecuatoriano famoso por ballenas jorobadas (Jun-Sep), Isla de la Plata, Playa Los Frailes y Parque Nacional Machalilla. Base ideal para ecoturismo marino.`;
-      }
-      responseSource = 'fallback';
-    }
-
-    // Log the interaction with source information
-    await logInteraction(sanitizedMessage, botResponse, responseSource);
-
-    console.log(`✅ Sending response to user. Source: ${responseSource}, Length: ${botResponse.length}`);
-    return new Response(
-      JSON.stringify({ 
-        reply: botResponse,
-        source: responseSource
+    const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${LOVABLE_API_KEY}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        model: "google/gemini-2.5-flash",
+        messages: [
+          { role: "system", content: systemPrompt },
+          { role: "user", content: message }
+        ],
+        stream: true,
       }),
-      { status: 200, headers: corsHeaders }
-    );
+    });
 
+    if (!response.ok) {
+      if (response.status === 429) {
+        return new Response(JSON.stringify({ error: "Demasiadas solicitudes. Por favor, intenta de nuevo en unos segundos." }), {
+          status: 429,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (response.status === 402) {
+        return new Response(JSON.stringify({ error: "Servicio temporalmente no disponible." }), {
+          status: 402,
+          headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      const errorText = await response.text();
+      console.error("AI gateway error:", response.status, errorText);
+      return new Response(JSON.stringify({ error: "Error al conectar con el asistente" }), {
+        status: 500,
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
+    return new Response(response.body, {
+      headers: { ...corsHeaders, "Content-Type": "text/event-stream" },
+    });
   } catch (error) {
-    console.error('❌ Unexpected error:', error);
-    
-    const errorResponse = `Lo siento, ocurrió un error técnico. Por favor, intenta de nuevo en unos momentos o busca información turística en el malecón de Puerto López.`;
-
-    return new Response(
-      JSON.stringify({ reply: errorResponse }),
-      { status: 500, headers: corsHeaders }
-    );
+    console.error("Chat support error:", error);
+    return new Response(JSON.stringify({ error: error instanceof Error ? error.message : "Error desconocido" }), {
+      status: 500,
+      headers: { ...corsHeaders, "Content-Type": "application/json" },
+    });
   }
 });
