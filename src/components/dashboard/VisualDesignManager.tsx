@@ -1,7 +1,7 @@
-import { useState, useEffect } from 'react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Home, Map, FileText, MessageSquare, Star, Palette, Navigation, Image, MousePointer, Type } from 'lucide-react';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Palette, Home, Map, FileText, Star, Navigation, MousePointer, Type, Image } from 'lucide-react';
 import HomePageEditor from './visual-design/pages/HomePageEditor';
 import TravelGuidePageEditor from './visual-design/pages/TravelGuidePageEditor';
 import BlogPageEditor from './visual-design/pages/BlogPageEditor';
@@ -12,118 +12,111 @@ import ButtonStylesManager from './visual-design/ButtonStylesManager';
 import TypographyManager from './visual-design/TypographyManager';
 import EnhancedColorPaletteManager from './visual-design/EnhancedColorPaletteManager';
 import VisualPreview from './visual-design/VisualPreview';
+
+const sections = [
+  { id: 'home', label: 'Página Principal', icon: Home, component: HomePageEditor },
+  { id: 'travel-guide', label: 'Guía de Viaje', icon: Map, component: TravelGuidePageEditor },
+  { id: 'blog', label: 'Blog', icon: FileText, component: BlogPageEditor },
+  { id: 'testimonials', label: 'Testimonios', icon: Star, component: TestimonialsPageEditor },
+  { id: 'navbar', label: 'Navegación', icon: Navigation, component: EnhancedNavbarManager },
+  { id: 'buttons', label: 'Botones', icon: MousePointer, component: ButtonStylesManager },
+  { id: 'typography', label: 'Tipografía', icon: Type, component: TypographyManager },
+  { id: 'logo', label: 'Logo', icon: Image, component: LogoManager },
+  { id: 'colors', label: 'Paleta de Colores', icon: Palette, component: EnhancedColorPaletteManager },
+];
+
 const VisualDesignManager = () => {
-  return <div className="space-y-6">
+  const [activeSection, setActiveSection] = useState('home');
+  
+  const currentSection = sections.find(s => s.id === activeSection);
+  const ActiveComponent = currentSection?.component || HomePageEditor;
+  const ActiveIcon = currentSection?.icon || Home;
+
+  return (
+    <div className="space-y-6">
       <Card className="border-0 shadow-sm">
         <CardHeader className="pb-4">
-          <div className="flex items-center gap-3">
-            <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
-              <Palette className="h-5 w-5 text-white" />
+          <div className="flex items-center justify-between gap-4 flex-wrap">
+            <div className="flex items-center gap-3">
+              <div className="p-2 bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg">
+                <Palette className="h-5 w-5 text-white" />
+              </div>
+              <div>
+                <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+                  Diseño Visual
+                </CardTitle>
+                <CardDescription className="text-sm mt-0.5">
+                  Personaliza la apariencia de tu sitio
+                </CardDescription>
+              </div>
             </div>
-            <div>
-              <CardTitle className="text-2xl font-bold bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                Diseño Visual y Ajustes
-              </CardTitle>
-              <CardDescription className="text-base mt-1">
-                Personaliza la apariencia visual de tu sitio web con vista previa en tiempo real
-              </CardDescription>
-            </div>
+            
+            {/* Unified Section Selector */}
+            <Select value={activeSection} onValueChange={setActiveSection}>
+              <SelectTrigger className="w-[220px] bg-white">
+                <div className="flex items-center gap-2">
+                  <ActiveIcon className="h-4 w-4 text-primary" />
+                  <SelectValue placeholder="Selecciona sección" />
+                </div>
+              </SelectTrigger>
+              <SelectContent>
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground">Páginas</div>
+                {sections.slice(0, 4).map((section) => {
+                  const Icon = section.icon;
+                  return (
+                    <SelectItem key={section.id} value={section.id}>
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4" />
+                        {section.label}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground border-t mt-1 pt-2">Estilos</div>
+                {sections.slice(4, 7).map((section) => {
+                  const Icon = section.icon;
+                  return (
+                    <SelectItem key={section.id} value={section.id}>
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4" />
+                        {section.label}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+                <div className="px-2 py-1.5 text-xs font-semibold text-muted-foreground border-t mt-1 pt-2">Marca</div>
+                {sections.slice(7).map((section) => {
+                  const Icon = section.icon;
+                  return (
+                    <SelectItem key={section.id} value={section.id}>
+                      <div className="flex items-center gap-2">
+                        <Icon className="h-4 w-4" />
+                        {section.label}
+                      </div>
+                    </SelectItem>
+                  );
+                })}
+              </SelectContent>
+            </Select>
           </div>
         </CardHeader>
       </Card>
 
       <div className="grid grid-cols-1 2xl:grid-cols-12 gap-6">
-        {/* Vista Previa - Columna fija a la izquierda en pantallas grandes */}
+        {/* Vista Previa */}
         <div className="2xl:col-span-5 order-2 2xl:order-1">
           <div className="sticky top-6">
             <VisualPreview />
           </div>
         </div>
         
-        {/* Configuraciones - Columna principal */}
+        {/* Editor de la sección activa */}
         <div className="2xl:col-span-7 order-1 2xl:order-2">
-          <Tabs defaultValue="home" className="space-y-6">
-            <div className="bg-white rounded-xl p-1 shadow-sm border">
-              <TabsList className="grid w-full grid-cols-9 bg-transparent gap-1">
-                <TabsTrigger value="home" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-blue-500 data-[state=active]:text-white transition-all duration-200">
-                  <Home className="h-4 w-4" />
-                  <span className="hidden sm:inline">P. Principal</span>
-                </TabsTrigger>
-                <TabsTrigger value="travel-guide" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-green-500 data-[state=active]:text-white transition-all duration-200">
-                  <Map className="h-4 w-4" />
-                  <span className="hidden sm:inline">Guía de Viaje</span>
-                </TabsTrigger>
-                <TabsTrigger value="blog" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-purple-500 data-[state=active]:text-white transition-all duration-200">
-                  <FileText className="h-4 w-4" />
-                  <span className="hidden sm:inline">Blog</span>
-                </TabsTrigger>
-                <TabsTrigger value="testimonials" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-orange-500 data-[state=active]:text-white transition-all duration-200">
-                  <Star className="h-4 w-4" />
-                  <span className="hidden sm:inline">Testimonios</span>
-                </TabsTrigger>
-                <TabsTrigger value="navbar" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-blue-600 data-[state=active]:text-white transition-all duration-200">
-                  <Navigation className="h-4 w-4" />
-                  <span className="hidden sm:inline">Navbar</span>
-                </TabsTrigger>
-                <TabsTrigger value="buttons" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-violet-500 data-[state=active]:text-white transition-all duration-200">
-                  <MousePointer className="h-4 w-4" />
-                  <span className="hidden sm:inline">Botones</span>
-                </TabsTrigger>
-                <TabsTrigger value="typography" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-pink-500 data-[state=active]:text-white transition-all duration-200">
-                  <Type className="h-4 w-4" />
-                  <span className="hidden sm:inline">Tipografía</span>
-                </TabsTrigger>
-                <TabsTrigger value="logo" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-indigo-500 data-[state=active]:text-white transition-all duration-200">
-                  <Image className="h-4 w-4" />
-                  <span className="hidden sm:inline">Logo</span>
-                </TabsTrigger>
-                <TabsTrigger value="colors" className="flex items-center gap-2 text-sm font-medium data-[state=active]:bg-emerald-500 data-[state=active]:text-white transition-all duration-200">
-                  <Palette className="h-4 w-4" />
-                  <span className="hidden sm:inline">Colores</span>
-                </TabsTrigger>
-              </TabsList>
-            </div>
-
-            <div className="min-h-[600px]">
-              <TabsContent value="home" className="mt-6">
-                <HomePageEditor />
-              </TabsContent>
-
-              <TabsContent value="travel-guide" className="mt-6">
-                <TravelGuidePageEditor />
-              </TabsContent>
-
-              <TabsContent value="blog" className="mt-6">
-                <BlogPageEditor />
-              </TabsContent>
-
-              <TabsContent value="testimonials" className="mt-6">
-                <TestimonialsPageEditor />
-              </TabsContent>
-
-              <TabsContent value="navbar" className="mt-6">
-                <EnhancedNavbarManager />
-              </TabsContent>
-
-              <TabsContent value="buttons" className="mt-6">
-                <ButtonStylesManager />
-              </TabsContent>
-
-              <TabsContent value="typography" className="mt-6">
-                <TypographyManager />
-              </TabsContent>
-
-              <TabsContent value="logo" className="mt-6">
-                <LogoManager />
-              </TabsContent>
-
-              <TabsContent value="colors" className="mt-6">
-                <EnhancedColorPaletteManager />
-              </TabsContent>
-            </div>
-          </Tabs>
+          <ActiveComponent />
         </div>
       </div>
-    </div>;
+    </div>
+  );
 };
+
 export default VisualDesignManager;
