@@ -1,4 +1,4 @@
-import { Home, MapPin, Camera, Compass, Globe } from 'lucide-react';
+import { Home, MapPin, Compass, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
 interface NavigationGuideProps {
@@ -23,13 +23,6 @@ const NavigationGuide = ({ onNavigate, variant = 'full' }: NavigationGuideProps)
       color: 'from-emerald-500 to-teal-500'
     },
     {
-      icon: Camera,
-      label: 'Galería',
-      section: 'gallery',
-      message: '¡Muéstrame fotos hermosas de Puerto López!',
-      color: 'from-pink-500 to-rose-500'
-    },
-    {
       icon: Compass,
       label: 'Guía',
       section: 'travel-guide',
@@ -48,7 +41,7 @@ const NavigationGuide = ({ onNavigate, variant = 'full' }: NavigationGuideProps)
   if (variant === 'compact') {
     return (
       <div className="flex gap-1 overflow-x-auto py-1.5 px-1 scrollbar-hide">
-        {navigationOptions.slice(0, 4).map((option) => {
+        {navigationOptions.map((option) => {
           const IconComponent = option.icon;
           return (
             <Button
@@ -78,7 +71,7 @@ const NavigationGuide = ({ onNavigate, variant = 'full' }: NavigationGuideProps)
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-300/50 to-transparent" />
       </div>
 
-      {/* Main navigation - 5 items in a row */}
+      {/* Main navigation - 4 items in a row */}
       <div className="flex gap-1.5 justify-center">
         {navigationOptions.map((option) => {
           const IconComponent = option.icon;
@@ -86,13 +79,13 @@ const NavigationGuide = ({ onNavigate, variant = 'full' }: NavigationGuideProps)
             <Button
               key={option.section}
               variant="ghost"
-              className="h-auto py-2 px-1.5 flex flex-col items-center gap-1 bg-white/50 hover:bg-white border border-white/60 hover:border-cyan-300/60 rounded-xl backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-0.5 group min-w-[54px]"
+              className="h-auto py-2 px-2 flex flex-col items-center gap-1 bg-white/50 hover:bg-white border border-white/60 hover:border-cyan-300/60 rounded-xl backdrop-blur-sm transition-all duration-300 hover:shadow-lg hover:shadow-cyan-500/20 hover:-translate-y-0.5 group min-w-[60px]"
               onClick={() => onNavigate(option.section, option.message)}
             >
-              <div className={`w-7 h-7 rounded-lg bg-gradient-to-br ${option.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300`}>
-                <IconComponent size={14} className="text-white" />
+              <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${option.color} flex items-center justify-center shadow-md group-hover:scale-110 transition-transform duration-300`}>
+                <IconComponent size={16} className="text-white" />
               </div>
-              <span className="text-[9px] font-medium text-gray-600 group-hover:text-cyan-700">{option.label}</span>
+              <span className="text-[10px] font-medium text-gray-600 group-hover:text-cyan-700">{option.label}</span>
             </Button>
           );
         })}

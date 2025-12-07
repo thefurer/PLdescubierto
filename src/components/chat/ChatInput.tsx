@@ -1,6 +1,8 @@
-import { Send, Mic } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Send, Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { toast } from 'sonner';
 
 interface ChatInputProps {
   inputValue: string;
@@ -11,6 +13,56 @@ interface ChatInputProps {
 }
 
 const ChatInput = ({ inputValue, isLoading, onInputChange, onSend, onKeyPress }: ChatInputProps) => {
+  const [isListening, setIsListening] = useState(false);
+  const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+
+  useEffect(() => {
+    // Check for browser support
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    if (SpeechRecognition) {
+      const recognitionInstance = new SpeechRecognition();
+      recognitionInstance.continuous = false;
+      recognitionInstance.interimResults = false;
+      recognitionInstance.lang = 'es-ES';
+
+      recognitionInstance.onresult = (event) => {
+        const transcript = event.results[0][0].transcript;
+        onInputChange(transcript);
+        setIsListening(false);
+      };
+
+      recognitionInstance.onerror = (event) => {
+        console.error('Speech recognition error:', event.error);
+        setIsListening(false);
+        if (event.error === 'not-allowed') {
+          toast.error('Permite el acceso al micrófono para usar esta función');
+        }
+      };
+
+      recognitionInstance.onend = () => {
+        setIsListening(false);
+      };
+
+      setRecognition(recognitionInstance);
+    }
+  }, [onInputChange]);
+
+  const toggleListening = () => {
+    if (!recognition) {
+      toast.error('Tu navegador no soporta reconocimiento de voz');
+      return;
+    }
+
+    if (isListening) {
+      recognition.stop();
+      setIsListening(false);
+    } else {
+      recognition.start();
+      setIsListening(true);
+      toast.info('Escuchando... Habla ahora 🎤');
+    }
+  };
+
   return (
     <div className="relative p-3 bg-white/60 backdrop-blur-sm border-t border-white/60 rounded-b-3xl">
       <div className="flex gap-2 items-center">
@@ -19,18 +71,23 @@ const ChatInput = ({ inputValue, isLoading, onInputChange, onSend, onKeyPress }:
             value={inputValue}
             onChange={(e) => onInputChange(e.target.value)}
             onKeyPress={onKeyPress}
-            placeholder="Escribe a Ballenita..."
-            disabled={isLoading}
+            placeholder={isListening ? "Escuchando..." : "Escribe a Ballenita..."}
+            disabled={isLoading || isListening}
             className="w-full bg-white/80 border-gray-200/60 focus:border-cyan-400 focus:ring-cyan-400/30 rounded-full pl-4 pr-10 py-2.5 text-sm placeholder:text-gray-400 transition-all duration-300 focus:bg-white shadow-sm"
           />
           <div className="absolute right-2 top-1/2 -translate-y-1/2">
             <Button
               variant="ghost"
               size="sm"
-              className="h-7 w-7 p-0 text-gray-400 hover:text-cyan-500 rounded-full"
-              disabled
+              onClick={toggleListening}
+              className={`h-7 w-7 p-0 rounded-full transition-all duration-300 ${
+                isListening 
+                  ? 'text-red-500 bg-red-50 hover:bg-red-100 animate-pulse' 
+                  : 'text-gray-400 hover:text-cyan-500 hover:bg-cyan-50'
+              }`}
+              disabled={isLoading}
             >
-              <Mic size={14} />
+              {isListening ? <MicOff size={14} /> : <Mic size={14} />}
             </Button>
           </div>
         </div>
