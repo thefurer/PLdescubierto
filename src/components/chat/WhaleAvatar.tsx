@@ -19,7 +19,7 @@ const WhaleAvatar = ({ size = 'md', animated = true, className }: WhaleAvatarPro
       className={cn(
         'relative flex items-center justify-center rounded-full bg-gradient-to-br from-cyan-400 via-blue-500 to-indigo-600',
         sizeClasses[size],
-        animated && 'animate-pulse',
+        animated && 'animate-whale-float',
         className
       )}
     >
