@@ -4,11 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { Star, TrendingUp, Users, MapPin, Download, MessageSquare, AlertTriangle, Lightbulb, BarChart3, LineChart, Radar, Filter, Calendar, Send, Bot, User } from "lucide-react";
+import { Star, TrendingUp, Users, Download, MessageSquare, AlertTriangle, BarChart3, Bot } from "lucide-react";
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from "@/hooks/use-toast";
 import RatingsChartsGrid from "./analytics/RatingsChartsGrid";
-import AIInsightsPanel from "./analytics/AIInsightsPanel";
 import PatternDetector from "./analytics/PatternDetector";
 import InteractiveChatAssistant from "./analytics/InteractiveChatAssistant";
 interface AttractionRating {
@@ -397,22 +396,14 @@ export const EnhancedRatingsAnalytics = () => {
 
       {/* Main Analytics Tabs */}
       <Tabs value={activeView} onValueChange={setActiveView}>
-        <TabsList className="grid w-full grid-cols-4 bg-slate-200">
+        <TabsList className="grid w-full grid-cols-2 bg-slate-200">
           <TabsTrigger value="overview" className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4" />
             Vista General
           </TabsTrigger>
-          <TabsTrigger value="charts" className="flex items-center gap-2">
-            <LineChart className="h-4 w-4" />
-            Gráficos
-          </TabsTrigger>
-          <TabsTrigger value="insights" className="flex items-center gap-2">
-            <Lightbulb className="h-4 w-4" />
-            Insights IA
-          </TabsTrigger>
           <TabsTrigger value="chat" className="flex items-center gap-2">
-            <MessageSquare className="h-4 w-4" />
-            Asistente IA
+            <Bot className="h-4 w-4" />
+            Agente López
           </TabsTrigger>
         </TabsList>
 
@@ -483,14 +474,9 @@ export const EnhancedRatingsAnalytics = () => {
           </div>
 
           <PatternDetector data={analyticsData} />
-        </TabsContent>
-
-        <TabsContent value="charts">
+          
+          {/* Charts integrated in overview */}
           <RatingsChartsGrid data={analyticsData} />
-        </TabsContent>
-
-        <TabsContent value="insights">
-          <AIInsightsPanel data={analyticsData} />
         </TabsContent>
 
         <TabsContent value="chat">

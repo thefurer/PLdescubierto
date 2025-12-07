@@ -4,10 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
 import { ScrollArea } from "@/components/ui/scroll-area";
-import { 
-  MessageSquare, Send, Bot, User, 
-  Lightbulb, Sparkles
-} from "lucide-react";
+import { Send, Bot, User, Lightbulb, Sparkles } from "lucide-react";
 import { toast } from "sonner";
 
 interface AttractionRating {
@@ -49,7 +46,7 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
     {
       id: '1',
       type: 'assistant',
-      content: '¡Hola! 👋 Soy tu asistente de análisis potenciado con **inteligencia artificial**. Puedo ayudarte a entender las calificaciones, identificar tendencias y generar recomendaciones personalizadas.\n\n**Pregúntame lo que quieras**, por ejemplo:\n• "¿Cuál es la atracción con mejor rendimiento?"\n• "Dame recomendaciones para mejorar las calificaciones"\n• "¿Qué tendencias observas esta semana?"\n\n¿En qué puedo ayudarte hoy?',
+      content: '¡Hola! 👋 Soy **Agente López**, tu asistente de análisis con inteligencia artificial. Puedo ayudarte a entender las calificaciones, identificar tendencias y generar recomendaciones.\n\n**Pregúntame lo que quieras**, por ejemplo:\n• "¿Cuál es la atracción mejor calificada?"\n• "Dame un plan para mejorar las calificaciones"\n• "¿Qué tendencias hay esta semana?"',
       timestamp: new Date()
     }
   ]);
@@ -405,11 +402,11 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2">
-            <MessageSquare className="h-5 w-5 text-primary" />
-            Asistente IA de Análisis
+            <Bot className="h-5 w-5 text-primary" />
+            Agente López
             <Badge variant="secondary" className="ml-auto flex items-center gap-1">
               <Sparkles className="h-3 w-3" />
-              Powered by AI
+              IA
             </Badge>
           </CardTitle>
         </CardHeader>
