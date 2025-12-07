@@ -72,10 +72,65 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
   ];
 
   const processCommand = (command: string): string => {
-    const lowercaseCommand = command.toLowerCase();
+    const lowercaseCommand = command.toLowerCase().trim();
+
+    // Saludos y respuestas conversacionales
+    const greetings = ['hola', 'holas', 'hey', 'hi', 'buenos días', 'buenas tardes', 'buenas noches', 'que tal', 'qué tal', 'como estas', 'cómo estás', 'saludos'];
+    const isGreeting = greetings.some(g => lowercaseCommand.includes(g) || lowercaseCommand === g);
+    
+    if (isGreeting) {
+      const hour = new Date().getHours();
+      const timeGreeting = hour < 12 ? 'Buenos días' : hour < 19 ? 'Buenas tardes' : 'Buenas noches';
+      return `👋 ¡${timeGreeting}! Soy tu asistente de análisis de calificaciones.\n\n` +
+        `📊 **Resumen rápido del sistema:**\n` +
+        `• Calificación promedio general: **${data.averageRating}⭐**\n` +
+        `• Total de calificaciones: **${data.totalRatings}**\n` +
+        `• Atracciones monitoreadas: **${data.attractions.length}**\n` +
+        `• Alertas activas: **${data.anomalies.length}**\n\n` +
+        `🎯 **¿Qué te gustaría saber?**\n` +
+        `• "mejores atracciones" - Ver las mejor calificadas\n` +
+        `• "atracciones con problemas" - Las que necesitan atención\n` +
+        `• "tendencias" - Análisis de la semana\n` +
+        `• "alertas" - Problemas detectados\n` +
+        `• "reporte" - Resumen ejecutivo completo\n\n` +
+        `También puedes preguntarme sobre una atracción específica por nombre.`;
+    }
+
+    // Preguntas sobre capacidades
+    const helpQueries = ['que puedes hacer', 'qué puedes hacer', 'ayuda', 'help', 'opciones', 'comandos', 'funciones', 'que sabes', 'qué sabes'];
+    const isHelpQuery = helpQueries.some(q => lowercaseCommand.includes(q));
+    
+    if (isHelpQuery) {
+      return `🤖 **Soy tu asistente de analytics.** Puedo ayudarte con:\n\n` +
+        `📈 **Análisis de rendimiento:**\n` +
+        `• "mejores atracciones" - Top performers con estadísticas\n` +
+        `• "atracciones que necesitan mejora" - Las de menor puntuación\n` +
+        `• "análisis de [nombre]" - Datos específicos de cualquier atracción\n\n` +
+        `📊 **Tendencias y reportes:**\n` +
+        `• "tendencias de la semana" - Evolución reciente\n` +
+        `• "reporte completo" - Resumen ejecutivo con KPIs\n` +
+        `• "alertas activas" - Anomalías y problemas detectados\n\n` +
+        `🎯 **Recomendaciones:**\n` +
+        `• "recomendaciones" - Plan general de mejora\n` +
+        `• "plan de mejora para [atracción]" - Plan detallado específico\n\n` +
+        `💬 Puedes escribir en lenguaje natural, ¡te entiendo!`;
+    }
+
+    // Agradecimientos
+    const thanksWords = ['gracias', 'thanks', 'genial', 'perfecto', 'excelente', 'ok', 'bien', 'entendido'];
+    const isThanks = thanksWords.some(t => lowercaseCommand === t || (lowercaseCommand.length < 20 && lowercaseCommand.includes(t)));
+    
+    if (isThanks) {
+      return `😊 ¡De nada! Estoy aquí para ayudarte.\n\n` +
+        `**¿Algo más que quieras saber?**\n` +
+        `• Análisis de alguna atracción específica\n` +
+        `• Tendencias de calificaciones\n` +
+        `• Alertas o problemas\n` +
+        `• Generar un reporte`;
+    }
 
     // Plan de mejora específico para una atracción
-    if (lowercaseCommand.includes('plan de mejora detallado para') || lowercaseCommand.includes('necesito un plan de mejora')) {
+    if (lowercaseCommand.includes('plan de mejora detallado para') || lowercaseCommand.includes('necesito un plan de mejora') || lowercaseCommand.includes('plan de mejora para')) {
       // Extraer el nombre de la atracción de la consulta
       const attractionMatch = data.attractions.find(a => 
         lowercaseCommand.includes(a.attraction_name.toLowerCase())
@@ -151,54 +206,111 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
         };
         
         return generateImprovementPlan(attractionMatch);
+      } else {
+        // Si pidió un plan pero no especificó atracción
+        const worst = data.underPerformers[0];
+        if (worst) {
+          return `📋 Puedo generar un plan de mejora para cualquier atracción.\n\n` +
+            `**¿Para cuál lo necesitas?**\n\n` +
+            `${data.attractions.slice(0, 5).map(a => `• "${a.attraction_name}" (${a.average_rating}⭐)`).join('\n')}\n\n` +
+            `💡 **Sugerencia:** La atracción que más necesita atención es **${worst.attraction_name}** con ${worst.average_rating}⭐.\n\n` +
+            `Escribe: "plan de mejora para ${worst.attraction_name}"`;
+        }
       }
     }
 
     // Análisis de top performers
     if (lowercaseCommand.includes('mejor') || lowercaseCommand.includes('top') || lowercaseCommand.includes('destacad')) {
       const top3 = data.topPerformers.slice(0, 3);
-      return `🏆 **Top 3 Atracciones Mejor Calificadas:**\n\n${top3.map((attraction, index) => 
-        `${index + 1}. **${attraction.attraction_name}**\n   ⭐ ${attraction.average_rating} estrellas (${attraction.total_ratings} calificaciones)\n   📈 ${attraction.recent_ratings} calificaciones esta semana`
-      ).join('\n\n')}\n\n💡 Estas atracciones están funcionando excelentemente. Considera usar sus mejores prácticas en otras áreas.`;
+      if (top3.length === 0) {
+        return `📊 No hay suficientes datos para determinar las mejores atracciones todavía.\n\nNecesitamos más calificaciones para generar este análisis.`;
+      }
+      return `🏆 **Top ${top3.length} Atracciones Mejor Calificadas:**\n\n${top3.map((attraction, index) => 
+        `${index === 0 ? '🥇' : index === 1 ? '🥈' : '🥉'} **${attraction.attraction_name}**\n   ⭐ ${attraction.average_rating}/5 (${attraction.total_ratings} calificaciones)\n   📈 ${attraction.recent_ratings} calificaciones esta semana\n   🏷️ ${attraction.category}`
+      ).join('\n\n')}\n\n💡 **Insight:** Estas atracciones están funcionando excelentemente. Considera replicar sus mejores prácticas en otras áreas.\n\n¿Quieres un análisis detallado de alguna de ellas?`;
     }
 
     // Análisis de underperformers
-    if (lowercaseCommand.includes('peor') || lowercaseCommand.includes('bajo') || lowercaseCommand.includes('necesita') || lowercaseCommand.includes('mejorar')) {
+    if (lowercaseCommand.includes('peor') || lowercaseCommand.includes('bajo') || lowercaseCommand.includes('necesita') || lowercaseCommand.includes('mejorar') || lowercaseCommand.includes('problema') || lowercaseCommand.includes('atencion') || lowercaseCommand.includes('atención')) {
       const bottom3 = data.underPerformers.slice(0, 3);
+      if (bottom3.length === 0) {
+        return `✅ ¡Excelentes noticias! Todas las atracciones tienen buenas calificaciones.\n\nNo hay ninguna que requiera atención urgente en este momento.`;
+      }
       return `⚠️ **Atracciones que Necesitan Atención:**\n\n${bottom3.map((attraction, index) => 
-        `${index + 1}. **${attraction.attraction_name}**\n   ⭐ ${attraction.average_rating} estrellas (${attraction.total_ratings} calificaciones)\n   📉 ${attraction.recent_ratings} calificaciones esta semana`
-      ).join('\n\n')}\n\n🚀 **Recomendaciones:**\n• Revisión inmediata de operaciones\n• Capacitación del personal\n• Mejoras en infraestructura\n• Análisis de comentarios negativos`;
+        `${index + 1}. **${attraction.attraction_name}**\n   ⭐ ${attraction.average_rating}/5 (${attraction.total_ratings} calificaciones)\n   📉 ${attraction.recent_ratings} calificaciones esta semana\n   🏷️ ${attraction.category}`
+      ).join('\n\n')}\n\n🚀 **Recomendaciones inmediatas:**\n• Revisar comentarios negativos recientes\n• Auditar operaciones y servicio al cliente\n• Capacitar al personal en puntos de fricción\n• Implementar mejoras rápidas visibles\n\n💡 **Tip:** Escribe "plan de mejora para ${bottom3[0]?.attraction_name}" para obtener un plan detallado.`;
     }
 
     // Análisis de tendencias
-    if (lowercaseCommand.includes('tendencia') || lowercaseCommand.includes('evolución') || lowercaseCommand.includes('semana')) {
+    if (lowercaseCommand.includes('tendencia') || lowercaseCommand.includes('evolución') || lowercaseCommand.includes('semana') || lowercaseCommand.includes('evolucion')) {
       const weeklyChange = data.weeklyTrend;
       const trend = weeklyChange >= 0 ? 'positiva' : 'negativa';
       const emoji = weeklyChange >= 0 ? '📈' : '📉';
       
-      return `${emoji} **Análisis de Tendencias Semanales:**\n\n**Tendencia General:** ${trend.charAt(0).toUpperCase() + trend.slice(1)}\n**Calificaciones esta semana:** ${Math.abs(weeklyChange)}\n**Promedio general:** ${data.averageRating} ⭐\n\n**Atracciones con mayor actividad reciente:**\n${data.attractions
-        .filter(a => a.recent_ratings > 0)
-        .sort((a, b) => b.recent_ratings - a.recent_ratings)
-        .slice(0, 3)
-        .map(a => `• ${a.attraction_name}: ${a.recent_ratings} nuevas calificaciones`)
-        .join('\n')}\n\n💡 ${weeklyChange >= 0 ? 'Excelente momento para campañas de marketing.' : 'Considera implementar incentivos para aumentar la participación.'}`;
+      const activeAttractions = data.attractions.filter(a => a.recent_ratings > 0);
+      
+      return `${emoji} **Análisis de Tendencias Semanales:**\n\n` +
+        `**📊 Métricas Generales:**\n` +
+        `• Tendencia: **${trend.charAt(0).toUpperCase() + trend.slice(1)}** ${weeklyChange >= 0 ? '✅' : '⚠️'}\n` +
+        `• Cambio semanal: ${weeklyChange >= 0 ? '+' : ''}${weeklyChange} calificaciones\n` +
+        `• Promedio general: **${data.averageRating}⭐**\n` +
+        `• Atracciones activas: ${activeAttractions.length}/${data.attractions.length}\n\n` +
+        `**🔥 Mayor actividad esta semana:**\n${data.attractions
+          .filter(a => a.recent_ratings > 0)
+          .sort((a, b) => b.recent_ratings - a.recent_ratings)
+          .slice(0, 3)
+          .map((a, i) => `${i + 1}. ${a.attraction_name}: ${a.recent_ratings} nuevas calificaciones`)
+          .join('\n') || 'No hay actividad reciente registrada'}\n\n` +
+        `💡 **Recomendación:** ${weeklyChange >= 0 
+          ? 'Excelente momento para campañas de marketing y promoción.' 
+          : 'Considera implementar incentivos para aumentar la participación y revisar posibles causas de la caída.'}`;
     }
 
     // Alertas y anomalías
-    if (lowercaseCommand.includes('alerta') || lowercaseCommand.includes('problema') || lowercaseCommand.includes('anomal')) {
+    if (lowercaseCommand.includes('alerta') || lowercaseCommand.includes('anomal') || lowercaseCommand.includes('crítico') || lowercaseCommand.includes('critico') || lowercaseCommand.includes('urgente')) {
       if (data.anomalies.length === 0) {
-        return `✅ **¡Excelentes noticias!**\n\nNo se detectaron anomalías críticas en los datos actuales. Todas las atracciones están funcionando dentro de parámetros normales.\n\n📊 **Resumen del estado:**\n• Promedio general: ${data.averageRating} ⭐\n• Total de calificaciones: ${data.totalRatings}\n• Atracciones monitoreadas: ${data.attractions.length}`;
+        return `✅ **¡Excelentes noticias!**\n\n` +
+          `No se detectaron anomalías ni alertas críticas.\n\n` +
+          `📊 **Estado del sistema:**\n` +
+          `• Promedio general: ${data.averageRating}⭐\n` +
+          `• Total de calificaciones: ${data.totalRatings}\n` +
+          `• Atracciones monitoreadas: ${data.attractions.length}\n\n` +
+          `Todo está funcionando dentro de parámetros normales. 🎉`;
       }
 
       const criticalAlerts = data.anomalies.filter(a => a.severity === 'high');
       const mediumAlerts = data.anomalies.filter(a => a.severity === 'medium');
+      const lowAlerts = data.anomalies.filter(a => a.severity === 'low');
 
-      return `🚨 **Alertas Detectadas (${data.anomalies.length} total):**\n\n${criticalAlerts.length > 0 ? `**🔴 Críticas (${criticalAlerts.length}):**\n${criticalAlerts.map(alert => `• ${alert.message}`).join('\n')}\n\n` : ''}${mediumAlerts.length > 0 ? `**🟡 Moderadas (${mediumAlerts.length}):**\n${mediumAlerts.map(alert => `• ${alert.message}`).join('\n')}\n\n` : ''}⚡ **Acción inmediata requerida para alertas críticas.**`;
+      return `🚨 **Panel de Alertas (${data.anomalies.length} detectadas):**\n\n` +
+        `${criticalAlerts.length > 0 ? `**🔴 CRÍTICAS (${criticalAlerts.length}) - Acción inmediata:**\n${criticalAlerts.map(alert => `• ${alert.message}`).join('\n')}\n\n` : ''}` +
+        `${mediumAlerts.length > 0 ? `**🟡 MODERADAS (${mediumAlerts.length}) - Revisar pronto:**\n${mediumAlerts.map(alert => `• ${alert.message}`).join('\n')}\n\n` : ''}` +
+        `${lowAlerts.length > 0 ? `**🟢 MENORES (${lowAlerts.length}) - Monitorear:**\n${lowAlerts.map(alert => `• ${alert.message}`).join('\n')}\n\n` : ''}` +
+        `⚡ **Próximos pasos:**\n` +
+        `${criticalAlerts.length > 0 ? '1. Atender alertas críticas de inmediato\n' : ''}` +
+        `2. Revisar tendencias de las últimas 24h\n` +
+        `3. Contactar responsables de áreas afectadas`;
     }
 
     // Reporte completo
-    if (lowercaseCommand.includes('reporte') || lowercaseCommand.includes('resumen') || lowercaseCommand.includes('completo')) {
-      return `📊 **Reporte Ejecutivo Completo**\n\n**KPIs Principales:**\n• Promedio General: ${data.averageRating} ⭐\n• Total Calificaciones: ${data.totalRatings}\n• Tendencia Semanal: ${data.weeklyTrend >= 0 ? '+' : ''}${data.weeklyTrend}\n• Atracciones Activas: ${data.attractions.length}\n\n**Top 3 Performers:**\n${data.topPerformers.slice(0, 3).map((a, i) => `${i + 1}. ${a.attraction_name} (${a.average_rating}⭐)`).join('\n')}\n\n**Necesitan Atención:**\n${data.underPerformers.slice(0, 3).map((a, i) => `${i + 1}. ${a.attraction_name} (${a.average_rating}⭐)`).join('\n')}\n\n**Alertas:** ${data.anomalies.length} detectadas\n\n💼 Reporte generado el ${new Date().toLocaleDateString('es-ES')}`;
+    if (lowercaseCommand.includes('reporte') || lowercaseCommand.includes('resumen') || lowercaseCommand.includes('completo') || lowercaseCommand.includes('ejecutivo')) {
+      const topList = data.topPerformers.slice(0, 3);
+      const bottomList = data.underPerformers.slice(0, 3);
+      
+      return `📊 **REPORTE EJECUTIVO COMPLETO**\n` +
+        `_Generado: ${new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}_\n\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+        `**📈 KPIs PRINCIPALES:**\n` +
+        `• Promedio General: **${data.averageRating}⭐**\n` +
+        `• Total Calificaciones: **${data.totalRatings}**\n` +
+        `• Tendencia Semanal: **${data.weeklyTrend >= 0 ? '+' : ''}${data.weeklyTrend}** ${data.weeklyTrend >= 0 ? '✅' : '⚠️'}\n` +
+        `• Atracciones Activas: **${data.attractions.length}**\n` +
+        `• Alertas: **${data.anomalies.length}** ${data.anomalies.length === 0 ? '✅' : '⚠️'}\n\n` +
+        `**🏆 TOP PERFORMERS:**\n${topList.length > 0 ? topList.map((a, i) => `${i + 1}. ${a.attraction_name} (${a.average_rating}⭐, ${a.total_ratings} votos)`).join('\n') : 'Sin datos suficientes'}\n\n` +
+        `**⚠️ REQUIEREN ATENCIÓN:**\n${bottomList.length > 0 ? bottomList.map((a, i) => `${i + 1}. ${a.attraction_name} (${a.average_rating}⭐, ${a.total_ratings} votos)`).join('\n') : 'Todas las atracciones están bien'}\n\n` +
+        `━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n` +
+        `💼 **CONCLUSIÓN:** ${data.averageRating >= 4 ? 'El rendimiento general es excelente.' : data.averageRating >= 3 ? 'Hay oportunidades de mejora en algunas áreas.' : 'Se requiere atención inmediata en varias atracciones.'}\n\n` +
+        `¿Necesitas más detalles sobre alguna sección?`;
     }
 
     // Búsqueda específica de atracción
@@ -207,39 +319,66 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
     );
     
     if (attraction) {
-      return `🗺️ **Análisis de ${attraction.attraction_name}:**\n\n⭐ **Calificación:** ${attraction.average_rating}/5\n👥 **Total calificaciones:** ${attraction.total_ratings}\n📅 **Esta semana:** ${attraction.recent_ratings} nuevas\n🏷️ **Categoría:** ${attraction.category}\n\n📈 **Rendimiento:**\n${attraction.average_rating >= 4 ? '🟢 Excelente rendimiento' : attraction.average_rating >= 3 ? '🟡 Rendimiento moderado' : '🔴 Necesita mejoras urgentes'}\n\n💡 **Recomendación:** ${attraction.average_rating >= 4 ? 'Mantener estándares actuales y usar como referencia.' : attraction.average_rating >= 3 ? 'Oportunidad de mejora con pequeños ajustes.' : 'Requiere plan de mejora inmediato.'}`;
+      const performanceLevel = attraction.average_rating >= 4 ? '🟢 Excelente' : attraction.average_rating >= 3 ? '🟡 Moderado' : '🔴 Necesita mejoras';
+      const trend = attraction.recent_ratings > 2 ? 'en aumento' : attraction.recent_ratings > 0 ? 'estable' : 'sin actividad reciente';
+      
+      return `🗺️ **Análisis Detallado: ${attraction.attraction_name}**\n\n` +
+        `**📊 Métricas Principales:**\n` +
+        `• Calificación: **${attraction.average_rating}/5** ⭐\n` +
+        `• Total de votos: **${attraction.total_ratings}**\n` +
+        `• Esta semana: **${attraction.recent_ratings}** nuevas calificaciones\n` +
+        `• Categoría: **${attraction.category}**\n\n` +
+        `**📈 Rendimiento:**\n` +
+        `• Estado: ${performanceLevel}\n` +
+        `• Tendencia: ${trend}\n\n` +
+        `**💡 Recomendación:**\n${
+          attraction.average_rating >= 4 
+            ? '✅ Mantener estándares actuales. Usar como referencia para otras atracciones.' 
+            : attraction.average_rating >= 3 
+              ? '📋 Oportunidad de mejora con ajustes menores. Revisar feedback reciente.' 
+              : '⚠️ Requiere plan de mejora inmediato. Escribe "plan de mejora para ' + attraction.attraction_name + '" para obtener recomendaciones detalladas.'
+        }\n\n` +
+        `¿Quieres ver el historial de calificaciones o generar un plan de mejora?`;
     }
 
-    // Fallback mejorado con plan de recomendaciones
-    if (lowercaseCommand.includes('recomend')) {
-      const foco = (command.split('para:')[1] || command).trim();
+    // Recomendaciones generales
+    if (lowercaseCommand.includes('recomend') || lowercaseCommand.includes('sugerencia') || lowercaseCommand.includes('idea')) {
       const worst = data.underPerformers[0] || [...data.attractions].sort((a,b)=>a.average_rating-b.average_rating)[0];
       const best = data.topPerformers[0] || [...data.attractions].sort((a,b)=>b.average_rating-a.average_rating)[0];
       const inactivas = data.attractions.filter(a => a.recent_ratings === 0).slice(0, 2);
 
       return `📌 **Plan de Recomendaciones Programado**\n\n` +
-      (foco ? `**Objetivo:** ${foco}\n\n` : '') +
-      `1) **Acciones rápidas (72h)**\n`+
-      `• Auditar puntos de fricción de la atracción con menor puntuación (${worst?.attraction_name || 'N/A'}).\n`+
-      `• Responder públicamente reseñas negativas recientes con tono empático.\n`+
-      `• Añadir 3–5 fotos actualizadas y un video corto de experiencia.\n\n`+
-      `2) **Contenido y visibilidad**\n`+
-      `• Replicar mejores prácticas de ${best?.attraction_name || 'la mejor atracción'} (tono, fotos, FAQs).\n`+
-      `• Crear sección de “Consejos del visitante” y micro‑FAQ (precio, horarios, acceso).\n`+
-      `• Campaña UGC: incentivo suave para nuevas reseñas (al finalizar la visita).\n\n`+
-      `3) **Experiencia y servicio**\n`+
-      `• Señalética clara en puntos críticos; capacitar personal en saludo y cierre.\n`+
-      `• Ajustes rápidos de limpieza/espera; priorizar lo más mencionado en comentarios.\n\n`+
-      `4) **Tráfico y participación**\n`+
-      `• Publicar 2 piezas destacadas sobre ${inactivas.map(a=>a.attraction_name).join(' y ') || 'atracciones con baja interacción'}.\n`+
-      `• Promoción cruzada en secciones con mayor tráfico (Top del mes, Lo más valorado).\n\n`+
-      `5) **Medición y alertas**\n`+
-      `• Objetivo: +20% calificaciones en 30 días y +0.3⭐ en ${worst?.attraction_name || 'la atracción objetivo'}.\n`+
-      `• Activar alertas automáticas por caída >1⭐ o 0 calificaciones por 7 días.\n\n`+
-      `¿Quieres que genere un checklist accionable o un borrador de contenido para ${worst?.attraction_name || 'la atracción objetivo'}?`;
+        `**1️⃣ Acciones Rápidas (72h):**\n` +
+        `• Auditar puntos de fricción de ${worst?.attraction_name || 'la atracción con menor puntuación'}\n` +
+        `• Responder públicamente reseñas negativas recientes\n` +
+        `• Actualizar fotos y descripción de atracciones principales\n\n` +
+        `**2️⃣ Contenido y Visibilidad:**\n` +
+        `• Replicar mejores prácticas de ${best?.attraction_name || 'las mejores atracciones'}\n` +
+        `• Crear sección de "Consejos del visitante"\n` +
+        `• Campaña para incentivar nuevas reseñas\n\n` +
+        `**3️⃣ Experiencia y Servicio:**\n` +
+        `• Mejorar señalética en puntos críticos\n` +
+        `• Capacitar personal en atención al cliente\n` +
+        `• Ajustes rápidos basados en feedback\n\n` +
+        `**4️⃣ Tráfico y Participación:**\n` +
+        `• Promocionar atracciones con baja actividad: ${inactivas.map(a=>a.attraction_name).join(', ') || 'revisar métricas'}\n` +
+        `• Promoción cruzada en secciones populares\n\n` +
+        `**🎯 Objetivos a 30 días:**\n` +
+        `• +20% en calificaciones totales\n` +
+        `• +0.3⭐ en ${worst?.attraction_name || 'atracción objetivo'}\n\n` +
+        `¿Quieres un checklist detallado para alguna área específica?`;
     }
 
-    return `🤔 No entendí completamente tu consulta. Aquí tienes algunos ejemplos de lo que puedo hacer:\n\n📊 **Análisis disponibles:**\n• "mejores atracciones" - Top performers\n• "atracciones que necesitan mejora" - Underperformers\n• "tendencias de la semana" - Análisis temporal\n• "alertas activas" - Anomalías detectadas\n• "reporte completo" - Resumen ejecutivo\n• "análisis de [nombre atracción]" - Datos específicos\n\n¿Podrías reformular tu pregunta?`;
+    // Fallback mejorado - más amigable y útil
+    return `🤔 Hmm, no estoy seguro de entender "${command}".\n\n` +
+      `**¿Quizás quisiste decir?**\n` +
+      `• "mejores atracciones" - Ver las más destacadas\n` +
+      `• "atracciones con problemas" - Las que necesitan atención\n` +
+      `• "tendencias" - Análisis de la semana\n` +
+      `• "alertas" - Problemas detectados\n` +
+      `• "reporte" - Resumen ejecutivo\n\n` +
+      `También puedes preguntarme sobre cualquier atracción por nombre.\n\n` +
+      `💡 **Tip:** Escribe "ayuda" para ver todas mis capacidades.`;
   };
 
   const handleSendMessage = useCallback(() => {
