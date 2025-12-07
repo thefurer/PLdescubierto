@@ -1,17 +1,18 @@
-
-import { Bot } from 'lucide-react';
+import WhaleAvatar from './WhaleAvatar';
 
 const LoadingIndicator = () => {
   return (
-    <div className="flex gap-2 justify-start">
-      <div className="w-6 h-6 bg-gradient-to-br from-ocean to-ocean-dark rounded-full flex items-center justify-center flex-shrink-0">
-        <Bot size={12} className="text-white" />
-      </div>
-      <div className="bg-gray-50 px-3 py-2 rounded-xl rounded-bl-md border border-gray-100 shadow-sm">
-        <div className="flex gap-1">
-          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce"></div>
-          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.1s' }}></div>
-          <div className="w-1.5 h-1.5 bg-gray-400 rounded-full animate-bounce" style={{ animationDelay: '0.2s' }}></div>
+    <div className="flex gap-2.5 justify-start animate-fade-in">
+      <WhaleAvatar size="sm" animated={true} className="mt-1 shadow-md" />
+      
+      <div className="bg-white/80 border border-gray-100/80 rounded-2xl rounded-tl-md px-4 py-3 shadow-sm">
+        <div className="flex items-center gap-1.5">
+          <div className="flex gap-1">
+            <span className="w-2 h-2 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+            <span className="w-2 h-2 bg-gradient-to-r from-blue-400 to-indigo-500 rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+            <span className="w-2 h-2 bg-gradient-to-r from-indigo-400 to-purple-500 rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+          </div>
+          <span className="text-xs text-gray-400 ml-1">Ballenita está pensando...</span>
         </div>
       </div>
     </div>
