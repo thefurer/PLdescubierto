@@ -66,12 +66,90 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
     scrollToBottom();
   }, [messages]);
 
-  const quickCommands = [
-    { label: "Top Performers", command: "¿Cuáles son las atracciones mejor calificadas y por qué?" },
-    { label: "Tendencias", command: "Analiza las tendencias de calificaciones de esta semana" },
-    { label: "Alertas", command: "¿Hay algún problema o alerta que deba atender?" },
-    { label: "Recomendaciones", command: "Dame recomendaciones para mejorar las calificaciones generales" }
-  ];
+  // Generate contextual suggestions based on current data
+  const getContextualSuggestions = useCallback(() => {
+    const suggestions: Array<{ label: string; command: string; priority: number; icon?: string }> = [];
+
+    // Always include base suggestions
+    suggestions.push({
+      label: "Top Performers",
+      command: "¿Cuáles son las atracciones mejor calificadas y por qué destacan?",
+      priority: 1,
+      icon: "🏆"
+    });
+
+    // If there are underperformers, suggest asking about them
+    if (data.underPerformers.length > 0) {
+      const worst = data.underPerformers[0];
+      suggestions.push({
+        label: `Mejorar ${worst.attraction_name.split(' ').slice(0, 2).join(' ')}`,
+        command: `¿Cómo puedo mejorar las calificaciones de ${worst.attraction_name}? Tiene ${worst.average_rating} estrellas.`,
+        priority: 0,
+        icon: "📈"
+      });
+    }
+
+    // If there are anomalies/alerts
+    if (data.anomalies.length > 0) {
+      const criticalCount = data.anomalies.filter(a => a.severity === 'high').length;
+      suggestions.push({
+        label: criticalCount > 0 ? `${criticalCount} Alertas Críticas` : "Ver Alertas",
+        command: "Explícame las alertas activas y qué acciones debo tomar para resolverlas.",
+        priority: criticalCount > 0 ? -1 : 2,
+        icon: criticalCount > 0 ? "🚨" : "⚠️"
+      });
+    }
+
+    // Weekly trend suggestion
+    if (data.weeklyTrend !== 0) {
+      const trendDirection = data.weeklyTrend > 0 ? "subiendo" : "bajando";
+      suggestions.push({
+        label: `Tendencia ${data.weeklyTrend > 0 ? "↑" : "↓"}`,
+        command: `Las calificaciones están ${trendDirection} esta semana. ¿A qué se debe y qué puedo hacer?`,
+        priority: 3,
+        icon: data.weeklyTrend > 0 ? "📈" : "📉"
+      });
+    }
+
+    // If average is low, suggest improvement plan
+    if (data.averageRating < 4) {
+      suggestions.push({
+        label: "Plan de Mejora",
+        command: `El promedio general es ${data.averageRating}. Dame un plan completo para subir las calificaciones.`,
+        priority: 1,
+        icon: "🎯"
+      });
+    }
+
+    // If there's a top performer, suggest learning from it
+    if (data.topPerformers.length > 0) {
+      const best = data.topPerformers[0];
+      suggestions.push({
+        label: `Éxito de ${best.attraction_name.split(' ').slice(0, 2).join(' ')}`,
+        command: `${best.attraction_name} tiene ${best.average_rating} estrellas. ¿Qué podemos aprender de su éxito?`,
+        priority: 4,
+        icon: "⭐"
+      });
+    }
+
+    // Check for inactive attractions
+    const inactiveAttractions = data.attractions.filter(a => a.recent_ratings === 0);
+    if (inactiveAttractions.length > 0) {
+      suggestions.push({
+        label: `${inactiveAttractions.length} Sin Actividad`,
+        command: `Hay ${inactiveAttractions.length} atracciones sin calificaciones recientes. ¿Cómo puedo aumentar su visibilidad?`,
+        priority: 2,
+        icon: "💤"
+      });
+    }
+
+    // Sort by priority and return top 4
+    return suggestions
+      .sort((a, b) => a.priority - b.priority)
+      .slice(0, 4);
+  }, [data]);
+
+  const contextualSuggestions = getContextualSuggestions();
 
   const streamAIResponse = async (userMessage: string): Promise<void> => {
     const analyticsContext = {
@@ -300,18 +378,22 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
         <CardContent className="p-4">
           <h4 className="font-medium mb-3 flex items-center gap-2">
             <Lightbulb className="h-4 w-4 text-amber-500" />
-            Preguntas Sugeridas
+            Sugerencias Contextuales
+            <Badge variant="outline" className="text-xs ml-auto">
+              Basadas en tus datos
+            </Badge>
           </h4>
           <div className="flex flex-wrap gap-2">
-            {quickCommands.map((cmd, index) => (
+            {contextualSuggestions.map((cmd, index) => (
               <Button
                 key={index}
                 variant="outline"
                 size="sm"
                 onClick={() => handleQuickCommand(cmd.command)}
-                className="text-xs"
+                className="text-xs gap-1"
                 disabled={isTyping}
               >
+                <span>{cmd.icon}</span>
                 {cmd.label}
               </Button>
             ))}
