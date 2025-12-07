@@ -232,107 +232,298 @@ export const EnhancedRatingsAnalytics = () => {
   const exportAnalyticsReport = () => {
     if (!analyticsData) return;
 
-    // 1) Encabezado y resumen
-    const rows: (string | number)[][] = [];
     const today = new Date();
-    rows.push(['REPORTE ANALÍTICO DE CALIFICACIONES']);
-    rows.push(['Fecha:', today.toLocaleDateString('es-ES')]);
-    rows.push(['Período:', `Últimos ${dateRange} días`]);
-    rows.push([]);
-
-    rows.push(['RESUMEN EJECUTIVO']);
-    rows.push(['Promedio General', analyticsData.averageRating.toString()]);
-    rows.push(['Total de Calificaciones', analyticsData.totalRatings.toString()]);
-    rows.push(['Calificaciones esta semana', analyticsData.weeklyTrend.toString()]);
-    rows.push([]);
-
-    // 2) Recomendaciones de IA (basadas en top/under y anomalías)
-    rows.push(['RECOMENDACIONES DE MEJORA']);
-    analyticsData.topPerformers.forEach((a) => {
-      rows.push([`Mantener impulso:`, `${a.attraction_name} (⭐ ${a.average_rating})`, 'Refuerza promoción y comparte testimonios.']);
-    });
-    analyticsData.underPerformers.forEach((a) => {
-      rows.push([`Plan de mejora:`, `${a.attraction_name} (⭐ ${a.average_rating})`, 'Revisa horarios, guías y señalización; incentiva reseñas.']);
-    });
-    analyticsData.anomalies.forEach((an) => {
-      rows.push([`Alerta (${an.severity})`, an.type, an.message]);
-    });
-    rows.push([]);
-
-    // 3) Tabla detallada por atracción
-    rows.push(['DETALLE POR ATRACCIÓN']);
-    rows.push(['Atracción', 'Categoría', 'Promedio', 'Total', 'Recientes (7d)', 'Tendencia (últ.7 vs prev.7)']);
-
-    const calcTrend = (history: { date: string; rating: number; count: number }[]) => {
-      if (!history || history.length === 0) return '0';
-      const dates = history.map((h) => new Date(h.date)).sort((a, b) => a.getTime() - b.getTime());
-      const lastDate = dates[dates.length - 1];
-      const weekMs = 7 * 24 * 60 * 60 * 1000;
-      const last7Start = new Date(lastDate.getTime() - weekMs);
-      const prev7Start = new Date(last7Start.getTime() - weekMs);
-
-      const last7 = history.filter((h) => new Date(h.date) > last7Start);
-      const prev7 = history.filter((h) => new Date(h.date) > prev7Start && new Date(h.date) <= last7Start);
-
-      const avg = (arr: typeof history) => (arr.length ? arr.reduce((s, x) => s + x.rating, 0) / arr.length : 0);
-      const diff = avg(last7) - avg(prev7);
-      return diff.toFixed(2);
-    };
-
-    analyticsData.attractions.forEach((a) => {
-      rows.push([
-        a.attraction_name,
-        a.category,
-        a.average_rating.toFixed(1),
-        a.total_ratings,
-        a.recent_ratings,
-        calcTrend(a.rating_history)
-      ]);
-    });
-    rows.push([]);
-
-    // 4) Datos de series para gráficos (formato ancho)
-    rows.push(['DATOS PARA GRÁFICOS (copiar y crear gráficos en Excel)']);
-    // Reunir todas las fechas únicas
-    const allDatesSet = new Set<string>();
-    analyticsData.attractions.forEach((a) => a.rating_history.forEach((h) => allDatesSet.add(h.date)));
-    const allDates = Array.from(allDatesSet).sort((a, b) => a.localeCompare(b));
-
-    // Encabezados: Fecha + una columna por atracción
-    rows.push(['Fecha', ...analyticsData.attractions.map((a) => a.attraction_name)]);
-
-    allDates.forEach((date) => {
-      const row: (string | number)[] = [date];
-      analyticsData.attractions.forEach((a) => {
-        const found = a.rating_history.find((h) => h.date === date);
-        row.push(found ? Number(found.rating.toFixed(2)) : '');
-      });
-      rows.push(row);
+    const formattedDate = today.toLocaleDateString('es-EC', { 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
     });
 
-    // 5) Guía rápida para gráficos
-    rows.push([]);
-    rows.push(['GUÍA RÁPIDA']);
-    rows.push(['1) Selecciona el bloque "DATOS PARA GRÁFICOS" y crea un gráfico de líneas para ver la evolución.']);
-    rows.push(['2) Usa la tabla "DETALLE POR ATRACCIÓN" para gráficos de barras comparativos.']);
-    rows.push(['3) Prioriza acciones con base en las RECOMENDACIONES DE MEJORA.']);
-
-    // Construcción del CSV
-    const csvContent = rows.map((row) => row.map((cell) => `"${String(cell).replace(/"/g, '""')}"`).join(',')).join('\n');
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-
-    const link = document.createElement('a');
-    if (link.download !== undefined) {
-      const url = URL.createObjectURL(blob);
-      link.setAttribute('href', url);
-      link.setAttribute('download', `analytics-report-${today.toISOString().split('T')[0]}.csv`);
-      link.style.visibility = 'hidden';
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
+    // Generate styled HTML report
+    const htmlContent = `
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Reporte Analítico - Puerto López Descubierto</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { 
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; 
+      line-height: 1.6; 
+      color: #1a1a2e; 
+      padding: 40px;
+      background: #f8fafc;
     }
+    .report-container {
+      max-width: 1000px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.1);
+      overflow: hidden;
+    }
+    .header {
+      background: linear-gradient(135deg, #0c4a6e 0%, #0284c7 100%);
+      color: white;
+      padding: 40px;
+      text-align: center;
+    }
+    .header h1 { font-size: 28px; margin-bottom: 8px; }
+    .header p { opacity: 0.9; font-size: 14px; }
+    .header .date { 
+      margin-top: 15px; 
+      padding: 8px 20px; 
+      background: rgba(255,255,255,0.2); 
+      border-radius: 20px; 
+      display: inline-block;
+      font-size: 13px;
+    }
+    .content { padding: 40px; }
+    .section { margin-bottom: 35px; }
+    .section-title {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      font-size: 18px;
+      font-weight: 600;
+      color: #0c4a6e;
+      margin-bottom: 20px;
+      padding-bottom: 10px;
+      border-bottom: 2px solid #e2e8f0;
+    }
+    .section-icon {
+      width: 32px;
+      height: 32px;
+      background: linear-gradient(135deg, #0284c7, #0ea5e9);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 16px;
+    }
+    .kpi-grid {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 16px;
+      margin-bottom: 30px;
+    }
+    .kpi-card {
+      background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+      border: 1px solid #bae6fd;
+      border-radius: 12px;
+      padding: 20px;
+      text-align: center;
+    }
+    .kpi-card.gold { background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%); border-color: #fcd34d; }
+    .kpi-card.green { background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 100%); border-color: #86efac; }
+    .kpi-card.red { background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); border-color: #fca5a5; }
+    .kpi-value { font-size: 32px; font-weight: 700; color: #0c4a6e; }
+    .kpi-label { font-size: 12px; color: #64748b; margin-top: 5px; }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 13px;
+    }
+    th {
+      background: linear-gradient(135deg, #0c4a6e, #0284c7);
+      color: white;
+      padding: 14px 12px;
+      text-align: left;
+      font-weight: 600;
+    }
+    th:first-child { border-radius: 8px 0 0 0; }
+    th:last-child { border-radius: 0 8px 0 0; }
+    td {
+      padding: 12px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+    tr:nth-child(even) { background: #f8fafc; }
+    tr:hover { background: #f0f9ff; }
+    .rating-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+      font-size: 12px;
+    }
+    .rating-high { background: #dcfce7; color: #166534; }
+    .rating-medium { background: #fef3c7; color: #92400e; }
+    .rating-low { background: #fee2e2; color: #991b1b; }
+    .recommendation-card {
+      background: #f0fdf4;
+      border-left: 4px solid #22c55e;
+      padding: 15px 20px;
+      margin-bottom: 12px;
+      border-radius: 0 8px 8px 0;
+    }
+    .recommendation-card.warning {
+      background: #fffbeb;
+      border-left-color: #f59e0b;
+    }
+    .recommendation-card.danger {
+      background: #fef2f2;
+      border-left-color: #ef4444;
+    }
+    .recommendation-title { font-weight: 600; color: #1e293b; margin-bottom: 4px; }
+    .recommendation-text { font-size: 13px; color: #64748b; }
+    .footer {
+      background: #f1f5f9;
+      padding: 25px 40px;
+      text-align: center;
+      font-size: 12px;
+      color: #64748b;
+      border-top: 1px solid #e2e8f0;
+    }
+    .star { color: #fbbf24; }
+    @media print {
+      body { padding: 0; background: white; }
+      .report-container { box-shadow: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="report-container">
+    <div class="header">
+      <h1>📊 Reporte Analítico de Calificaciones</h1>
+      <p>Puerto López Descubierto - Sistema de Análisis Inteligente</p>
+      <div class="date">📅 ${formattedDate} • Período: Últimos ${dateRange} días</div>
+    </div>
 
-    toast({ title: 'Reporte Exportado', description: 'El CSV incluye datos listos para crear gráficos y recomendaciones.' });
+    <div class="content">
+      <!-- KPIs -->
+      <section class="section">
+        <div class="section-title">
+          <div class="section-icon">📈</div>
+          Resumen Ejecutivo
+        </div>
+        <div class="kpi-grid">
+          <div class="kpi-card gold">
+            <div class="kpi-value">${analyticsData.averageRating}</div>
+            <div class="kpi-label">⭐ Promedio General</div>
+          </div>
+          <div class="kpi-card">
+            <div class="kpi-value">${analyticsData.totalRatings}</div>
+            <div class="kpi-label">📝 Total Calificaciones</div>
+          </div>
+          <div class="kpi-card green">
+            <div class="kpi-value">${analyticsData.weeklyTrend}</div>
+            <div class="kpi-label">📆 Esta Semana</div>
+          </div>
+          <div class="kpi-card ${analyticsData.anomalies.length > 0 ? 'red' : ''}">
+            <div class="kpi-value">${analyticsData.anomalies.length}</div>
+            <div class="kpi-label">⚠️ Anomalías</div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Tabla de Atracciones -->
+      <section class="section">
+        <div class="section-title">
+          <div class="section-icon">📍</div>
+          Detalle por Atracción
+        </div>
+        <table>
+          <thead>
+            <tr>
+              <th>Atracción</th>
+              <th>Categoría</th>
+              <th>Promedio</th>
+              <th>Total</th>
+              <th>Recientes (7d)</th>
+            </tr>
+          </thead>
+          <tbody>
+            ${analyticsData.attractions.map(a => `
+              <tr>
+                <td><strong>${a.attraction_name}</strong></td>
+                <td>${a.category}</td>
+                <td>
+                  <span class="rating-badge ${a.average_rating >= 4 ? 'rating-high' : a.average_rating >= 3 ? 'rating-medium' : 'rating-low'}">
+                    ⭐ ${a.average_rating.toFixed(1)}
+                  </span>
+                </td>
+                <td>${a.total_ratings}</td>
+                <td>${a.recent_ratings}</td>
+              </tr>
+            `).join('')}
+          </tbody>
+        </table>
+      </section>
+
+      <!-- Top Performers -->
+      <section class="section">
+        <div class="section-title">
+          <div class="section-icon">🏆</div>
+          Top Performers
+        </div>
+        ${analyticsData.topPerformers.map((a, i) => `
+          <div class="recommendation-card">
+            <div class="recommendation-title">${i + 1}. ${a.attraction_name}</div>
+            <div class="recommendation-text">
+              ⭐ Calificación: ${a.average_rating} | 📝 ${a.total_ratings} calificaciones totales
+            </div>
+          </div>
+        `).join('')}
+      </section>
+
+      <!-- Recomendaciones -->
+      ${analyticsData.underPerformers.length > 0 ? `
+      <section class="section">
+        <div class="section-title">
+          <div class="section-icon">💡</div>
+          Áreas de Mejora
+        </div>
+        ${analyticsData.underPerformers.map(a => `
+          <div class="recommendation-card warning">
+            <div class="recommendation-title">${a.attraction_name}</div>
+            <div class="recommendation-text">
+              Promedio: ⭐ ${a.average_rating} - Considerar revisar horarios, guías y señalización para mejorar la experiencia del visitante.
+            </div>
+          </div>
+        `).join('')}
+      </section>
+      ` : ''}
+
+      <!-- Anomalías -->
+      ${analyticsData.anomalies.length > 0 ? `
+      <section class="section">
+        <div class="section-title">
+          <div class="section-icon">⚠️</div>
+          Anomalías Detectadas
+        </div>
+        ${analyticsData.anomalies.map(an => `
+          <div class="recommendation-card danger">
+            <div class="recommendation-title">${an.type === 'low_rating' ? '📉 Calificación Baja' : an.type === 'no_activity' ? '😴 Sin Actividad' : '⬇️ Caída de Rating'}</div>
+            <div class="recommendation-text">${an.message}</div>
+          </div>
+        `).join('')}
+      </section>
+      ` : ''}
+    </div>
+
+    <div class="footer">
+      <p><strong>Puerto López Descubierto</strong> - Sistema de Gestión Turística</p>
+      <p>Reporte generado automáticamente • ${formattedDate}</p>
+    </div>
+  </div>
+</body>
+</html>
+    `;
+
+    // Open in new window for print/save
+    const printWindow = window.open('', '_blank');
+    if (printWindow) {
+      printWindow.document.write(htmlContent);
+      printWindow.document.close();
+      toast({ 
+        title: 'Reporte Generado', 
+        description: 'Use Ctrl+P para imprimir o guardar como PDF.' 
+      });
+    }
   };
   if (loading) {
     return <div className="space-y-6">
