@@ -4,17 +4,20 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
-import { BookOpen, Download, FileText, Loader2 } from 'lucide-react';
+import { BookOpen, Download, FileText, Loader2, Code } from 'lucide-react';
 import { generateUserManualPDF } from './UserManualGenerator';
+import { generateTechnicalDocPDF } from './TechnicalDocGenerator';
 import { toast } from 'sonner';
 
 const ResourcesDropdown = () => {
-  const [isGenerating, setIsGenerating] = useState(false);
+  const [isGeneratingManual, setIsGeneratingManual] = useState(false);
+  const [isGeneratingTechDoc, setIsGeneratingTechDoc] = useState(false);
 
   const handleDownloadManual = async () => {
-    setIsGenerating(true);
+    setIsGeneratingManual(true);
     try {
       await generateUserManualPDF();
       toast.success('Manual de usuario descargado correctamente');
@@ -22,7 +25,20 @@ const ResourcesDropdown = () => {
       console.error('Error generating PDF:', error);
       toast.error('Error al generar el manual. Intente nuevamente.');
     } finally {
-      setIsGenerating(false);
+      setIsGeneratingManual(false);
+    }
+  };
+
+  const handleDownloadTechDoc = async () => {
+    setIsGeneratingTechDoc(true);
+    try {
+      await generateTechnicalDocPDF();
+      toast.success('Documentación técnica descargada correctamente');
+    } catch (error) {
+      console.error('Error generating technical doc PDF:', error);
+      toast.error('Error al generar la documentación. Intente nuevamente.');
+    } finally {
+      setIsGeneratingTechDoc(false);
     }
   };
 
@@ -38,13 +54,13 @@ const ResourcesDropdown = () => {
           <span className="hidden sm:inline">Recursos</span>
         </Button>
       </DropdownMenuTrigger>
-      <DropdownMenuContent align="end" className="w-56 bg-card border shadow-lg z-50">
+      <DropdownMenuContent align="end" className="w-64 bg-card border shadow-lg z-50">
         <DropdownMenuItem
           onClick={handleDownloadManual}
-          disabled={isGenerating}
+          disabled={isGeneratingManual}
           className="cursor-pointer gap-3 py-3 hover:bg-primary/10 transition-colors"
         >
-          {isGenerating ? (
+          {isGeneratingManual ? (
             <Loader2 className="h-4 w-4 animate-spin text-primary" />
           ) : (
             <Download className="h-4 w-4 text-primary" />
@@ -52,18 +68,28 @@ const ResourcesDropdown = () => {
           <div className="flex flex-col">
             <span className="font-medium">Manual de Usuario</span>
             <span className="text-xs text-muted-foreground">
-              {isGenerating ? 'Generando PDF...' : 'Descargar PDF'}
+              {isGeneratingManual ? 'Generando PDF...' : 'Guía completa de uso'}
             </span>
           </div>
         </DropdownMenuItem>
+        
+        <DropdownMenuSeparator />
+        
         <DropdownMenuItem
-          className="cursor-pointer gap-3 py-3 hover:bg-primary/10 transition-colors"
-          onClick={() => window.open('/docs/ADMIN_PANEL_TECHNICAL_DOCUMENTATION.md', '_blank')}
+          onClick={handleDownloadTechDoc}
+          disabled={isGeneratingTechDoc}
+          className="cursor-pointer gap-3 py-3 hover:bg-accent/10 transition-colors"
         >
-          <FileText className="h-4 w-4 text-accent" />
+          {isGeneratingTechDoc ? (
+            <Loader2 className="h-4 w-4 animate-spin text-accent" />
+          ) : (
+            <Code className="h-4 w-4 text-accent" />
+          )}
           <div className="flex flex-col">
             <span className="font-medium">Documentación Técnica</span>
-            <span className="text-xs text-muted-foreground">Ver documentación</span>
+            <span className="text-xs text-muted-foreground">
+              {isGeneratingTechDoc ? 'Generando PDF...' : 'Para desarrolladores'}
+            </span>
           </div>
         </DropdownMenuItem>
       </DropdownMenuContent>
