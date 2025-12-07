@@ -70,8 +70,8 @@ const ChatWindow = ({
     <div className={`
       fixed z-40 flex flex-col overflow-hidden
       ${isMobile 
-        ? 'bottom-20 left-3 right-3 h-[78vh] max-h-[600px]'
-        : 'bottom-24 right-4 w-[360px] h-[600px]'
+        ? 'bottom-20 left-3 right-3 h-[65vh] max-h-[500px]'
+        : 'bottom-24 right-4 w-[360px] h-[520px]'
       }
     `}>
       {/* Glass morphism container */}
