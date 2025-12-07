@@ -18,7 +18,7 @@ const ChatBot = () => {
     {
       id: '1',
       type: 'bot',
-      content: '¡Hola! 👋 Soy tu asistente de Puerto López. ¿En qué puedo ayudarte hoy?',
+      content: '¡Hola! 🐋 Soy Ballenita, tu guía de Puerto López. ¿Te ayudo a explorar nuestras playas, avistamiento de ballenas o qué te gustaría descubrir hoy?',
       timestamp: new Date(),
     },
   ]);
@@ -31,7 +31,7 @@ const ChatBot = () => {
       {
         id: crypto.randomUUID(),
         type: 'bot',
-        content: '¡Hola! 👋 Soy tu asistente de Puerto López. ¿En qué puedo ayudarte hoy?',
+        content: '¡Hola! 🐋 Soy Ballenita, tu guía de Puerto López. ¿Te ayudo a explorar nuestras playas, avistamiento de ballenas o qué te gustaría descubrir hoy?',
         timestamp: new Date(),
       },
     ]);
