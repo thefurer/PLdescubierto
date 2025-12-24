@@ -1,4 +1,5 @@
 import { User } from 'lucide-react';
+import DOMPurify from 'dompurify';
 import WhaleAvatar from './WhaleAvatar';
 
 interface Message {
@@ -21,29 +22,23 @@ const ChatMessage = ({ message }: ChatMessageProps) => {
   };
 
   const formatMessageContent = (content: string) => {
-    // Sanitize content first
-    const sanitized = content
-      .replace(/<script\b[^<]*(?:(?!<\/script>)<[^<]*)*<\/script>/gi, '')
-      .replace(/<iframe\b[^<]*(?:(?!<\/iframe>)<[^<]*)*<\/iframe>/gi, '')
-      .replace(/<object\b[^<]*(?:(?!<\/object>)<[^<]*)*<\/object>/gi, '')
-      .replace(/<embed\b[^<]*>/gi, '')
-      .replace(/javascript:/gi, '')
-      .replace(/on\w+\s*=/gi, '');
-
-    let formatted = sanitized
+    // Format markdown-like syntax
+    const formatted = content
       .replace(/\*\*([\w\s.,!?áéíóúñü]+?)\*\*/g, '<strong class="text-cyan-700">$1</strong>')
       .replace(/\*([\w\s.,!?áéíóúñü]+?)\*/g, '<em>$1</em>')
       .replace(/^• (.*$)/gim, (match, text) => {
-        const safeText = text.replace(/[<>]/g, '');
-        return `<div class="flex items-start gap-2 my-1"><span class="text-cyan-500">•</span><span>${safeText}</span></div>`;
+        return `<div class="flex items-start gap-2 my-1"><span class="text-cyan-500">•</span><span>${text}</span></div>`;
       })
       .replace(/^(\d+)\. (.*$)/gim, (match, num, text) => {
-        const safeText = text.replace(/[<>]/g, '');
-        return `<div class="flex items-start gap-2 my-1"><span class="text-cyan-600 font-semibold">${num}.</span><span>${safeText}</span></div>`;
+        return `<div class="flex items-start gap-2 my-1"><span class="text-cyan-600 font-semibold">${num}.</span><span>${text}</span></div>`;
       })
       .replace(/\n/g, '<br/>');
 
-    return formatted;
+    // Sanitize with DOMPurify to prevent XSS
+    return DOMPurify.sanitize(formatted, {
+      ALLOWED_TAGS: ['strong', 'em', 'div', 'span', 'br'],
+      ALLOWED_ATTR: ['class']
+    });
   };
 
   const isBot = message.type === 'bot';

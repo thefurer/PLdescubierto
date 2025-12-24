@@ -1,5 +1,6 @@
 
 import { useState } from 'react';
+import DOMPurify from 'dompurify';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
@@ -75,7 +76,7 @@ const RichTextEditor = ({ value, onChange, placeholder }: RichTextEditorProps) =
   };
 
   const renderPreview = (text: string) => {
-    return text
+    const html = text
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '<em>$1</em>')
       .replace(/<u>(.*?)<\/u>/g, '<u>$1</u>')
@@ -85,6 +86,11 @@ const RichTextEditor = ({ value, onChange, placeholder }: RichTextEditorProps) =
       .replace(/^- (.*$)/gm, '<li class="ml-4">• $1</li>')
       .replace(/^\d+\. (.*$)/gm, '<li class="ml-4 list-decimal">$1</li>')
       .replace(/\n/g, '<br>');
+    
+    return DOMPurify.sanitize(html, {
+      ALLOWED_TAGS: ['strong', 'em', 'u', 'h1', 'h2', 'blockquote', 'li', 'br'],
+      ALLOWED_ATTR: ['class']
+    });
   };
 
   return (
