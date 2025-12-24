@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useCallback } from "react";
+import DOMPurify from "dompurify";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -349,7 +350,7 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
     }
   };
 
-  // Simple markdown-like rendering
+  // Simple markdown-like rendering with XSS protection
   const renderContent = (content: string) => {
     return content
       .split('\n')
@@ -359,9 +360,15 @@ const InteractiveChatAssistant = ({ data }: InteractiveChatAssistantProps) => {
         // Italic text
         processed = processed.replace(/\*(.*?)\*/g, '<em>$1</em>');
         
+        // Sanitize with DOMPurify to prevent XSS
+        const sanitized = DOMPurify.sanitize(processed, {
+          ALLOWED_TAGS: ['strong', 'em'],
+          ALLOWED_ATTR: []
+        });
+        
         return (
           <span key={i}>
-            <span dangerouslySetInnerHTML={{ __html: processed }} />
+            <span dangerouslySetInnerHTML={{ __html: sanitized }} />
             {i < content.split('\n').length - 1 && <br />}
           </span>
         );
