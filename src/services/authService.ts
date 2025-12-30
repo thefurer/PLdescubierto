@@ -155,29 +155,54 @@ export const useAuthService = () => {
     try {
       const { error } = await supabase.auth.signOut();
 
+      // Si la sesión no existe en el servidor (ya expiró), no es un error real
+      // Solo limpiamos el estado local y mostramos éxito
       if (error) {
-        console.error('Signout error:', error);
+        console.warn('Signout warning:', error.message);
+        
+        // session_not_found significa que la sesión ya no existe en el servidor
+        // Esto es normal si la sesión expiró o fue invalidada
+        const isSessionExpired = error.message.includes('session_not_found') || 
+                                  error.message.includes('Session not found') ||
+                                  error.message.includes('Auth session missing');
+        
+        if (isSessionExpired) {
+          // Limpiar manualmente localStorage para eliminar cualquier token viejo
+          localStorage.removeItem('sb-lncxwvrcsuhphxxsvjod-auth-token');
+          
+          toast({
+            title: 'Sesión cerrada',
+            description: 'Tu sesión ha sido cerrada.',
+          });
+          return { error: null };
+        }
+        
+        // Solo mostrar error para otros tipos de errores
         toast({
           title: 'Error',
           description: error.message,
           variant: 'destructive',
         });
-      } else {
-        toast({
-          title: 'Sesión cerrada',
-          description: 'Has cerrado sesión correctamente.',
-        });
+        return { error };
       }
+      
+      toast({
+        title: 'Sesión cerrada',
+        description: 'Has cerrado sesión correctamente.',
+      });
 
-      return { error };
+      return { error: null };
     } catch (error: any) {
       console.error('Unexpected signout error:', error);
+      
+      // Incluso si hay un error inesperado, intentar limpiar el localStorage
+      localStorage.removeItem('sb-lncxwvrcsuhphxxsvjod-auth-token');
+      
       toast({
-        title: 'Error',
-        description: 'Ocurrió un error al cerrar sesión.',
-        variant: 'destructive',
+        title: 'Sesión cerrada',
+        description: 'Tu sesión ha sido cerrada.',
       });
-      return { error: error as AuthError };
+      return { error: null };
     }
   };
 
