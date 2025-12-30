@@ -1,164 +1,53 @@
-import { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { supabase } from '@/integrations/supabase/client';
-import { useToast } from '@/hooks/use-toast';
-import { Loader2, UserPlus, Shield, Settings, Users, Lock } from 'lucide-react';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Shield, Crown } from 'lucide-react';
 import SuperAdminPanel from './SuperAdminPanel';
-import PermissionsManager from './admin/PermissionsManager';
 import { useAdminManagement } from '@/hooks/useAdminManagement';
+
 const AdminManager = () => {
-  const [loading, setLoading] = useState(false);
-  const [email, setEmail] = useState('');
-  const {
-    isMainAdmin
-  } = useAdminManagement();
-  const {
-    toast
-  } = useToast();
-  const assignAdminRole = async () => {
-    if (!email.trim()) {
-      toast({
-        title: 'Error',
-        description: 'Por favor ingresa un email válido',
-        variant: 'destructive'
-      });
-      return;
-    }
-    setLoading(true);
-    try {
-      const {
-        error
-      } = await supabase.rpc('assign_admin_role', {
-        user_email: email.trim()
-      });
-      if (error) {
-        throw error;
-      }
-      toast({
-        title: 'Éxito',
-        description: `Rol de administrador asignado a ${email}`
-      });
-      setEmail('');
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'No se pudo asignar el rol de administrador',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-  const createInitialAdmin = async () => {
-    setLoading(true);
-    try {
-      const {
-        error
-      } = await supabase.rpc('create_initial_admin');
-      if (error) {
-        throw error;
-      }
-      toast({
-        title: 'Éxito',
-        description: 'Rol de administrador inicial creado'
-      });
-    } catch (error: any) {
-      toast({
-        title: 'Error',
-        description: error.message || 'No se pudo crear el administrador inicial',
-        variant: 'destructive'
-      });
-    } finally {
-      setLoading(false);
-    }
-  };
-  return <div className="space-y-6">
-      <Tabs defaultValue={isMainAdmin ? "super-admin" : "basic"} className="w-full">
-        <TabsList className="grid w-full grid-cols-3 bg-slate-200">
-          <TabsTrigger value="basic" className="flex items-center gap-2">
-            <Shield className="h-4 w-4" />
-            Administración Básica
-          </TabsTrigger>
-          <TabsTrigger value="permissions" className="flex items-center gap-2" disabled={!isMainAdmin}>
-            <Lock className="h-4 w-4" />
-            Permisos Granulares
-          </TabsTrigger>
-          <TabsTrigger value="super-admin" className="flex items-center gap-2" disabled={!isMainAdmin}>
-            <Settings className="h-4 w-4" />
-            Super Administrador
-          </TabsTrigger>
-        </TabsList>
+  const { isMainAdmin } = useAdminManagement();
 
-        <TabsContent value="basic" className="space-y-6">
-          <Card>
-            <CardHeader>
-              <div className="flex items-center gap-3">
-                <Shield className="h-6 w-6 text-blue-500" />
-                <div>
-                  <CardTitle>Gestión de Administradores</CardTitle>
-                  <CardDescription>
-                    Asigna roles de administrador a usuarios del sistema
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div>
-                <Label htmlFor="admin-email">Email del Usuario</Label>
-                <Input id="admin-email" type="email" value={email} onChange={e => setEmail(e.target.value)} placeholder="usuario@ejemplo.com" disabled={loading} />
-              </div>
-
-              <Button onClick={assignAdminRole} disabled={loading || !email.trim()} className="w-full">
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <UserPlus className="h-4 w-4 mr-2" />}
-                Asignar Rol de Administrador
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle>Configuración Inicial</CardTitle>
+  if (!isMainAdmin) {
+    return (
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <Shield className="h-6 w-6 text-yellow-500" />
+            <div>
+              <CardTitle>Acceso Restringido</CardTitle>
               <CardDescription>
-                Solo usar una vez para crear el primer administrador del sistema
+                Solo el Super Administrador puede acceder a esta sección
               </CardDescription>
-            </CardHeader>
-            <CardContent>
-              <Button onClick={createInitialAdmin} disabled={loading} variant="outline" className="w-full">
-                {loading ? <Loader2 className="h-4 w-4 animate-spin mr-2" /> : <Shield className="h-4 w-4 mr-2" />}
-                Crear Administrador Inicial
-              </Button>
-            </CardContent>
-          </Card>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <p className="text-muted-foreground">
+            No tienes permisos para gestionar administradores. Contacta al Super Administrador si necesitas acceso.
+          </p>
+        </CardContent>
+      </Card>
+    );
+  }
 
-          <Card>
-            <CardHeader>
-              <CardTitle>Información de Seguridad</CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-2 text-sm text-gray-600">
-              <p>• Solo los administradores pueden gestionar contenido del sitio</p>
-              <p>• Los usuarios públicos pueden ver contenido activo</p>
-              <p>• Todas las operaciones están protegidas por RLS</p>
-              <p>• El formulario de contacto tiene límites de velocidad</p>
-              <p>• Solo emails autorizados pueden registrarse en el sistema</p>
-              <p>• Una vez autorizado, el usuario podrá completar su registro</p>
-              <p>• El administrador principal controla todos los permisos granulares</p>
-              <p>• Los permisos se asignan por módulo y acción específica</p>
-            </CardContent>
-          </Card>
-        </TabsContent>
+  return (
+    <div className="space-y-6">
+      <Card className="border-primary/20 bg-gradient-to-r from-primary/5 to-transparent">
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <Crown className="h-6 w-6 text-primary" />
+            <div>
+              <CardTitle>Panel de Super Administrador</CardTitle>
+              <CardDescription>
+                Gestiona emails autorizados, roles de usuario y configuración del sistema
+              </CardDescription>
+            </div>
+          </div>
+        </CardHeader>
+      </Card>
 
-        <TabsContent value="permissions">
-          <PermissionsManager />
-        </TabsContent>
-
-        <TabsContent value="super-admin">
-          <SuperAdminPanel />
-        </TabsContent>
-      </Tabs>
-    </div>;
+      <SuperAdminPanel />
+    </div>
+  );
 };
+
 export default AdminManager;

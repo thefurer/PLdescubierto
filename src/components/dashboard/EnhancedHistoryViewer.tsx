@@ -10,11 +10,16 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, Di
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
-import { History, RotateCcw, User, Calendar as CalendarIcon, FileText, Palette, Navigation, Image, MousePointer, Type, Filter, Search, Eye, Diff, Download, RefreshCw } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { History, RotateCcw, User, Calendar as CalendarIcon, FileText, Palette, Navigation, Image, MousePointer, Type, Filter, Search, Eye, Diff, Download, RefreshCw, Trash2 } from 'lucide-react';
 import { useContentHistory } from '@/hooks/useContentHistory';
+import { useUserRole } from '@/hooks/useUserRole';
+import { supabase } from '@/integrations/supabase/client';
+import { useToast } from '@/hooks/use-toast';
 import { formatDistanceToNow, format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { cn } from '@/lib/utils';
+
 const EnhancedHistoryViewer = () => {
   const {
     history,
@@ -22,6 +27,8 @@ const EnhancedHistoryViewer = () => {
     revertToVersion,
     fetchHistory
   } = useContentHistory();
+  const { isMainAdmin } = useUserRole();
+  const { toast } = useToast();
   const [filteredHistory, setFilteredHistory] = useState(history);
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedUser, setSelectedUser] = useState('all');
@@ -30,6 +37,7 @@ const EnhancedHistoryViewer = () => {
   const [dateFrom, setDateFrom] = useState<Date>();
   const [dateTo, setDateTo] = useState<Date>();
   const [selectedItem, setSelectedItem] = useState<any>(null);
+  const [clearing, setClearing] = useState(false);
 
   // Aplicar filtros
   const applyFilters = () => {
@@ -134,6 +142,30 @@ const EnhancedHistoryViewer = () => {
     linkElement.setAttribute('download', exportFileDefaultName);
     linkElement.click();
   };
+
+  const handleClearHistory = async () => {
+    setClearing(true);
+    try {
+      const { error } = await supabase.rpc('clear_all_content_history');
+      if (error) throw error;
+      
+      toast({
+        title: 'Historial limpiado',
+        description: 'Todos los registros del historial han sido eliminados.',
+      });
+      
+      await fetchHistory();
+    } catch (error: any) {
+      console.error('Error clearing history:', error);
+      toast({
+        title: 'Error',
+        description: error.message || 'No se pudo limpiar el historial',
+        variant: 'destructive'
+      });
+    } finally {
+      setClearing(false);
+    }
+  };
   if (loading) {
     return <Card>
         <CardHeader>
@@ -170,6 +202,34 @@ const EnhancedHistoryViewer = () => {
               <Download className="h-3 w-3 mr-1" />
               Exportar
             </Button>
+            {isMainAdmin && history.length > 0 && (
+              <AlertDialog>
+                <AlertDialogTrigger asChild>
+                  <Button variant="outline" size="sm" className="h-8 text-red-600 border-red-200 hover:bg-red-50" disabled={clearing}>
+                    <Trash2 className="h-3 w-3 mr-1" />
+                    Limpiar Todo
+                  </Button>
+                </AlertDialogTrigger>
+                <AlertDialogContent>
+                  <AlertDialogHeader>
+                    <AlertDialogTitle>¿Limpiar todo el historial?</AlertDialogTitle>
+                    <AlertDialogDescription>
+                      Esta acción eliminará permanentemente todos los registros del historial de cambios. 
+                      Esta acción NO se puede deshacer.
+                    </AlertDialogDescription>
+                  </AlertDialogHeader>
+                  <AlertDialogFooter>
+                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                    <AlertDialogAction
+                      onClick={handleClearHistory}
+                      className="bg-red-600 hover:bg-red-700"
+                    >
+                      Eliminar Todo
+                    </AlertDialogAction>
+                  </AlertDialogFooter>
+                </AlertDialogContent>
+              </AlertDialog>
+            )}
           </div>
         </div>
 

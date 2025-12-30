@@ -988,6 +988,7 @@ export type Database = {
         Args: { notes?: string; user_email: string }
         Returns: undefined
       }
+      clear_all_content_history: { Args: never; Returns: undefined }
       create_initial_admin: { Args: never; Returns: undefined }
       delete_authorized_email: {
         Args: { email_id: string }
@@ -1047,6 +1048,10 @@ export type Database = {
           total_ratings: number
         }[]
       }
+      get_user_role_by_email: {
+        Args: { target_email: string }
+        Returns: string
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -1086,6 +1091,10 @@ export type Database = {
       moderate_content: { Args: { content_text: string }; Returns: string }
       reactivate_authorized_email: {
         Args: { email_id: string }
+        Returns: undefined
+      }
+      set_user_role: {
+        Args: { new_role: string; target_email: string }
         Returns: undefined
       }
       update_authorized_email_notes: {
