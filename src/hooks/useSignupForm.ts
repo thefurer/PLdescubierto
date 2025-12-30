@@ -9,19 +9,27 @@ export const useSignupForm = () => {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [captchaToken, setCaptchaToken] = useState<string | null>(null);
-  const [canSubmit, setCanSubmit] = useState(false);
+  const [isEmailAuthorized, setIsEmailAuthorized] = useState(false);
   const captchaRef = useRef<any>(null);
 
   const { signUp } = useAuth();
   const { toast } = useToast();
 
+  // Calcular si se puede enviar el formulario
+  const canSubmit = isEmailAuthorized && 
+                    fullName.trim().length >= 2 && 
+                    password.length >= 6 && 
+                    !!captchaToken &&
+                    email.includes('@');
+
   const handleEmailAuthorizationChange = (authorized: boolean) => {
-    setCanSubmit(authorized && fullName.trim().length >= 2 && password.length >= 6 && !!captchaToken);
+    console.log('Email authorization changed:', authorized);
+    setIsEmailAuthorized(authorized);
   };
 
   const handleCaptchaVerify = (token: string) => {
+    console.log('CAPTCHA verified, token received');
     setCaptchaToken(token);
-    setCanSubmit(token !== null && email.includes('@') && fullName.trim().length >= 2 && password.length >= 6);
   };
 
   const resetCaptcha = () => {
@@ -33,6 +41,17 @@ export const useSignupForm = () => {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Validación explícita de autorización de email ANTES de intentar signup
+    if (!isEmailAuthorized) {
+      console.warn('Form submission blocked: email not authorized');
+      toast({
+        title: "Email no autorizado",
+        description: "Tu email no está autorizado para registrarse. Contacta al administrador.",
+        variant: "destructive"
+      });
+      return;
+    }
 
     if (!canSubmit) {
       console.warn('Form submission blocked: not all requirements met');
@@ -59,6 +78,7 @@ export const useSignupForm = () => {
       email: email.toLowerCase().trim(),
       fullName: fullName.trim(),
       hasCaptcha: !!captchaToken,
+      isEmailAuthorized,
       redirectUrl: `${window.location.origin}/auth?verified=true`
     });
 

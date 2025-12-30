@@ -21,8 +21,81 @@ const ResetPassword = () => {
   useEffect(() => {
     const checkSession = async () => {
       try {
-        // Get the current session
+        console.log('=== RESET PASSWORD: Checking session ===');
+        console.log('Current URL:', window.location.href);
+        console.log('Search params:', Object.fromEntries(searchParams.entries()));
+        console.log('URL hash:', window.location.hash);
+
+        // Supabase puede enviar tokens en el hash fragment (#) o como query params
+        // Parseamos ambos formatos
+        const hashParams = new URLSearchParams(window.location.hash.substring(1));
+        
+        const accessToken = searchParams.get('access_token') || hashParams.get('access_token');
+        const refreshToken = searchParams.get('refresh_token') || hashParams.get('refresh_token');
+        const type = searchParams.get('type') || hashParams.get('type');
+        const tokenHash = searchParams.get('token_hash') || hashParams.get('token_hash');
+        
+        console.log('Parsed tokens:', { 
+          hasAccessToken: !!accessToken, 
+          hasRefreshToken: !!refreshToken,
+          hasTokenHash: !!tokenHash,
+          type 
+        });
+
+        // Si tenemos access_token y refresh_token, configurar la sesión directamente
+        if (accessToken && refreshToken && type === 'recovery') {
+          console.log('Setting session from tokens...');
+          const { data, error: setSessionError } = await supabase.auth.setSession({
+            access_token: accessToken,
+            refresh_token: refreshToken
+          });
+          
+          if (setSessionError) {
+            console.error('Error setting session:', setSessionError);
+            setError('El enlace de restablecimiento ha expirado o es inválido. Por favor, solicita uno nuevo.');
+            setLoading(false);
+            return;
+          }
+          
+          if (data?.session) {
+            console.log('Session set successfully from tokens');
+            setIsValidSession(true);
+            setLoading(false);
+            // Limpiar el hash de la URL
+            window.history.replaceState(null, '', window.location.pathname);
+            return;
+          }
+        }
+
+        // Si tenemos token_hash, usar verifyOtp
+        if (tokenHash && type === 'recovery') {
+          console.log('Verifying OTP with token_hash...');
+          const { error: verifyError } = await supabase.auth.verifyOtp({
+            token_hash: tokenHash,
+            type: 'recovery'
+          });
+          
+          if (verifyError) {
+            console.error('Verify OTP error:', verifyError);
+            setError('El enlace de restablecimiento ha expirado o es inválido. Por favor, solicita uno nuevo.');
+            setLoading(false);
+            return;
+          }
+          
+          console.log('OTP verified successfully');
+          setIsValidSession(true);
+          setLoading(false);
+          return;
+        }
+
+        // Check if we have an existing session (could be from Supabase auto-handling)
         const { data: { session }, error: sessionError } = await supabase.auth.getSession();
+        
+        console.log('Existing session check:', { 
+          hasSession: !!session, 
+          userId: session?.user?.id,
+          sessionError 
+        });
         
         if (sessionError) {
           console.error('Session error:', sessionError);
@@ -31,33 +104,12 @@ const ResetPassword = () => {
           return;
         }
 
-        // Check if we have access_token and type=recovery in URL (from email link)
-        const accessToken = searchParams.get('access_token');
-        const type = searchParams.get('type');
-        
-        if (type === 'recovery' && accessToken) {
-          // Exchange the token for a session
-          const { error: verifyError } = await supabase.auth.verifyOtp({
-            token_hash: accessToken,
-            type: 'recovery'
-          });
-          
-          if (verifyError) {
-            console.error('Verify error:', verifyError);
-            setError('El enlace de restablecimiento ha expirado o es inválido. Por favor, solicita uno nuevo.');
-            setLoading(false);
-            return;
-          }
-          
-          setIsValidSession(true);
-          setLoading(false);
-          return;
-        }
-
-        // Check if there's an active recovery session
+        // Si ya tenemos una sesión activa, es válida para cambiar contraseña
         if (session?.user) {
+          console.log('Valid existing session found');
           setIsValidSession(true);
         } else {
+          console.log('No valid session found');
           setError('No se encontró una sesión válida. Por favor, solicita un nuevo enlace de restablecimiento.');
         }
       } catch (err) {
