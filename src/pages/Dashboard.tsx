@@ -7,7 +7,6 @@ import {
   MapPin,
   Home,
   Shield,
-  Palette,
   Map
 } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
@@ -26,7 +25,6 @@ const Dashboard = () => {
     { id: 'footer', label: 'Pie de Página', icon: FileText },
     { id: 'attractions', label: 'Gestión de Atracciones', icon: MapPin },
     { id: 'travel-guide', label: 'Guía de Viaje', icon: Map },
-    { id: 'visual-design', label: 'Diseño Visual y Ajustes', icon: Palette },
     { id: 'admin', label: 'Gestión de Admins', icon: Shield },
     { id: 'history', label: 'Historial de Cambios', icon: History },
     { id: 'profile', label: 'Mi Perfil', icon: User }
