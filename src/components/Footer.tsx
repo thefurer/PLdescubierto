@@ -152,8 +152,8 @@ const Footer = () => {
                   <Mail size={20} className="text-blue-400 flex-shrink-0" />
                 </div>
                 <div>
-                  <span className="text-gray-300">{footerData.email}</span>
-                  <p className="text-xs text-gray-400 mt-1">Correo electrónico</p>
+                   <span className="text-gray-300">{footerData.email}</span>
+                  <p className="text-xs text-gray-400 mt-1">{t.footerEmail}</p>
                 </div>
               </li>
               <li className="flex items-start group">
