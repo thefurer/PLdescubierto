@@ -2,6 +2,7 @@
 import { ChevronRight, ChevronDown } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "@/hooks/useTranslations";
 
 interface ShowMoreButtonProps {
   hasMoreAttractions: boolean;
@@ -12,13 +13,6 @@ interface ShowMoreButtonProps {
   activeCategory: string;
 }
 
-const categoryLabels = {
-  todo: "Todo",
-  playa: "Playa", 
-  cultura: "Cultura",
-  naturaleza: "Naturaleza"
-};
-
 export const ShowMoreButton = ({
   hasMoreAttractions,
   showAllAttractions,
@@ -27,15 +21,17 @@ export const ShowMoreButton = ({
   totalCount,
   activeCategory
 }: ShowMoreButtonProps) => {
+  const t = useTranslations();
+
   return (
     <div className="text-center">
       <div className="glass-card rounded-2xl p-6 inline-block mb-6">
         <p className="text-gray-700 mb-2 font-medium">
-          Mostrando {displayedCount} de {totalCount} atracciones
+          {t.showingCount.replace('{displayed}', String(displayedCount)).replace('{total}', String(totalCount))}
           {activeCategory !== "todo" && (
             <span className="block text-sm text-ocean mt-1">
-              en la categoría <span className="font-semibold text-green-primary">
-                {categoryLabels[activeCategory as keyof typeof categoryLabels]}
+              {t.inCategory} <span className="font-semibold text-green-primary">
+                {activeCategory}
               </span>
             </span>
           )}
@@ -54,12 +50,12 @@ export const ShowMoreButton = ({
         >
           {showAllAttractions ? (
             <>
-              Ver menos
+              {t.showLess}
               <ChevronRight className="ml-2 h-4 w-4 rotate-90" />
             </>
           ) : (
             <>
-              Ver más atracciones
+              {t.viewMore}
               <ChevronDown className="ml-2 h-4 w-4" />
             </>
           )}
