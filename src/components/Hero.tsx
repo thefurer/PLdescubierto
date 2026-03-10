@@ -90,7 +90,7 @@ const Hero = () => {
   return <section id="home" className="relative h-screen overflow-hidden">
       {/* Background Images with crossfade */}
       <div className="absolute inset-0">
-        {backgroundImages.map((image, index) => (
+        {backgroundImages.length > 0 ? backgroundImages.map((image, index) => (
           <div
             key={image}
             className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${
@@ -101,7 +101,9 @@ const Hero = () => {
               willChange: 'opacity'
             }}
           />
-        ))}
+        )) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-ocean-dark via-ocean to-green-dark" />
+        )}
       </div>
       {/* Carousel Controls */}
       {backgroundImages.length > 1 && <>
