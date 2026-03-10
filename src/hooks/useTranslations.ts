@@ -352,6 +352,11 @@ export const useTranslations = () => {
       subscribe: "Subscribe",
       contactUs: "Contact Us",
       allRightsReserved: "All rights reserved.",
+      footerLocation: "Location",
+      footerEmail: "Email",
+      footerWhatsapp: "WhatsApp available",
+      footerTagline: "A showcase of Ecuador's coastal paradise.",
+      footerMadeBy: "Made by Abel Castillo - UNESUM",
       
       // Travel Guide
       travelGuideTitle: "Travel Guide",
