@@ -143,8 +143,8 @@ const Footer = () => {
                   <Globe size={20} className="text-green-400 flex-shrink-0" />
                 </div>
                 <div>
-                  <span className="text-gray-300 leading-relaxed">{footerData.address}</span>
-                  <p className="text-xs text-gray-400 mt-1">Ubicación</p>
+                   <span className="text-gray-300 leading-relaxed">{footerData.address}</span>
+                  <p className="text-xs text-gray-400 mt-1">{t.footerLocation}</p>
                 </div>
               </li>
               <li className="flex items-start group">
@@ -152,8 +152,8 @@ const Footer = () => {
                   <Mail size={20} className="text-blue-400 flex-shrink-0" />
                 </div>
                 <div>
-                  <span className="text-gray-300">{footerData.email}</span>
-                  <p className="text-xs text-gray-400 mt-1">Correo electrónico</p>
+                   <span className="text-gray-300">{footerData.email}</span>
+                  <p className="text-xs text-gray-400 mt-1">{t.footerEmail}</p>
                 </div>
               </li>
               <li className="flex items-start group">
@@ -164,7 +164,7 @@ const Footer = () => {
                   <a href={`https://wa.me/${footerData.phone.replace(/\D/g, '')}?text=Hola,%20me%20gustaría%20obtener%20más%20información%20sobre%20los%20tours%20en%20Puerto%20López`} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                     {footerData.phone}
                   </a>
-                  <p className="text-xs text-gray-400 mt-1">WhatsApp disponible</p>
+                  <p className="text-xs text-gray-400 mt-1">{t.footerWhatsapp}</p>
                 </div>
               </li>
             </ul>
@@ -180,8 +180,8 @@ const Footer = () => {
                 {t.allRightsReserved}
               </p>
               <p className="mt-2 text-sm text-gray-400">
-                Un escaparate del paraíso costero de Ecuador. 
-                <span className="text-green-300"> Hecho por Abel Castillo - UNESUM</span>
+                {t.footerTagline} 
+                <span className="text-green-300"> {t.footerMadeBy}</span>
               </p>
             </div>
             

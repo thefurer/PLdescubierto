@@ -36,9 +36,10 @@ const Hero = () => {
 
   // Find hero content from database
   const heroContent = content.find(item => item.section_name === 'hero')?.content;
+  const contentLoaded = content.length > 0;
 
-  // Get background images array
-  const backgroundImages = heroContent?.backgroundImages || [heroContent?.backgroundImage || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'].filter(Boolean);
+  // Get background images array - only use DB images, no fallback
+  const backgroundImages = heroContent?.backgroundImages || (heroContent?.backgroundImage ? [heroContent.backgroundImage] : []);
 
   // Preload images for smooth transitions
   const { isImageLoaded } = useImagePreloader({ 
@@ -89,7 +90,7 @@ const Hero = () => {
   return <section id="home" className="relative h-screen overflow-hidden">
       {/* Background Images with crossfade */}
       <div className="absolute inset-0">
-        {backgroundImages.map((image, index) => (
+        {backgroundImages.length > 0 ? backgroundImages.map((image, index) => (
           <div
             key={image}
             className={`absolute inset-0 bg-cover bg-center bg-no-repeat transition-opacity duration-1000 ${
@@ -100,7 +101,9 @@ const Hero = () => {
               willChange: 'opacity'
             }}
           />
-        ))}
+        )) : (
+          <div className="absolute inset-0 bg-gradient-to-br from-ocean-dark via-ocean to-green-dark" />
+        )}
       </div>
       {/* Carousel Controls */}
       {backgroundImages.length > 1 && <>

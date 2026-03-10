@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useTranslations } from "@/hooks/useTranslations";
 import { cn } from "@/lib/utils";
 import { useTouristAttractions } from "@/hooks/useTouristAttractions";
 import { useAttractionSidebar } from "@/hooks/useAttractionSidebar";
@@ -17,6 +18,7 @@ type AttractionsProps = {
 const Attractions = ({ className }: AttractionsProps) => {
   const { attractions, loading } = useTouristAttractions();
   const { isOpen, selectedAttraction, openSidebar, closeSidebar } = useAttractionSidebar();
+  const t = useTranslations();
   const [activeCategory, setActiveCategory] = useState<string>("todo");
   const [showAllAttractions, setShowAllAttractions] = useState(false);
   const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
@@ -49,7 +51,7 @@ const Attractions = ({ className }: AttractionsProps) => {
         <div className="container mx-auto px-4">
           <div className="text-center">
             <div className="glass-card p-8 rounded-2xl inline-block">
-              <p className="text-lg text-ocean font-medium">Cargando atracciones...</p>
+              <p className="text-lg text-ocean font-medium">{t.loadingAttractions}</p>
             </div>
           </div>
         </div>

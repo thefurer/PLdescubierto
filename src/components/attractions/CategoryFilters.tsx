@@ -2,6 +2,7 @@
 import { useState } from "react";
 import { Filter, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useTranslations } from "@/hooks/useTranslations";
 
 interface CategoryFiltersProps {
   activeCategory: string;
@@ -9,15 +10,17 @@ interface CategoryFiltersProps {
 }
 
 const categories = ["todo", "playa", "cultura", "naturaleza"];
-const categoryLabels = {
-  todo: "Todo",
-  playa: "Playa", 
-  cultura: "Cultura",
-  naturaleza: "Naturaleza"
-};
 
 export const CategoryFilters = ({ activeCategory, onCategoryChange }: CategoryFiltersProps) => {
   const [mobileFiltersOpen, setMobileFiltersOpen] = useState(false);
+  const t = useTranslations();
+
+  const categoryLabels: Record<string, string> = {
+    todo: t.allCategories,
+    playa: t.categoryBeach,
+    cultura: t.categoryCulture,
+    naturaleza: t.categoryNature
+  };
 
   const handleCategorySelect = (category: string) => {
     onCategoryChange(category);
@@ -39,7 +42,7 @@ export const CategoryFilters = ({ activeCategory, onCategoryChange }: CategoryFi
                 : "bg-white text-gray-700 hover:bg-green-light hover:text-green-dark border border-gray-200"
             )}
           >
-            {categoryLabels[category as keyof typeof categoryLabels]}
+            {categoryLabels[category]}
           </button>
         ))}
       </div>
@@ -52,7 +55,7 @@ export const CategoryFilters = ({ activeCategory, onCategoryChange }: CategoryFi
         >
           <span className="flex items-center text-ocean-dark">
             <Filter size={18} className="mr-2 text-green-primary" />
-            <span className="font-medium">Filtro: {categoryLabels[activeCategory as keyof typeof categoryLabels]}</span>
+            <span className="font-medium">{t.filterLabel}: {categoryLabels[activeCategory]}</span>
           </span>
           <ChevronRight
             size={18}
@@ -75,7 +78,7 @@ export const CategoryFilters = ({ activeCategory, onCategoryChange }: CategoryFi
                     : "hover:bg-green-light text-gray-700"
                 )}
               >
-                {categoryLabels[category as keyof typeof categoryLabels]}
+                {categoryLabels[category]}
               </button>
             ))}
           </div>

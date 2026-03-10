@@ -34,7 +34,14 @@ export const useTranslations = () => {
       viewMore: "Ver Más",
       showLess: "Mostrar Menos",
       category: "Categoría",
-      allCategories: "Todas las Categorías",
+      allCategories: "Todas",
+      categoryBeach: "Playa",
+      categoryCulture: "Cultura",
+      categoryNature: "Naturaleza",
+      filterLabel: "Filtro",
+      showingCount: "Mostrando {displayed} de {total} atracciones",
+      inCategory: "en la categoría",
+      loadingAttractions: "Cargando atracciones...",
       
       // Virtual Tour Section
       virtualTourTitle: "Experiencia Virtual",
@@ -84,6 +91,11 @@ export const useTranslations = () => {
       subscribe: "Suscribirse",
       contactUs: "Contáctanos",
       allRightsReserved: "Todos los derechos reservados.",
+      footerLocation: "Ubicación",
+      footerEmail: "Correo electrónico",
+      footerWhatsapp: "WhatsApp disponible",
+      footerTagline: "Un escaparate del paraíso costero de Ecuador.",
+      footerMadeBy: "Hecho por Abel Castillo - UNESUM",
       
       // Travel Guide
       travelGuideTitle: "Guía de Viaje",
@@ -283,7 +295,14 @@ export const useTranslations = () => {
       viewMore: "View More",
       showLess: "Show Less",
       category: "Category",
-      allCategories: "All Categories",
+      allCategories: "All",
+      categoryBeach: "Beach",
+      categoryCulture: "Culture",
+      categoryNature: "Nature",
+      filterLabel: "Filter",
+      showingCount: "Showing {displayed} of {total} attractions",
+      inCategory: "in category",
+      loadingAttractions: "Loading attractions...",
       
       // Virtual Tour Section
       virtualTourTitle: "Virtual Experience",
@@ -333,6 +352,11 @@ export const useTranslations = () => {
       subscribe: "Subscribe",
       contactUs: "Contact Us",
       allRightsReserved: "All rights reserved.",
+      footerLocation: "Location",
+      footerEmail: "Email",
+      footerWhatsapp: "WhatsApp available",
+      footerTagline: "A showcase of Ecuador's coastal paradise.",
+      footerMadeBy: "Made by Abel Castillo - UNESUM",
       
       // Travel Guide
       travelGuideTitle: "Travel Guide",
