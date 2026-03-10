@@ -3,17 +3,6 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { TouristAttraction } from "@/types/touristAttractions";
 import { useTranslations } from "@/hooks/useTranslations";
-import { MapContainer, TileLayer, Marker, Popup } from "react-leaflet";
-import L from "leaflet";
-import "leaflet/dist/leaflet.css";
-
-// Fix default marker icon issue with Leaflet + bundlers
-delete (L.Icon.Default.prototype as any)._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon-2x.png",
-  iconUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-icon.png",
-  shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-});
 
 interface AttractionLocationProps {
   attraction: TouristAttraction;
@@ -22,27 +11,24 @@ interface AttractionLocationProps {
 export const AttractionLocation = ({ attraction }: AttractionLocationProps) => {
   const t = useTranslations();
 
-  // Default to Puerto López center if no coordinates
   const lat = attraction.coordinates?.lat ?? -1.5667;
   const lng = attraction.coordinates?.lng ?? -80.8111;
 
+  const mapSrc = `https://www.openstreetmap.org/export/embed.html?bbox=${lng - 0.01},${lat - 0.008},${lng + 0.01},${lat + 0.008}&layer=mapnik&marker=${lat},${lng}`;
+
   const handleOpenInGoogleMaps = () => {
     if (attraction.coordinates) {
-      const url = `https://maps.google.com/?q=${attraction.coordinates.lat},${attraction.coordinates.lng}`;
-      window.open(url, '_blank');
+      window.open(`https://maps.google.com/?q=${attraction.coordinates.lat},${attraction.coordinates.lng}`, '_blank');
     } else {
-      const url = `https://maps.google.com/?q=${encodeURIComponent(`${attraction.name}, Puerto López, Manabí, Ecuador`)}`;
-      window.open(url, '_blank');
+      window.open(`https://maps.google.com/?q=${encodeURIComponent(`${attraction.name}, Puerto López, Manabí, Ecuador`)}`, '_blank');
     }
   };
 
   const handleGetDirections = () => {
     if (attraction.coordinates) {
-      const url = `https://maps.google.com/maps/dir/?api=1&destination=${attraction.coordinates.lat},${attraction.coordinates.lng}`;
-      window.open(url, '_blank');
+      window.open(`https://maps.google.com/maps/dir/?api=1&destination=${attraction.coordinates.lat},${attraction.coordinates.lng}`, '_blank');
     } else {
-      const url = `https://maps.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${attraction.name}, Puerto López, Manabí, Ecuador`)}`;
-      window.open(url, '_blank');
+      window.open(`https://maps.google.com/maps/dir/?api=1&destination=${encodeURIComponent(`${attraction.name}, Puerto López, Manabí, Ecuador`)}`, '_blank');
     }
   };
 
@@ -51,27 +37,13 @@ export const AttractionLocation = ({ attraction }: AttractionLocationProps) => {
       {/* Mapa OpenStreetMap */}
       <Card>
         <CardContent className="p-0 overflow-hidden rounded-lg">
-          <div className="h-[300px] w-full">
-            <MapContainer
-              center={[lat, lng]}
-              zoom={14}
-              scrollWheelZoom={false}
-              style={{ height: "100%", width: "100%" }}
-              className="rounded-lg z-0"
-            >
-              <TileLayer
-                attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors'
-                url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-              />
-              <Marker position={[lat, lng]}>
-                <Popup>
-                  <strong>{attraction.name}</strong>
-                  <br />
-                  Puerto López, Manabí, Ecuador
-                </Popup>
-              </Marker>
-            </MapContainer>
-          </div>
+          <iframe
+            title={`Mapa de ${attraction.name}`}
+            src={mapSrc}
+            className="w-full h-[300px] border-0 rounded-lg"
+            loading="lazy"
+            allowFullScreen
+          />
         </CardContent>
       </Card>
 
