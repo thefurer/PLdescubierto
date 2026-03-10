@@ -290,7 +290,14 @@ export const useTranslations = () => {
       viewMore: "View More",
       showLess: "Show Less",
       category: "Category",
-      allCategories: "All Categories",
+      allCategories: "All",
+      categoryBeach: "Beach",
+      categoryCulture: "Culture",
+      categoryNature: "Nature",
+      filterLabel: "Filter",
+      showingCount: "Showing {displayed} of {total} attractions",
+      inCategory: "in category",
+      loadingAttractions: "Loading attractions...",
       
       // Virtual Tour Section
       virtualTourTitle: "Virtual Experience",
