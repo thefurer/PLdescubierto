@@ -91,6 +91,11 @@ export const useTranslations = () => {
       subscribe: "Suscribirse",
       contactUs: "Contáctanos",
       allRightsReserved: "Todos los derechos reservados.",
+      footerLocation: "Ubicación",
+      footerEmail: "Correo electrónico",
+      footerWhatsapp: "WhatsApp disponible",
+      footerTagline: "Un escaparate del paraíso costero de Ecuador.",
+      footerMadeBy: "Hecho por Abel Castillo - UNESUM",
       
       // Travel Guide
       travelGuideTitle: "Guía de Viaje",
