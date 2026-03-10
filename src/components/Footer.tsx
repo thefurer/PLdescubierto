@@ -164,7 +164,7 @@ const Footer = () => {
                   <a href={`https://wa.me/${footerData.phone.replace(/\D/g, '')}?text=Hola,%20me%20gustaría%20obtener%20más%20información%20sobre%20los%20tours%20en%20Puerto%20López`} target="_blank" rel="noopener noreferrer" className="text-gray-300 hover:text-white transition-colors">
                     {footerData.phone}
                   </a>
-                  <p className="text-xs text-gray-400 mt-1">WhatsApp disponible</p>
+                  <p className="text-xs text-gray-400 mt-1">{t.footerWhatsapp}</p>
                 </div>
               </li>
             </ul>
