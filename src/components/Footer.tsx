@@ -180,8 +180,8 @@ const Footer = () => {
                 {t.allRightsReserved}
               </p>
               <p className="mt-2 text-sm text-gray-400">
-                Un escaparate del paraíso costero de Ecuador. 
-                <span className="text-green-300"> Hecho por Abel Castillo - UNESUM</span>
+                {t.footerTagline} 
+                <span className="text-green-300"> {t.footerMadeBy}</span>
               </p>
             </div>
             

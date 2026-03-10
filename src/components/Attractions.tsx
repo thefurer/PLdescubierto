@@ -43,13 +43,15 @@ const Attractions = ({ className }: AttractionsProps) => {
     setShowAllAttractions(!showAllAttractions);
   };
 
+  const t = useTranslations();
+
   if (loading) {
     return (
       <section id="attractions" className={cn("py-20 bg-gradient-to-b from-white to-green-muted", className)}>
         <div className="container mx-auto px-4">
           <div className="text-center">
             <div className="glass-card p-8 rounded-2xl inline-block">
-              <p className="text-lg text-ocean font-medium">Cargando atracciones...</p>
+              <p className="text-lg text-ocean font-medium">{t.loadingAttractions}</p>
             </div>
           </div>
         </div>
