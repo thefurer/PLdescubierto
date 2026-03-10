@@ -36,9 +36,10 @@ const Hero = () => {
 
   // Find hero content from database
   const heroContent = content.find(item => item.section_name === 'hero')?.content;
+  const contentLoaded = content.length > 0;
 
-  // Get background images array
-  const backgroundImages = heroContent?.backgroundImages || [heroContent?.backgroundImage || 'https://images.unsplash.com/photo-1507525428034-b723cf961d3e?ixlib=rb-4.0.3&auto=format&fit=crop&w=1920&q=80'].filter(Boolean);
+  // Get background images array - only use DB images, no fallback
+  const backgroundImages = heroContent?.backgroundImages || (heroContent?.backgroundImage ? [heroContent.backgroundImage] : []);
 
   // Preload images for smooth transitions
   const { isImageLoaded } = useImagePreloader({ 
