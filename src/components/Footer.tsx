@@ -143,8 +143,8 @@ const Footer = () => {
                   <Globe size={20} className="text-green-400 flex-shrink-0" />
                 </div>
                 <div>
-                  <span className="text-gray-300 leading-relaxed">{footerData.address}</span>
-                  <p className="text-xs text-gray-400 mt-1">Ubicación</p>
+                   <span className="text-gray-300 leading-relaxed">{footerData.address}</span>
+                  <p className="text-xs text-gray-400 mt-1">{t.footerLocation}</p>
                 </div>
               </li>
               <li className="flex items-start group">
