@@ -45,8 +45,6 @@ const Attractions = ({ className }: AttractionsProps) => {
     setShowAllAttractions(!showAllAttractions);
   };
 
-  const t = useTranslations();
-
   if (loading) {
     return (
       <section id="attractions" className={cn("py-20 bg-gradient-to-b from-white to-green-muted", className)}>
