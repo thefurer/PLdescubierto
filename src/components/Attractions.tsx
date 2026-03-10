@@ -18,6 +18,7 @@ type AttractionsProps = {
 const Attractions = ({ className }: AttractionsProps) => {
   const { attractions, loading } = useTouristAttractions();
   const { isOpen, selectedAttraction, openSidebar, closeSidebar } = useAttractionSidebar();
+  const t = useTranslations();
   const [activeCategory, setActiveCategory] = useState<string>("todo");
   const [showAllAttractions, setShowAllAttractions] = useState(false);
   const [viewMode, setViewMode] = useState<'carousel' | 'grid'>('carousel');
