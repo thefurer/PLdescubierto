@@ -1,5 +1,6 @@
 
 import { useState } from "react";
+import { useTranslations } from "@/hooks/useTranslations";
 import { cn } from "@/lib/utils";
 import { useTouristAttractions } from "@/hooks/useTouristAttractions";
 import { useAttractionSidebar } from "@/hooks/useAttractionSidebar";
