@@ -34,7 +34,14 @@ export const useTranslations = () => {
       viewMore: "Ver Más",
       showLess: "Mostrar Menos",
       category: "Categoría",
-      allCategories: "Todas las Categorías",
+      allCategories: "Todas",
+      categoryBeach: "Playa",
+      categoryCulture: "Cultura",
+      categoryNature: "Naturaleza",
+      filterLabel: "Filtro",
+      showingCount: "Mostrando {displayed} de {total} atracciones",
+      inCategory: "en la categoría",
+      loadingAttractions: "Cargando atracciones...",
       
       // Virtual Tour Section
       virtualTourTitle: "Experiencia Virtual",
