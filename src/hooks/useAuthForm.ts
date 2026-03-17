@@ -25,7 +25,7 @@ export const useAuthForm = () => {
 
   const handleLoginSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await handleLogin(email, password, null, setLoading);
+    await handleLogin(email, password, captchaToken, setLoading);
   };
 
   const handleSignupSubmit = async (e: React.FormEvent) => {
