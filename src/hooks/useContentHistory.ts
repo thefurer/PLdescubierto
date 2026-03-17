@@ -89,7 +89,9 @@ export const useContentHistory = (sectionName?: string) => {
           } else if (item.section_name === 'footer') {
             sectionDisplayName = 'Pie de Página';
           } else if (item.section_name === 'attractions') {
-            sectionDisplayName = 'Atracciones';
+            sectionDisplayName = 'Atracciones Turísticas';
+          } else if (item.section_name === 'attraction_activities') {
+            sectionDisplayName = 'Actividades de Atracciones';
           }
           
           return {
