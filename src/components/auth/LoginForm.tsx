@@ -120,15 +120,10 @@ export const LoginForm = ({
             )}
           </div>
 
-          <CaptchaWrapper
-            onVerify={setCaptchaToken}
-            captchaRef={captcha}
-          />
-
           <Button
             type="submit"
             className="w-full bg-blue-600 hover:bg-blue-700 text-white font-medium py-3 h-12 transition-colors"
-            disabled={loading || !captchaToken}
+            disabled={loading}
           >
             {loading ? 'Iniciando sesión...' : 'Iniciar Sesión'}
           </Button>
