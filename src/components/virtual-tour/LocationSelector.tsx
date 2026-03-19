@@ -2,6 +2,7 @@
 import { Monitor, Compass, ChevronRight } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { VirtualTourLocation } from "@/data/virtualTourData";
+import { useTranslations } from "@/hooks/useTranslations";
 
 type LocationSelectorProps = {
   locations: VirtualTourLocation[];
@@ -21,9 +22,10 @@ const LocationSelector = ({
   onLocationSelect, 
   texts 
 }: LocationSelectorProps) => {
+  const t = useTranslations();
+
   return (
     <div className="animate-fade-in group">
-      {/* Outer glow container */}
       <div className="relative p-1 bg-gradient-to-br from-cyan-500/20 via-blue-500/20 to-purple-500/20 rounded-3xl">
         <div className="absolute inset-0 bg-gradient-to-br from-cyan-500/30 via-blue-500/30 to-purple-500/30 rounded-3xl blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
         
@@ -33,7 +35,7 @@ const LocationSelector = ({
               <Monitor className="text-white" size={24} />
             </div>
             <span className="bg-gradient-to-r from-white to-blue-200 bg-clip-text text-transparent">
-              Áreas del Metaespacio
+              {t.metaspaceAreas}
             </span>
           </h3>
           
@@ -72,9 +74,7 @@ const LocationSelector = ({
             ))}
           </div>
 
-          {/* Enhanced tips section */}
           <div className="relative p-6 bg-gradient-to-br from-emerald-500/20 to-teal-500/20 rounded-2xl border border-white/20 backdrop-blur-sm overflow-hidden">
-            {/* Animated background pattern */}
             <div className="absolute inset-0 opacity-10">
               <div className="absolute top-0 left-0 w-full h-full bg-[url('data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMjAiIGhlaWdodD0iMjAiIHZpZXdCb3g9IjAgMCAyMCAyMCIgZmlsbD0ibm9uZSIgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIj4KPGNpcmNsZSBjeD0iMTAiIGN5PSIxMCIgcj0iMSIgZmlsbD0iI0ZGRkZGRiIvPgo8L3N2Zz4=')] animate-pulse"></div>
             </div>
