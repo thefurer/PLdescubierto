@@ -1,5 +1,6 @@
 import { Home, MapPin, Compass, Globe } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { useTranslations } from '@/hooks/useTranslations';
 
 interface NavigationGuideProps {
   onNavigate: (section: string, message: string) => void;
@@ -7,35 +8,13 @@ interface NavigationGuideProps {
 }
 
 const NavigationGuide = ({ onNavigate, variant = 'full' }: NavigationGuideProps) => {
+  const t = useTranslations();
+
   const navigationOptions = [
-    {
-      icon: Home,
-      label: 'Inicio',
-      section: 'hero',
-      message: '¡Llévame al inicio de la página!',
-      color: 'from-cyan-500 to-blue-500'
-    },
-    {
-      icon: MapPin,
-      label: 'Atracciones',
-      section: 'attractions',
-      message: '¡Quiero explorar las atracciones turísticas de Puerto López!',
-      color: 'from-emerald-500 to-teal-500'
-    },
-    {
-      icon: Compass,
-      label: 'Guía',
-      section: 'travel-guide',
-      message: '¿Cómo llego a Puerto López y qué debo saber antes de ir?',
-      color: 'from-orange-500 to-amber-500'
-    },
-    {
-      icon: Globe,
-      label: 'Metaverso',
-      section: 'virtual-tour',
-      message: '¡Quiero explorar Puerto López en el metaverso! ¿Cómo funciona?',
-      color: 'from-violet-500 to-purple-500'
-    }
+    { icon: Home, label: t.chatNavHome, section: 'hero', message: t.chatNavHomeMsg, color: 'from-cyan-500 to-blue-500' },
+    { icon: MapPin, label: t.chatNavAttractions, section: 'attractions', message: t.chatNavAttractionsMsg, color: 'from-emerald-500 to-teal-500' },
+    { icon: Compass, label: t.chatNavGuide, section: 'travel-guide', message: t.chatNavGuideMsg, color: 'from-orange-500 to-amber-500' },
+    { icon: Globe, label: t.chatNavMetaverse, section: 'virtual-tour', message: t.chatNavMetaverseMsg, color: 'from-violet-500 to-purple-500' }
   ];
 
   if (variant === 'compact') {
@@ -64,14 +43,12 @@ const NavigationGuide = ({ onNavigate, variant = 'full' }: NavigationGuideProps)
 
   return (
     <div className="p-2 space-y-2">
-      {/* Navigation header */}
       <div className="flex items-center gap-2">
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-300/50 to-transparent" />
-        <span className="text-[9px] font-medium text-cyan-600/80 uppercase tracking-wider">Navega conmigo</span>
+        <span className="text-[9px] font-medium text-cyan-600/80 uppercase tracking-wider">{t.chatNavTitle}</span>
         <div className="h-px flex-1 bg-gradient-to-r from-transparent via-cyan-300/50 to-transparent" />
       </div>
 
-      {/* Main navigation - 4 items in a row */}
       <div className="flex gap-1.5 justify-center">
         {navigationOptions.map((option) => {
           const IconComponent = option.icon;

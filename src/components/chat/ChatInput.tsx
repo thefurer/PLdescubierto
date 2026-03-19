@@ -3,6 +3,8 @@ import { Send, Mic, MicOff } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { toast } from 'sonner';
+import { useTranslations } from '@/hooks/useTranslations';
+import { useLanguage } from '@/hooks/useLanguage';
 
 interface ChatInputProps {
   inputValue: string;
@@ -15,15 +17,16 @@ interface ChatInputProps {
 const ChatInput = ({ inputValue, isLoading, onInputChange, onSend, onKeyPress }: ChatInputProps) => {
   const [isListening, setIsListening] = useState(false);
   const [recognition, setRecognition] = useState<SpeechRecognition | null>(null);
+  const t = useTranslations();
+  const { language } = useLanguage();
 
   useEffect(() => {
-    // Check for browser support
     const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
     if (SpeechRecognition) {
       const recognitionInstance = new SpeechRecognition();
       recognitionInstance.continuous = false;
       recognitionInstance.interimResults = false;
-      recognitionInstance.lang = 'es-ES';
+      recognitionInstance.lang = language === 'es' ? 'es-ES' : 'en-US';
 
       recognitionInstance.onresult = (event) => {
         const transcript = event.results[0][0].transcript;
@@ -35,7 +38,7 @@ const ChatInput = ({ inputValue, isLoading, onInputChange, onSend, onKeyPress }:
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         if (event.error === 'not-allowed') {
-          toast.error('Permite el acceso al micrófono para usar esta función');
+          toast.error(t.chatMicPermission);
         }
       };
 
@@ -45,11 +48,11 @@ const ChatInput = ({ inputValue, isLoading, onInputChange, onSend, onKeyPress }:
 
       setRecognition(recognitionInstance);
     }
-  }, [onInputChange]);
+  }, [onInputChange, language]);
 
   const toggleListening = () => {
     if (!recognition) {
-      toast.error('Tu navegador no soporta reconocimiento de voz');
+      toast.error(t.chatMicNotSupported);
       return;
     }
 
@@ -59,7 +62,7 @@ const ChatInput = ({ inputValue, isLoading, onInputChange, onSend, onKeyPress }:
     } else {
       recognition.start();
       setIsListening(true);
-      toast.info('Escuchando... Habla ahora 🎤');
+      toast.info(t.chatListeningNow);
     }
   };
 
@@ -71,7 +74,7 @@ const ChatInput = ({ inputValue, isLoading, onInputChange, onSend, onKeyPress }:
             value={inputValue}
             onChange={(e) => onInputChange(e.target.value)}
             onKeyPress={onKeyPress}
-            placeholder={isListening ? "Escuchando..." : "Escribe a Ballenita..."}
+            placeholder={isListening ? t.chatListening : t.chatWriteTo}
             disabled={isLoading || isListening}
             className="w-full bg-white/80 border-gray-200/60 focus:border-cyan-400 focus:ring-cyan-400/30 rounded-full pl-4 pr-10 py-2.5 text-sm placeholder:text-gray-400 transition-all duration-300 focus:bg-white shadow-sm"
           />
@@ -102,10 +105,9 @@ const ChatInput = ({ inputValue, isLoading, onInputChange, onSend, onKeyPress }:
         </Button>
       </div>
       
-      {/* Powered by badge */}
       <div className="flex justify-center mt-2">
         <span className="text-[9px] text-gray-400">
-          Impulsado por IA 🐋
+          {t.chatPoweredBy}
         </span>
       </div>
     </div>

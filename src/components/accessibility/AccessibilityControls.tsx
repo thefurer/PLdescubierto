@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Tooltip, TooltipContent, TooltipTrigger } from '@/components/ui/tooltip';
 import { Eye, Underline, Focus, Keyboard, RotateCcw } from 'lucide-react';
 import { useAccessibility } from '@/contexts/AccessibilityContext';
+import { useTranslations } from '@/hooks/useTranslations';
 import LanguageToggle from './LanguageToggle';
 import FontSizeControls from './FontSizeControls';
 import ScreenReaderControls from './ScreenReaderControls';
@@ -22,23 +23,21 @@ const AccessibilityControls = ({ compact = false }: AccessibilityControlsProps) 
     resetSettings,
     updateSettings 
   } = useAccessibility();
+  const t = useTranslations();
 
   if (compact) {
     return (
       <div className="space-y-2">
-        {/* Idioma */}
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium">Idioma</span>
+          <span className="text-xs font-medium">{t.accessibilityLanguage}</span>
           <LanguageToggle compact />
         </div>
 
-        {/* Tamaño de fuente */}
         <div className="flex items-center justify-between">
-          <span className="text-xs font-medium">Fuente</span>
+          <span className="text-xs font-medium">{t.accessibilityFont}</span>
           <FontSizeControls compact />
         </div>
 
-        {/* Controles compactos */}
         <div className="grid grid-cols-2 gap-1">
           <Tooltip>
             <TooltipTrigger asChild>
@@ -50,11 +49,11 @@ const AccessibilityControls = ({ compact = false }: AccessibilityControlsProps) 
                 aria-pressed={settings.highContrast}
               >
                 <Eye className="h-3 w-3 mr-1" />
-                Contraste
+                {t.accessibilityContrast}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Aumenta el contraste para mejor visibilidad</p>
+              <p>{t.accessibilityHighContrastDesc}</p>
             </TooltipContent>
           </Tooltip>
 
@@ -68,11 +67,11 @@ const AccessibilityControls = ({ compact = false }: AccessibilityControlsProps) 
                 aria-pressed={settings.underlineLinks}
               >
                 <Underline className="h-3 w-3 mr-1" />
-                Enlaces
+                {t.accessibilityLinks}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Subraya todos los enlaces para mejor identificación</p>
+              <p>{t.accessibilityUnderlineLinksDesc}</p>
             </TooltipContent>
           </Tooltip>
 
@@ -86,18 +85,17 @@ const AccessibilityControls = ({ compact = false }: AccessibilityControlsProps) 
                 aria-pressed={settings.reducedMotion}
               >
                 <Focus className="h-3 w-3 mr-1" />
-                Sin anim.
+                {t.accessibilityNoAnim}
               </Button>
             </TooltipTrigger>
             <TooltipContent>
-              <p>Reduce las animaciones para evitar distracciones</p>
+              <p>{t.accessibilityReduceAnimationsDesc}</p>
             </TooltipContent>
           </Tooltip>
 
           <ScreenReaderControls compact />
         </div>
 
-        {/* Herramientas adicionales */}
         <div className="flex gap-1 pt-2 border-t border-slate-200">
           <AccessibilityGuide />
           <AccessibilityTestMode />
@@ -110,7 +108,7 @@ const AccessibilityControls = ({ compact = false }: AccessibilityControlsProps) 
           className="w-full h-6 text-xs text-orange-600 hover:text-orange-700"
         >
           <RotateCcw className="h-3 w-3 mr-1" />
-          Restaurar
+          {t.accessibilityRestore}
         </Button>
       </div>
     );
@@ -118,13 +116,9 @@ const AccessibilityControls = ({ compact = false }: AccessibilityControlsProps) 
 
   return (
     <div id="accessibility-options" className="space-y-3 animate-fade-in">
-      {/* Idioma */}
       <LanguageToggle />
-
-      {/* Tamaño de fuente */}
       <FontSizeControls />
 
-      {/* Alto contraste */}
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -133,19 +127,18 @@ const AccessibilityControls = ({ compact = false }: AccessibilityControlsProps) 
             onClick={toggleHighContrast}
             className="w-full justify-start"
             aria-pressed={settings.highContrast}
-            aria-label={settings.highContrast ? 'Desactivar alto contraste' : 'Activar alto contraste'}
+            aria-label={t.accessibilityHighContrast}
           >
             <Eye className="h-4 w-4 mr-2" />
-            Alto contraste {settings.highContrast && '✓'}
+            {t.accessibilityHighContrast} {settings.highContrast && '✓'}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Aumenta el contraste entre texto y fondo para mejorar la legibilidad</p>
-          <p className="text-xs text-slate-400">Especialmente útil en condiciones de poca luz</p>
+          <p>{t.accessibilityHighContrastDesc}</p>
+          <p className="text-xs text-slate-400">{t.accessibilityHighContrastHint}</p>
         </TooltipContent>
       </Tooltip>
 
-      {/* Subrayado de enlaces */}
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -154,19 +147,18 @@ const AccessibilityControls = ({ compact = false }: AccessibilityControlsProps) 
             onClick={toggleUnderlineLinks}
             className="w-full justify-start"
             aria-pressed={settings.underlineLinks}
-            aria-label={settings.underlineLinks ? 'Desactivar subrayado de enlaces' : 'Activar subrayado de enlaces'}
+            aria-label={t.accessibilityUnderlineLinks}
           >
             <Underline className="h-4 w-4 mr-2" />
-            Subrayar enlaces {settings.underlineLinks && '✓'}
+            {t.accessibilityUnderlineLinks} {settings.underlineLinks && '✓'}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Subraya todos los enlaces para facilitar su identificación</p>
-          <p className="text-xs text-slate-400">Útil para usuarios con daltonismo o dificultades visuales</p>
+          <p>{t.accessibilityUnderlineLinksDesc}</p>
+          <p className="text-xs text-slate-400">{t.accessibilityUnderlineLinksHint}</p>
         </TooltipContent>
       </Tooltip>
 
-      {/* Movimiento reducido */}
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -175,22 +167,20 @@ const AccessibilityControls = ({ compact = false }: AccessibilityControlsProps) 
             onClick={() => updateSettings({ reducedMotion: !settings.reducedMotion })}
             className="w-full justify-start"
             aria-pressed={settings.reducedMotion}
-            aria-label={settings.reducedMotion ? 'Desactivar movimiento reducido' : 'Activar movimiento reducido'}
+            aria-label={t.accessibilityReduceAnimations}
           >
             <Focus className="h-4 w-4 mr-2" />
-            Reducir animaciones {settings.reducedMotion && '✓'}
+            {t.accessibilityReduceAnimations} {settings.reducedMotion && '✓'}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Reduce las animaciones y transiciones para evitar mareos o distracciones</p>
-          <p className="text-xs text-slate-400">Recomendado para usuarios sensibles al movimiento</p>
+          <p>{t.accessibilityReduceAnimationsDesc}</p>
+          <p className="text-xs text-slate-400">{t.accessibilityReduceAnimationsHint}</p>
         </TooltipContent>
       </Tooltip>
 
-      {/* Lector de pantalla funcional */}
       <ScreenReaderControls />
 
-      {/* Indicadores de foco */}
       <Tooltip>
         <TooltipTrigger asChild>
           <Button
@@ -199,34 +189,32 @@ const AccessibilityControls = ({ compact = false }: AccessibilityControlsProps) 
             onClick={() => updateSettings({ focusIndicators: !settings.focusIndicators })}
             className="w-full justify-start"
             aria-pressed={settings.focusIndicators}
-            aria-label={settings.focusIndicators ? 'Desactivar indicadores de foco' : 'Activar indicadores de foco'}
+            aria-label={t.accessibilityFocusVisible}
           >
             <Keyboard className="h-4 w-4 mr-2" />
-            Foco visible {settings.focusIndicators && '✓'}
+            {t.accessibilityFocusVisible} {settings.focusIndicators && '✓'}
           </Button>
         </TooltipTrigger>
         <TooltipContent>
-          <p>Resalta visualmente el elemento activo durante la navegación por teclado</p>
-          <p className="text-xs text-slate-400">Esencial para navegación sin mouse</p>
+          <p>{t.accessibilityFocusDesc}</p>
+          <p className="text-xs text-slate-400">{t.accessibilityFocusHint}</p>
         </TooltipContent>
       </Tooltip>
 
-      {/* Herramientas adicionales */}
       <div className="flex gap-2 pt-3 border-t border-slate-200">
         <AccessibilityGuide />
         <AccessibilityTestMode />
       </div>
 
-      {/* Resetear configuración */}
       <Button
         variant="outline"
         size="sm"
         onClick={resetSettings}
         className="w-full justify-start text-orange-600 hover:text-orange-700"
-        aria-label="Restaurar configuración predeterminada de accesibilidad"
+        aria-label={t.accessibilityRestoreLabel}
       >
         <RotateCcw className="h-4 w-4 mr-2" />
-        Restaurar
+        {t.accessibilityRestore}
       </Button>
     </div>
   );

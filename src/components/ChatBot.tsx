@@ -1,5 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useToast } from '@/hooks/use-toast';
+import { useTranslations } from '@/hooks/useTranslations';
+import { useLanguage } from '@/hooks/useLanguage';
 import ChatButton from './chat/ChatButton';
 import ChatWindow from './chat/ChatWindow';
 
@@ -13,12 +15,16 @@ interface Message {
 const CHAT_URL = `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/chat-support`;
 
 const ChatBot = () => {
+  const { language } = useLanguage();
+  const t = useTranslations();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>([
     {
       id: '1',
       type: 'bot',
-      content: '¡Hola! 🐋 Soy Ballenita, tu guía de Puerto López. ¿Te ayudo a explorar nuestras playas, avistamiento de ballenas o qué te gustaría descubrir hoy?',
+      content: language === 'es' 
+        ? '¡Hola! 🐋 Soy Ballenita, tu guía de Puerto López. ¿Te ayudo a explorar nuestras playas, avistamiento de ballenas o qué te gustaría descubrir hoy?'
+        : 'Hello! 🐋 I\'m Ballenita, your Puerto López guide. Can I help you explore our beaches, whale watching, or what would you like to discover today?',
       timestamp: new Date(),
     },
   ]);
@@ -31,16 +37,16 @@ const ChatBot = () => {
       {
         id: crypto.randomUUID(),
         type: 'bot',
-        content: '¡Hola! 🐋 Soy Ballenita, tu guía de Puerto López. ¿Te ayudo a explorar nuestras playas, avistamiento de ballenas o qué te gustaría descubrir hoy?',
+        content: t.chatWelcomeMessage,
         timestamp: new Date(),
       },
     ]);
     setInputValue('');
     toast({
-      title: 'Conversación reiniciada',
-      description: 'El historial del chat ha sido borrado.',
+      title: t.chatConversationReset,
+      description: t.chatHistoryCleared,
     });
-  }, [toast]);
+  }, [toast, t]);
 
   const sendMessage = async (messageContent?: string) => {
     const rawMessage = (messageContent ?? inputValue).trim();
@@ -53,8 +59,8 @@ const ChatBot = () => {
 
     if (!sanitized) {
       toast({
-        title: 'Mensaje inválido',
-        description: 'Por favor, escribe un mensaje válido.',
+        title: t.chatInvalidMessage,
+        description: t.chatWriteValid,
         variant: 'destructive',
       });
       return;
@@ -94,7 +100,6 @@ const ChatBot = () => {
       const decoder = new TextDecoder();
       let textBuffer = "";
 
-      // Add initial empty assistant message
       setMessages(prev => [
         ...prev,
         { id: assistantId, type: 'bot', content: '', timestamp: new Date() }
@@ -134,7 +139,6 @@ const ChatBot = () => {
         }
       }
 
-      // Final flush
       if (textBuffer.trim()) {
         for (let raw of textBuffer.split("\n")) {
           if (!raw) continue;
@@ -156,36 +160,26 @@ const ChatBot = () => {
         }
       }
 
-      // If no content was received, show fallback
       if (!assistantContent.trim()) {
         setMessages(prev => 
-          prev.map(m => m.id === assistantId ? { 
-            ...m, 
-            content: 'Lo siento, no pude procesar tu mensaje. ¿Podrías intentarlo de nuevo?' 
-          } : m)
+          prev.map(m => m.id === assistantId ? { ...m, content: t.chatFallbackError } : m)
         );
       }
 
     } catch (error: any) {
       console.error('Chat error:', error);
       
-      // Remove empty assistant message if exists
       setMessages(prev => {
         const filtered = prev.filter(m => m.id !== assistantId || m.content);
         return [
           ...filtered,
-          { 
-            id: crypto.randomUUID(), 
-            type: 'bot', 
-            content: `Lo siento, hubo un problema de conexión. Por favor, intenta de nuevo en unos momentos.`, 
-            timestamp: new Date() 
-          }
+          { id: crypto.randomUUID(), type: 'bot', content: t.chatConnectionProblem, timestamp: new Date() }
         ];
       });
 
       toast({
-        title: 'Error de conexión',
-        description: error.message || 'No se pudo conectar con el asistente.',
+        title: t.chatConnectionError,
+        description: error.message || t.chatCouldNotConnect,
         variant: 'destructive',
       });
     } finally {
